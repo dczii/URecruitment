@@ -28,7 +28,7 @@ rules below are the part that is enforced.
 
 **How the checks are wired:**
 
-- The design tasks ([#94](https://github.com/dczii/URecruitment/issues/94)–[#106](https://github.com/dczii/URecruitment/issues/106)) show each rule in their frames.
+- The design tasks ([#94](https://github.com/dczii/URecruitment/issues/94), [#96](https://github.com/dczii/URecruitment/issues/96), [#98](https://github.com/dczii/URecruitment/issues/98), [#100](https://github.com/dczii/URecruitment/issues/100)–[#106](https://github.com/dczii/URecruitment/issues/106)) show each rule in their frames.
 - The shared patterns ([#99](https://github.com/dczii/URecruitment/issues/99)) carry the rules in code.
 - The shared Playwright helpers ([#107](https://github.com/dczii/URecruitment/issues/107)) assert
   them on every screen.
@@ -65,7 +65,7 @@ The [test strategy](test-strategy.md) says which layer runs each check.
 | B1 | **Every input has a visible label** tied to it (`<label for>` or `aria-labelledby`). A placeholder is never the only label | AXE (`label`) · PW (`getByLabel` works) |
 | B2 | Errors are shown in text next to the field and linked by `aria-describedby`. The first invalid field receives focus on submit. Colour is never the only error cue | UT · PW |
 | B3 | **Everything works by keyboard**, including **stage moves**. Drag on the pipeline board is optional; a menu or button path must exist and must work with Tab, Enter, Space and the arrow keys | PW (a keyboard-only move in `e2e/pipeline.spec.ts`, [#160](https://github.com/dczii/URecruitment/issues/160)) |
-| B4 | **Focus is always visible:** a `:focus-visible` ring from the `ring` token, never removed without a replacement. Its contrast against the adjacent colour is ≥ **3:1** | AXE · DR · PW (a shell test tabs through the navigation, [#97](https://github.com/dczii/URecruitment/issues/97)) |
+| B4 | **Focus is always visible:** a `:focus-visible` ring from the `ring` token, never removed without a replacement. Its contrast against the adjacent colour is ≥ **3:1** | DR · PW (a shell test tabs through the navigation and checks the focused element's outline, [#97](https://github.com/dczii/URecruitment/issues/97)). Axe has no focus-visibility rule |
 | B5 | Focus order follows reading order. No positive `tabindex` | AXE · CR |
 | B6 | **Dialogs and sheets** (the typed-name prompt, the filter sheet, the navigation sheet) move focus inside when they open, trap it while open, close on Escape, and **return focus** to the control that opened them | UT (`TypedNameDialog`) · PW |
 | B7 | A "Skip to content" link is the first focusable element | PW |
@@ -81,7 +81,7 @@ The [test strategy](test-strategy.md) says which layer runs each check.
 | C4 | **Filters move into a sheet** at phone width, and an active filter stays visible as a removable chip | PW · DR |
 | C5 | Primary navigation opens in a **sheet** at phone width ([screen inventory](../ux/screen-inventory.md#primary-navigation)) | PW ([#97](https://github.com/dczii/URecruitment/issues/97)) |
 | C6 | **Text reflows** at 320 CSS px and at 200% zoom without loss of content or function | DR · PW (spot check of the shell at 320 px) |
-| C7 | The on-screen keyboard does not hide the focused field or its submit button in the name prompt | PW (phone project) · DR |
+| C7 | The on-screen keyboard does not hide the focused field or its submit button in the name prompt | DR · manual check on a real phone (Playwright cannot raise an on-screen keyboard) |
 
 ### D. Chinese text
 
@@ -98,7 +98,7 @@ The [test strategy](test-strategy.md) says which layer runs each check.
 | # | Rule | Checked by |
 |---|---|---|
 | E1 | **A delay status is never colour-only.** Every badge shows an **icon and a word** as well as colour: *On track*, *Due soon*, *Overdue · N days* (PRD design rule 2) | PW: `expectStatusNotColourOnly(page)` ([#107](https://github.com/dczii/URecruitment/issues/107)). A colour-only badge must make it fail · DR (legible in greyscale, [#98](https://github.com/dczii/URecruitment/issues/98)) |
-| E2 | **The badge's accessible name** follows one pattern, in working days: `aria-label="On track: 1 of 3 working days used"` · `aria-label="Due soon: 4 of 5 working days used"` · `aria-label="Overdue by 3 working days"`. End states and Placed show **no badge** and no status label | UT (`DelayStatusBadge`, [#99](https://github.com/dczii/URecruitment/issues/99)) · PW (the helper checks that a label is present) |
+| E2 | **The badge's accessible name** follows one pattern, in working days: `aria-label="On track: 1 of 3 working days used"` · `aria-label="Due soon: 4 of 5 working days used"` · `aria-label="Overdue by 3 working days"`. End states and Placed show **no badge** and no status label. The labelled element has a role that permits a name (for example `role="img"`), so axe's `aria-prohibited-attr` rule passes | UT (`DelayStatusBadge`, [#99](https://github.com/dczii/URecruitment/issues/99)) · PW (the helper checks that a label is present) |
 | E3 | **Contrast:** body text ≥ **4.5:1**; large text (≥ 24 px, or ≥ 18.66 px bold) and UI glyphs, icons, borders of inputs and focus rings ≥ **3:1**. The values come from the tokens, so contrast is checked once per token pair | DR (token contrast table in `design/tokens.md`, [#94](https://github.com/dczii/URecruitment/issues/94)) · AXE (`color-contrast`) |
 | E4 | Any other status (gap flag open or resolved, the guarantee countdown, the start date confirmed or not) also uses words, never colour alone | PW · DR |
 | E5 | Links are distinguishable from text by more than colour (an underline or an icon) | AXE · DR |
@@ -126,7 +126,9 @@ The [test strategy](test-strategy.md) says which layer runs each check.
 This standard **authorises** [#108](https://github.com/dczii/URecruitment/issues/108) to add the axe
 Playwright integration (`@axe-core/playwright`) as a **dev dependency**. The scan:
 
-- runs with the rule tags **`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`**;
+- runs with the rule tags **`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`** and
+  **`best-practice`**. The last one is needed because the landmark, heading-order and `tabindex`
+  rules that A1 and B5 rely on are tagged only `best-practice` in axe-core;
 - is applied to the shell and a patterns gallery first, and each screen task adds its page with one
   call to `expectNoA11yViolations(page)`;
 - runs in **both** Playwright projects;

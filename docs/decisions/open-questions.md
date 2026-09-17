@@ -64,6 +64,7 @@ Read [README.md](README.md) for the status vocabulary the ADRs use. The PRD is
 | [RC-1](#rc-1--default-stage-limits) | Default stage limits | Awaiting owner | Before default limits are seeded | [#159](https://github.com/dczii/URecruitment/issues/159) | [#159](https://github.com/dczii/URecruitment/issues/159), [#121](https://github.com/dczii/URecruitment/issues/121) |
 | [RC-2](#rc-2--screens-implied-by-the-requirements) | Implied screens: CV review queue, name prompt | Awaiting owner | Before the review-queue design is finalised | [#106](https://github.com/dczii/URecruitment/issues/106) | [#106](https://github.com/dczii/URecruitment/issues/106), [#131](https://github.com/dczii/URecruitment/issues/131) |
 | [RC-3](#rc-3--vercel-hobby-and-commercial-use) | Vercel Hobby and commercial use | Open | Before recruiters are invited | [#92](https://github.com/dczii/URecruitment/issues/92) | none in the build |
+| [RC-4](#rc-4--chinese-coverage-of-the-sample-set) | Chinese coverage of the sample set | Open | Before the release-mode eval | none; written deferral, checked by [#118](https://github.com/dczii/URecruitment/issues/118)'s report and [#179](https://github.com/dczii/URecruitment/issues/179) | none |
 | [DT-1](#dt-1--the-ai-provider) | AI provider | Open | When [ADR-0003](adr-0003-ai-provider.md) D6 is met | ADR-0003 → ADR-0004 | [#111](https://github.com/dczii/URecruitment/issues/111), [#145](https://github.com/dczii/URecruitment/issues/145), [#128](https://github.com/dczii/URecruitment/issues/128) |
 | [DT-2](#dt-2--the-intake-mailbox) | Intake mailbox address | Open | Real-data release | [#14](https://github.com/dczii/URecruitment/issues/14) | Real-data epic (stub) |
 | [DT-3](#dt-3--the-onedrive--sharepoint-folders) | OneDrive / SharePoint folders | Open | Real-data release | [#14](https://github.com/dczii/URecruitment/issues/14) | Real-data epic (stub) |
@@ -223,6 +224,22 @@ ambiguous or silent **and** an MVP task needs a clear answer. Each one has a `ne
 | Deciding issue | [#92](https://github.com/dczii/URecruitment/issues/92) E01-S04-T01 *Configure the Vercel project, regions and per-environment variables* records the question as open and links here. **It does not decide it**; its scope excludes choosing a plan |
 | What unblocks it | An owner, and the terms read for the MVP's actual use. If the answer is "Pro now", this row feeds OQ-2 |
 | Related | [ADR-0001](adr-0001-architecture.md) says the MVP on fictional data *"is fine"* on Hobby, and the PRD release plan runs the feedback sessions on Hobby: *"Runs on Vercel Hobby and Supabase Free. Ends with recruiter feedback sessions and a go/no-go decision"*. Neither is a reading of Vercel's terms, so this row keeps the question open. If the answer is "Pro now", a new ADR supersedes that part of ADR-0001 in the same PR |
+
+### RC-4 — Chinese coverage of the sample set
+
+| | |
+|---|---|
+| Source | PRD *Goals*: the quality bar *"applies to English and Chinese CVs"*; *AI governance 4*: EN and ZH graded separately (decided); *Languages*: *"English and Simplified Chinese CVs and job descriptions"* (decided). `prd-context` → `references/sample-data.md`: on 17 Sep 2026 the store held no job descriptions and no Chinese CVs yet |
+| The question | Will the sample set include enough **Chinese** material for the Chinese grade to be measurable? The eval plan's proposed minimums are **10 verified Chinese CVs** and **3 verified Chinese job descriptions** ([ai-eval-plan.md](../plans/ai-eval-plan.md#verification-and-coverage)) |
+| Status | **Open** |
+| Owner slot | — *(unassigned; the product owner supplies the sample files)* |
+| Found by | [#79](https://github.com/dczii/URecruitment/issues/79) |
+| Decided when | Before the release-mode eval ([#179](https://github.com/dczii/URecruitment/issues/179)) |
+| MVP position | The eval reports a language below the minimum as **not evaluable**, never as a pass |
+| Blocked tasks | none. The eval can be built and run on whatever exists |
+| Checked by | The seed report's counts by type and language ([#118](https://github.com/dczii/URecruitment/issues/118)), and the release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179)) |
+| Deciding issue | **None. This is an explicit written deferral**, reopened as a `needs-decision` issue if the seed report still shows too little Chinese material when the answer key is drafted ([#170](https://github.com/dczii/URecruitment/issues/170)) |
+| What unblocks it | Chinese CVs and JDs are added to the store, or the product owner decides how the Chinese grade is handled with fewer |
 
 ---
 

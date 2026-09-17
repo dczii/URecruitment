@@ -41,6 +41,7 @@ Two alternatives were rejected:
 | `docs/plans/test-strategy.md` | new (#78) |
 | `docs/plans/ai-eval-plan.md` | new (#79) |
 | `docs/plans/accessibility-standard.md` | new (#80) |
+| `docs/decisions/open-questions.md` | modify — add RC-4 (after review) |
 | `docs/tasks/23-quality-test-eval-a11y/spec.md` | new |
 | `docs/tasks/23-quality-test-eval-a11y/plan.md` | new |
 
@@ -50,16 +51,16 @@ Two alternatives were rejected:
 
 ## Steps
 
-- [ ] **S1** `claude` — Write `docs/plans/test-strategy.md` (AC2, AC4, AC5). Commit as #78.
+- [x] **S1** `claude` — Write `docs/plans/test-strategy.md` (AC2, AC4, AC5). Commit as #78.
   - Rules: `testing` (all); `CLAUDE.md` Commands (exact script names); `ci-setup` workflows.
   - Verify: `V4`.
-- [ ] **S2** `claude` — Write `docs/plans/ai-eval-plan.md` (AC1, AC6). Commit as #79.
+- [x] **S2** `claude` — Write `docs/plans/ai-eval-plan.md` (AC1, AC6). Commit as #79.
   - Rules: `ai-eval` (all; mark every change from the proposal); `prd-context` quality bar (verbatim); `security-check` (no Blob URL in the key).
   - Verify: `V5`.
-- [ ] **S3** `claude` — Write `docs/plans/accessibility-standard.md` (AC3, AC7). Commit as #80.
+- [x] **S3** `claude` — Write `docs/plans/accessibility-standard.md` (AC3, AC7). Commit as #80.
   - Rules: `ui-build` rules 5–8 and Tests; `ui-design` contrast and PRD design rules; `testing` Playwright rules.
   - Verify: `V6`.
-- [ ] **S4** `none` — `V1`–`V8`, then Claude review (`pr-review` + `compliance-review` scope) on an Opus subagent.
+- [x] **S4** `none` — `V1`–`V8`, then Claude review (`pr-review` + `compliance-review` scope) on an Opus subagent.
 
 ## Test plan
 
@@ -94,4 +95,70 @@ V8  every issue number exists
 
 ## Outcome
 
-<!-- Filled after execution. -->
+- **Shipped:**
+  - **`docs/plans/test-strategy.md`** (#78):
+    - four layers, each with tool, location, command, target and network;
+    - a "what belongs where" table;
+    - the test-first list T1–T15, each tied to its PRD rule and owning task, plus six security-relevant extras;
+    - fixture, time and e2e rules;
+    - minimum proof for 15 areas;
+    - a gates table;
+    - the flake policy;
+    - no coverage gate.
+  - **`docs/plans/ai-eval-plan.md`** (#79):
+    - the decided bar, with its four passes;
+    - the answer-key layout, keys and JSON formats;
+    - one rule for field correctness (units, nulls, extras, alignment, normalisation, dates, total years) and one for top-5 agreement (K-sized, set-based, tie-break, fewer-than-K);
+    - verification and coverage minimums;
+    - outputs and exit codes;
+    - triggers and order-of-magnitude cost;
+    - grading sessions.
+    
+    It states that the `ai-eval` method was *proposed* and is confirmed here, and marks every refinement with ⊕.
+  - **`docs/plans/accessibility-standard.md`** (#80):
+    - rules A–G (38 rows), each with a check code: PW, AXE, UT, DR, CR, or a manual check;
+    - C1 as an assertable condition;
+    - the `aria-label` pattern for delay status;
+    - the axe tag set for #108;
+    - a screen-task checklist.
+  - **RC-4** added to the open-questions register.
+- **Changed files / areas:** the three new `docs/plans/*.md` files, `docs/decisions/open-questions.md` (RC-4), and this task's spec and plan.
+- **Tests added or updated:** none. This change is documentation only, and there is no test runner before #85 (spec A11).
+- **Verification:**
+  - V1: docs only.
+  - V2: links and anchors resolve, including `#when-it-runs-and-what-it-costs`, `#verification-and-coverage`, `#rc-4-…` and `../ux/screen-inventory.md#primary-navigation`.
+  - V3: clean.
+  - V4: layer table and CLAUDE.md commands; T1–T15 each link an issue; 15 area rows.
+  - V5: the bar is verbatim; the rule sections are present; SHA-256 keys; verified-only; "proposed" plus "confirms".
+  - V6: 38 rules, each with a check code; C1 has `scrollWidth <= window.innerWidth`.
+  - V8: every cited issue exists.
+  - Every italic PRD quote matches the PDF text.
+- **Deviations:**
+  - The #78 quote fix: the period moved outside the quotation.
+  - RC-4 and the K-sized top-5 rule were added after review.
+- **Fix rounds / escalations:** none on implementation. One review round: 8 major, 6 minor and 1 nit, all applied.
+- **Models used:**
+  - Planning, writing and verification: Claude Opus 5 (`claude-opus-5`).
+  - Review: a Claude subagent with the `opus` model alias. The runtime did not expose the exact model ID.
+  - No `cursor-agent` call was made.
+- **Claude direct fixes:** every step was executed by Claude, by design (spec A2).
+- **Review findings (all applied):**
+  1. Top-5 follows #171: one to five candidates, a reason per candidate, flagged rather than padded, and graded on K.
+  2. The alignment rule now requires at least one matching sub-field and adds a second tie-break.
+  3. A structured `totalYearsAsOf` field, used by both sides.
+  4. Normalisation order is fixed, email and phone are exempt, and punctuation becomes a space.
+  5. The pre-authorised product-owner waiver is removed; #179 records the result and #181 decides.
+  6. Chinese coverage is raised as RC-4, and the CV-language alternative is recorded as rejected.
+  7. The axe tags gain `best-practice`.
+  8. Unit tests include `eval/**`, and the file names follow #172/#173 (`score.ts`, `verify.ts`, `report.ts`).
+  9. CI reports show `cvKey` only.
+  10. The delay badge's role permits `aria-label`.
+  11. `eval.yml` is never a required check, and #179 runs release mode.
+  12. The phone rule is tied to #126's schema.
+  13. B4 and C7 verification methods are corrected.
+  14. This Outcome is filled in.
+  15. Nits: the design-task list, T9's layer, and T15's status.
+- **Follow-ups:**
+  1. #85 configures Vitest to include `eval/**/*.test.ts` (done in this run's Epic #2).
+  2. #170 checks RC-4 against the seed report.
+  3. #108 uses the tag set above.
