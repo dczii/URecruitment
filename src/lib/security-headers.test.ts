@@ -1,4 +1,3 @@
-// @ts-expect-error Vitest is installed in S3 (#85); remove this comment then.
 import { describe, expect, it } from "vitest";
 import {
   buildContentSecurityPolicy,
