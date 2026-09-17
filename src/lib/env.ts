@@ -33,13 +33,32 @@ export function publicEnv(): PublicEnv {
   });
 }
 
-const SECRET_SUBSTRINGS = ["SECRET", "TOKEN", "PASSWORD", "PRIVATE"] as const;
+/** Substrings that mark a name as a secret wherever they appear. */
+const SECRET_SUBSTRINGS = [
+  "SECRET",
+  "TOKEN",
+  "PASSWORD",
+  "PASSWD",
+  "PRIVATE",
+  "CREDENTIAL",
+  "SERVICE_ROLE",
+  "SIGNING",
+  "APIKEY",
+] as const;
+
+/**
+ * Whole segments that mark a name as a secret. Matching on the segment rather
+ * than the raw substring keeps `KEYBOARD_LAYOUT` out of the net while catching
+ * `SUPABASE_SECRET_KEY` and `AI_KEYS`.
+ */
+const SECRET_SEGMENTS = ["KEY", "KEYS", "PEM", "PAT"] as const;
 
 export function isSecretShapedName(name: string): boolean {
   if (SECRET_SUBSTRINGS.some((token) => name.includes(token))) {
     return true;
   }
-  return name.split("_").includes("KEY");
+  const segments = name.split("_");
+  return SECRET_SEGMENTS.some((segment) => segments.includes(segment));
 }
 
 export function readEnvExampleNames(text: string): string[] {

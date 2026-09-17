@@ -6,7 +6,7 @@
 | Tasks | #83 (E01-S01-T01), #85 (E01-S01-T03), #84 (E01-S01-T02), #86 (E01-S01-T04), in dependency order |
 | Parent | Story #25 → Epic #2 "Foundation & delivery" |
 | Milestone | MVP |
-| Branch | `feat/25-app-scaffold-foundation` (stacked on `docs/24-infrastructure-delivery-plan`) |
+| Branch | `feat/25-app-scaffold-foundation`, stacked on `docs/23-quality-test-eval-a11y` ([PR #190](https://github.com/dczii/URecruitment/pull/190)) |
 | Created | 2026-09-17 |
 | Status | In review <!-- Planned → In progress → In review --> |
 
@@ -86,7 +86,7 @@ Task done-when:
 - [x] **AC6** (#83, security baseline) — Every page response carries CSP (script-src with a nonce and no `unsafe-inline` in production), `frame-ancestors 'none'`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff` and `Permissions-Policy`. _Proved by:_ `curl -sI` against `next start` (verification log) and `e2e/smoke.spec.ts › "security headers are present"`.
 - [x] **AC7** (#85) — `npm test` makes no network call, and an accidental `fetch` in a unit test fails that test. _Proved by:_ `test/setup.test.ts › "an unexpected fetch fails the test"`.
 - [x] **AC8** (#85) — `npm run test:e2e` passes for `desktop` and `phone`, and the phone smoke asserts `document.documentElement.scrollWidth <= window.innerWidth`. _Proved by:_ `e2e/smoke.spec.ts`.
-- [x] **AC9** (#84) — Importing the server env module from a client component fails the build or lint, and no `NEXT_PUBLIC_*` name is a secret. _Proved by:_ `src/server/env.test.ts › "server env module is server-only"` (asserts the `server-only` import) and `src/lib/env.test.ts › "no public variable is secret-shaped"`, which also checks `.env.example`.
+- [x] **AC9** (#84) — Importing the server env module from a client component fails the build, and no `NEXT_PUBLIC_*` name is a secret. _Proved by:_ **a live build probe** — a temporary client component importing `@/server/env` made `npm run build` exit 1 with *"'server-only' cannot be imported from a Client Component module"* (Claude, 2026-09-18; probe reverted). The automated tests pin the preconditions rather than the failure itself: `src/server/scaffold.test.ts › "every module under src/server starts with import \"server-only\""` walks the whole directory, and `src/lib/env.test.ts › "isSecretShapedName recognises secrets and allows DSNs"` covers the naming guard. **There is no CI guard that re-runs the probe** — #89 owns grepping the built client bundle for server-schema names.
 - [x] **AC10** (#84) — `.env.example` holds every name in the infrastructure inventory's *Local* column, with no values. _Proved by:_ `src/lib/env.test.ts › ".env.example lists names only"`.
 - [x] **AC11** (#86) — No DSN or token is committed, and the DSN comes from the env modules. _Proved by:_ `src/lib/sentry-scrub.test.ts` (config reads the env module), plus the V3 secret scan.
 
@@ -116,7 +116,8 @@ A placeholder page only. It has no product UI and no tokens (E02).
 
 ## Assumptions
 
-- **A1 — One PR for the story (user instruction).** It is stacked on Epic #1's last PR, and has one commit or more per task, in dependency order (#83 → #85 → #84 → #86). #84 is test-first, so it needs #85's Vitest.
+- **A1 — One PR for the story (user instruction, reconfirmed 2026-09-18).** The `urec-orchestrator` skill's "Story workflow: one Task, one PR" section asks for one PR per Task; the user chose one stacked PR for the whole story instead, so that is what ships. It carries one commit per task in dependency order (#83 → #85 → #84 → #86) and closes all four Tasks plus the Story. #84 is test-first, so it needs #85's Vitest first.
+- **A13 — The base is `docs/23-quality-test-eval-a11y`, not `main`.** PRs #185–#188 were merged bottom-up into each other's branches, and the bottom one targeted `docs/20-open-questions-register` rather than `main`, so the Phase-0 plans never reached `main`. This story needs two of them: `docs/plans/infrastructure.md` (the env inventory #84 is written against) and `docs/plans/test-strategy.md` (#85). [PR #190](https://github.com/dczii/URecruitment/pull/190) lands that branch on `main`; **merge it first**, then this PR, which is retargeted to `main` afterwards.
 - **A2 — Versions (checked on the registry today):** `next`/`create-next-app` 16.3.5, `tailwindcss` 4, `shadcn` 4, `zod` 4, `vitest` 5, `@playwright/test` 1.63, `@sentry/nextjs` 10. Executors read the installed packages' docs (`node_modules/next/dist/docs/` for Next 16), not memory.
 - **A3 — Node 22 is pinned** in `.nvmrc`, with `engines.node >=22`. Node 20 is past end-of-life on this date, and Next 16 needs ≥ 20.9.
 - **A4 — Generators run as a `claude` step.** `create-next-app` and `shadcn init` are deterministic CLIs that need network access, and `create-next-app` refuses a non-empty directory. Claude runs them in a temporary directory and copies the output in. All hand-written configuration and code goes to Grok.
@@ -132,6 +133,28 @@ A placeholder page only. It has no product UI and no tokens (E02).
   Claude runs `npm run test:e2e` and records the result.
 - **A11 — `AGENTS.md` gains Next 16's managed agent-rules block.** `next dev` writes it into `AGENTS.md` whenever it detects an AI agent (`node_modules/next/dist/server/lib/generate-agent-files.js`). Committing it avoids churn, and it points Cursor executors at the bundled docs. The generator's own `AGENTS.md`/`CLAUDE.md` are **not** copied.
 - **A10 — `@/*` resolves in Vitest** through `vite-tsconfig-paths`, the one test-only helper added besides Vitest and Playwright.
+
+- **A14 — The Sentry tunnel route `/monitoring` is an accepted, rate-limitable risk.** A6 chose
+  `tunnelRoute` so the CSP can stay at `connect-src 'self'`. The Sentry build plugin implements it as
+  a rewrite whose destination is built from caller-supplied query parameters —
+  `https://o:orgid.ingest[.:region].sentry.io/api/:projectid/envelope/`, with `o`, `p` and `r` taken
+  from the request (verified in `.next/routes-manifest.json`). The host is constrained to
+  `sentry.io`, so this is a constrained relay and **not** general SSRF, but anyone can POST envelopes
+  through the agency's `sin1` function to **someone else's** Sentry project, spending Vercel Hobby
+  invocations and bandwidth. The route ships even with no DSN set. **Accepted for the MVP** (fictional
+  data, no DSN yet) and handed to **[#93](https://github.com/dczii/URecruitment/issues/93) /
+  [#175](https://github.com/dczii/URecruitment/issues/175)**, which must cover `/monitoring` alongside
+  `/api/ai/*`. The alternative — dropping `tunnelRoute` and allowing the Sentry ingest host in
+  `connect-src` — reverses A6 and is not decided here.
+- **A15 — The test-error triggers are open on Preview, which is public.** A7 disables them when
+  `VERCEL_ENV === "production"`, but Vercel sets `preview` on preview deployments, and A8 plus
+  `docs/runbooks/sentry-test-error.md` deliberately put the **DSN in Preview** — so the kill switch
+  guards the one environment that has no DSN and leaves open the one that does. A7's own reason
+  ("a public 'throw an error' endpoint … would let anyone spam the Sentry quota") therefore applies
+  to Preview too. Behaviour is **left as written**, because the runbook depends on it and no DSN
+  exists yet, but the inconsistency is recorded rather than settled silently:
+  `/api/sentry-test` and `/sentry-test` go into **[#93](https://github.com/dczii/URecruitment/issues/93)**'s
+  rate-limit scope, and the user may prefer to gate them behind a shared header instead.
 
 ## Open questions
 

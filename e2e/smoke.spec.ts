@@ -53,3 +53,15 @@ test("AC6: security headers are present", async ({ page }) => {
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["permissions-policy"]).toBeDefined();
 });
+
+test("AC6: a prefetch request also carries the CSP", async ({ request }) => {
+  // Next's CSP example exempts prefetches from the proxy, which left those
+  // document responses with no CSP at all. src/proxy.ts deliberately does not.
+  const res = await request.get("/", {
+    headers: { purpose: "prefetch", "next-router-prefetch": "1" },
+  });
+
+  const csp = res.headers()["content-security-policy"] ?? "";
+  expect(csp).toContain("nonce-");
+  expect(csp).toContain("frame-ancestors 'none'");
+});

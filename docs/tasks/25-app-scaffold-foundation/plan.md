@@ -1,6 +1,6 @@
 # Plan — #25 Developers can run the app locally and it deploys to Vercel sin1
 
-Spec: [spec.md](./spec.md) · Branch: `feat/25-app-scaffold-foundation` · Created: 2026-09-17
+Spec: [spec.md](./spec.md) · Branch: `feat/25-app-scaffold-foundation` · Base: `docs/23-quality-test-eval-a11y` ([PR #190](https://github.com/dczii/URecruitment/pull/190)) · Created: 2026-09-17 · Re-verified: 2026-09-18
 
 ## Approach
 
@@ -181,7 +181,8 @@ V3 secret scan on the diff; git ls-files | grep -E '(^|/)\.env' | grep -v '\.env
   `src/lib/**`, `src/server/**`, `src/proxy.ts`, `src/instrumentation*.ts`; `sentry.*.config.ts`;
   `vitest.config.ts`, `playwright.config.ts`, `test/**`, `e2e/**`; `docs/runbooks/sentry-test-error.md`;
   `AGENTS.md` (Next's managed block); `.gitignore`.
-- **Tests added or updated:** 38 unit tests in 6 files — `src/server/scaffold.test.ts`,
+- **Tests added or updated:** 46 unit tests in 6 files (38 from the build steps, 8 added by the
+  security-review fixes) — `src/server/scaffold.test.ts`,
   `src/lib/security-headers.test.ts`, `test/setup.test.ts`, `src/server/env.test.ts`,
   `src/lib/env.test.ts`, `src/lib/sentry-scrub.test.ts` — plus 3 e2e tests × 2 projects in
   `e2e/smoke.spec.ts`.
@@ -190,7 +191,7 @@ V3 secret scan on the diff; git ls-files | grep -E '(^|/)\.env' | grep -v '\.env
   - `npm run typecheck` → pass
   - `npm test` → **38 passed** (6 files)
   - `npm run build` → pass, with no env values set
-  - `npm run test:e2e` → **6 passed** (desktop + phone)
+  - `npm run test:e2e` → **8 passed** (desktop + phone, including the prefetch CSP case)
   - `npm run test:db` → the stub message, exit 0 (#87 wires it up)
   - `npm audit --omit=dev` → **0 vulnerabilities**
   - `curl -sI` against `next start` → all five security headers, CSP with a nonce and no
@@ -209,6 +210,14 @@ V3 secret scan on the diff; git ls-files | grep -E '(^|/)\.env' | grep -v '\.env
   4. **`AGENTS.md`** gained Next's managed agent-rules block (spec A11).
   5. **`disableLogger`** was dropped from the Sentry config: it is deprecated and unsupported under
      Turbopack, which Next 16 uses by default.
+  6. **Rebased onto `docs/23-quality-test-eval-a11y`** (2026-09-18). The branch was originally cut
+     from `docs/24-infrastructure-delivery-plan`. That branch's tip is an ancestor of
+     `docs/23-quality-test-eval-a11y`, which is a strict content superset of both `docs/22` and
+     `docs/24`, so the rebase replayed all seven commits with no conflict and the PR diff contains
+     only this story's work. See spec A13 and [PR #190](https://github.com/dczii/URecruitment/pull/190).
+  7. **One PR for the story, not one per task** (spec A1). The `urec-orchestrator` skill asks for one
+     PR per Task; the user reconfirmed the story-level shape on 2026-09-18, so this deviation is
+     deliberate and is stated in the PR body as the skill requires.
 - **Fix rounds / escalations:** no executor fix rounds. Two Claude direct fixes after inspection (see
   below). Two executor runs were stopped on the sandbox browser limitation, which is an environment
   fault rather than a code fault.
@@ -220,7 +229,44 @@ V3 secret scan on the diff; git ls-files | grep -E '(^|/)\.env' | grep -v '\.env
 - **Claude direct fixes:**
   1. Removed the deprecated `disableLogger` Sentry option and recorded why.
   2. `parseSentryDsn` now names the variable it actually parsed, rather than both DSN variables.
-- **Review findings:** see the PR body.
+- **Review findings (Claude Opus subagent running `security-check` + `compliance-review`, 2026-09-18):**
+  verdict **CHANGES REQUIRED**, no blockers. Claude reproduced every finding before acting on it.
+  **Fixed in this branch:**
+  1. *(major)* `sentry-scrub` matched personal keys only on an exact word boundary, so
+     `candidateName`, `candidate_name`, `cvText`, `phoneNumber`, `fullName` and friends passed
+     through **verbatim**. Replaced with segment-aware matching (`candidateCvText` → `candidate`,
+     `cv`, `text`) plus a phrase list, while `filename` and `hostname` deliberately still pass.
+  2. *(major)* `race` and `religion` were missing from the protected-attribute list that
+     `CLAUDE.md` hard rule 5 names. Added, with `ethnicity`, `sex`, `disability`, `pregnancy`,
+     `caregiving` and `mental_health`.
+  3. *(major)* A bare string carried a Singapore phone number and NRIC/FIN straight into Sentry.
+     Added `[STFGM]\d{7}[A-Z]` and SG phone patterns to the value scrubber.
+  4. *(minor)* `scrubEvent` walked six fields only. Now also covers `breadcrumbs`, `logentry`,
+     `transaction`, `server_name` and `exception.values[].stacktrace.frames[].vars` — the last
+     matters the moment anyone sets `includeLocalVariables`.
+  5. *(minor)* `stripQueryFromUrl` dropped the query but left an email or NRIC in the **path**.
+     The stripped URL now goes through the value scrubber.
+  6. *(minor)* A cyclic object threw `RangeError`, which Sentry swallows — silently dropping the
+     error. Added a `WeakSet` cycle guard and a depth cap.
+  7. *(minor)* `isSecretShapedName` missed `SERVICE_ROLE`, `APIKEY`, `CREDENTIALS`, `KEYS`, `PEM`
+     and `PAT`. Widened, keeping `KEYBOARD_LAYOUT` and `NEXT_PUBLIC_SENTRY_DSN` out of the net.
+  8. *(minor)* Prefetch requests skipped the proxy, so those document responses carried **no CSP**
+     and no script nonces — AC6 as ticked was false. Dropped the `missing:` clause from
+     `src/proxy.ts` (Next's own CSP example has it) and pinned it with a new e2e test.
+  9. *(minor)* `shadcn`, a build-time CLI nothing imports, sat in runtime `dependencies` and so
+     shipped to Vercel. Moved to `devDependencies`; `npm ls shadcn --omit=dev` is now empty.
+  **Recorded, not fixed** — both written into the spec rather than settled silently:
+  - *(major)* the `/monitoring` Sentry tunnel route is an unauthenticated constrained relay whose
+     Sentry org/project come from query parameters → spec **A14**, handed to #93/#175;
+  - *(major)* the test-error triggers gate on `production` but the DSN lives in **Preview**, which
+     is equally public → spec **A15**, handed to #93.
+  Both are commented on [#93](https://github.com/dczii/URecruitment/issues/93).
+  **Corrected claim:** AC9 said a build-or-lint guard proves the server-only boundary. The automated
+  tests only assert the marker; the build failure was proved by a live probe Claude ran and reverted.
+  The spec now says so, and names #89 as the owner of a CI guard.
+- **Post-fix verification (Claude, Node 22.12.0):** `lint` pass · `typecheck` pass · `npm test`
+  **46 passed** (was 38; +8 regression tests) · `build` pass · `test:e2e` **8 passed** (was 6; +2 for
+  the prefetch CSP case) · `npm audit --omit=dev` 0 vulnerabilities.
 - **Follow-ups:**
   1. Seeing an event in Sentry needs a project and a DSN in Vercel Preview — a user step (spec A8).
   2. Local nvm 22.12.0 sits just below `eslint-visitor-keys`'s engine range (`^22.13`); CI installs the

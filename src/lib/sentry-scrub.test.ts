@@ -166,6 +166,138 @@ describe("sentry-scrub (AC4, AC11)", () => {
     expect(result.extra?.jobId).toBe("job-7");
   });
 
+  // --- Review fixes (2026-09-18 security review of #86) -----------------------
+
+  it("AC4: redacts personal keys in camelCase and prefixed forms", () => {
+    const keys = [
+      "candidateName",
+      "candidate_name",
+      "fullName",
+      "cvText",
+      "candidate_cv_text",
+      "phoneNumber",
+      "contactPhone",
+      "resumeText",
+      "promptText",
+      "nricNumber",
+      "CANDIDATE-EMAIL",
+      "sourceText",
+    ];
+
+    for (const key of keys) {
+      const result = scrubEvent({ extra: { [key]: "Mei Ling Tan" } });
+      expect(result.extra?.[key], key).toBe(REDACTED);
+    }
+  });
+
+  it("AC4: redacts every protected attribute named in the guardrails", () => {
+    // CLAUDE.md hard rule 5 plus the attributes compliance-review flags for
+    // the Workplace Fairness Act.
+    const keys = [
+      "race",
+      "ethnicity",
+      "religion",
+      "gender",
+      "age",
+      "marital_status",
+      "maritalStatus",
+      "nationality",
+      "photo",
+      "disability",
+      "pregnancy",
+      "caregiving",
+      "mental_health",
+    ];
+
+    for (const key of keys) {
+      const result = scrubEvent({ extra: { [key]: "some value" } });
+      expect(result.extra?.[key], key).toBe(REDACTED);
+    }
+  });
+
+  it("AC4: keeps keys that only look personal", () => {
+    // `filename` and `hostname` are single words; they must survive so stack
+    // traces stay readable.
+    const extra = {
+      filename: "src/lib/sentry-scrub.ts",
+      hostname: "urecruitment.vercel.app",
+      jobId: "job-7",
+      durationMs: 1234,
+    };
+    const result = scrubEvent({ extra });
+    expect(result.extra).toEqual(extra);
+  });
+
+  it("AC4: removes a Singapore phone number and NRIC from a bare string", () => {
+    const result = scrubEvent({
+      message: "parse failed for +65 9123 4567, S1234567D",
+    });
+
+    const message = String(result.message);
+    expect(message).not.toContain("9123 4567");
+    expect(message).not.toContain("S1234567D");
+    expect(message).toContain("[phone]");
+    expect(message).toContain("[id]");
+  });
+
+  it("AC4: scrubs an email and an NRIC out of the request path", () => {
+    const result = scrubEvent({
+      request: { url: "https://portal.example.com/search/mei.ling@example.com/S1234567D" },
+    });
+
+    const url = String(result.request?.url);
+    expect(url).not.toContain("mei.ling@example.com");
+    expect(url).not.toContain("S1234567D");
+  });
+
+  it("AC4: survives a cyclic object instead of throwing", () => {
+    const cyclic: Record<string, unknown> = { jobId: "job-7" };
+    cyclic.self = cyclic;
+
+    expect(() => scrubEvent({ extra: cyclic })).not.toThrow();
+    const result = scrubEvent({ extra: cyclic });
+    expect(result.extra?.jobId).toBe("job-7");
+    expect(result.extra?.self).toBe("[redacted: cycle]");
+  });
+
+  it("AC4: scrubs breadcrumbs, logentry, transaction and server_name", () => {
+    const result = scrubEvent({
+      breadcrumbs: [{ message: "loaded wei.chen@example.com", data: { name: "Mei Ling Tan" } }],
+      logentry: { message: "candidate wei.chen@example.com failed" },
+      transaction: "/candidates/mei.ling@example.com",
+      server_name: "host-wei.chen@example.com",
+    });
+
+    const serialised = JSON.stringify(result);
+    expect(serialised).not.toContain("wei.chen@example.com");
+    expect(serialised).not.toContain("Mei Ling Tan");
+  });
+
+  it("AC4: scrubs local variables in stack frames", () => {
+    const result = scrubEvent({
+      exception: {
+        values: [
+          {
+            value: "boom",
+            stacktrace: {
+              frames: [
+                {
+                  filename: "src/server/services/parse.ts",
+                  vars: { candidate: { name: "Mei Ling Tan" }, jobId: "job-7" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    const serialised = JSON.stringify(result);
+    expect(serialised).not.toContain("Mei Ling Tan");
+    expect(serialised).toContain("job-7");
+    expect(serialised).toContain("src/server/services/parse.ts");
+  });
+
   it("AC11: scrubBreadcrumb scrubs data and message", () => {
     const result = scrubBreadcrumb({
       message: "failed to parse CV for wei.chen@example.com",
