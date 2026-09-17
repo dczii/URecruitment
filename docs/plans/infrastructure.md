@@ -52,6 +52,14 @@ read with that in mind.
 **Migration promotion** (`ci-setup`, `release-deploy`; built by the migrate workflow in the release
 phase): merge to `main` → `supabase db push` to **dev** → a GitHub environment with **required manual
 approval** → `supabase db push` to **prod**. **Never edit a merged migration**, and fix forward.
+**Until that workflow exists, a person runs `supabase db push`, and the dev schema lags `main`.** No
+task builds the migrate workflow yet ([#91](https://github.com/dczii/URecruitment/issues/91) excludes
+remote projects, and [#177](https://github.com/dczii/URecruitment/issues/177) applies production
+migrations by hand). That is a follow-up.
+
+**Production deploys at merge, before the approved prod `db push`.** Migrations must therefore be
+backward-compatible: expand first, and contract in a later migration once the code no longer needs
+the old shape.
 
 ## Env var inventory
 
@@ -74,8 +82,8 @@ typed env schema is written against this inventory.
 
 | Name | Purpose | Local | Dev | Prev | Prod | CI | Scope | Secret | Introduced by |
 |---|---|---|---|---|---|---|---|---|---|
-| `SUPABASE_URL` | API URL of the environment's Supabase project (local stack, dev or prod) | ✓ | ✓ (dev) | ✓ (dev) | ✓ (prod) | — | server | no, but not published | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
-| `SUPABASE_SECRET_KEY` | Server-only key. **It bypasses RLS**, so it never leaves the server | ✓ | ✓ (dev) | ✓ (dev) | ✓ (prod) | ✓ (eval only; `ci-setup` lets only the migrate and eval workflows reach a remote project) | **server** | **yes** | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
+| `SUPABASE_URL` | API URL of the environment's Supabase project (local stack, dev or prod) | ✓ (local stack) | — | ✓ (dev) | ✓ (prod) | ✓ (eval only) | server | no, but not published | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
+| `SUPABASE_SECRET_KEY` | Server-only key. **It bypasses RLS**, so it never leaves the server | ✓ (local stack) | — | ✓ (dev) | ✓ (prod) | ✓ (eval only; `ci-setup` lets only the migrate and eval workflows reach a remote project) | **server** | **yes** | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
 | `AI_MODEL_PARSE`, `AI_MODEL_MATCH`, `AI_MODEL_GAP`, `AI_MODEL_SEARCH`, `AI_MODEL_JD` | Model id per AI role ([ADR-0003](../decisions/adr-0003-ai-provider.md) C2) | ✓ | ✓ | ✓ | ✓ | ✓ (eval) | server | no | [#84](https://github.com/dczii/URecruitment/issues/84) (names), [#169](https://github.com/dczii/URecruitment/issues/169) (use) |
 | `AI_EMBED_MODEL` | Embedding model id (C2, C9) | ✓ | ✓ | ✓ | ✓ | ✓ (eval) | server | no | as above |
 | *Provider API key(s)* | **Named after the chosen provider(s), once [DT-1](../decisions/open-questions.md#dt-1--the-ai-provider) is decided.** No name is reserved now | ✓ | ✓ | ✓ | ✓ | ✓ (eval) | **server** | **yes** | the ADR-0004 follow-up |
@@ -85,6 +93,11 @@ typed env schema is written against this inventory.
 | `NEXT_PUBLIC_SENTRY_DSN` | Client-side Sentry DSN | optional | ✓ | ✓ | ✓ | — | **public** | no | [#86](https://github.com/dczii/URecruitment/issues/86) |
 | `SENTRY_AUTH_TOKEN` | Source-map upload at build time, **only if #86 enables it** | — | — | ✓ | ✓ | — | build only | **yes** | [#86](https://github.com/dczii/URecruitment/issues/86) (if used) |
 | `CRON_SECRET` | Authorises the daily keep-alive request. Vercel sends it on cron invocations ([keep-alive](#supabase-free-pauses-after-a-week-idle)) | — | — | — | ✓ | — | server | **yes** | [#178](https://github.com/dczii/URecruitment/issues/178) |
+
+**The two Supabase variables are not set in Vercel *Development*.** That way `vercel env pull` never
+copies the dev project's secret key to a laptop, and local work never points at a remote project.
+Local values come from `supabase status` for the local stack. `ci-setup`'s secrets table should list
+both names for the eval workflow (follow-up).
 
 **Never `NEXT_PUBLIC_`:** `SUPABASE_SECRET_KEY`, any provider key, `BLOB_READ_WRITE_TOKEN`,
 `SEED_BLOB_BASE_URL`, `CRON_SECRET` and `SENTRY_AUTH_TOKEN`. #84's guard enforces this.
@@ -112,9 +125,9 @@ that `src/` never imports the Blob SDK is what keeps the running app from using 
 |---|---|---|---|---|
 | `SUPABASE_PUBLISHABLE_KEY` | The **local** stack's publishable key, used by the RLS lock-down test to prove it reads nothing | Local and the CI DB job (read from `supabase status`, not stored) | no (local stack only) | [#113](https://github.com/dczii/URecruitment/issues/113) |
 | `PLAYWRIGHT_BASE_URL` | Base URL for e2e runs: the local dev server by default, the preview URL in CI | Local (optional), the CI e2e job | no | [#85](https://github.com/dczii/URecruitment/issues/85), [#90](https://github.com/dczii/URecruitment/issues/90) (may rename) |
-| `SUPABASE_ACCESS_TOKEN` | Supabase CLI auth for pushing migrations | CI (migrate workflow) only | **yes** | release phase (`ci-setup`) |
-| `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_PROD_PROJECT_REF` | Which remote project the migrate workflow targets | CI (migrate workflow) only | treat as secret | release phase (`ci-setup`) |
-| `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_DB_PASSWORD` | Database password for `supabase db push` | CI (migrate workflow) only | **yes** | release phase (`ci-setup`) |
+| `SUPABASE_ACCESS_TOKEN` | Supabase CLI auth for pushing migrations | CI (migrate workflow) only | **yes** | the migrate workflow; **no task builds it yet** (follow-up). Until then, #177 applies migrations by hand |
+| `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_PROD_PROJECT_REF` | Which remote project the migrate workflow targets | CI (migrate workflow) only | treat as secret | as above |
+| `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_DB_PASSWORD` | Database password for `supabase db push` | CI (migrate workflow) only | **yes** | as above |
 | `VERCEL_AUTOMATION_BYPASS_SECRET` | Lets the e2e job reach a protected preview. **Only if** preview protection is turned on | CI (e2e) only | **yes** | [#90](https://github.com/dczii/URecruitment/issues/90) (conditional) |
 
 **Rules for CI secrets** (`ci-setup`): a job that needs a secret checks for it first. If the secret is
@@ -156,22 +169,26 @@ are the PRD's. The **response** is the one this project has chosen. Risks are in
 | Vercel Hobby is non-commercial, personal use only | Agency work breaks Vercel's terms | Move to Pro before recruiters use the portal for real work | Stay on Hobby for the build, as the PRD decided. Whether recruiter sessions on fictional data already count as "real work" is **open** ([RC-3](../decisions/open-questions.md#rc-3--vercel-hobby-and-commercial-use)); the plan to move to is [OQ-2](../decisions/open-questions.md#oq-2--which-paid-plans-to-move-to). The release-readiness check restates the position before recruiters are invited | [#92](https://github.com/dczii/URecruitment/issues/92), [#179](https://github.com/dczii/URecruitment/issues/179) | R-03 |
 | Supabase Free pauses a project after a week idle | The MVP can go offline between review sessions | Use it at least weekly, or restore it from the dashboard | **Production:** an automated keep-alive, below. **Dev:** restored from the dashboard when needed (previews and CI activity usually keep it awake). The restore steps are in the runbook | [#178](https://github.com/dczii/URecruitment/issues/178) | R-05 |
 | Supabase Free has no backups | Data loss is possible; acceptable only for fictional data | Re-seed from the repo; add backups before real data | **Recovery = migrations + seed** (below). Backups are [OQ-3](../decisions/open-questions.md#oq-3--how-backups-work-and-how-long-they-are-kept), required before real data | [#177](https://github.com/dczii/URecruitment/issues/177) | R-04 |
-| Supabase Free: 500 MB database, 1 GB storage, 50 MB per file | Enough for 200 sample CVs, not for real volume | Upgrade before real data | **File cap enforced in code:** uploads over 50 MB are refused ([#114](https://github.com/dczii/URecruitment/issues/114)). **Usage checked after every seed**: the seed report prints file counts and bytes ([#123](https://github.com/dczii/URecruitment/issues/123)), and the person running it compares database and storage usage in the Supabase dashboard against the caps | [#123](https://github.com/dczii/URecruitment/issues/123), [#177](https://github.com/dczii/URecruitment/issues/177) | — |
-| Vercel Hobby: functions in one region, cron once a day | Fine for one Singapore region; no frequent background jobs | Keep delay status in a database view | **Delay status is a view** ([#158](https://github.com/dczii/URecruitment/issues/158)). **Background work uses `after()`** with a retryable runs table ([#150](https://github.com/dczii/URecruitment/issues/150)). **The one daily cron slot is taken by the keep-alive.** Any other scheduled work needs this record changed first | [#158](https://github.com/dczii/URecruitment/issues/158), [#150](https://github.com/dczii/URecruitment/issues/150), [#178](https://github.com/dczii/URecruitment/issues/178) | — |
+| Supabase Free: 500 MB database, 1 GB storage, 50 MB per file | Enough for 200 sample CVs, not for real volume | Upgrade before real data | **File cap enforced in code:** uploads over 50 MB are refused ([#114](https://github.com/dczii/URecruitment/issues/114)). **Usage checked after every seed**: the seed report prints its counts ([#123](https://github.com/dczii/URecruitment/issues/123); byte totals are a follow-up), and the person running it compares database and storage usage in the Supabase dashboard against the caps | [#123](https://github.com/dczii/URecruitment/issues/123), [#177](https://github.com/dczii/URecruitment/issues/177) | — |
+| Vercel Hobby: functions in one region, cron once a day | Fine for one Singapore region; no frequent background jobs | Keep delay status in a database view | **Delay status is a view** ([#158](https://github.com/dczii/URecruitment/issues/158)). **Background work uses `after()`** with a retryable runs table ([#150](https://github.com/dczii/URecruitment/issues/150)). **The keep-alive uses a daily cron job** (Hobby runs each job at most once a day, with imprecise timing). Any other scheduled work needs this record changed first | [#158](https://github.com/dczii/URecruitment/issues/158), [#150](https://github.com/dczii/URecruitment/issues/150), [#178](https://github.com/dczii/URecruitment/issues/178) | — |
 | Free tiers carry no uptime guarantee | 99.5% can't be assured | Treat it as best effort for the MVP | **Best effort.** Errors surface through Vercel runtime logs and Sentry ([#86](https://github.com/dczii/URecruitment/issues/86)); an outage before a session is handled with the restore and re-seed runbooks. No uptime monitoring service in the MVP | [#86](https://github.com/dczii/URecruitment/issues/86), [#178](https://github.com/dczii/URecruitment/issues/178) | R-06 |
 | Some managed job services store run data in the US by default | CV text could leave Singapore | Keep job state and queues in Supabase | **No third-party queue or workflow service.** Job state lives in Supabase tables (`ai_runs`, the re-score runs table), and background work runs in `after()` in `sin1` | [#150](https://github.com/dczii/URecruitment/issues/150), [#169](https://github.com/dczii/URecruitment/issues/169) | R-11 (related) |
 
 ### Supabase Free pauses after a week idle
 
-**The approach (proposed here; [#178](https://github.com/dczii/URecruitment/issues/178) builds it and
-writes `docs/runbooks/keep-alive.md`):**
+**The approach (proposed here).** [#178](https://github.com/dczii/URecruitment/issues/178) writes
+`docs/runbooks/keep-alive.md`, but its scope covers **only the runbook**. The route, the `vercel.json`
+cron entry, and a person setting `CRON_SECRET` in Production need #178 widened, or a new task. That
+is a follow-up.
+
+**What the approach is:**
 
 - **What runs:** one **Vercel cron job on Production, once a day**, which fits Hobby's limit. It calls
   a small server route that makes one trivial read against the production Supabase project, for
   example one row of `sg_public_holidays`. The route refuses any request without the `CRON_SECRET`
   authorisation header, returns no data, and logs only success or failure.
 - **Why daily when a week is the threshold:** a single missed run then still leaves six days of
-  margin. It also stays within the free tiers.
+  margin. Whether this stays within both providers' terms is for #178 to confirm.
 - **Dev project:** no cron (Vercel runs cron only on production). The dev project is restored from the
   dashboard if a quiet week pauses it. That affects previews only.
 - **Who checks it:** the person running each recruiter session opens the production app the day
@@ -203,25 +220,27 @@ workflow, never by an agent unasked.**
 supabase start                 # local stack (Docker); from #87
 supabase db reset              # drop and re-apply every migration in supabase/migrations/
 npm run seed                   # rebuild fictional data through the real parser; script from #117–#123
-npm run seed -- --reset        # truncate the seeded tables in dependency order first; flag from #122
+npm run seed -- --reset        # truncate the seeded tables first; flag from #122 (refused outside local/dev)
 ```
 
 **Remote (dev or prod)**
 
 ```bash
-# Schema: the migrate workflow runs this on merge to main (dev), then after manual approval (prod).
-supabase link --project-ref "$SUPABASE_PROD_PROJECT_REF"   # a person, once per machine
-supabase db push                                           # applies pending migrations
+# Schema: the migrate workflow runs this once it exists; until then, a person does.
+supabase login && supabase link --project-ref <ref from the Supabase dashboard>   # a person; prompts for the DB password
+supabase db push                                   # applies pending migrations
 
 # Data: a person runs the seed with that environment's variables loaded (never committed).
-npm run seed -- --reset
+npm run seed                                       # idempotent; #122's --reset is refused outside local/dev
 ```
 
 **Full rebuild of production:**
 
 1. Restore the project if it is paused.
-2. `supabase db push`, or reset the database from the Supabase dashboard and push again.
-3. `npm run seed -- --reset` with the production environment's variables.
+2. `supabase db push`. If the data is broken, a person runs `supabase db reset --linked` instead.
+   **This is destructive**: it drops the remote database and re-applies every migration.
+3. `npm run seed` with the production environment's variables. The seed is idempotent, and
+   `--reset` is refused outside local and dev by design ([#122](https://github.com/dczii/URecruitment/issues/122)).
 4. Run the smoke check from #177: the dashboard, a job, a candidate and a search all load.
 5. Record the elapsed time and AI cost in `docs/runbooks/re-seed.md`.
 

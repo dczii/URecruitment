@@ -72,6 +72,8 @@ P10 #170 CV answer key → #171 job top-5 key → #172 verification → #173 npm
 P11 #179 release readiness → #181 go/no-go
 ```
 
+An equally long chain ends at the go/no-go through the grading guide (#180 → #181).
+
 So the planned shape is right about the order of the **build**, but the **long pole to the go/no-go**
 is the evidence chain: **seed → answer key → human verification → eval**. Three things follow.
 
@@ -79,8 +81,8 @@ is the evidence chain: **seed → answer key → human verification → eval**. 
    dimension, which only the chosen embedding model fixes ([ADR-0003](../decisions/adr-0003-ai-provider.md)
    D5; [DT-1](../decisions/open-questions.md#dt-1--the-ai-provider)). #145 (embeddings) and
    everything in matching and search wait on it too. **Unblocking DT-1 early is the single biggest
-   schedule lever.** Until then, #111 can land its `match_scores` half, and the rest of the schema can
-   proceed.
+   schedule lever.** #112 depends on #111, so the rest of the schema waits too, unless
+   #111 is split so its `match_scores` half can land first. Splitting it is a backlog follow-up.
 2. **Recruiter verification time is on the critical path.** #172 needs recruiters to check the key
    before the bar means anything. Book their time before the eval is ready.
 3. **The seed is a convergence point.** #120 waits on the parser (P4), JD extraction and gap check (P5)
@@ -102,7 +104,7 @@ different files and can run at the same time.
 | **C. Design system** | P2 designs (#94–#106, Claude with pen.dev) then builds (#95, #97, #99, #107, #108) | Screen inventory (#75) and accessibility standard (#80); the builds need #83 | Everything. **Designs are the input to every screen build** |
 | **D. Product services** | P4 parsing, P5 jobs and gap, P6 matching, P7 search | Schema + `runAi()`; for P6 and P7, DT-1 | Each other, in part: P5 does not need P4; P7 needs P6's embeddings |
 | **E. AI governance** | P10 (`runAi()` early; spend cap; eval late) | #112 | D (it is D's dependency) |
-| **F. Pipeline and settings** | P8, P9 | #112 and #116 | D. It needs no AI work except the ranked list's add-to-pipeline (#151 needs #156) |
+| **F. Pipeline and settings** | P8, P9 | #112 and #116 | D. It needs no AI work. The dependency runs the other way: D's ranked list (#151) waits on F's stage model (#156) |
 | **G. Launch** | P11 | The convergence in the next section | — |
 
 ## Synchronisation points
@@ -113,19 +115,20 @@ its inputs have merged.**
 | # | Sync point | Needs | Before |
 |---|---|---|---|
 | S1 | **Design before build** | The screen's design and spec (`design/specs/<screen>.md`) merged. `ui-build`: *"If no spec exists for the screen, stop and report it"* | Every screen build: #97 ← #96; #99 ← #98; #161 ← #100; #137 ← #101; #135 ← #102; #134 and #154 ← #103; #160 ← #104; #164 and #165 ← #105; #131 ← #106 |
-| S2 | **Tokens before any styled build** | #94 (tokens in pen.dev) → #95 (theme) | Every UI build (S1's list) |
+| S2 | **Tokens before any styled build** | #94 (tokens in pen.dev) → #95 (theme) | Every UI build (S1's list). #131, #134, #154, #161 and #164 do not list #95 or #99 in *Depends on*. Like #142 below, these are missing dependencies |
 | S3 | **Schema before services** | #109–#112 (#111's embeddings half waits on DT-1) | P4–P9 services |
-| S4 | **`runAi()` before any AI call** | #169 | Every prompt-backed service (#127, #139, #142, #145, #148, #153) |
+| S4 | **`runAi()` before any AI call** | #169 | Every prompt-backed service (#127, #139, #142, #145, #148), and the search-query prompt's user (#152 → #153) |
 | S5 | **Provider decision** | DT-1 recorded as ADR-0004 | #111 (embeddings half), #145, #128; and a meaningful eval |
 | S6 | **Product-owner confirmations** | [RC-1](../decisions/open-questions.md#rc-1--default-stage-limits) (stage limits), [RC-2](../decisions/open-questions.md#rc-2--screens-implied-by-the-requirements) (review queue) | #159 and #121; #106 and #131 |
-| S7 | **Seed convergence** | #127, #139, #148, and #142 (missing from #120's list); #158 for back-dating | #120 → #121 → #122 → #123 |
+| S7 | **Seed convergence** | #127, #139, #148, and #142 (missing from #120's list); #158 for back-dating | #120 → #121 → #122 → #123 (#122 also needs the override merge, #132) |
 | S8 | **Evidence before release** | The seeded files → answer key → verification → eval (#170–#173) | #179, #181 |
 | S9 | **Release readiness** | The idempotent seed (#122), the dashboard (#161), the eval (#173), the fairness review (#176), the axe scan (#108) | Recruiter sessions and go/no-go |
 
 ## Definition of done
 
 **For every task.** A task is done when **all** of the following hold. The last item is the
-*Definition of done* section every task issue carries, quoted exactly.
+wording that `backlog-builder`'s `render.jq` writes into every generated task issue, quoted exactly.
+The GitHub Task form (`.github/ISSUE_TEMPLATE/3-task.yml`) lacks that section, which is a follow-up.
 
 1. **Acceptance criteria proven by named tests.** Each AC in the spec maps to a named automated test
    that passes. Where automation is not appropriate (a documentation-only task, for example), the plan
@@ -133,7 +136,7 @@ its inputs have merged.**
    [test-strategy.md](test-strategy.md).
 2. **Test-first where required.** Behaviours on the test-first list had failing tests, for the stated
    reason, before the implementation.
-3. **Verification commands green.** `npm run lint`, `npm run typecheck` and `npm test` always.
+3. **Verification commands green.** `npm run lint`, `npm run typecheck` and `npm test` always, once the scaffold (#83) exists.
    `npm run build` when app code changed, `npm run test:db` for database work, `npm run test:e2e` for a
    screen, `npm run eval` for parser, matcher, prompt or schema changes. The PR pastes the results.
 4. **Review passed.** Claude's `pr-review` has no open blocker or major finding. `security-check` and

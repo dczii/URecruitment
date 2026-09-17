@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `docs/24-infrastructure-delivery-plan` (stacked on `docs/23-quality-test-eval-a11y`) |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -66,14 +66,14 @@ for a task.
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given three environments, when I read `docs/plans/infrastructure.md`, then each one names its Supabase project, its Vercel target and its env vars by name only. _Proved by:_ `V4`.
-- [ ] **AC2** — Given the free tiers, when I read the plan, then each limit from the PRD table appears with its effect and the response chosen. _Proved by:_ `V5`.
-- [ ] **AC3** — Given the phase structure, when I read `docs/plans/delivery-plan.md`, then the critical path, the parallel tracks and the definition of done are explicit. _Proved by:_ `V6`.
-- [ ] **AC4** (#81) — Every env var the MVP needs is listed by name with its environment and secret status, and no value appears anywhere. _Proved by:_ `V4`, `V7`.
-- [ ] **AC5** (#81) — The recovery procedure names the exact commands the re-seed will use once they exist. _Proved by:_ `V5`.
-- [ ] **AC6** (#82) — Every phase P0–P12 (every value of Project 4's *Phase* field) appears with its epics and exit condition. _Proved by:_ `V6`.
-- [ ] **AC7** (#82) — The shared definition of done matches the "Definition of done" section every task issue carries. _Proved by:_ `V6` (the quoted block is byte-identical to the issue template text).
-- [ ] **AC8** — Only `docs/**` and `.env.example` change, links and anchors resolve, every issue exists, and no secret or Blob URL appears. _Proved by:_ `V1`, `V2`, `V3`, `V7`, `V8`.
+- [x] **AC1** — Given three environments, when I read `docs/plans/infrastructure.md`, then each one names its Supabase project, its Vercel target and its env vars by name only. _Proved by:_ `V4`.
+- [x] **AC2** — Given the free tiers, when I read the plan, then each limit from the PRD table appears with its effect and the response chosen. _Proved by:_ `V5`.
+- [x] **AC3** — Given the phase structure, when I read `docs/plans/delivery-plan.md`, then the critical path, the parallel tracks and the definition of done are explicit. _Proved by:_ `V6`.
+- [x] **AC4** (#81) — Every env var the MVP needs is listed by name with its environment and secret status, and no value appears anywhere. _Proved by:_ `V4`, `V7`.
+- [x] **AC5** (#81) — The recovery procedure names the exact commands the re-seed will use once they exist. _Proved by:_ `V5`.
+- [x] **AC6** (#82) — Every phase P0–P12 (every value of Project 4's *Phase* field) appears with its epics and exit condition. _Proved by:_ `V6`.
+- [x] **AC7** (#82) — The shared definition of done matches the "Definition of done" section every task issue carries. _Proved by:_ `V6` (the quoted block is byte-identical to the issue template text).
+- [x] **AC8** — Only `docs/**` and `.env.example` change, links and anchors resolve, every issue exists, and no secret or Blob URL appears. _Proved by:_ `V1`, `V2`, `V3`, `V7`, `V8`.
 
 ## Guardrails that apply
 
