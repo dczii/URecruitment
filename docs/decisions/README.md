@@ -16,6 +16,12 @@ Cite these records from issues, specs and code comments instead of re-reading th
 | 0002 | [The seventeen-table data model and its invariants](adr-0002-data-model.md) | Accepted | Each table's purpose, MVP standing and owning migration; the four invariants no task may break |
 | 0003 | [AI provider decision brief and provider-agnostic contract](adr-0003-ai-provider.md) | **Open** | The criteria, the contract every AI call must satisfy, and what unblocks the choice |
 
+Alongside the records:
+
+| Register | Covers |
+|---|---|
+| [Open questions and decision log](open-questions.md) | Every item not yet decided (the six PRD open questions, the repo-level MVP confirmations and the dev-team setup choices), each with its owner slot, deciding issue and blocked tasks, plus the append-only log of answers. **Edited in place**, unlike an ADR |
+
 ## Status vocabulary
 
 A record's own status says whether the team has committed:
