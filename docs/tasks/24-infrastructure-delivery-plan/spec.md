@@ -43,7 +43,7 @@ for a task.
 - `docs/plans/infrastructure.md` (#81):
   - the environment map (local / preview / production → Supabase project, Vercel target, migration source, who can reach it);
   - the env var inventory (names, environments, server/public, secret status, owning task) with **no values**;
-  - the response to every PRD free-tier limit, including a concrete keep-alive approach for #178 to build;
+  - the response to every PRD free-tier limit, including a concrete keep-alive approach (runbook by #178);
   - the recovery procedure, with the exact commands and a cost and time note;
   - rollback;
   - placeholders for #92 and #93.
@@ -87,7 +87,7 @@ for a task.
 - [ ] Typed name — n/a.
 - [ ] Phone width — n/a.
 - [x] **Fictional data only; no secrets or Blob URLs committed** — `.env.example` holds names only; `SEED_BLOB_BASE_URL` is treated as secret; `V7` proves no value is committed.
-- [x] **Free-tier limits respected** — every PRD limit has a response; the single daily cron slot is allocated to the keep-alive; delay status stays a view.
+- [x] **Free-tier limits respected** — every PRD limit has a response; the keep-alive runs as a daily cron job; delay status stays a view.
 
 ## UX / design
 
@@ -95,15 +95,15 @@ n/a.
 
 ## Data / API changes
 
-None in this PR. The plan **proposes** a keep-alive route and cron entry for #178 to build, and `CRON_SECRET` for it.
+None in this PR. The plan **proposes** a keep-alive route, a cron entry and `CRON_SECRET` (owner to be settled: #178 widened or a new task).
 
 ## Assumptions
 
 - **A1 — One PR for the story (user instruction), stacked on #23.** There is one commit per task. #81 depends on #76 (in #186), and #82 depends on #81.
 - **A2 — Claude writes it.** Both issues carry `Executor hint: claude (judgment-heavy)`.
 - **A3 — `.env.example` is added now,** because #81 lists it as an affected file. #84 (typed env) may add names and must keep the file names-only.
-- **A4 — The keep-alive approach is proposed here:** a daily Vercel cron on Production calling a secret-guarded route that makes one trivial read. #178 builds it and writes the runbook. Daily fits Hobby's limit and leaves margin under the one-week threshold. The dev project is restored on demand, because Vercel runs cron only on production. Whether the read counts as activity is to be confirmed by #178, not assumed.
-- **A5 — The one daily cron slot goes to the keep-alive.** Any other scheduled job needs this record changed first.
+- **A4 — The keep-alive approach is proposed here:** a daily Vercel cron on Production calling a secret-guarded route that makes one trivial read. #178 writes the runbook; building the route and cron entry needs #178 widened or a new task (review F5). Daily fits Hobby's limit and leaves margin under the one-week threshold. The dev project is restored on demand, because Vercel runs cron only on production. Whether the read counts as activity is to be confirmed by #178, not assumed.
+- **A5 — The keep-alive uses a daily cron job** (Hobby runs each job at most once a day). Any other scheduled job needs this record changed first.
 - **A6 — The inventory adds names the skills don't list.** They are `CRON_SECRET` (#178), `SENTRY_AUTH_TOKEN` (only if #86 enables source maps), `SUPABASE_PUBLISHABLE_KEY` (local lock-down test only) and `PLAYWRIGHT_BASE_URL` (#85/#90, which may rename it). Each is marked with its owning task.
 - **A7 — No provider key name is reserved.** It is named when DT-1 is decided.
 - **A8 — The critical path is recorded twice:** as the issue states it, and as the task dependencies show it. The dependency graph's longest chain, 19 tasks, runs through the seed, the answer key and the eval, and puts DT-1 and recruiter verification time on the critical path. Recording only the planned shape would hide the real long pole.
