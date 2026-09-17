@@ -68,6 +68,7 @@ Read [README.md](README.md) for the status vocabulary the ADRs use. The PRD is
 | [DT-2](#dt-2--the-intake-mailbox) | Intake mailbox address | Open | Real-data release | [#14](https://github.com/dczii/URecruitment/issues/14) | Real-data epic (stub) |
 | [DT-3](#dt-3--the-onedrive--sharepoint-folders) | OneDrive / SharePoint folders | Open | Real-data release | [#14](https://github.com/dczii/URecruitment/issues/14) | Real-data epic (stub) |
 | [DT-4](#dt-4--converting-legacy-doc-files) | Converter for legacy `.doc` | Open (implementation choice) | Inside the seed task | none; chosen in [#118](https://github.com/dczii/URecruitment/issues/118)'s spec | none |
+| [RV-1](#rv-1--workplace-fairness-act-attributes) | Workplace Fairness Act attributes not yet ignored | Open (deadline: end-2027) | Before the Act takes effect (end-2027) | none; written deferral, reviewed in [#176](https://github.com/dczii/URecruitment/issues/176) | none |
 
 The real-data epics are [#14](https://github.com/dczii/URecruitment/issues/14) to
 [#18](https://github.com/dczii/URecruitment/issues/18). They are stubs with no tasks yet, and each
@@ -284,7 +285,29 @@ own record or issue.
 
 ---
 
-## D. Already resolved, so do not reopen
+## D. Revisits with a deadline
+
+Items the PRD flags for a later decision with a date attached, rather than as an open question.
+
+### RV-1 — Workplace Fairness Act attributes
+
+| | |
+|---|---|
+| Source | PRD *Fair employment*: *"Scoring does not explicitly ignore pregnancy, caregiving duties, disability or mental health, which the Act also protects. Revisit this before the Act takes effect."* The Act *"is due to take effect at end-2027"* |
+| The question | Should scoring explicitly ignore **pregnancy, caregiving, disability and mental health**, as it already ignores name, photo, age, gender, race, religion and marital status? And should the gap check flag job requests that state preferences on them? |
+| Status | **Open**, with a deadline (before end-2027) |
+| Owner slot | — *(unassigned)* |
+| Found by | [#77](https://github.com/dczii/URecruitment/issues/77) |
+| Decided when | Before the Act takes effect (end-2027), or earlier if real candidates are scored close to that date |
+| MVP position | **None of the four is added as a scoring input, filter or gap-flag signal, and none is quietly added to redaction either.** Adding it would settle this row inside an implementation PR ([compliance baseline](../compliance/baseline.md#the-workplace-fairness-act-an-open-revisit)) |
+| Blocked tasks | none |
+| Deciding issue | **None yet. This is an explicit written deferral.** The fairness review ([#176](https://github.com/dczii/URecruitment/issues/176)) records the four as a future decision, and the go/no-go pack ([#181](https://github.com/dczii/URecruitment/issues/181)) restates it for the real-data release |
+| What unblocks it | An owner, and a decision recorded in the log. A `needs-decision` issue is created when the real-data release is planned |
+| Risk | [R-08](../compliance/risk-register.md#r-08--workplace-fairness-act-attributes-not-explicitly-ignored) |
+
+---
+
+## E. Already resolved, so do not reopen
 
 The PRD records these as settled. They are listed so nobody mistakes them for open questions.
 
