@@ -30,7 +30,8 @@ Read [README.md](README.md) for the status vocabulary the ADRs use. The PRD is
    it stops and says so.
 2. **A task that depends on an open item carries the `needs-decision` label** and names the item's ID
    (for example `OQ-2` or `RC-1`) in its spec under *Open questions*. The row below lists that task
-   under **Blocked tasks**. Label and row change together, in the same PR.
+   under **Blocked tasks**, or under **Deciding issue** when the question is put to the owner or
+   recorded there. Label and row change together, in the same PR.
 3. **A question that is not here gets a row before work continues.** Add it with status **Open**, an
    empty owner slot, and the task that found it. Do not pick an answer to keep moving.
 4. **Only the owner answers.** An answer is recorded in the [decision log](#decision-log) with its date,
@@ -45,7 +46,7 @@ Read [README.md](README.md) for the status vocabulary the ADRs use. The PRD is
 
 | Status | Meaning |
 |---|---|
-| **Open** | No answer. Nobody has been asked yet, or there is no set point yet |
+| **Open** | No answer, and the question has not yet been put to the owner. "(set point)" means the PRD says when it gets decided |
 | **Awaiting owner** | The question has been, or is due to be, put to the owner. No answer yet |
 | **Deferred** | Deliberately parked with a named trigger that reopens it. No decision issue exists yet |
 | **Answered** | The owner answered. See the linked log entry |
@@ -94,7 +95,7 @@ assignment.
 | MVP position | No sign-in, **fictional data only** (PRD, decided: *"The MVP has no sign-in, confirmed on 17 Sep 2026"*). This is not an answer to OQ-1 |
 | Blocked tasks | Everything in the real-data release. [#16](https://github.com/dczii/URecruitment/issues/16) (access protection) says nothing there starts before this is decided |
 | Deciding issue | [#16](https://github.com/dczii/URecruitment/issues/16) E15 for sign-in or network access; [#15](https://github.com/dczii/URecruitment/issues/15) E14 for consent recording and the retention job. The question is put to the owner in the go/no-go pack, [#181](https://github.com/dczii/URecruitment/issues/181) |
-| What unblocks it | (1) an owner is named; (2) the compliance baseline ([#77](https://github.com/dczii/URecruitment/issues/77)) lists the prerequisites; (3) the go/no-go pack ([#181](https://github.com/dczii/URecruitment/issues/181)) puts them to the product owner, PDPA protection first; (4) the owner decides whether a legal review is one of them |
+| What unblocks it | (1) an owner is named; (2) the compliance baseline ([#77](https://github.com/dczii/URecruitment/issues/77)) lists the candidate prerequisites; (3) the go/no-go pack ([#181](https://github.com/dczii/URecruitment/issues/181)) puts them to the product owner, PDPA protection first; (4) the owner decides which of sign-in, consent recording, the retention job and a legal review must be in place, and whether anything else is needed |
 
 ### OQ-2 — Which paid plans to move to
 
@@ -105,7 +106,7 @@ assignment.
 | Owner slot | — *(unassigned)* |
 | Who the PRD points at | Nobody. The free-tier table's suggested response is *"Move to Vercel Pro before recruiters use the portal for real work"* |
 | Decided when | Before recruiters use the portal for real work |
-| MVP position | Vercel Hobby and Supabase Free (PRD technical choices → *Plans for the MVP*, **decided**) |
+| MVP position | Vercel Hobby and Supabase Free (PRD *Technical architecture* → *Plans for the MVP*, **decided**) |
 | Blocked tasks | The real-data release ([#18](https://github.com/dczii/URecruitment/issues/18), stub) |
 | Deciding issue | [#18](https://github.com/dczii/URecruitment/issues/18) E17 *Paid plans & backups* |
 | What unblocks it | An owner; a cost figure for the plans sized to the PRD's post-MVP scale (*"Under 1,000 CVs per month; 6–20 recruiters"*); the MVP's measured usage from the infrastructure plan's runbook |
@@ -123,7 +124,7 @@ assignment.
 | MVP position | No backups. Recovery is migrations plus a re-seed (PRD, decided) |
 | Blocked tasks | The real-data release ([#18](https://github.com/dczii/URecruitment/issues/18), stub) |
 | Deciding issue | [#18](https://github.com/dczii/URecruitment/issues/18) E17 *Paid plans & backups* |
-| What unblocks it | OQ-2 (a backup policy depends on the plan chosen), and the retention rule in OQ-1 / [#15](https://github.com/dczii/URecruitment/issues/15), because backup retention must not outlive the 12-month data-retention rule |
+| What unblocks it | OQ-2, because a backup policy depends on the plan chosen. The answer must also take account of the 12-month data-retention rule (PRD *Retention*, **decided**; built in [#15](https://github.com/dczii/URecruitment/issues/15)) |
 
 ### OQ-4 — The duplicate-candidate rule
 
@@ -150,7 +151,7 @@ assignment.
 | Decided when | After the MVP go/no-go. The PRD release plan says: *"No date; depends on the MVP outcome"* |
 | MVP position | Not scheduled |
 | Blocked tasks | Scheduling of every real-data epic ([#14](https://github.com/dczii/URecruitment/issues/14)–[#18](https://github.com/dczii/URecruitment/issues/18), stubs) |
-| Deciding issue | [#181](https://github.com/dczii/URecruitment/issues/181) E12-S03-T01 *Assemble the go/no-go pack and record the decision* |
+| Deciding issue | [#181](https://github.com/dczii/URecruitment/issues/181) E12-S03-T01 *Assemble the go/no-go pack and record the decision* puts it to the product owner at go/no-go and records the owner's decision. **#181 itself settles nothing**; its scope says so |
 | What unblocks it | A "go" decision, and answers to OQ-1, OQ-2 and OQ-3, which the date depends on |
 
 ### OQ-6 — Targets for the four success metrics
@@ -187,7 +188,7 @@ ambiguous or silent **and** an MVP task needs a clear answer. Each one has a `ne
 | Owner slot | Product owner (the table is theirs). Not yet asked |
 | Decided when | Before the seed writes any default limit |
 | MVP position | Tests use explicit fixture limits. **No default limit is seeded until the owner confirms** ([#159](https://github.com/dczii/URecruitment/issues/159) says so) |
-| Blocked tasks | [#159](https://github.com/dczii/URecruitment/issues/159), its seeding step. [#121](https://github.com/dczii/URecruitment/issues/121) (back-dated entries), because its DB test proves all three delay statuses after seeding, which needs default limits in the table |
+| Blocked tasks | [#159](https://github.com/dczii/URecruitment/issues/159), its seeding step. [#121](https://github.com/dczii/URecruitment/issues/121) (back-dated entries), because its back-dated spread is computed against the default limits, which are unconfirmed, and its DB test proves all three delay statuses after seeding |
 | Not blocked | The delay view ([#158](https://github.com/dczii/URecruitment/issues/158)) and the limit resolver ([#157](https://github.com/dczii/URecruitment/issues/157)). Their tests use fixture limits |
 | Deciding issue | [#159](https://github.com/dczii/URecruitment/issues/159) E08-S02-T03 *Confirm the default stage limit table with the product owner* |
 | What unblocks it | The owner says yes or gives corrections. #159 writes the answer to the decision log and seeds only confirmed values |
@@ -201,16 +202,16 @@ ambiguous or silent **and** an MVP task needs a clear answer. Each one has a `ne
 | Status | **Awaiting owner** |
 | Owner slot | Product owner. Not yet asked |
 | Decided when | (a) before the review-queue design is finalised; (b) alongside it |
-| MVP position | (a) The queue's **query and retry action** ([#130](https://github.com/dczii/URecruitment/issues/130)) are built, because requirement 2 is stated; only the **screen** waits. (b) The name prompt's **behaviour** is not in doubt: the PRD states it twice (design rule 5, security control 4) and `CLAUDE.md` hard rule 8 makes it binding. It is designed as a dialog ([#98](https://github.com/dczii/URecruitment/issues/98)) and built with the shared patterns ([#99](https://github.com/dczii/URecruitment/issues/99), [#167](https://github.com/dczii/URecruitment/issues/167)). The owner confirms its form, so (b) blocks nothing |
+| MVP position | (a) The queue's **query and retry action** ([#130](https://github.com/dczii/URecruitment/issues/130)) are built, because requirement 2 is stated; only the **screen** waits. (b) Recording the typed name is binding (PRD security control 4; `CLAUDE.md` hard rule 8). The PRD words the prompt two ways: design rule 5 says *"Before a recruiter's first change on a device, the portal asks for their name"*, while the Pipeline board row says *"typed-name prompt on each move"*. So the owner confirms its **form**. The remembered-name dialog designed in [#98](https://github.com/dczii/URecruitment/issues/98) and built in [#99](https://github.com/dczii/URecruitment/issues/99) and [#167](https://github.com/dczii/URecruitment/issues/167) (asked once per device, then shown on each move with "not you?") is a reversible default, so (b) blocks nothing |
 | Blocked tasks | [#106](https://github.com/dczii/URecruitment/issues/106) (design the review queue), [#131](https://github.com/dczii/URecruitment/issues/131) (build it) |
 | Deciding issue | [#106](https://github.com/dczii/URecruitment/issues/106) E02-S04-T07 *Design the CV review queue screen* |
-| What unblocks it | The owner confirms (a). #106 records the answer here before the design is finalised. The screen inventory (`docs/ux/screen-inventory.md`, story [#21](https://github.com/dczii/URecruitment/issues/21)) flags both for the owner |
+| What unblocks it | The owner confirms (a) and (b). #106 records the answer here before the review-queue design is finalised. The screen inventory (story [#21](https://github.com/dczii/URecruitment/issues/21), task [#75](https://github.com/dczii/URecruitment/issues/75)) will flag both for the owner |
 
 ### RC-3 — Vercel Hobby and commercial use
 
 | | |
 |---|---|
-| Source | PRD *Free-tier limits and risks*, row *"Vercel Hobby is for non-commercial, personal use only"*: effect *"Using it for agency work breaks Vercel's terms"*; suggested response *"Move to Vercel Pro before recruiters use the portal for real work"*. PRD technical choices: *Plans for the MVP — Vercel Hobby and Supabase Free* (**decided**) |
+| Source | PRD *Free-tier limits and risks*, row *"Vercel Hobby is for non-commercial, personal use only"*: effect *"Using it for agency work breaks Vercel's terms"*; suggested response *"Move to Vercel Pro before recruiters use the portal for real work"*. PRD *Technical architecture* → *Plans for the MVP*: Vercel Hobby and Supabase Free (**decided**) |
 | The question | Where exactly is the line? Does inviting recruiters to MVP feedback sessions on **fictional** data count as "agency work" under Vercel's terms, or does the move to Pro wait for real work on real data (OQ-2)? |
 | Status | **Open** |
 | Owner slot | — *(unassigned; it is a spend and terms decision)* |
@@ -218,8 +219,9 @@ ambiguous or silent **and** an MVP task needs a clear answer. Each one has a `ne
 | MVP position | Hobby, as the PRD decided. `release-deploy` says the move to Pro is *"an open decision; raise it, don't do it"* |
 | Blocked tasks | None in the build |
 | Checked by | The release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179)) restates this row's status before recruiters are invited. Its scope already says so, and it does not need the answer to finish |
-| Deciding issue | [#92](https://github.com/dczii/URecruitment/issues/92) E01-S04-T01 *Configure the Vercel project, regions and per-environment variables* records it and links here |
+| Deciding issue | [#92](https://github.com/dczii/URecruitment/issues/92) E01-S04-T01 *Configure the Vercel project, regions and per-environment variables* records the question as open and links here. **It does not decide it**; its scope excludes choosing a plan |
 | What unblocks it | An owner, and the terms read for the MVP's actual use. If the answer is "Pro now", this row feeds OQ-2 |
+| Related | [ADR-0001](adr-0001-architecture.md) says the MVP on fictional data *"is fine"* on Hobby, and the PRD release plan runs the feedback sessions on Hobby: *"Runs on Vercel Hobby and Supabase Free. Ends with recruiter feedback sessions and a go/no-go decision"*. Neither is a reading of Vercel's terms, so this row keeps the question open. If the answer is "Pro now", a new ADR supersedes that part of ADR-0001 in the same PR |
 
 ---
 
@@ -274,7 +276,7 @@ own record or issue.
 | Status | **Open** (implementation choice) |
 | Source | PRD *AI pipeline → Text extraction*: *"Legacy .doc files need a converter, which serverless functions can't run easily. For the MVP, the seed script converts them first"* |
 | Owner slot | Dev team (PRD, decided) |
-| MVP position | Where the conversion happens is decided: in the seed script. **Which converter** is chosen and recorded by the seed task |
+| MVP position | Where the conversion happens is **proposed** (PRD *AI pipeline (suggested)*): in the seed script. **Which converter** is chosen and recorded by the seed task |
 | Decided when | When the seed task is planned |
 | Blocked tasks | none |
 | Where it is chosen | In the spec of [#118](https://github.com/dczii/URecruitment/issues/118) E03-S04-T02. This is an implementation choice inside that task, not a product question, so it carries no `needs-decision` label |
@@ -291,7 +293,7 @@ The PRD records these as settled. They are listed so nobody mistakes them for op
 | No sign-in in the MVP | PRD *Users*: *"The MVP has no sign-in, confirmed on 17 Sep 2026"* |
 | CV fields, ignored attributes, guarantee period, devices, performance targets, baseline owner, external source approver | PRD closing note: *"Resolved on 17 Sep 2026"* |
 | Who picks the AI provider | PRD *AI governance*: *"The dev team picks the AI provider (decided)"* |
-| MVP plans and backups | PRD technical choices: Vercel Hobby + Supabase Free; no backups (**decided**) |
+| MVP plans and backups | PRD *Technical architecture*: Vercel Hobby + Supabase Free; no backups (**decided**) |
 | Sample-data source | Public Vercel Blob store, seed source only (`prd-context` → `references/sample-data.md`: *"decided by the product owner, 17 Sep 2026"*) |
 
 ---
@@ -301,13 +303,13 @@ The PRD records these as settled. They are listed so nobody mistakes them for op
 Answers are **appended**. An entry is never edited, except to fix a broken link. A reversed decision
 gets a new entry that names the one it replaces.
 
-**Every entry needs all six columns.** An entry without a date or without the issues it unblocks is
-incomplete and fails review.
+**Every entry needs all six columns.** An entry without a date, or without the issues it unblocks
+(or an explicit "none"), is incomplete and fails review.
 
 | Date (SGT) | ID | Decision | Decided by | Where it was given | Unblocks |
 |---|---|---|---|---|---|
-| 2026-09-17 | — | The MVP has no sign-in. Risk 1 is accepted **for fictional data only**. This does **not** answer OQ-1 | Product owner | PRD *Users* and *Data, privacy & compliance → Risk 1* | The MVP build (no auth work in P0–P11) |
-| 2026-09-17 | — | Resolved: CV fields, ignored attributes, guarantee period, devices, performance targets, baseline owner and external source approver | Product owner (PRD Q&A) | PRD closing note | Parsing schema, redaction, placements, device targets, speed targets |
+| 2026-09-17 | — | The MVP has no sign-in. Risk 1 is accepted **for fictional data only**. This does **not** answer OQ-1 | Product owner | PRD *Users* and *Data, privacy & compliance → Risk 1*; attributed to the product owner by the PRD's opening note (*"Decisions come from Q&A with the product owner on 17 Sep 2026"*) | None. No issue was blocked; it was resolved before the backlog existed |
+| 2026-09-17 | — | Resolved: CV fields, ignored attributes, guarantee period, devices, performance targets, baseline owner and external source approver | Product owner | PRD closing note (*"Resolved on 17 Sep 2026"*); attributed as above | None. No issue was blocked; it was resolved before the backlog existed |
 | 2026-09-17 | — | The sample-data source is a public Vercel Blob store, used as the seed source only. The app stores files in private Supabase Storage | Product owner | `prd-context` → `references/sample-data.md` | Seed tasks [#117](https://github.com/dczii/URecruitment/issues/117)–[#123](https://github.com/dczii/URecruitment/issues/123) |
 
 ### Recording an answer

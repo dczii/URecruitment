@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `docs/20-open-questions-register` (stack base: `main`) |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -48,7 +48,7 @@ was convenient. This story creates that one place, with a rule contributors foll
 - A decision log with a fixed entry format. It holds only answers the product owner has actually given.
 - An index entry in `docs/decisions/README.md`.
 - The `needs-decision` label on the three tasks ADR-0003 D5 names as blocked on the provider
-  (#111, #145, #128). This is needed for AC2.
+  (#111, #145, #128), and on #121, which RC-1 blocks. This is needed for AC2.
 
 **Out of scope**
 
@@ -58,13 +58,13 @@ was convenient. This story creates that one place, with a rule contributors foll
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given the PRD lists six open questions, when I open `docs/decisions/open-questions.md`, then each one shows its status, owner slot, what unblocks it and the issue that will decide it. _Proved by:_ `V4` (six OQ rows, verbatim PRD text, all columns filled).
-- [ ] **AC2** — Given an item is open, when a task depends on it, then that task carries the `needs-decision` label and names the open question. _Proved by:_ `V5` (every issue in a "Blocks"/"Deciding issue" cell that is an open task carries `needs-decision`); the register's rule 2 obliges the task spec to name the ID.
-- [ ] **AC3** — Given a question is answered, when the register is updated, then the answer is recorded with its date and the issues it unblocks. _Proved by:_ `V6` (the decision log has a Date and an Unblocks column, and the procedure says both are required).
-- [ ] **AC4** (#74) — All six PRD open questions and the three repo confirmations appear, each linked to its `needs-decision` issue or to an explicit written deferral. _Proved by:_ `V4`, `V5`.
-- [ ] **AC5** (#74) — No entry records an answer that the product owner has not given. _Proved by:_ `V7` (every log entry cites a source that attributes it to the product owner) and review.
-- [ ] **AC6** (#74) — The register states that MVP build is not blocked by the six PRD questions. _Proved by:_ `V4` (verbatim PRD sentence present).
-- [ ] **AC7** — Only files under `docs/` change, every relative link resolves, every linked issue number exists, and no secret appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
+- [x] **AC1** — Given the PRD lists six open questions, when I open `docs/decisions/open-questions.md`, then each one shows its status, owner slot, what unblocks it and the issue that will decide it. _Proved by:_ `V4` (six OQ rows, verbatim PRD text, all columns filled).
+- [x] **AC2** — Given an item is open, when a task depends on it, then that task carries the `needs-decision` label and names the open question. _Proved by:_ `V5` (every issue in a "Blocks"/"Deciding issue" cell that is an open task carries `needs-decision`); the register's rule 2 obliges the task spec to name the ID.
+- [x] **AC3** — Given a question is answered, when the register is updated, then the answer is recorded with its date and the issues it unblocks. _Proved by:_ `V6` (the decision log has a Date and an Unblocks column, and the procedure says both are required).
+- [x] **AC4** (#74) — All six PRD open questions and the three repo confirmations appear, each linked to its `needs-decision` issue or to an explicit written deferral. _Proved by:_ `V4`, `V5`.
+- [x] **AC5** (#74) — No entry records an answer that the product owner has not given. _Proved by:_ `V7` (every log entry cites a source that attributes it to the product owner) and review.
+- [x] **AC6** (#74) — The register states that MVP build is not blocked by the six PRD questions. _Proved by:_ `V4` (verbatim PRD sentence present).
+- [x] **AC7** — Only files under `docs/` change, every relative link resolves, every linked issue number exists, and no secret appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
 
 ## Guardrails that apply
 
@@ -95,7 +95,7 @@ None.
 - **A3 — Owner slots stay empty.** The PRD names no owner for any of the six questions ("no owner named" appears only on question 1, but no question names one). Filling a name would be a decision the product owner has not made. The register shows who the PRD *points at* in a separate column and leaves the owner slot blank.
 - **A4 — Question 6 gets a written deferral, not a new issue.** The epic's exit criterion allows "a decision issue labelled `needs-decision`, or an explicit written deferral". No backlog issue sets metric targets, and #74 forbids creating issues. The deferral names its trigger (the Manatal baseline export) and #181 carries the question into the go/no-go pack.
 - **A5 — The name prompt is recorded with RC-2 but not as blocking.** It is absent from the PRD screen list, but its behaviour is stated twice in the PRD (design rule 5, security control 4) and is `CLAUDE.md` hard rule 8. Only its form as a dialog rather than a screen needs confirming. Story #21 flags it for the owner.
-- **A6 — The provider-blocked tasks get the label now.** ADR-0003 D5 (merged) already says #111, #145 and #128 are blocked, and its consequence 5 says their issues carry `needs-decision`. Applying the label is the step PR #183 left as follow-up 3. Removing a label is reversible.
+- **A6 — The blocked tasks get the label now.** ADR-0003 D5 (merged) already says #111, #145 and #128 are blocked, and its consequence 5 says their issues carry `needs-decision`. Applying the label is the step PR #183 left as follow-up 3. #121 gets it because RC-1 blocks its back-dated spread. Removing a label is reversible. Issue bodies are not edited here (out of scope); naming the question in each body is a follow-up.
 - **A7 — The decision log starts with PRD-resolved items only.** The only entries are ones the PRD or `prd-context` attributes to the product owner on 17 Sep 2026. The answer-key drafting rule is left out because its source does not name who decided it.
 - **A8 — No test runner.** As in #19 (spec A8), verification is a set of shell checks. `package.json` arrives with #83.
 
