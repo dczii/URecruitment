@@ -33,6 +33,16 @@ describe("public env (AC2, AC9, AC10)", () => {
       ["MUST_HAVE_CAP", false],
       ["AI_MODEL_PARSE", false],
       ["KEYBOARD_LAYOUT", false],
+      // Added by the 2026-09-18 security review: the first guard missed all of
+      // these, which are the likeliest names for a leaked secret.
+      ["NEXT_PUBLIC_SUPABASE_SERVICE_ROLE", true],
+      ["NEXT_PUBLIC_OPENAI_APIKEY", true],
+      ["NEXT_PUBLIC_AI_KEYS", true],
+      ["NEXT_PUBLIC_AI_CREDENTIALS", true],
+      ["SENTRY_SIGNING_KEY", true],
+      ["GITHUB_PAT", true],
+      ["TLS_PEM", true],
+      ["SUPABASE_DEV_DB_PASSWD", true],
     ];
     for (const [name, expected] of cases) {
       expect(isSecretShapedName(name), name).toBe(expected);
