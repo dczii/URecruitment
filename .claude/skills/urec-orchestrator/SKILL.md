@@ -39,6 +39,17 @@ Run straight through from intake to an open PR. **Don't** stop to ask "shall I p
 
 Record every other judgment call under **Assumptions** in `spec.md`, then keep going.
 
+## Story workflow: one Task, one PR
+
+A Story is a tracking container, never an implementation unit:
+
+- When creating a Story, decompose its implementation into Task sub-issues before writing code. Each Task must be independently reviewable and must run through Steps 2–10 with its own spec, plan, branch, commits and PR containing `Closes #<task>`.
+- When the input is a Story, process every open Task sub-issue in dependency order. Do not combine multiple Tasks into one branch or PR, and do not open an implementation PR that closes the Story itself.
+- A Task is not considered delivered merely because its commits appear in another Task's diff. Every Task must have its own open PR.
+- Task PRs may be **stacked** when waiting for an earlier Task to merge would block progress. Branch the dependent Task from its immediate predecessor and set that predecessor's branch as the PR base. State the stack order and dependency in every affected PR body.
+- A stacked PR still closes only its own Task. After its predecessor merges, rebase or merge `main` into the branch as appropriate, retarget the PR to `main`, and verify that its diff contains only that Task.
+- Never merge the stack. Human reviewers merge from the bottom of the stack upward. The Story is complete only after all Task PRs are merged and all Task sub-issues are closed.
+
 ## Step 0 — Preflight
 
 ```bash
@@ -58,7 +69,8 @@ cursor-agent status                                  # executor is authenticated
 | Input | Action |
 |---|---|
 | `#42` or an issue URL | `gh issue view 42 --json number,title,body,labels,milestone,state`. Read its parent story/epic too (see `github-workflow`). |
-| A **Story** or **Epic** number | List its open Task sub-issues. Pick the first unblocked one, in the order given in the story body. If the story has no tasks, decompose it into Task issues first (`github-workflow` → create sub-issues), then take the first. |
+| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run each Task through its own Steps 2–10 and open one PR per Task. Process in dependency order; use stacked PRs for dependent Tasks when useful. |
+| An **Epic** number | List its open Stories, choose the first unblocked Story in roadmap order, then apply the Story workflow above. |
 | Free text | Search for a duplicate (`gh issue list --search "<keywords>" --state all`). If none exists, create a **Task** issue using the task form fields, attach it to the best-matching Story (create the Story under the right Epic if none fits), add it to Project 4, set the milestone (default `MVP`), and record the choice under Assumptions. |
 
 **Slug:** kebab-case, at most 5 words, taken from the issue title (`cv-parser-schema`). **Type:** `feat | fix | chore | docs | test | refactor | design | ci`.
@@ -92,8 +104,13 @@ Skill discovery is mandatory for every task; do not rely on the list remembered 
 
 ## Step 3 — Branch and docs
 
+Choose the branch base:
+
+- Independent Task: `main`.
+- Stacked Task: the immediate predecessor Task's branch. Its predecessor PR must already be open.
+
 ```bash
-git switch main && git pull --ff-only
+git switch <base-branch> && git pull --ff-only
 git switch -c <type>/<issue>-<slug>
 .claude/skills/urec-orchestrator/scripts/new-task-docs.sh <issue> <slug> "<issue title>"
 ```
@@ -216,14 +233,16 @@ git commit -m "<type>(<area>): <summary> (#<issue>)"
 git push -u origin HEAD
 # Write the body: copy .github/pull_request_template.md to .orchestrator/<issue>-<slug>/pr-body.md
 # and fill every section (Closes #<issue>, spec/plan links, verification output, review findings).
-gh pr create --base main --title "<type>(<area>): <summary> (#<issue>)" \
+gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
   --body-file .orchestrator/<issue>-<slug>/pr-body.md
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
 - **Commits:** Conventional Commits. Split the commits logically if the diff is large: tests, implementation, docs.
+- **PR base:** use `main` for an independent Task or the immediate predecessor branch for a stacked Task. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
-- **Then stop.** Don't merge, don't enable auto-merge, don't close the issue. `Closes #N` closes it when a human merges.
+- **Then stop for a single-Task input.** For a Story or Epic input, continue with the next Task until every open Task has its own PR or a listed blocking condition is reached.
+- Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
 
 ## Final report (to the user)
 
@@ -254,4 +273,6 @@ The final response is mandatory after the PR is opened (or after reporting a blo
 - Letting an executor commit, push, add dependencies, or touch `docs/tasks`.
 - Trusting "all tests pass" without running them.
 - Treating a **proposed** PRD item as decided without saying so in the spec.
+- Combining multiple Task issues in one PR, or leaving a Task without its own PR because its commits are present in a stacked diff.
+- Opening an implementation PR for a Story instead of one PR per Task.
 - Merging, or moving a card to Done.
