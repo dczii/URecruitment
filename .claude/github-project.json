@@ -19,6 +19,8 @@
     "model": "cursor-grok-4.6-high",
     "escalationModel": "cursor-grok-4.6-xhigh",
     "cheapModel": "cursor-grok-4.6-low",
+    "gptModel": "gpt-5.6-sol-high",
+    "gptEscalationModel": "gpt-5.6-sol-xhigh",
     "maxFixRounds": 3
   }
 }

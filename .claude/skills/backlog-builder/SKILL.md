@@ -60,7 +60,7 @@ The backlog map lives in [references/backlog-map.md](references/backlog-map.md).
   - What to build
   - Done when (1–4 bullets)
   - Skills in scope (e.g. `supabase-db`, `testing`)
-  - Executor hint: `grok` or `claude` (design)
+  - Executor hint: `grok` (default), `gpt` (GPT-5.6), or `claude` (design)
   - Depends on (task keys → issue numbers)
 
 **Sizing and labels:**

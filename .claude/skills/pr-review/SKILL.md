@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: >
-  Claude's review gate for URecruitment changes (usually written by Grok via cursor-agent): checks
+  Claude's review gate for URecruitment changes (usually written by a Cursor executor): checks
   the diff against the task's spec.md acceptance criteria and plan.md scope, PRD guardrails, the
   rules of every skill in scope, test quality, migrations, UI fidelity at desktop/phone width and
   git/PR conventions. Use for `/review [PR# | branch]`, in urec-orchestrator Step 8, or whenever asked

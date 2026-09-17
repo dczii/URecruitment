@@ -1,0 +1,37 @@
+{"items":[
+{"key":"E09","level":"epic","title":"Placements & guarantee","phase":"P8 Pipeline & placements","milestone":"MVP","labels":["area:placements","priority:p0"],
+ "goal":"When a candidate is placed, the portal confirms their start date and tracks the client's replacement guarantee — 30 days by default — flagging it on the dashboard five working days before it ends, so a replacement is arranged in time rather than discovered late.",
+ "prd":["Pipeline tracking → After Placed (decided, in the MVP): the portal confirms the start date and tracks a 30-day replacement guarantee; the dashboard flags it 5 working days before the guarantee ends (timing proposed) → decided / proposed","Data model → clients hold their own guarantee period; placements hold the start-date check and the guarantee end date → suggested","UI design → Placements: start date check, 30-day guarantee countdown → decided"],
+ "exit":["A placed candidate has a confirmed start date and a guarantee end date derived from the client's period","The guarantee flag appears exactly five working days before the end date, counted in Singapore working days","The placements screen shows the countdown and the start-date check"],
+ "outOfScope":["Invoicing, fees or commission tracking","Any email or reminder to the client or the candidate","Replacement workflows beyond flagging that the guarantee is ending"]},
+
+{"key":"E09-S01","parent":"E09","level":"story","title":"Recruiters confirm start dates and track the guarantee","phase":"P8 Pipeline & placements","milestone":"MVP","labels":["area:placements","priority:p0"],
+ "story":"As a recruiter, I want the portal to remind me on the dashboard before a placement's guarantee runs out, so that I find out from the system rather than from the client.",
+ "ac":["Given a placed candidate, when I confirm their start date, then a placement record is created with a guarantee end date.","Given a client with its own guarantee period, when the end date is computed, then that period is used; otherwise 30 days.","Given a guarantee ending in five working days, when I open the dashboard, then it is flagged.","Given the placements screen, when I open it, then each placement shows its start date and a countdown to the guarantee end."],
+ "prd":["Pipeline tracking → After Placed (decided): start date confirmed, 30-day replacement guarantee tracked → decided","Pipeline tracking → the dashboard flags it 5 working days before the guarantee ends → proposed","Data model → clients.guarantee period; placements → suggested"],
+ "design":"Yes: new screen"},
+
+{"key":"E09-S01-T01","parent":"E09-S01","level":"task","title":"Create the placement record with the start-date check and guarantee end date","phase":"P8 Pipeline & placements","milestone":"MVP","labels":["area:placements","priority:p0"],"executor":"grok",
+ "what":"When a candidate reaches Placed, let a recruiter confirm the start date and compute the guarantee end date from the client's period, defaulting to 30 days. Test-first: the date arithmetic is exactly the kind of logic that goes wrong quietly.",
+ "scope":["A Server Action creating or updating the placement with the confirmed start date and the typed recruiter name","The guarantee end date computed from the client's period, defaulting to 30 days","Failing tests first: the client's own period is used when set; the 30-day default applies otherwise; a start date before the placed date is refused; changing the start date recomputes the end date","Whether the guarantee period counts calendar or working days is stated once in the spec and tested"],
+ "exclusions":["The dashboard flag (T02)","The placements screen (T03)","Replacement or refund workflows"],
+ "done":["Failing-then-passing tests cover the client period, the 30-day default, the invalid start date and recomputation","The calendar-or-working-days question is answered in the spec and enforced by a test","Every placement records the typed recruiter name"],
+ "files":["src/server/placements/create.ts","src/server/placements/create.test.ts","src/app/(app)/placements/actions.ts"],
+ "skills":["supabase-db","testing","prd-context","nextjs-app"],"verify":["npm test -- placements","npm run test:db","npm run typecheck"],"depends":["E08-S01-T01","E03-S03-T02"],"flags":["TF"]},
+
+{"key":"E09-S01-T02","parent":"E09-S01","level":"task","title":"Flag a guarantee five working days before it ends","phase":"P8 Pipeline & placements","milestone":"MVP","labels":["area:placements","area:dashboard","prd:proposed","priority:p0"],"executor":"grok",
+ "what":"Derive the guarantee-ending flag five Singapore working days before the end date, in the same read-time way as delay status, so no scheduled job is needed. Test-first.",
+ "scope":["A query or view returning placements whose guarantee ends within five working days, and those already ended","Failing tests first: exactly five working days before, six days before, the day itself, and a window spanning a weekend and a public holiday","The flag derived on read, with no cron job","Exposed in the shape the dashboard's guarantee section needs"],
+ "exclusions":["Any email or notification","The dashboard UI (E08-S04-T01)","Changing the five-day figure, which the PRD marks proposed and this task implements as written"],
+ "done":["Failing-then-passing tests cover the boundary at five and six days, the day itself, and a window crossing a weekend and a holiday","The flag is derived at read time with no scheduled job","The PRD's proposed status for the five-day timing is recorded in the task's spec"],
+ "files":["supabase/migrations/*_guarantee_flag.sql","src/server/placements/guarantee.ts","src/server/placements/guarantee.test.ts"],
+ "skills":["supabase-db","testing","prd-context"],"verify":["npm test -- guarantee","npm run test:db","npm run typecheck"],"depends":["E09-S01-T01","E03-S03-T02"],"flags":["TF","P"]},
+
+{"key":"E09-S01-T03","parent":"E09-S01","level":"task","title":"Build the placements screen with the guarantee countdown","phase":"P8 Pipeline & placements","milestone":"MVP","labels":["area:placements","priority:p1"],"executor":"grok",
+ "what":"Build the placements screen from `design/specs/placements.md`: each placement with its confirmed start date, the client, the job, and a countdown to the guarantee end that is readable without relying on colour.",
+ "scope":["A route and page listing placements with start date, client, job and guarantee countdown","The countdown expressed in words as well as any colour, with Singapore dates","Confirming or changing a start date from this screen, with the typed-name prompt","Playwright at both widths with the shared assertions"],
+ "exclusions":["The guarantee calculation (T02)","Invoicing or fees","Contacting anyone"],
+ "done":["Every placement shows its start date and a countdown that reads correctly in words","A recruiter can confirm or change a start date here, with the name prompt on first use","All dates display in Singapore time","Playwright passes at desktop and phone width"],
+ "files":["src/app/(app)/placements/page.tsx","src/components/features/placements/Placements.tsx","e2e/placements.spec.ts"],
+ "skills":["ui-build","nextjs-app","testing"],"verify":["npm run lint","npm run typecheck","npm test","npm run test:e2e"],"depends":["E09-S01-T02","E02-S04-T06"],"flags":[]}
+]}

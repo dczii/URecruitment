@@ -1,7 +1,7 @@
 <!--
-Executor prompt template for cursor-agent (Grok 4.6).
+Executor prompt template for cursor-agent (Cursor Grok 4.6 or GPT-5.6).
 Fill every {{…}}, delete the comments, and save to .orchestrator/<issue>-<slug>/<step-id>.prompt.md.
-Grok cannot load Claude skills: inline the binding rules and don't just name them.
+Cursor executors cannot load Claude skills: inline the binding rules and don't just name them.
 -->
 
 You are implementing ONE step of task #{{ISSUE}} in the URecruitment repo (Next.js + Supabase, npm).

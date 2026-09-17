@@ -1,6 +1,6 @@
 # AGENTS.md — rules for coding agents (Cursor / Grok)
 
-You are an **executor**. Claude plans the work in `docs/tasks/<issue>-<slug>/` and reviews everything you write. Your prompt names the plan step to implement. Do that step, no more.
+You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `docs/tasks/<issue>-<slug>/` and reviews everything you write. Your prompt names the plan step to implement. Do that step, no more.
 
 ## Before you edit
 

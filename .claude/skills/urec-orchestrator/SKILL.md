@@ -4,15 +4,15 @@ description: >
   URecruitment task orchestrator. In this repo, use it INSTEAD of the global `orchestrator` skill
   (it extends that skill with project rules). Use for every piece of development work: `/task <description | #issue>`, "create a task", "work on #42",
   "implement <feature>", "start the next task". Resolves or creates the GitHub issue, writes
-  docs/tasks/<issue>-<slug>/spec.md and plan.md, delegates implementation to Grok 4.6 via
-  cursor-agent with the repo's skill rules inlined, verifies (lint, typecheck, tests, build, e2e,
+  docs/tasks/<issue>-<slug>/spec.md and plan.md, delegates implementation to Cursor Grok 4.6 or
+  GPT-5.6 via cursor-agent with the repo's skill rules inlined, verifies (lint, typecheck, tests, build, e2e,
   eval), runs a Claude review, then opens a PR and moves the Project 4 card to In Review.
   No approval gate. Never merges.
 ---
 
 # urec-orchestrator — URecruitment
 
-**Claude plans, verifies and reviews. Grok 4.6 (via `cursor-agent`) writes the code.**
+**Claude plans, verifies and reviews. Cursor Grok 4.6 or GPT-5.6 (via `cursor-agent`) writes the code.**
 
 This skill **extends** the global `~/.claude/skills/orchestrator`.
 
@@ -39,6 +39,17 @@ Run straight through from intake to an open PR. **Don't** stop to ask "shall I p
 
 Record every other judgment call under **Assumptions** in `spec.md`, then keep going.
 
+## Story workflow: one Task, one PR
+
+A Story is a tracking container, never an implementation unit:
+
+- When creating a Story, decompose its implementation into Task sub-issues before writing code. Each Task must be independently reviewable and must run through Steps 2–10 with its own spec, plan, branch, commits and PR containing `Closes #<task>`.
+- When the input is a Story, process every open Task sub-issue in dependency order. Do not combine multiple Tasks into one branch or PR, and do not open an implementation PR that closes the Story itself.
+- A Task is not considered delivered merely because its commits appear in another Task's diff. Every Task must have its own open PR.
+- Task PRs may be **stacked** when waiting for an earlier Task to merge would block progress. Branch the dependent Task from its immediate predecessor and set that predecessor's branch as the PR base. State the stack order and dependency in every affected PR body.
+- A stacked PR still closes only its own Task. After its predecessor merges, rebase or merge `main` into the branch as appropriate, retarget the PR to `main`, and verify that its diff contains only that Task.
+- Never merge the stack. Human reviewers merge from the bottom of the stack upward. The Story is complete only after all Task PRs are merged and all Task sub-issues are closed.
+
 ## Step 0 — Preflight
 
 ```bash
@@ -58,16 +69,22 @@ cursor-agent status                                  # executor is authenticated
 | Input | Action |
 |---|---|
 | `#42` or an issue URL | `gh issue view 42 --json number,title,body,labels,milestone,state`. Read its parent story/epic too (see `github-workflow`). |
-| A **Story** or **Epic** number | List its open Task sub-issues. Pick the first unblocked one, in the order given in the story body. If the story has no tasks, decompose it into Task issues first (`github-workflow` → create sub-issues), then take the first. |
+| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run each Task through its own Steps 2–10 and open one PR per Task. Process in dependency order; use stacked PRs for dependent Tasks when useful. |
+| An **Epic** number | List its open Stories, choose the first unblocked Story in roadmap order, then apply the Story workflow above. |
 | Free text | Search for a duplicate (`gh issue list --search "<keywords>" --state all`). If none exists, create a **Task** issue using the task form fields, attach it to the best-matching Story (create the Story under the right Epic if none fits), add it to Project 4, set the milestone (default `MVP`), and record the choice under Assumptions. |
 
 **Slug:** kebab-case, at most 5 words, taken from the issue title (`cv-parser-schema`). **Type:** `feat | fix | chore | docs | test | refactor | design | ci`.
 
 ## Step 2 — Load context
 
-1. `prd-context`, always. Find the PRD section(s) the task implements and note each item's status (decided, proposed or open).
-2. Route to the domain skills using the table below. Read each matching `SKILL.md` **before** planning.
-3. Read the existing code and tests in the area (`git ls-files | grep …`). Read any earlier `docs/tasks/*` that touched the same area.
+Skill discovery is mandatory for every task; do not rely on the list remembered from an earlier task or session.
+
+1. Inventory every repository-local skill under `.claude/skills/*/SKILL.md`, `.cursor/skills/*/SKILL.md` and `.agents/skills/*/SKILL.md` (where those directories exist). Read each skill's frontmatter `name` and `description`.
+2. Match skills against the request, issue acceptance criteria, likely file paths and subsystems. The routing table below is the minimum set, not an exhaustive allowlist; newly added local skills apply when their description matches.
+3. Read the complete `SKILL.md` for every match **before** writing the spec or plan. Record each selected skill and why it applies in `plan.md` under **Skills in scope**.
+4. Load `prd-context` and `testing` for every task, plus `github-workflow` whenever issues, branches, commits or PRs are involved.
+5. Read the existing code and tests in the area (`git ls-files | grep …`). Read any earlier `docs/tasks/*` that touched the same area.
+6. If investigation or execution expands the files or subsystem in scope, pause before that work, repeat this discovery for the new scope, update `plan.md`, and propagate the newly applicable rules into subsequent executor prompts.
 
 | Task touches… | Load |
 |---|---|
@@ -82,12 +99,18 @@ cursor-agent status                                  # executor is authenticated
 | Candidate data, scoring, gap flags, consent, retention | `compliance-review` |
 | Secrets, keys, RLS, Storage access, rate limits, env | `security-check` |
 | Workflows, CI, deploys, env setup | `ci-setup` / `release-deploy` |
-| Always | `testing`, `github-workflow` |
+| Every task | `prd-context`, `testing` |
+| Issues, branches, commits or PRs | `github-workflow` |
 
 ## Step 3 — Branch and docs
 
+Choose the branch base:
+
+- Independent Task: `main`.
+- Stacked Task: the immediate predecessor Task's branch. Its predecessor PR must already be open.
+
 ```bash
-git switch main && git pull --ff-only
+git switch <base-branch> && git pull --ff-only
 git switch -c <type>/<issue>-<slug>
 .claude/skills/urec-orchestrator/scripts/new-task-docs.sh <issue> <slug> "<issue title>"
 ```
@@ -98,10 +121,12 @@ Fill in `docs/tasks/<issue>-<slug>/spec.md` (**what** and **why**) and `plan.md`
 - **Every PRD reference** cites the section name and its status (decided, proposed or open).
 - **Guardrail checklist:** tick only the items that apply, and explain each tick.
 - **Plan steps** are small, and each is executable by one `cursor-agent` call: explicit file paths, the exact change, the tests, and a verification command.
+- **Test applicability:** for every acceptance criterion, name the test to add or update. If no automated test is appropriate (for example, a docs-only change), record `none` with a concrete reason and the manual verification evidence. Never omit tests silently.
 - **Test-first:** any step with logic is split into **(a) write failing tests** and **(b) implement until green**.
 - **Executor tag:** every plan step carries one of:
   - `grok`, the default for code;
-  - `claude` for `.pen` design work via the pencil MCP (Grok has no pen.dev access), and for anything where Grok failed twice;
+  - `gpt`, for code assigned to GPT-5.6 Sol; record why it is a better fit than the default;
+  - `claude` for `.pen` design work via the pencil MCP (Cursor executors have no pen.dev access), and for anything where the selected executor failed twice;
   - `none` for pure verification.
 - Say which skills' rules each step must obey. Step 4 inlines them.
 
@@ -115,23 +140,25 @@ git commit -m "docs(<area>): spec and plan for #<issue>"
 
 ## Step 4 — Build executor prompts
 
-For each `grok` step, fill `templates/executor-prompt.md`:
+For each `grok` or `gpt` step, fill `templates/executor-prompt.md`:
 
 - **Self-contained.** Include the task goal, the step text, exact file paths, the acceptance criteria this step covers, and the verification commands.
 - **Required reading:** `AGENTS.md`, the task's `spec.md` and `plan.md`, and the named `.claude/skills/<skill>/SKILL.md` files.
-- **Inline the 3–6 rules that bind these files**, quoted from the skills. Assume Grok skips the files. The inlined rules are what actually protect the change.
+- **Inline the 3–6 rules that bind these files**, quoted from the skills. Assume the executor skips the files. The inlined rules are what actually protect the change.
 - **Out of scope:** list the files it must not touch.
 - **Report format:** the one from `AGENTS.md`.
 
 A prompt that omits the rules of a skill covering its files is malformed. Fix it before spending the call.
 
+Before each executor call, compare its allowed files and change description with the current local-skill inventory. Confirm that every matching skill is listed as required reading and its binding rules are inlined. If a new match appears, read it and update the plan and prompt before execution.
+
 ## Step 5 — Execute
 
 ```bash
-.claude/skills/urec-orchestrator/scripts/run-executor.sh <issue>-<slug> <step-id> <prompt-file> [model]
+.claude/skills/urec-orchestrator/scripts/run-executor.sh <issue>-<slug> <step-id> <prompt-file> [grok|gpt|model]
 ```
 
-The wrapper runs `cursor-agent -p --model cursor-grok-4.6-high --sandbox enabled --trust --output-format text` in the current checkout (the task branch), and logs to `.orchestrator/<issue>-<slug>/<step-id>.log` (gitignored).
+The wrapper runs `cursor-agent -p --model <resolved-model> --sandbox enabled --trust --output-format text` in the current checkout (the task branch), and logs to `.orchestrator/<issue>-<slug>/<step-id>.log` (gitignored). `grok` resolves to `executor.model` (`cursor-grok-4.6-high`); `gpt` resolves to `executor.gptModel` (`gpt-5.6-sol-high`).
 
 - **Order:** steps run **sequentially** on the task branch by default.
 - **Parallel steps:** only when the plan marks them independent (disjoint files). Give each its own worktree with `cursor-agent -w <issue>-<step> --worktree-base <branch>`. Then bring the changes back with `git -C <worktree> diff | git apply` and review them.
@@ -151,7 +178,8 @@ git diff
 Check the diff against:
 - the step scope (no stray files, and nothing under `docs/tasks`, `.claude` or `.github` unless planned);
 - the inlined rules;
-- the "Deviations" section of Grok's report.
+- the "Deviations" section of the executor's report.
+- test adequacy: changed behaviour has focused regression coverage at the correct layer; tests exercise the acceptance criteria rather than only implementation details.
 
 Revert out-of-scope edits with `git restore <file>`, not by hand. Deleted or `.skip`ped tests count as a failure.
 
@@ -169,9 +197,9 @@ npm run eval                  # parser, matcher, prompts or schemas changed
 
 On failure, work through the fix loop (max rounds = `executor.maxFixRounds`, default 3):
 
-1. Send Grok a fix prompt containing the failing output, the files involved and the same inlined rules.
+1. Send the selected executor a fix prompt containing the failing output, the files involved and the same inlined rules.
 2. Re-verify.
-3. After round 2, switch to `executor.escalationModel` (`cursor-grok-4.6-xhigh`).
+3. After round 2, switch to the matching escalation model: `executor.escalationModel` (`cursor-grok-4.6-xhigh`) or `executor.gptEscalationModel` (`gpt-5.6-sol-xhigh`).
 4. If it's still red after the last round, **Claude fixes it directly**, and the plan's Outcome notes it.
 5. If Claude can't fix it either, stop and report (see Operating mode).
 
@@ -179,15 +207,23 @@ On failure, work through the fix loop (max rounds = `executor.maxFixRounds`, def
 
 Run the `pr-review` skill on `git diff origin/main...HEAD`. For `security-check` and `compliance-review` scope, run it on an **Opus or Fable** subagent. Every finding must quote the rule it applies.
 
-- **Blocking findings:** fix them via Grok or directly, then re-run Step 7.
+- **Blocking findings:** fix them via a Cursor executor or directly, then re-run Step 7.
 - **Non-blocking findings:** list them in the PR under "Follow-ups". Create issues only if they matter.
 
 Run `security-check` and `compliance-review` too whenever their scope is touched (see the Step 2 table).
 
 ## Step 9 — Close out docs
 
-- `plan.md`: tick the steps. Fill in **Outcome**: what shipped, deviations, fix rounds, the executor model used, and follow-ups.
+- `plan.md`: tick the steps. Fill in **Outcome**: what shipped, files changed, tests added or updated (or why none were needed), verification, deviations, fix rounds, the complete model-usage ledger, and follow-ups.
 - `spec.md`: tick the acceptance criteria that are proven. Name the test that proves each one.
+
+Build the model-usage ledger from evidence, not memory:
+
+- Read every `.orchestrator/<issue>-<slug>/*.log` header for the executor model used by each implementation and fix step.
+- Record planning/orchestration, design, direct-fix and review models separately when the runtime or subagent result exposes their exact identity.
+- Include escalations even if they produced no retained code.
+- If an exact model identity is unavailable, write `unknown (runtime did not expose it)`; never guess.
+- This ledger covers models used to perform the task. App model IDs exercised by AI evals belong in verification evidence, not in the agent model ledger.
 
 ## Step 10 — Commit, push, PR
 
@@ -197,29 +233,46 @@ git commit -m "<type>(<area>): <summary> (#<issue>)"
 git push -u origin HEAD
 # Write the body: copy .github/pull_request_template.md to .orchestrator/<issue>-<slug>/pr-body.md
 # and fill every section (Closes #<issue>, spec/plan links, verification output, review findings).
-gh pr create --base main --title "<type>(<area>): <summary> (#<issue>)" \
+gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
   --body-file .orchestrator/<issue>-<slug>/pr-body.md
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
 - **Commits:** Conventional Commits. Split the commits logically if the diff is large: tests, implementation, docs.
+- **PR base:** use `main` for an independent Task or the immediate predecessor branch for a stacked Task. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
-- **Then stop.** Don't merge, don't enable auto-merge, don't close the issue. `Closes #N` closes it when a human merges.
+- **Then stop for a single-Task input.** For a Story or Epic input, continue with the next Task until every open Task has its own PR or a listed blocking condition is reached.
+- Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
 
 ## Final report (to the user)
 
+The final response is mandatory after the PR is opened (or after reporting a blocker). Use these headings:
+
+### Summary
+- What was implemented and the user-visible or technical outcome.
 - Issue and PR links, with the branch name.
-- Acceptance criteria, each marked ✅/❌ with the proving test.
-- Verification results: each command, pass or fail.
-- Executor usage: steps, fix rounds, escalations, anything Claude fixed directly.
-- Assumptions made, and PRD open items touched.
-- Follow-ups, and any setup the user must do (for example `gh auth refresh -s project`).
+- Important changed files or areas; note deviations from the plan.
+
+### Tests and verification
+- Tests added or updated, named by file and behaviour covered.
+- If no tests were needed, say `No tests added` and give the concrete reason.
+- Acceptance criteria, each marked ✅/❌ with its proving automated test or manual evidence.
+- Every verification command with pass/fail status. Do not say tests passed without listing the command that was run.
+
+### Models used
+- A role-by-role ledger: planning/orchestration, each executor step and fix round, escalations, design work, direct fixes and review.
+- Give exact model IDs when known. Use `unknown (runtime did not expose it)` rather than inferring a model.
+
+### Notes
+- Assumptions, PRD open items, follow-ups, and any setup the user must do (for example `gh auth refresh -s project`).
 
 ## Anti-patterns
 
 - Planning without reading `prd-context` and the domain skills.
 - Executor prompts that say "follow the skills" without inlining the rules.
-- Letting Grok commit, push, add dependencies, or touch `docs/tasks`.
+- Letting an executor commit, push, add dependencies, or touch `docs/tasks`.
 - Trusting "all tests pass" without running them.
 - Treating a **proposed** PRD item as decided without saying so in the spec.
+- Combining multiple Task issues in one PR, or leaving a Task without its own PR because its commits are present in a stacked diff.
+- Opening an implementation PR for a Story instead of one PR per Task.
 - Merging, or moving a card to Done.

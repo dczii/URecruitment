@@ -1,0 +1,331 @@
+{
+ "items": [
+  {
+   "key": "E10",
+   "level": "epic",
+   "title": "Settings & audit",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "priority:p0"
+   ],
+   "goal": "Any recruiter can adjust stage limits at default, client and job level and maintain the Singapore public-holiday list, and every change is tied to the name they typed. With no sign-in, that typed name and its change log are the whole audit trail, so they must be complete.",
+   "prd": [
+    "Users → Settings (decided): any recruiter can change stages, time limits and retention; each change is logged with the name the recruiter types → decided",
+    "Users → the portal asks for a recruiter's name before their first change on a device, and remembers it there → decided",
+    "Pipeline tracking → Time limits (decided): job over client over default; limits count Singapore working days → decided",
+    "UI design → Settings: stage limits by default, client and job; public holidays; change log → decided",
+    "Data model → stage_limits, sg_public_holidays, settings_log → suggested"
+   ],
+   "exit": [
+    "Limits can be set at all three levels and take effect on candidates already in a stage",
+    "Public holidays can be added and removed, and working-day counts follow immediately",
+    "Every settings change appears in the change log with the typed name and a Singapore timestamp",
+    "No change of any kind can be saved without a typed name"
+   ],
+   "outOfScope": [
+    "User accounts, roles or permissions — the MVP has no sign-in",
+    "Retention settings, which belong to the real-data release",
+    "Holidays for any country other than Singapore",
+    "Approval workflows for settings changes"
+   ]
+  },
+  {
+   "key": "E10-S01",
+   "parent": "E10",
+   "level": "story",
+   "title": "Recruiters adjust stage limits at every level",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "priority:p0"
+   ],
+   "story": "As a recruiter, I want to give a slow client a longer limit without changing it for everyone, so that the overdue list stays worth reading.",
+   "ac": [
+    "Given the settings screen, when I change a default, client or job limit, then it is saved and my typed name is recorded.",
+    "Given candidates already in a stage, when a limit changes, then their status is recomputed against the new limit rather than a snapshot.",
+    "Given a limit that is not a positive whole number of working days, when I try to save it, then the save is refused with a clear message."
+   ],
+   "prd": [
+    "Users → Settings (decided): any recruiter can change limits; each change is logged with the typed name → decided",
+    "Pipeline tracking → Time limits: a job's limit overrides the client's, which overrides the default → decided",
+    "UI design → Settings: stage limits by default, client and job → decided"
+   ],
+   "design": "Yes: new screen"
+  },
+  {
+   "key": "E10-S01-T01",
+   "parent": "E10-S01",
+   "level": "task",
+   "title": "Build the settings screen for stage limits with change logging",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "priority:p0"
+   ],
+   "executor": "grok",
+   "what": "Build the limits part of Settings from `design/specs/settings.md`: default limits, per-client limits and per-job limits, each save validated, logged to `settings_log` with the typed name, and visibly showing which level a limit came from.",
+   "scope": [
+    "A route and page with the three levels, showing the effective limit and where it came from",
+    "A Server Action with Zod validation writing the limit and a `settings_log` row with the typed name",
+    "Failing tests first: a non-positive or fractional limit is refused; a saved limit changes the effective value for candidates already in the stage; every save writes exactly one log row",
+    "Playwright at both widths"
+   ],
+   "exclusions": [
+    "Public holidays (E10-S02-T01)",
+    "The change-log view (E10-S03-T02)",
+    "Retention settings — real-data release"
+   ],
+   "done": [
+    "Failing-then-passing tests cover invalid values, effect on in-flight candidates and the single log row",
+    "The screen shows the effective limit and which level supplied it",
+    "Every save records the typed recruiter name",
+    "Playwright passes at desktop and phone width"
+   ],
+   "files": [
+    "src/app/(app)/settings/page.tsx",
+    "src/components/features/settings/StageLimits.tsx",
+    "src/server/settings/limits.ts",
+    "src/server/settings/limits.test.ts",
+    "e2e/settings.spec.ts"
+   ],
+   "skills": [
+    "ui-build",
+    "nextjs-app",
+    "supabase-db",
+    "testing"
+   ],
+   "verify": [
+    "npm test -- limits",
+    "npm run typecheck",
+    "npm run test:e2e",
+    "npm run lint"
+   ],
+   "depends": [
+    "E08-S02-T01",
+    "E02-S04-T06",
+    "E10-S03-T01"
+   ],
+   "flags": [
+    "TF"
+   ]
+  },
+  {
+   "key": "E10-S02",
+   "parent": "E10",
+   "level": "story",
+   "title": "Recruiters maintain the Singapore public holidays",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "priority:p1"
+   ],
+   "story": "As a recruiter, I want to add next year's public holidays myself, so that the overdue list does not start counting Chinese New Year as working days.",
+   "ac": [
+    "Given the holidays list, when I add a date with a name, then working-day counts skip it from that moment.",
+    "Given an existing holiday, when I remove it, then the change is logged with my typed name.",
+    "Given a date that is already a holiday, when I add it again, then it is refused rather than duplicated."
+   ],
+   "prd": [
+    "Pipeline tracking → Time limits: working days skip Singapore public holidays → decided",
+    "UI design → Settings: public holidays → decided",
+    "Data model → sg_public_holidays → suggested"
+   ],
+   "design": "Yes: change to existing screen"
+  },
+  {
+   "key": "E10-S02-T01",
+   "parent": "E10-S02",
+   "level": "task",
+   "title": "Build the public-holiday list with add and remove",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "priority:p1"
+   ],
+   "executor": "grok",
+   "what": "Add the holidays section to Settings: list by year, add a date with a name, remove one, and log every change with the typed name — with working-day counts picking the change up immediately.",
+   "scope": [
+    "Holidays listed by year on the settings screen",
+    "Add and remove Server Actions with Zod validation, each writing a `settings_log` row",
+    "Failing tests first: a duplicate date is refused; adding a holiday changes a working-day count that spans it; removing one changes it back",
+    "Playwright coverage of add and remove"
+   ],
+   "exclusions": [
+    "Importing a holiday calendar from an external source",
+    "Holidays for other countries",
+    "Recurring or rule-based holidays"
+   ],
+   "done": [
+    "Failing-then-passing tests cover the duplicate refusal and the effect of adding and removing on a working-day count",
+    "Every add and remove writes a log row with the typed name",
+    "Playwright covers adding and removing a holiday at both widths"
+   ],
+   "files": [
+    "src/components/features/settings/Holidays.tsx",
+    "src/server/settings/holidays.ts",
+    "src/server/settings/holidays.test.ts",
+    "e2e/settings.spec.ts"
+   ],
+   "skills": [
+    "ui-build",
+    "supabase-db",
+    "testing",
+    "nextjs-app"
+   ],
+   "verify": [
+    "npm test -- holidays",
+    "npm run test:db",
+    "npm run test:e2e"
+   ],
+   "depends": [
+    "E10-S01-T01",
+    "E03-S03-T01"
+   ],
+   "flags": [
+    "TF"
+   ]
+  },
+  {
+   "key": "E10-S03",
+   "parent": "E10",
+   "level": "story",
+   "title": "Every change is tied to a typed name",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "area:compliance",
+    "priority:p0"
+   ],
+   "story": "As the agency director, I want every stage move and settings change to carry a name, so that with no sign-in we can still reconstruct who changed what.",
+   "ac": [
+    "Given my first change on this device, when I act, then the portal asks for my name before the change is saved.",
+    "Given I have given my name, when I make further changes on that device, then it is not asked for again but is still recorded.",
+    "Given a blank or whitespace-only name, when I try to save it, then it is refused.",
+    "Given the change log, when I open it, then every settings change shows its name, what changed and when, in Singapore time."
+   ],
+   "prd": [
+    "Users → Audit trail: actions are tied to a typed name, not a verified person → decided",
+    "Users → the portal asks for the name before a recruiter's first change on a device and remembers it there → decided",
+    "UI design → Settings: change log → decided",
+    "Data model → settings_log, stage_events → suggested"
+   ],
+   "design": "Yes: change to existing screen"
+  },
+  {
+   "key": "E10-S03-T01",
+   "parent": "E10-S03",
+   "level": "task",
+   "title": "Implement typed-name capture, validation and device persistence",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "area:compliance",
+    "priority:p0"
+   ],
+   "executor": "grok",
+   "what": "Make the typed name a single shared mechanism every change path uses: ask once per device, validate it, remember it locally, allow it to be changed, and make it impossible to write an audited change without it. Test-first, because this is the entire audit trail.",
+   "scope": [
+    "A shared hook and server-side validator for the recruiter name",
+    "Failing tests first: blank and whitespace-only names are refused; an over-long name is refused; the name persists on the device and is not asked for again; changing the name updates it and later records use the new one; a server action that writes an audited row without a name fails",
+    "Used by the stage move, the profile edit, the flag resolve and every settings action",
+    "No storage of the name on the server beyond the audit rows themselves"
+   ],
+   "exclusions": [
+    "Any sign-in or identity verification — the MVP has none",
+    "Syncing the name between devices",
+    "The change-log view (T02)"
+   ],
+   "done": [
+    "Failing-then-passing tests cover blank, whitespace, over-long, persistence, change of name, and the server-side refusal",
+    "Every audited write path goes through the one validator, proven by a test that a new path without it fails",
+    "The name is remembered on the device and never stored server-side except in audit rows"
+   ],
+   "files": [
+    "src/components/patterns/TypedNameDialog.tsx",
+    "src/lib/recruiter-name.ts",
+    "src/lib/recruiter-name.test.ts",
+    "src/server/audit/name.ts",
+    "src/server/audit/name.test.ts"
+   ],
+   "skills": [
+    "ui-build",
+    "nextjs-app",
+    "testing",
+    "compliance-review",
+    "security-check"
+   ],
+   "verify": [
+    "npm test -- name",
+    "npm run typecheck",
+    "npm run test:e2e"
+   ],
+   "depends": [
+    "E02-S03-T02"
+   ],
+   "flags": [
+    "TF"
+   ]
+  },
+  {
+   "key": "E10-S03-T02",
+   "parent": "E10-S03",
+   "level": "task",
+   "title": "Build the change-log view",
+   "phase": "P9 Settings & audit",
+   "milestone": "MVP",
+   "labels": [
+    "area:settings",
+    "priority:p1"
+   ],
+   "executor": "grok",
+   "what": "Show the settings change log on the Settings screen: what changed, from what to what, who typed their name and when, in Singapore time, newest first and filterable.",
+   "scope": [
+    "A paginated log view reading `settings_log`, newest first",
+    "Per entry: the setting, old and new values, the typed name, and the Singapore-time timestamp",
+    "Filters by setting type and by name",
+    "Playwright coverage at both widths"
+   ],
+   "exclusions": [
+    "Stage-change history, which lives on the candidate profile",
+    "Exporting the log — that is a real-data release concern",
+    "Editing or deleting log entries — the log is append-only"
+   ],
+   "done": [
+    "Every settings change appears with its old and new values, the typed name and a Singapore-time timestamp",
+    "The log is append-only: no UI path edits or deletes an entry",
+    "Filters by setting type and by name work, covered by an end-to-end test",
+    "Playwright passes at desktop and phone width"
+   ],
+   "files": [
+    "src/components/features/settings/ChangeLog.tsx",
+    "src/server/settings/log.ts",
+    "e2e/settings.spec.ts"
+   ],
+   "skills": [
+    "ui-build",
+    "supabase-db",
+    "testing",
+    "nextjs-app"
+   ],
+   "verify": [
+    "npm run lint",
+    "npm run typecheck",
+    "npm test",
+    "npm run test:e2e"
+   ],
+   "depends": [
+    "E10-S03-T01",
+    "E10-S01-T01"
+   ],
+   "flags": []
+  }
+ ]
+}

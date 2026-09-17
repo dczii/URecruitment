@@ -1,0 +1,745 @@
+{
+ "items": [
+  {
+   "key": "E00",
+   "level": "epic",
+   "title": "Decisions, architecture & delivery plan",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "area:compliance",
+    "priority:p0"
+   ],
+   "goal": "Before any application code exists, the team works from written records of the architecture, data model, UX structure, security and compliance baselines, test and AI-evaluation strategy, infrastructure plan and delivery order. Every PRD *open* question has an owner and its own decision issue, so nothing is settled silently inside an implementation PR.",
+   "prd": [
+    "Overview → AI role, users, no sign-in in the MVP → decided",
+    "Technical architecture → layer table (frontend, backend, hosting, search, AI access, monitoring, testing) → decided and proposed",
+    "Data model (suggested) → 17 core tables and the job-version + model-version score key → suggested",
+    "Security (suggested) → 6 controls for a portal with no sign-in → suggested",
+    "Data, privacy & compliance → PDPA table, Risk 1 (no sign-in), fair employment → decided / at risk",
+    "Goals → MVP quality bar (≥ 90% fields, ≥ 80% top-5, EN and ZH separately) → decided",
+    "UI design → screen list and design rules → decided (screens) / suggested (rules)",
+    "Open questions → six items for the real-data release → open"
+   ],
+   "exit": [
+    "Every record in `docs/decisions/` and `docs/plans/` is merged and linked from this epic",
+    "Each of the six PRD open questions has a decision issue labelled `needs-decision`, or an explicit written deferral",
+    "No record settles a PRD open question; each one names the decision it is waiting on",
+    "Phase 1 tasks can start without any undocumented architectural assumption"
+   ],
+   "outOfScope": [
+    "Application code, migrations, designs or tests — those belong to phases 1 onward",
+    "Deciding the AI provider, the paid plans, the backup policy, the duplicate rule, the real-data date or the metric targets. The PRD lists these as open; this epic only records and routes them",
+    "Anything in the PRD non-goals (real data, email, backups, duplicate detection, client/candidate logins, external sources, Manatal migration, autonomous AI decisions, OCR, Teams/WhatsApp alerts)"
+   ]
+  },
+  {
+   "key": "E00-S01",
+   "parent": "E00",
+   "level": "story",
+   "title": "The team builds from one written architecture and data-model record",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "priority:p0"
+   ],
+   "story": "As a recruiter sponsor, I want the technical shape of the portal written down and agreed before code is written, so that the MVP is delivered by mid-December 2026 without rework caused by unrecorded assumptions.",
+   "ac": [
+    "Given a new contributor, when they read `docs/decisions/adr-0001-architecture.md`, then they can name which code may touch Supabase, where AI calls run, and why the browser never reaches the database.",
+    "Given the 17-table data model, when a schema task starts, then `docs/decisions/adr-0002-data-model.md` already states each table's purpose, its owning migration and the score key (candidate × job version × model version).",
+    "Given the AI provider is not chosen, when any AI code is planned, then `docs/decisions/adr-0003-ai-provider.md` states the provider-agnostic contract every AI call must satisfy and lists the decision as open."
+   ],
+   "prd": [
+    "Technical architecture → How it fits together → suggested",
+    "Data model (suggested) → 17 tables, match-score key → suggested",
+    "AI governance → the dev team picks the AI provider → decided (which provider: open)",
+    "Integrations → AI model provider → MVP, provider still to decide"
+   ],
+   "design": "No"
+  },
+  {
+   "key": "E00-S01-T01",
+   "parent": "E00-S01",
+   "level": "task",
+   "title": "Write ADR-0001: application, data and AI boundaries",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Record the architecture the PRD suggests as a decision record the whole backlog can cite: Next.js App Router on Vercel `sin1`, Supabase Postgres + private Storage in `ap-southeast-1`, server-only data access, API routes for AI work, `after()` for background re-scoring, and a database view (not a cron job) for delay status.",
+   "scope": [
+    "`docs/decisions/adr-0001-architecture.md` with context, decision, consequences and rejected alternatives",
+    "The trust boundary: browser → Next.js server → Supabase/AI, and why the publishable key is never used for data",
+    "Where each PRD main flow runs (seeding, opening a job, saving a job, searching, delay status)",
+    "Which PRD layer choices are *decided* and which are *proposed*, so later tasks know what they may revisit"
+   ],
+   "exclusions": [
+    "Folder-level code layout — that is the scaffold task E01-S01-T01",
+    "Choosing the AI provider (ADR-0003)",
+    "Any migration or code"
+   ],
+   "done": [
+    "`docs/decisions/adr-0001-architecture.md` exists and covers all five PRD main flows",
+    "Every layer in the PRD technical-architecture table appears with its decided/proposed status",
+    "The record states the rule that no browser code may import `src/server` or reach Supabase directly"
+   ],
+   "files": [
+    "docs/decisions/adr-0001-architecture.md",
+    "docs/decisions/README.md"
+   ],
+   "skills": [
+    "prd-context",
+    "nextjs-app",
+    "supabase-db",
+    "security-check"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only, no app code",
+    "markdown links resolve to files that exist"
+   ],
+   "depends": [],
+   "flags": []
+  },
+  {
+   "key": "E00-S01-T02",
+   "parent": "E00-S01",
+   "level": "task",
+   "title": "Write ADR-0002: the 17-table data model and its invariants",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "area:data",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Turn the PRD's suggested 17-table model into a decision record: each table's purpose, its key columns, the migration that will create it, and the invariants that later tasks must not break.",
+   "scope": [
+    "Table-by-table purpose and owning migration, mapped to the E03 migration tasks",
+    "Invariants: match scores keyed to candidate × job version × model version; recruiter overrides stored separately from parsed fields; every AI output row joins to `ai_runs`; UTC storage with Singapore display",
+    "Which tables the MVP needs and which exist only for the real-data release (consent, retention, last activity)",
+    "Where the skill mirrors live so `supabase-db` stays the mechanics reference"
+   ],
+   "exclusions": [
+    "Writing SQL or migrations (E03)",
+    "RLS policy text (E03-S01-T05)",
+    "Index and extension choices beyond naming pgvector and PGroonga"
+   ],
+   "done": [
+    "All 17 PRD tables appear with purpose, MVP-or-later, and owning migration task key",
+    "The four invariants above are stated as rules, each with the PRD line it comes from",
+    "Any table the PRD names but the MVP does not populate is marked as such"
+   ],
+   "files": [
+    "docs/decisions/adr-0002-data-model.md"
+   ],
+   "skills": [
+    "prd-context",
+    "supabase-db",
+    "compliance-review"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "every table name matches the PRD data-model table exactly"
+   ],
+   "depends": [
+    "E00-S01-T01"
+   ],
+   "flags": []
+  },
+  {
+   "key": "E00-S01-T03",
+   "parent": "E00-S01",
+   "level": "task",
+   "title": "Write ADR-0003: AI provider decision brief and provider-agnostic contract",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "area:ai-governance",
+    "needs-decision",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "The PRD leaves the AI provider to the dev team and it is not chosen. Record the criteria, the shortlist and — most importantly — the contract every AI call must satisfy so that no code depends on a provider, and write the decision up as open with an owner.",
+   "scope": [
+    "Decision criteria from the PRD: Simplified Chinese quality, cost, and where data is processed (PDPA overseas transfer)",
+    "The provider-agnostic contract: Vercel AI SDK, schema-validated structured output, model id and version recorded on every run, a separate embedding provider if the text provider offers none",
+    "What the MVP needs from a provider: direct PDF reading for Chinese fallback, multilingual embeddings, structured JSON",
+    "Status: open. Names the decision owner slot and what unblocks it"
+   ],
+   "exclusions": [
+    "Choosing a provider — this task must not settle it",
+    "Writing `runAi()` (E11-S01-T01) or any prompt (E04/E05/E06)",
+    "Contracting, billing or key provisioning"
+   ],
+   "done": [
+    "`docs/decisions/adr-0003-ai-provider.md` states the decision as **open** and never names a chosen provider",
+    "The contract section lists every requirement app code may assume, and nothing provider-specific",
+    "The record links the tasks blocked on this decision"
+   ],
+   "files": [
+    "docs/decisions/adr-0003-ai-provider.md"
+   ],
+   "skills": [
+    "prd-context",
+    "ai-pipeline",
+    "compliance-review"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "the record contains no provider brand name as a decision"
+   ],
+   "depends": [
+    "E00-S01-T01"
+   ],
+   "flags": [
+    "D?"
+   ]
+  },
+  {
+   "key": "E00-S02",
+   "parent": "E00",
+   "level": "story",
+   "title": "Every PRD open question has an owner and a decision issue",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "needs-decision",
+    "priority:p0"
+   ],
+   "story": "As a product owner, I want every undecided item tracked in one place with an owner and a decision point, so that no implementation PR quietly settles a question that is mine to answer.",
+   "ac": [
+    "Given the PRD lists six open questions, when I open `docs/decisions/open-questions.md`, then each one shows its status, owner slot, what unblocks it, and the issue that will decide it.",
+    "Given an item is open, when a task depends on it, then that task carries the `needs-decision` label and names the open question.",
+    "Given a question is answered, when the register is updated, then the answer is recorded with its date and the issues it unblocks."
+   ],
+   "prd": [
+    "Open questions → six items (pre-real-data requirements, paid plans, backups, duplicate rule, real-data date, metric targets) → open",
+    "Pipeline tracking → default stage limits → approved in the PRD, to be confirmed with the owner before seeding",
+    "UI design → review queue and name prompt → implied by requirements, not in the PRD screen list"
+   ],
+   "design": "No"
+  },
+  {
+   "key": "E00-S02-T01",
+   "parent": "E00-S02",
+   "level": "task",
+   "title": "Write the open-questions register and decision log",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:foundation",
+    "needs-decision",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Create the single register of everything not yet decided: the six PRD open questions, plus the three repo-level confirmations the skills call out (default stage limits, the review-queue screen, Vercel Hobby's non-commercial terms). Each entry names what is blocked and which issue decides it.",
+   "scope": [
+    "`docs/decisions/open-questions.md` with one row per question: status, owner slot, what unblocks it, blocked issues, deciding issue",
+    "The six PRD open questions, quoted from the PRD, unchanged",
+    "The three repo confirmations: stage default limits (E08-S02-T03), CV review-queue screen (E02-S04-T07), Vercel Hobby commercial use (E01-S04-T01)",
+    "A short rule for contributors: an open question is never settled inside an implementation PR"
+   ],
+   "exclusions": [
+    "Answering any of the questions",
+    "Creating the decision issues — they already exist in this backlog and are linked, not duplicated"
+   ],
+   "done": [
+    "All six PRD open questions and the three repo confirmations appear, each linked to its `needs-decision` issue",
+    "No entry records an answer that the product owner has not given",
+    "The register states that MVP build is not blocked by the six PRD questions, which all belong to the real-data release"
+   ],
+   "files": [
+    "docs/decisions/open-questions.md"
+   ],
+   "skills": [
+    "prd-context",
+    "github-workflow"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "every linked issue number exists"
+   ],
+   "depends": [],
+   "flags": [
+    "D?"
+   ]
+  },
+  {
+   "key": "E00-S03",
+   "parent": "E00",
+   "level": "story",
+   "title": "The UX structure is agreed before any screen is designed",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:design-system",
+    "priority:p0"
+   ],
+   "story": "As a recruiter, I want the portal's screens, navigation and main journeys mapped before anyone draws them, so that the nine MVP screens hang together instead of being designed one at a time.",
+   "ac": [
+    "Given the PRD screen list, when I read `docs/ux/screen-inventory.md`, then every screen shows its purpose, its key elements, its phone-width behaviour and the design task that will draw it.",
+    "Given a recruiter's day, when I read the flows, then 'find candidates for a job', 'move a candidate and record my name' and 'clear today's overdue list' are each mapped end to end across screens.",
+    "Given two screens are implied by the requirements but absent from the PRD screen list (the CV review queue and the typed-name prompt), when the inventory is written, then both are marked as needing the product owner's confirmation."
+   ],
+   "prd": [
+    "UI design → MVP screens table (9 screens) → decided",
+    "UI design → design rules (AI suggestion label, non-colour-only status, Noto Sans SC, phone width, name prompt) → suggested",
+    "CV processing → requirement 2, review queue → proposed"
+   ],
+   "design": "No"
+  },
+  {
+   "key": "E00-S03-T01",
+   "parent": "E00-S03",
+   "level": "task",
+   "title": "Write the screen inventory, navigation map and core recruiter flows",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:design-system",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Map the information architecture before pen.dev work starts: the nine PRD screens plus the two implied ones, the navigation between them at desktop and phone width, and the three core recruiter journeys.",
+   "scope": [
+    "`docs/ux/screen-inventory.md`: per screen — purpose, key elements from the PRD, entry points, phone-width behaviour, owning design task",
+    "`docs/ux/flows.md`: source-and-shortlist for a job; move a candidate with the typed-name prompt; clear the overdue dashboard",
+    "Navigation model: what is in the primary nav on desktop and what collapses on a phone",
+    "The five PRD design rules restated as constraints every screen design must show"
+   ],
+   "exclusions": [
+    "Any `.pen` file or visual design — that is E02",
+    "Token values (E02-S01-T01)",
+    "Component APIs (E02-S03-T02)"
+   ],
+   "done": [
+    "All nine PRD screens plus the review queue and name prompt appear with purpose and owning design task",
+    "The three flows each name every screen and state change they cross",
+    "The two implied screens are flagged for product-owner confirmation, not assumed"
+   ],
+   "files": [
+    "docs/ux/screen-inventory.md",
+    "docs/ux/flows.md"
+   ],
+   "skills": [
+    "prd-context",
+    "ui-design",
+    "ui-build"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "every screen in the PRD table appears in the inventory"
+   ],
+   "depends": [],
+   "flags": []
+  },
+  {
+   "key": "E00-S04",
+   "parent": "E00",
+   "level": "story",
+   "title": "Security and compliance baselines are written before any code",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:compliance",
+    "priority:p0"
+   ],
+   "story": "As the agency director, I want the security and privacy position of a portal with no sign-in written down and its risks accepted explicitly, so that we know exactly what must change before real CVs are loaded.",
+   "ac": [
+    "Given the MVP has no sign-in, when I read `docs/security/baseline.md`, then every control the PRD suggests is listed with the task that implements it and the test that proves it.",
+    "Given PDPA applies from the real-data release, when I read `docs/compliance/baseline.md`, then each PDPA obligation shows its MVP position and what the real-data release must add.",
+    "Given Risk 1, that anyone with the link can see every CV, when the risk register is written, then it records the risk as accepted for fictional data only and names the two cheapest fixes."
+   ],
+   "prd": [
+    "Security (suggested) → six controls → suggested",
+    "Data, privacy & compliance → PDPA table (protection, consent, retention, overseas transfer, access & correction, breach notification) → decided / proposed / at risk",
+    "Data, privacy & compliance → Risk 1: no sign-in, accepted for the MVP → decided",
+    "Fair employment → Workplace Fairness Act end-2027; pregnancy, caregiving, disability, mental health not yet ignored → noted"
+   ],
+   "design": "No"
+  },
+  {
+   "key": "E00-S04-T01",
+   "parent": "E00-S04",
+   "level": "task",
+   "title": "Write the security baseline for a public, sign-in-less MVP",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:compliance",
+    "area:release",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Record the security position the whole backlog inherits: the six PRD controls, the public-repo rules, and what each implementation task must prove. This is the checklist `security-check` reviews against.",
+   "scope": [
+    "`docs/security/baseline.md`: secret handling, server-only data access, RLS with no public policies, private bucket with signed URLs, AI route rate limits and spend cap, typed-name recording",
+    "Public-repo rules: no secrets, no sample-data Blob URLs, no real personal data in issues, docs, tests or commits",
+    "The exposure model: the MVP URL is effectively public; what that means for uploads, AI routes and logs",
+    "A control → implementing task → proving test table"
+   ],
+   "exclusions": [
+    "Implementing any control (E01, E03, E11)",
+    "Sign-in design — that is the real-data release (E15)",
+    "Penetration testing"
+   ],
+   "done": [
+    "All six PRD security controls appear with an implementing task key and a proving test",
+    "The public-repo rules restate the Blob store as seed-source-only with no URL committed",
+    "The record names what must change before real CVs are loaded and links E15"
+   ],
+   "files": [
+    "docs/security/baseline.md"
+   ],
+   "skills": [
+    "prd-context",
+    "security-check",
+    "supabase-db",
+    "release-deploy"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "no secret, key or Blob base URL appears in the diff"
+   ],
+   "depends": [],
+   "flags": []
+  },
+  {
+   "key": "E00-S04-T02",
+   "parent": "E00-S04",
+   "level": "task",
+   "title": "Write the PDPA and fair-employment compliance baseline and risk register",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:compliance",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Record the compliance position: what PDPA requires from the real-data release, what the MVP must already be designed for, how fair-employment rules bind scoring today, and the accepted risks.",
+   "scope": [
+    "`docs/compliance/baseline.md`: PDPA protection, consent (7-day reminder, 14-day deletion), retention (12 months, 30-day warning), overseas transfer, access and correction, breach notification (500 people, 3 calendar days)",
+    "Fair employment: the attributes scoring must ignore; nationality and language only with a written reason; the Workplace Fairness Act attributes not yet covered, recorded as a revisit before end-2027",
+    "Model AI Governance Framework: which practices the MVP already follows through `ai_runs`, evidence quotes and the suggestion-only rule",
+    "Risk register: Risk 1 (no sign-in) accepted for fictional data; Risk 2 (old CVs) resolved; what each becomes at the real-data release"
+   ],
+   "exclusions": [
+    "Implementing consent, retention or deletion — real-data release (E14)",
+    "Legal advice or sign-off",
+    "Changing any scoring rule"
+   ],
+   "done": [
+    "Every PDPA row in the PRD appears with its MVP position and its real-data requirement",
+    "The fair-employment section lists the ignored attributes exactly as the PRD decides them, and records the four Act attributes that are not yet covered as an open revisit",
+    "Risk 1 is recorded as accepted for fictional data only, naming the two cheapest fixes"
+   ],
+   "files": [
+    "docs/compliance/baseline.md",
+    "docs/compliance/risk-register.md"
+   ],
+   "skills": [
+    "prd-context",
+    "compliance-review",
+    "security-check"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "no real personal data appears anywhere in the diff"
+   ],
+   "depends": [
+    "E00-S04-T01"
+   ],
+   "flags": []
+  },
+  {
+   "key": "E00-S05",
+   "parent": "E00",
+   "level": "story",
+   "title": "Quality is defined before it is built",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:ai-governance",
+    "priority:p0"
+   ],
+   "story": "As a recruiter who will grade the AI in December, I want the quality bar, the test strategy and the accessibility standard agreed now, so that the go/no-go decision rests on evidence we planned for rather than whatever we happened to measure.",
+   "ac": [
+    "Given the PRD quality bar, when I read `docs/plans/ai-eval-plan.md`, then the answer-key format, the scoring method, and the separate EN and ZH bars (≥ 90% fields, ≥ 80% top-5) are all fixed before any prompt is written.",
+    "Given a logic task, when its plan is written, then `docs/plans/test-strategy.md` already says which layer tests it and which behaviours are test-first.",
+    "Given the dashboard and pipeline board must work at phone width, when a screen is built, then `docs/plans/accessibility-standard.md` states the keyboard, contrast, `lang` and overflow rules it must meet."
+   ],
+   "prd": [
+    "Goals → MVP quality bar → decided",
+    "AI governance → requirement 4, recruiters grade EN and ZH separately → decided",
+    "Non-functional requirements → Testing: Vitest, Playwright, AI quality script → proposed",
+    "UI design → design rules 2, 3 and 4 (non-colour-only status, Noto Sans SC, phone width) → suggested",
+    "Non-functional requirements → Devices: desktop and mobile browsers → decided"
+   ],
+   "design": "No"
+  },
+  {
+   "key": "E00-S05-T01",
+   "parent": "E00-S05",
+   "level": "task",
+   "title": "Write the test strategy record",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:ai-governance",
+    "area:foundation",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Fix the testing contract the whole backlog inherits: the four layers, the test-first list, fixture rules, frozen Singapore time, and which CI gate runs what.",
+   "scope": [
+    "`docs/plans/test-strategy.md`: unit (Vitest), DB integration (local Supabase), e2e (Playwright desktop + phone), AI quality (eval)",
+    "The test-first list: working days, limit hierarchy, delay status, guarantee dates, must-have cap, redaction, evidence checks, total years, override merge, gap rules, search fusion, eval scoring, spend cap, env parsing, typed-name validation",
+    "Fixture rules: fictional only, no Blob access in unit or DB tests, no network in unit tests, explicit holiday fixtures",
+    "Per-area minimum proof table, and which gate blocks a merge"
+   ],
+   "exclusions": [
+    "Writing any test or test harness (E01-S01-T03)",
+    "CI workflow YAML (E01-S03)",
+    "Deciding a coverage percentage — the strategy is explicit that there is no coverage gate"
+   ],
+   "done": [
+    "All four layers appear with tool, location, command and what runs against",
+    "The test-first list matches the behaviours the PRD makes rules about",
+    "Each MVP area has at least one 'must prove' line"
+   ],
+   "files": [
+    "docs/plans/test-strategy.md"
+   ],
+   "skills": [
+    "prd-context",
+    "testing",
+    "ci-setup"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "every command named matches the script names in CLAUDE.md"
+   ],
+   "depends": [],
+   "flags": []
+  },
+  {
+   "key": "E00-S05-T02",
+   "parent": "E00-S05",
+   "level": "task",
+   "title": "Write the AI evaluation plan and answer-key format",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:ai-governance",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Settle how the PRD quality bar is actually measured before any prompt exists: the answer-key file format, how a parsed field counts as correct, how top-5 agreement is computed, and how EN and ZH are graded separately.",
+   "scope": [
+    "`docs/plans/ai-eval-plan.md`: bar (≥ 90% fields, ≥ 80% top-5), EN and ZH scored separately against the same bar",
+    "Answer-key format: keyed by file SHA-256, fictional content only, committed under `eval/answer-key/`, with a `verified` flag so unverified entries are excluded",
+    "Field-accuracy rules: which fields count, how normalisation and near-misses are treated, how a missing field scores",
+    "Top-5 agreement: what the recruiter ranking is compared against and how ties are handled",
+    "Cost control: how often the eval runs and roughly what a run costs"
+   ],
+   "exclusions": [
+    "Drafting the answer key (E11-S02)",
+    "Writing `npm run eval` (E11-S03-T01)",
+    "Choosing the model or provider"
+   ],
+   "done": [
+    "The plan states a single unambiguous rule for field correctness and one for top-5 agreement",
+    "EN and ZH grading is specified separately with the same bar",
+    "The answer-key format is fixed, keyed by SHA-256, and excludes unverified entries from the bar",
+    "The plan records that this scoring method is *proposed* in `ai-eval` and is being confirmed here"
+   ],
+   "files": [
+    "docs/plans/ai-eval-plan.md"
+   ],
+   "skills": [
+    "prd-context",
+    "ai-eval",
+    "testing"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "no real personal data or Blob URL in the diff"
+   ],
+   "depends": [
+    "E00-S05-T01"
+   ],
+   "flags": []
+  },
+  {
+   "key": "E00-S05-T03",
+   "parent": "E00-S05",
+   "level": "task",
+   "title": "Write the accessibility and responsive standard",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:design-system",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Fix the accessibility and phone-width rules every screen must meet, so they are designed in rather than retrofitted. The PRD requires desktop and mobile browsers, non-colour-only status and a Simplified Chinese font.",
+   "scope": [
+    "`docs/plans/accessibility-standard.md`: semantic HTML, labelled inputs, visible focus, full keyboard operation including stage moves, `aria-live` for async results, contrast from the tokens",
+    "Phone width (390 px): dashboard and pipeline board fully usable, tables collapse to cards, filters in a sheet, no horizontal page scroll",
+    "Chinese text: `lang=\"zh-Hans\"`, Noto Sans SC in the stack, CSS truncation only, long-name cases",
+    "Delay status: always a word or icon plus colour, with the `aria-label` pattern",
+    "How each rule is checked: Playwright assertion, unit test, or design review"
+   ],
+   "exclusions": [
+    "Token values or component code (E02)",
+    "Adding an axe dependency — that is E02-S05-T02, which this standard specifies"
+   ],
+   "done": [
+    "Every PRD design rule that concerns access or device width appears as a checkable rule",
+    "Each rule names how it is verified (test, assertion or review)",
+    "The phone-width overflow rule is stated as an assertable condition"
+   ],
+   "files": [
+    "docs/plans/accessibility-standard.md"
+   ],
+   "skills": [
+    "prd-context",
+    "ui-build",
+    "ui-design",
+    "testing"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "each rule names a verification method"
+   ],
+   "depends": [],
+   "flags": []
+  },
+  {
+   "key": "E00-S06",
+   "parent": "E00",
+   "level": "story",
+   "title": "Infrastructure and delivery order are planned",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:release",
+    "priority:p0"
+   ],
+   "story": "As the delivery lead, I want the environments, the env var inventory, the free-tier limits and the build order written down, so that the team can run phases in parallel where it is safe and knows what the free tiers will do to us.",
+   "ac": [
+    "Given three environments (local, preview, production), when I read `docs/plans/infrastructure.md`, then each one names its Supabase project, its Vercel target and its env vars by name only.",
+    "Given the free tiers, when I read the plan, then each limit from the PRD table appears with its effect and the response we have chosen.",
+    "Given the phase structure, when I read `docs/plans/delivery-plan.md`, then the critical path, the parallel tracks and the definition of done are explicit."
+   ],
+   "prd": [
+    "Environments & delivery (suggested) → one repo, preview per PR, 2 Supabase projects, CI applies migrations → suggested",
+    "Free-tier limits and risks → six limits with suggested responses → suggested",
+    "Non-functional requirements → uptime 99.5% best effort, backups none in MVP → at risk / decided",
+    "Release plan → MVP by mid-Dec 2026 → decided"
+   ],
+   "design": "No"
+  },
+  {
+   "key": "E00-S06-T01",
+   "parent": "E00-S06",
+   "level": "task",
+   "title": "Write the infrastructure plan, env var inventory and free-tier runbook",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:release",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Record the environment map, the complete env var inventory by name, and the operational responses to every free-tier limit the PRD lists — including the weekly keep-alive that stops Supabase Free pausing the MVP between review sessions.",
+   "scope": [
+    "`docs/plans/infrastructure.md`: local / preview / production → Supabase project, Vercel target, migration source",
+    "Env var inventory: names, which environment holds them, server-only vs public, and which are secrets. **Names only, never values**",
+    "Free-tier responses: Hobby non-commercial, weekly keep-alive, no backups (re-seed), 500 MB / 1 GB / 50 MB caps, one region and daily cron, no uptime guarantee",
+    "Recovery: migrations plus seed are the backup plan; what a rebuild costs in time and AI calls"
+   ],
+   "exclusions": [
+    "Creating the Vercel project or setting any variable (E01-S04-T01)",
+    "Writing the seed (E03-S04)",
+    "Choosing paid plans — that is a PRD open question"
+   ],
+   "done": [
+    "Every env var the MVP needs is listed by name with its environment and secret status, and no value appears",
+    "All six PRD free-tier limits appear with the chosen response",
+    "The recovery procedure names the exact commands the re-seed will use once they exist"
+   ],
+   "files": [
+    "docs/plans/infrastructure.md",
+    ".env.example"
+   ],
+   "skills": [
+    "prd-context",
+    "release-deploy",
+    "security-check"
+   ],
+   "verify": [
+    "git diff --name-only",
+    "grep -RInE '(SEED_BLOB_BASE_URL=|BLOB_READ_WRITE_TOKEN=)[^\\s]' -- . | grep -v '.env.example' # must be empty"
+   ],
+   "depends": [
+    "E00-S04-T01"
+   ],
+   "flags": []
+  },
+  {
+   "key": "E00-S06-T02",
+   "parent": "E00-S06",
+   "level": "task",
+   "title": "Write the delivery plan: phases, critical path and definition of done",
+   "phase": "P0 Decisions & plan",
+   "milestone": "MVP",
+   "labels": [
+    "area:release",
+    "area:foundation",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Record the phase order this backlog is built on: what each phase delivers, which phases sit on the critical path to mid-December 2026, which tracks can run in parallel, and the definition of done every task shares.",
+   "scope": [
+    "`docs/plans/delivery-plan.md`: the phases P0–P12, each with its epics, entry condition and exit condition",
+    "Critical path: foundation → data → CV processing → matching → pipeline → launch, with the design-system and AI-governance tracks marked as parallel",
+    "Parallel tracks and their synchronisation points (for example: designs must land before the screen build tasks in the same phase)",
+    "Definition of done for a task: acceptance criteria proven by named tests, verification commands green, review passed, completion summary recorded in the plan's Outcome section"
+   ],
+   "exclusions": [
+    "Re-planning the backlog itself — this records the phase structure already on Project 4",
+    "Estimating in days or assigning people"
+   ],
+   "done": [
+    "Every phase P0–P12 appears with its epics and exit condition",
+    "The critical path and the parallel tracks are both explicit",
+    "The shared definition of done matches the 'Definition of done' section every task issue carries"
+   ],
+   "files": [
+    "docs/plans/delivery-plan.md"
+   ],
+   "skills": [
+    "prd-context",
+    "github-workflow",
+    "urec-orchestrator"
+   ],
+   "verify": [
+    "git diff --name-only   # docs only",
+    "every phase on Project 4's Phase field appears in the plan"
+   ],
+   "depends": [
+    "E00-S06-T01"
+   ],
+   "flags": []
+  }
+ ]
+}

@@ -1,19 +1,70 @@
 # Backlog map
 
-Keys are stable and never renumbered. Add new items with the next free number.
+Keys are stable and never renumbered. Add new items with the next free number; `E00` is the one
+exception, taken deliberately so the planning phase sorts first.
+
+This file is the readable outline: keys, titles, executors, flags and phases. The full issue
+bodies live beside it in `docs/backlog/roadmap/<EPIC>.json`, keyed the same way, and
+`scripts/build.sh` renders them. Change this file first, then the matching JSON.
 
 **Line format:**
-- **Epic:** `KEY — Title · labels · milestone`
+- **Epic:** `KEY — Title · labels · milestone · phase`
 - **Story:** `KEY — Title · labels`
 - **Task:** `KEY — Title [executor] (flags)`, where flags use `P` = prd:proposed, `D?` = needs-decision, `TF` = test-first.
 
-Stories inherit the milestone and `area:*` labels of their epic unless they say otherwise. Tasks inherit from their story.
+Stories inherit the milestone, phase and `area:*` labels of their epic unless they say otherwise. Tasks inherit from their story.
+
+## Phases
+
+Phases are dependency-ordered delivery stages, carried by the **Phase** single-select field on
+Project 4. They are not milestones: `MVP`, `Real-data release` and `Later` stay as they were.
+
+| Phase | Epics | Delivers |
+|---|---|---|
+| P0 Decisions & plan | E00 | Product, architecture, UX, data-model, security, compliance, testing, AI-evaluation, infrastructure and delivery records |
+| P1 Foundation & CI | E01 | Scaffold, env, Supabase wiring, CI, previews |
+| P2 Design system | E02 | Tokens, shell, shared patterns, screen designs, accessibility |
+| P3 Data & seed | E03 | Schema, RLS, storage, working days, fictional seed |
+| P4 CV processing | E04 | Extraction, parsing, review queue, overrides, profile |
+| P5 Jobs & gap check | E05 | Job form, versions, JD upload, gap flags |
+| P6 Matching | E06 | Embeddings, retrieval, scoring, ranked list |
+| P7 Talent search | E07 | Plain-language search, filters, job-scoped ranking |
+| P8 Pipeline & placements | E08, E09 | Stages, limits, delay status, board, dashboard, guarantee |
+| P9 Settings & audit | E10 | Limits, holidays, typed name, change log |
+| P10 AI governance | E11 | `ai_runs`, answer key, eval gate, rate limits, fairness review |
+| P11 Launch & go/no-go | E12 | Production deploy, readiness check, feedback sessions, decision |
+| P12 Real-data release | E13–E17 | Stubs only, all `needs-decision`, planned after go/no-go |
+
+---
+
+## Phase 0
+
+### E00 — Decisions, architecture & delivery plan · area:foundation, area:compliance · MVP · P0
+
+- **E00-S01 — The team builds from one written architecture and data-model record**
+  - T01 ADR-0001: application, data and AI boundaries [claude]
+  - T02 ADR-0002: the 17-table data model and its invariants [claude]
+  - T03 ADR-0003: AI provider decision brief and provider-agnostic contract [claude] (D?)
+- **E00-S02 — Every PRD open question has an owner and a decision issue** · needs-decision
+  - T01 Open-questions register and decision log [claude] (D?)
+- **E00-S03 — The UX structure is agreed before any screen is designed** · area:design-system
+  - T01 Screen inventory, navigation map and core recruiter flows [claude]
+- **E00-S04 — Security and compliance baselines are written before any code** · area:compliance
+  - T01 Security baseline for a public, sign-in-less MVP [claude]
+  - T02 PDPA and fair-employment compliance baseline and risk register [claude]
+- **E00-S05 — Quality is defined before it is built** · area:ai-governance
+  - T01 Test strategy record [claude]
+  - T02 AI evaluation plan and answer-key format [claude]
+  - T03 Accessibility and responsive standard [claude]
+- **E00-S06 — Infrastructure and delivery order are planned** · area:release
+  - T01 Infrastructure plan, env var inventory and free-tier runbook [claude]
+  - T02 Delivery plan: phases, critical path and definition of done [claude]
 
 ---
 
 ## Milestone: MVP
 
-### E01 — Foundation & delivery · area:foundation, area:release · MVP
+### E01 — Foundation & delivery · area:foundation, area:release · MVP · P1
 
 - **E01-S01 — Developers can run the app locally and it deploys to Vercel sin1**
   - T01 Scaffold Next.js App Router + TypeScript strict + Tailwind + shadcn/ui init, npm scripts per CLAUDE.md [grok]
@@ -31,7 +82,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
   - T01 Vercel project `u-recruitment` (scope `user-7407`): region sin1, env vars per environment, preview per PR [claude] (D? Hobby non-commercial)
   - T02 Vercel firewall rate limit on AI routes; document the provider spend cap [grok]
 
-### E02 — Design system & screens · area:design-system · MVP
+### E02 — Design system & screens · area:design-system · MVP · P2
 
 - **E02-S01 — The portal has one visual language defined as tokens**
   - T01 Define colour, type (incl. Noto Sans SC), spacing and radius tokens in `design/tokens.pen` [claude]
@@ -50,8 +101,11 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
   - T05 Design Pipeline board (phone-first) [claude]
   - T06 Design Placements + Settings [claude]
   - T07 Design the CV review queue (implied by the PRD) [claude] (D?)
+- **E02-S05 — Screens meet the accessibility and phone-width standard automatically**
+  - T01 Shared phone-width and status-legibility assertions [grok] (TF)
+  - T02 Axe accessibility scan in the e2e suite [grok]
 
-### E03 — Data foundation & seed · area:data · MVP
+### E03 — Data foundation & seed · area:data · MVP · P3
 
 - **E03-S01 — The core schema exists with RLS locked down**
   - T01 Migration: clients, jobs, job_versions, gap_flags [grok]
@@ -71,8 +125,9 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
   - T04 Seed step: upload to private Supabase Storage → parse → embed → load jobs → gap check → score [grok]
   - T05 Seed step: back-dated pipeline entries that cover on track / due soon / overdue [grok] (P)
   - T06 Idempotent re-run (key: blob pathname + SHA-256) + reset command [grok] (TF)
+  - T07 Seed run report: counts, skipped files and likely resubmissions [grok]
 
-### E04 — CV processing · area:cv-processing · MVP
+### E04 — CV processing · area:cv-processing · MVP · P4
 
 - **E04-S01 — Text-based CVs are read; scanned ones are rejected clearly**
   - T01 PDF + DOCX text extraction on the server, with an image-only detector [grok] (TF)
@@ -91,7 +146,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 - **E04-S05 — Recruiters check one candidate on a profile page**
   - T01 Candidate profile screen: fields with source text, original file link, stage history [grok]
 
-### E05 — Jobs & gap check · area:jobs, area:gap-check · MVP
+### E05 — Jobs & gap check · area:jobs, area:gap-check · MVP · P5
 
 - **E05-S01 — Recruiters create and edit client jobs** · area:jobs
   - T01 Job form + server action: owner name, client, must-have/nice-to-have, nationality/language only with reason [grok] (TF)
@@ -109,7 +164,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
   - T01 Resolve/dismiss with note + typed name [grok] (P)
   - T02 Open-flag banner on the job; matching never blocked [grok]
 
-### E06 — Job matching · area:matching · MVP
+### E06 — Job matching · area:matching · MVP · P6
 
 - **E06-S01 — CVs and jobs have multilingual embeddings**
   - T01 Embedding service behind a provider-agnostic interface; model id stored [grok] (TF)
@@ -123,7 +178,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 - **E06-S04 — Recruiters review ranked matches**
   - T01 Ranked list on Job detail: sort/filter, reasons, model version + date, suggestion label, add-to-pipeline [grok]
 
-### E07 — Talent search · area:search · MVP · prd:proposed
+### E07 — Talent search · area:search · MVP · prd:proposed · P7
 
 - **E07-S01 — Recruiters search in plain language**
   - T01 Query → filters + search-text prompt + schema [claude] (P)
@@ -133,7 +188,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 - **E07-S03 — Searching from a job ranks by match score**
   - T01 Job-scoped search reuses match scores and reasons [grok] (P)
 
-### E08 — Pipeline & delays · area:pipeline, area:dashboard · MVP
+### E08 — Pipeline & delays · area:pipeline, area:dashboard · MVP · P8
 
 - **E08-S01 — Recruiters move candidates through stages with an audit trail** · area:pipeline
   - T01 Stage model: 7 stages + 3 end states; move action writes stage_events with typed name [grok] (TF)
@@ -146,14 +201,14 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 - **E08-S04 — The dashboard shows what needs attention** · area:dashboard
   - T01 Dashboard: overdue by days over, due soon, guarantee end dates; filters for client, job, stage, owner [grok] (P)
 
-### E09 — Placements · area:placements · MVP
+### E09 — Placements & guarantee · area:placements · MVP · P8
 
 - **E09-S01 — Recruiters confirm start dates and track the guarantee**
   - T01 Placement record: start date check, guarantee end from the client's period (default 30 days) [grok] (TF)
   - T02 Dashboard flag 5 working days before the guarantee ends [grok] (TF, P)
   - T03 Placements screen with countdown [grok]
 
-### E10 — Settings & audit · area:settings · MVP
+### E10 — Settings & audit · area:settings · MVP · P9
 
 - **E10-S01 — Recruiters adjust stage limits at every level**
   - T01 Settings screen: default/client/job limits, settings_log with typed name [grok]
@@ -163,7 +218,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
   - T01 Name prompt before the first change on a device; name remembered locally [grok] (TF)
   - T02 Change log view [grok]
 
-### E11 — AI governance & quality · area:ai-governance, area:compliance · MVP
+### E11 — AI governance & quality · area:ai-governance, area:compliance · MVP · P10
 
 - **E11-S01 — Every AI call is traceable** · area:ai-governance
   - T01 `ai_runs` writer used by every AI service: input ref, model, version, output, cost, duration [grok] (TF)
@@ -179,11 +234,12 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 - **E11-S05 — Scoring and flags pass a fairness review** · area:compliance
   - T01 Compliance review against the PRD + Model AI Governance Framework; findings as issues [claude]
 
-### E12 — MVP launch & feedback · area:release · MVP
+### E12 — MVP launch & go/no-go · area:release · MVP · P11
 
 - **E12-S01 — The MVP is live for recruiter sessions**
   - T01 Production deploy + re-seed runbook [claude]
-  - T02 Keep-alive guidance for the Supabase Free pause [claude]
+  - T02 Keep-alive and restore guidance for the Supabase Free pause [claude]
+  - T03 Release readiness check before recruiter sessions [claude]
 - **E12-S02 — Recruiters grade the AI and give feedback**
   - T01 Grading session guide + feedback capture template [claude]
 - **E12-S03 — The team makes a go/no-go decision**
@@ -194,8 +250,8 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 ## Milestone: Real-data release (epic stubs only, all `needs-decision`)
 
 - **E13 — Real CV intake** · area:cv-processing — recruiter upload, intake mailbox, one-time OneDrive/SharePoint import (last 12 months)
-- **E14 — Consent & retention** · area:compliance — recorded consent, 7-day reminder, 14-day deletion, 12-month retention with 30-day warning, hide non-consented candidates
-- **E15 — Access protection** · area:compliance — sign-in (e.g. Microsoft 365 via Supabase Auth) or network restriction; access logging
+- **E14 — Consent, retention & data subject rights** · area:compliance — recorded consent, 7-day reminder, 14-day deletion, 12-month retention with 30-day warning, hide non-consented candidates
+- **E15 — Access protection before real data** · area:compliance — sign-in (e.g. Microsoft 365 via Supabase Auth) or network restriction; access logging
 - **E16 — Duplicate candidates** · area:cv-processing — rule to be decided after go/no-go
 - **E17 — Paid plans & backups** · area:release — Vercel Pro, Supabase paid tier, backup policy
 

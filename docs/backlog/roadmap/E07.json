@@ -1,0 +1,339 @@
+{
+ "items": [
+  {
+   "key": "E07",
+   "level": "epic",
+   "title": "Talent search",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "prd:proposed",
+    "priority:p0"
+   ],
+   "goal": "A recruiter types what they are looking for in plain language and gets ranked candidates from the agency's own database in under three seconds, with filters for skills, years, location, language and CV date, and a clear view of how fresh each CV is. Searching from a job ranks by that job's match score with the same reasons.",
+   "prd": [
+    "Talent search → all five requirements → proposed",
+    "Talent search → search covers only the agency's own database; no external sources at launch → decided",
+    "Talent search → external sources later: the design should let approved sources be added later, each with an on/off switch → decided",
+    "Technical architecture → Search: pgvector for meaning, PGroonga for English and Chinese keywords → proposed",
+    "AI pipeline → Search: a model turns plain language into filters plus search text; Postgres runs keyword, vector and filter search together → suggested",
+    "Non-functional requirements → Speed: search results in under 3 seconds → decided"
+   ],
+   "exit": [
+    "A plain-language query returns sensible ranked candidates in under three seconds on the seeded set",
+    "All five PRD filters work, including a Simplified Chinese keyword hit",
+    "Searching from a job ranks by that job's match score and shows the same reasons",
+    "Protected terms in a query do not become scoring or filter criteria"
+   ],
+   "outOfScope": [
+    "External talent sources such as LinkedIn, job boards or partner agencies — a non-goal, though the design must not preclude adding an approved source later with an on/off switch",
+    "Hiding candidates without consent or past retention — that is the real-data release",
+    "Saved searches, alerts or any notification — the portal sends no email"
+   ]
+  },
+  {
+   "key": "E07-S01",
+   "parent": "E07",
+   "level": "story",
+   "title": "Recruiters search in plain language",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "prd:proposed",
+    "priority:p0"
+   ],
+   "story": "As a recruiter, I want to type \"accountant with SAP experience and 5+ years in Singapore\" and get the right people, so that I do not have to translate my own thinking into a filter form.",
+   "ac": [
+    "Given a plain-language query, when I search, then it is turned into filters plus search text and the results reflect both.",
+    "Given a query mentioning a protected attribute, when it is processed, then that term does not become a filter or a scoring criterion.",
+    "Given any query, when I search the seeded set, then results appear in under three seconds.",
+    "Given a query in Simplified Chinese, when I search, then Chinese keyword matches are found."
+   ],
+   "prd": [
+    "Talent search → requirement 1: plain-language search → proposed",
+    "Technical architecture → Search: pgvector plus PGroonga → proposed",
+    "AI pipeline → Search: one model call turns the query into filters plus search text; Postgres runs keyword, vector and filter together → suggested",
+    "Non-functional requirements → Speed: under 3 seconds → decided"
+   ],
+   "design": "Yes: new screen"
+  },
+  {
+   "key": "E07-S01-T01",
+   "parent": "E07-S01",
+   "level": "task",
+   "title": "Write the search query prompt and filter schema",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "area:ai-governance",
+    "prd:proposed",
+    "priority:p0"
+   ],
+   "executor": "claude",
+   "what": "Write the schema and prompt that turn a recruiter's sentence into structured filters plus the text to search for, in English and Simplified Chinese, refusing to turn a protected attribute into a filter.",
+   "scope": [
+    "`src/ai/prompts/search-query/`: schema covering skills, years, location, language and CV date, plus free search text",
+    "Prompt v1 with fictional English and Simplified Chinese examples",
+    "A rule that protected attributes mentioned in a query are reported back to the recruiter rather than applied as filters",
+    "Ambiguity handling: what the model does when the query is vague, so the recruiter can refine rather than get nothing",
+    "A prompt version recorded on every run"
+   ],
+   "exclusions": [
+    "The SQL (T02)",
+    "The search screen (E07-S02-T01)",
+    "External sources"
+   ],
+   "done": [
+    "The schema covers all five PRD filters plus free search text",
+    "A query naming a protected attribute produces no filter for it and an explicit note back to the recruiter, covered by an example",
+    "Fictional English and Simplified Chinese examples are included",
+    "The prompt carries a version the service records"
+   ],
+   "files": [
+    "src/ai/prompts/search-query/schema.ts",
+    "src/ai/prompts/search-query/prompt.ts",
+    "src/ai/prompts/search-query/examples.ts"
+   ],
+   "skills": [
+    "ai-prompts",
+    "talent-search",
+    "compliance-review",
+    "prd-context"
+   ],
+   "verify": [
+    "npm run typecheck",
+    "npm test -- search-query",
+    "npm run lint"
+   ],
+   "depends": [
+    "E11-S01-T01"
+   ],
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "key": "E07-S01-T02",
+   "parent": "E07-S01",
+   "level": "task",
+   "title": "Build the hybrid search SQL combining PGroonga, pgvector and filters",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "priority:p0"
+   ],
+   "executor": "grok",
+   "what": "Write one database function that applies the hard filters, the PGroonga keyword match and the pgvector similarity together and returns a fused ranking, fast enough to answer in well under three seconds on the seeded set. Test-first.",
+   "scope": [
+    "Enable PGroonga and add the indexes both search paths need",
+    "One SQL function taking filters, keyword text, an embedding, an optional job version, a limit and an offset",
+    "A documented fusion rule combining keyword and vector rank",
+    "Failing tests first: each filter excludes correctly; a Simplified Chinese keyword matches; the fusion order is deterministic; the job-version argument switches ranking to match score",
+    "A timing assertion over the seeded set against the three-second budget"
+   ],
+   "exclusions": [
+    "The prompt (T01)",
+    "The UI (E07-S02-T01)",
+    "External sources or federated search"
+   ],
+   "done": [
+    "Failing-then-passing tests cover every filter, a Chinese keyword hit, deterministic fusion and job-scoped ranking",
+    "Search over the seeded set completes within the documented budget, asserted by a test",
+    "Keyword, vector and filter work happens in one query rather than in application code"
+   ],
+   "files": [
+    "supabase/migrations/*_search.sql",
+    "src/server/search/query.ts",
+    "src/server/search/query.test.ts",
+    "supabase/tests/search.db.test.ts"
+   ],
+   "skills": [
+    "talent-search",
+    "supabase-db",
+    "testing",
+    "prd-context"
+   ],
+   "verify": [
+    "npm run test:db",
+    "npm test -- search",
+    "npm run typecheck"
+   ],
+   "depends": [
+    "E06-S01-T01",
+    "E03-S01-T03"
+   ],
+   "flags": [
+    "TF",
+    "P"
+   ]
+  },
+  {
+   "key": "E07-S02",
+   "parent": "E07",
+   "level": "story",
+   "title": "Recruiters filter results and see how fresh each CV is",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "prd:proposed",
+    "priority:p0"
+   ],
+   "story": "As a recruiter, I want to narrow results and see when each CV was last updated, so that I do not call someone about a role they left three years ago.",
+   "ac": [
+    "Given the search screen, when I use the filters, then skills, years of experience, location, language and CV date all narrow the results.",
+    "Given a result, when I look at it, then it shows when that CV was last updated.",
+    "Given the search screen at 390 px, when I use it, then the filters are reachable and the page does not scroll horizontally."
+   ],
+   "prd": [
+    "Talent search → requirement 2: filters for skills, years, location, language and CV date → proposed",
+    "Talent search → requirement 4: results show when each CV was last updated → proposed",
+    "UI design → Candidate search screen → decided"
+   ],
+   "design": "Yes: new screen"
+  },
+  {
+   "key": "E07-S02-T01",
+   "parent": "E07-S02",
+   "level": "task",
+   "title": "Build the search screen with filters and CV freshness",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "prd:proposed",
+    "priority:p0"
+   ],
+   "executor": "grok",
+   "what": "Build the search screen from `design/specs/search.md`: the plain-language box, the five filters, and results showing each candidate with their CV's last-updated date.",
+   "scope": [
+    "A route and page running the query through the search service",
+    "All five filters, in a sheet at phone width",
+    "Each result showing the CV's last-updated date as a relative age with the exact date available",
+    "Loading, empty and error states from the shared patterns, including the case where the model could not understand the query",
+    "Playwright coverage at both widths with the shared assertions"
+   ],
+   "exclusions": [
+    "The SQL or prompt",
+    "Job-scoped search (E07-S03-T01)",
+    "Saving searches or alerts"
+   ],
+   "done": [
+    "All five filters narrow results, covered by an end-to-end test",
+    "Every result shows its CV's last-updated date",
+    "A query the model cannot interpret produces a helpful message rather than an empty list with no explanation",
+    "Playwright passes at desktop and phone width"
+   ],
+   "files": [
+    "src/app/(app)/search/page.tsx",
+    "src/components/features/search/SearchScreen.tsx",
+    "e2e/search.spec.ts"
+   ],
+   "skills": [
+    "ui-build",
+    "talent-search",
+    "nextjs-app",
+    "testing"
+   ],
+   "verify": [
+    "npm run lint",
+    "npm run typecheck",
+    "npm test",
+    "npm run test:e2e"
+   ],
+   "depends": [
+    "E07-S01-T02",
+    "E02-S04-T04"
+   ],
+   "flags": [
+    "P"
+   ]
+  },
+  {
+   "key": "E07-S03",
+   "parent": "E07",
+   "level": "story",
+   "title": "Searching from a job ranks by that job's match score",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "area:matching",
+    "prd:proposed",
+    "priority:p1"
+   ],
+   "story": "As a recruiter working one job, I want search results ordered by how well people fit that job, so that search and the ranked list tell me the same story.",
+   "ac": [
+    "Given I search from a job, when results return, then they are ranked by that job's match score.",
+    "Given a result in a job-scoped search, when I look at it, then it shows the same reasons and evidence as the job's ranked list.",
+    "Given a candidate with no score for that job version, when they appear, then they are shown as not yet scored rather than as a zero."
+   ],
+   "prd": [
+    "Talent search → requirement 3: searching from a job ranks results by that job's match score, with the same reasons as Job matching → proposed",
+    "Job matching → requirement 4: scores are keyed to the job version → proposed"
+   ],
+   "design": "Yes: change to existing screen"
+  },
+  {
+   "key": "E07-S03-T01",
+   "parent": "E07-S03",
+   "level": "task",
+   "title": "Add job-scoped search that reuses match scores and reasons",
+   "phase": "P7 Talent search",
+   "milestone": "MVP",
+   "labels": [
+    "area:search",
+    "area:matching",
+    "prd:proposed",
+    "priority:p1"
+   ],
+   "executor": "grok",
+   "what": "Let a recruiter search within a job's context so results are ranked by that job's stored match scores and show the same reasons, without triggering any new AI call.",
+   "scope": [
+    "An entry point from job detail into search, carrying the job version",
+    "Ranking by stored match score for that job version, with filters still applied",
+    "Reasons and evidence rendered from the stored score, using the same components as the ranked list",
+    "Failing tests first: ranking follows the score; a candidate with no score for that version shows as not yet scored; no AI scoring call is made during a job-scoped search"
+   ],
+   "exclusions": [
+    "Re-scoring from search",
+    "Changing the scoring rules",
+    "Adding candidates to the pipeline from search, unless the design spec includes it"
+   ],
+   "done": [
+    "Failing-then-passing tests cover score-ordered ranking, the unscored candidate and the no-AI-call rule",
+    "Reasons shown in job-scoped search come from the stored score and match the job's ranked list",
+    "Playwright covers entering search from a job and seeing score-ordered results"
+   ],
+   "files": [
+    "src/server/search/job-scoped.ts",
+    "src/server/search/job-scoped.test.ts",
+    "src/components/features/search/SearchScreen.tsx",
+    "e2e/search-from-job.spec.ts"
+   ],
+   "skills": [
+    "talent-search",
+    "ai-pipeline",
+    "testing",
+    "ui-build"
+   ],
+   "verify": [
+    "npm test -- job-scoped",
+    "npm run typecheck",
+    "npm run test:e2e"
+   ],
+   "depends": [
+    "E07-S02-T01",
+    "E06-S02-T04"
+   ],
+   "flags": [
+    "TF",
+    "P"
+   ]
+  }
+ ]
+}
