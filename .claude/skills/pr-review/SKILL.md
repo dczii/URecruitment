@@ -4,7 +4,7 @@ description: >
   Claude's review gate for URecruitment changes (usually written by Grok via cursor-agent): checks
   the diff against the task's spec.md acceptance criteria and plan.md scope, PRD guardrails, the
   rules of every skill in scope, test quality, migrations, UI fidelity at desktop/phone width and
-  git/PR conventions. Use for `/review [PR# | branch]`, in orchestrator Step 8, or whenever asked
+  git/PR conventions. Use for `/review [PR# | branch]`, in urec-orchestrator Step 8, or whenever asked
   to review a branch or PR in this repo.
 ---
 
@@ -88,5 +88,5 @@ Checks: lint ✅ · typecheck ✅ · test ✅ · build ✅ · e2e n/a · eval n/
 | # | Severity | File:line | Rule (quoted, with skill) | Finding | Suggested fix |
 ```
 
-- **Inside the orchestrator:** blockers and majors go back to the fix loop. Minors and nits go in the PR's "Follow-ups" section.
+- **Inside urec-orchestrator:** blockers and majors go back to the fix loop. Minors and nits go in the PR's "Follow-ups" section.
 - **Standalone `/review`:** print the review. **Post it to the PR only when asked** (`/review 42 --comment` → `gh pr comment 42 --body-file <file>`). Never approve or merge on GitHub.

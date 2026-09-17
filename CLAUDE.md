@@ -47,17 +47,17 @@ Until the app is scaffolded, these scripts don't exist. The task that first need
 ## Workflow
 
 - **Every change starts from a GitHub issue** in `dczii/URecruitment`, tracked on [Project 4](https://github.com/users/dczii/projects/4). The hierarchy is Epic → Story → Task, using sub-issues. Config lives in `.claude/github-project.json`.
-- **`/task <description | #issue>`** runs the `orchestrator` skill. It writes `docs/tasks/<issue>-<slug>/spec.md` and `plan.md`, has Grok 4.6 (`cursor-agent`) implement, has Claude verify and review, then opens a PR and moves the card to In Review. There is no approval gate. **Claude never merges.**
+- **`/task <description | #issue>`** runs the `urec-orchestrator` skill. Use it instead of the global `orchestrator` skill in this repo. It writes `docs/tasks/<issue>-<slug>/spec.md` and `plan.md`, has Grok 4.6 (`cursor-agent`) implement, has Claude verify and review, then opens a PR and moves the card to In Review. There is no approval gate. **Claude never merges.**
 - **`/backlog`** builds or refreshes the issue tree from the PRD. **`/review [PR#]`** runs `pr-review`.
 - **Git:** branches are named `<type>/<issue>-<slug>` and cut from `main`. Commits use Conventional Commits (`feat(matching): cap score on missing must-have (#42)`). The PR body contains `Closes #<issue>`. A human squash-merges.
 - **Tests first for logic.** Working days, score caps, delay status, gap rules and similar logic get failing Vitest tests before the implementation.
-- **Executors can't load Claude skills.** Every `cursor-agent` prompt inlines the rules that apply (see `orchestrator`). `AGENTS.md` carries the baseline rules for Cursor.
+- **Executors can't load Claude skills.** Every `cursor-agent` prompt inlines the rules that apply (see `urec-orchestrator`). `AGENTS.md` carries the baseline rules for Cursor.
 
 ## Skills (`.claude/skills/`)
 
 | Skill | Load when |
 |---|---|
-| `orchestrator` | Starting any task (`/task`). Plans, delegates to Grok, verifies, opens the PR |
+| `urec-orchestrator` | Starting any task (`/task`). Plans, delegates to Grok, verifies, opens the PR. Takes precedence over the global `orchestrator` |
 | `github-workflow` | Creating/updating issues, sub-issues, labels, Project 4 fields, branches, PRs |
 | `backlog-builder` | Turning the PRD into Epic → Story → Task issues (`/backlog`) |
 | `prd-context` | Any product question: decisions, non-goals, pipeline rules, data model, screens, sample data |

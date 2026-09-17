@@ -18,7 +18,7 @@ title="$3"
 
 root="$(git rev-parse --show-toplevel)"
 config="$root/.claude/github-project.json"
-templates="$root/.claude/skills/orchestrator/templates"
+templates="$root/.claude/skills/urec-orchestrator/templates"
 
 repo="$(jq -r '.repo' "$config")"
 default_branch="$(jq -r '.defaultBranch' "$config")"

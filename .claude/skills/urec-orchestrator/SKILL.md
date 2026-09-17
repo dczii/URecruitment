@@ -1,8 +1,8 @@
 ---
-name: orchestrator
+name: urec-orchestrator
 description: >
-  URecruitment task orchestrator (overrides the global orchestrator inside this repo). Use for
-  every piece of development work: `/task <description | #issue>`, "create a task", "work on #42",
+  URecruitment task orchestrator. In this repo, use it INSTEAD of the global `orchestrator` skill
+  (it extends that skill with project rules). Use for every piece of development work: `/task <description | #issue>`, "create a task", "work on #42",
   "implement <feature>", "start the next task". Resolves or creates the GitHub issue, writes
   docs/tasks/<issue>-<slug>/spec.md and plan.md, delegates implementation to Grok 4.6 via
   cursor-agent with the repo's skill rules inlined, verifies (lint, typecheck, tests, build, e2e,
@@ -10,11 +10,18 @@ description: >
   No approval gate. Never merges.
 ---
 
-# Orchestrator — URecruitment
+# urec-orchestrator — URecruitment
 
-**Claude plans, verifies and reviews. Grok 4.6 (via `cursor-agent`) writes the code.** This skill overrides the global `~/.claude/skills/orchestrator`. The global one still supplies the mechanics: executor flags, model tiers and the "never trust executor output" rules. Where the two differ, **this file wins**. When you are deviating from the global skill, say so out loud.
+**Claude plans, verifies and reviews. Grok 4.6 (via `cursor-agent`) writes the code.**
 
-Precedence, highest first: `CLAUDE.md` → this skill → other project skills → the global orchestrator.
+This skill **extends** the global `~/.claude/skills/orchestrator`.
+
+- **Why the different name:** a personal skill named `orchestrator` shadows a project skill with the same name.
+- **What the global skill still supplies:** the mechanics, meaning executor flags, model tiers and the "never trust executor output" rules.
+- **Precedence:** where the two differ, **this file wins**. When you deviate from the global skill, say so out loud.
+- **If the global skill was loaded first** (e.g. at session start), its Step 0 inventory finds this skill. Switch to this one for any task in this repo.
+
+Precedence, highest first: `CLAUDE.md` → this skill → other project skills → the global `orchestrator`.
 
 **Config:** `.claude/github-project.json` (repo, Project 4, status names, executor models).
 **Templates:** `templates/spec.md`, `templates/plan.md`, `templates/executor-prompt.md`.
@@ -82,7 +89,7 @@ cursor-agent status                                  # executor is authenticated
 ```bash
 git switch main && git pull --ff-only
 git switch -c <type>/<issue>-<slug>
-.claude/skills/orchestrator/scripts/new-task-docs.sh <issue> <slug> "<issue title>"
+.claude/skills/urec-orchestrator/scripts/new-task-docs.sh <issue> <slug> "<issue title>"
 ```
 
 Fill in `docs/tasks/<issue>-<slug>/spec.md` (**what** and **why**) and `plan.md` (**how**) from the templates. Rules:
@@ -121,7 +128,7 @@ A prompt that omits the rules of a skill covering its files is malformed. Fix it
 ## Step 5 — Execute
 
 ```bash
-.claude/skills/orchestrator/scripts/run-executor.sh <issue>-<slug> <step-id> <prompt-file> [model]
+.claude/skills/urec-orchestrator/scripts/run-executor.sh <issue>-<slug> <step-id> <prompt-file> [model]
 ```
 
 The wrapper runs `cursor-agent -p --model cursor-grok-4.6-high --sandbox enabled --trust --output-format text` in the current checkout (the task branch), and logs to `.orchestrator/<issue>-<slug>/<step-id>.log` (gitignored).

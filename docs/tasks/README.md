@@ -8,7 +8,7 @@ docs/tasks/<issue-number>-<slug>/
   plan.md   # HOW: approach, files, dependencies, executor steps, test plan, outcome
 ```
 
-- The folders are created by `.claude/skills/orchestrator/scripts/new-task-docs.sh` from the templates in `.claude/skills/orchestrator/templates/`.
+- The folders are created by `.claude/skills/urec-orchestrator/scripts/new-task-docs.sh` from the templates in `.claude/skills/urec-orchestrator/templates/`.
 - The spec and plan are committed as the **first commit** on the task branch, before any code.
 - `plan.md` → **Outcome** is filled in after execution: what shipped, deviations, fix rounds, executor model.
 - Coding agents (Grok via `cursor-agent`) read these files but never edit them.

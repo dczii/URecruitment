@@ -3,7 +3,7 @@ description: Plan and build one task end to end (issue → spec + plan → Grok 
 argument-hint: <task description | #issue | issue URL>
 ---
 
-Run the project `orchestrator` skill (`.claude/skills/orchestrator/SKILL.md`) on this input:
+Run the project `urec-orchestrator` skill (`.claude/skills/urec-orchestrator/SKILL.md`) on this input. Don't use the global `orchestrator` skill:
 
 $ARGUMENTS
 
