@@ -1,0 +1,57 @@
+name: Epic
+description: A capability-sized body of work. Contains stories (as sub-issues).
+title: "[Epic] "
+labels: ["type:epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Epics map to PRD capabilities. Link stories as **sub-issues**. Don't write "Parent: #N" in prose.
+        This repo is public: no credentials, Drive IDs or real personal data.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What recruiters can do when this epic is done.
+    validations:
+      required: true
+  - type: textarea
+    id: prd
+    attributes:
+      label: PRD references
+      description: Section → item → status (decided / proposed / open).
+      placeholder: |
+        - Job matching → Match output → decided
+        - Job matching → Requirements #3 must-have cap → proposed
+    validations:
+      required: true
+  - type: textarea
+    id: stories
+    attributes:
+      label: Stories
+      description: Filled in once the stories exist (ordered).
+      placeholder: "- [ ] #…"
+  - type: textarea
+    id: exit
+    attributes:
+      label: Exit criteria
+      placeholder: |
+        - All stories closed
+        - Eval passes for EN and ZH (if AI is involved)
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: Relevant PRD non-goals.
+  - type: dropdown
+    id: release
+    attributes:
+      label: Release
+      options:
+        - MVP
+        - Real-data release
+        - Later
+    validations:
+      required: true

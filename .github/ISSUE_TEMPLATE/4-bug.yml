@@ -1,0 +1,44 @@
+name: Bug
+description: Something doesn't work as the spec or PRD says.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Use fictional sample data only. Never paste real personal data, keys or Drive IDs.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: Include screenshots, the device width, and the Vercel deployment URL if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Spec / PRD reference
+      description: The acceptance criterion or PRD rule this breaks (e.g. docs/tasks/42-…/spec.md AC2).
+  - type: dropdown
+    id: env
+    attributes:
+      label: Environment
+      options:
+        - Local
+        - Preview
+        - Production
+    validations:
+      required: true

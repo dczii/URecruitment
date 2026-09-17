@@ -1,0 +1,47 @@
+# dependencies
+node_modules/
+
+# next.js / build
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# env — never commit secrets (this repo is public)
+.env
+.env.*
+!.env.example
+
+# supabase local
+supabase/.branches/
+supabase/.temp/
+
+# tests
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# eval
+eval/reports/
+
+# seed downloads (sample CVs come from Drive at run time)
+.seed-cache/
+
+# orchestrator logs, prompts and PR bodies
+.orchestrator/
+
+# claude local
+.claude/settings.local.json
+.claude/github-project.fields.json
+
+# vercel
+.vercel/
+
+# os / editor
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json

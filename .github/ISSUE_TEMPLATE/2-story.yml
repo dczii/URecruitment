@@ -1,0 +1,44 @@
+name: Story
+description: A recruiter-facing outcome inside an epic. Contains tasks (as sub-issues).
+title: "[Story] "
+labels: ["type:story"]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      placeholder: As a recruiter, I want … so that …
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Given / When / Then. Testable.
+      placeholder: |
+        - [ ] Given …, when …, then …
+    validations:
+      required: true
+  - type: textarea
+    id: prd
+    attributes:
+      label: PRD references
+      description: Section → item → status (decided / proposed / open).
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: Ordered. Filled in once the task sub-issues exist.
+      placeholder: "1. #…"
+  - type: dropdown
+    id: design
+    attributes:
+      label: Design needed?
+      options:
+        - "No"
+        - "Yes: new screen"
+        - "Yes: change to existing screen"
+    validations:
+      required: true

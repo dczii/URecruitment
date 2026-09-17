@@ -1,0 +1,24 @@
+{
+  "repo": "dczii/URecruitment",
+  "owner": "dczii",
+  "ownerType": "user",
+  "projectNumber": 4,
+  "projectUrl": "https://github.com/users/dczii/projects/4",
+  "defaultBranch": "main",
+  "docsTasksDir": "docs/tasks",
+  "fieldsCacheFile": ".claude/github-project.fields.json",
+  "statusFlow": {
+    "planned": "Todo",
+    "inProgress": "In Progress",
+    "inReview": "In Review",
+    "done": "Done"
+  },
+  "milestones": ["MVP", "Real-data release", "Later"],
+  "executor": {
+    "cli": "cursor-agent",
+    "model": "cursor-grok-4.6-high",
+    "escalationModel": "cursor-grok-4.6-xhigh",
+    "cheapModel": "cursor-grok-4.6-low",
+    "maxFixRounds": 3
+  }
+}
