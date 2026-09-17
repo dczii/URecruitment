@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `docs/21-ux-screen-inventory-flows` (stacked on `docs/20-open-questions-register`) |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -55,14 +55,14 @@ the three daily journeys first, so the designs join up.
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given the PRD screen list, when I read `docs/ux/screen-inventory.md`, then every screen shows its purpose, its key elements, its phone-width behaviour and the design task that will draw it. _Proved by:_ `V4`.
-- [ ] **AC2** — Given a recruiter's day, when I read the flows, then "find candidates for a job", "move a candidate and record my name" and "clear today's overdue list" are each mapped end to end across screens. _Proved by:_ `V5`.
-- [ ] **AC3** — Given two screens are implied by the requirements but absent from the PRD screen list (the CV review queue and the typed-name prompt), when the inventory is written, then both are marked as needing the product owner's confirmation. _Proved by:_ `V6`.
-- [ ] **AC4** (#75) — All nine PRD screens plus the review queue and name prompt appear with purpose and owning design task. _Proved by:_ `V4`.
-- [ ] **AC5** (#75) — The three flows each name every screen and state change they cross. _Proved by:_ `V5` (every step row has a Screen and a State-change cell; each flow ends with "Screens crossed" and "Tables written", and those match its steps).
-- [ ] **AC6** (#75) — The navigation model says what is in the primary navigation on desktop and what collapses on a phone. _Proved by:_ `V7`.
-- [ ] **AC7** (#75) — The five PRD design rules are restated as constraints every screen design must show. _Proved by:_ `V7` (rules R1–R5 quoted verbatim from the PRD).
-- [ ] **AC8** — Only files under `docs/` change, every relative link and anchor resolves, every issue number exists, and no secret appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
+- [x] **AC1** — Given the PRD screen list, when I read `docs/ux/screen-inventory.md`, then every screen shows its purpose, its key elements, its phone-width behaviour and the design task that will draw it. _Proved by:_ `V4`.
+- [x] **AC2** — Given a recruiter's day, when I read the flows, then "find candidates for a job", "move a candidate and record my name" and "clear today's overdue list" are each mapped end to end across screens. _Proved by:_ `V5`.
+- [x] **AC3** — Given two screens are implied by the requirements but absent from the PRD screen list (the CV review queue and the typed-name prompt), when the inventory is written, then both are marked as needing the product owner's confirmation. _Proved by:_ `V6`.
+- [x] **AC4** (#75) — All nine PRD screens plus the review queue and name prompt appear with purpose and owning design task. _Proved by:_ `V4`.
+- [x] **AC5** (#75) — The three flows each name every screen and state change they cross. _Proved by:_ `V5` (every step row has a Screen and a State-change cell; each flow ends with "Screens crossed" and "Tables written", and those match its steps).
+- [x] **AC6** (#75) — The navigation model says what is in the primary navigation on desktop and what collapses on a phone. _Proved by:_ `V7`.
+- [x] **AC7** (#75) — The five PRD design rules are restated as constraints every screen design must show. _Proved by:_ `V7` (rules R1–R5 quoted verbatim from the PRD).
+- [x] **AC8** — Only files under `docs/` change, every relative link and anchor resolves, every issue number exists, and no secret appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
 
 ## Guardrails that apply
 

@@ -48,13 +48,13 @@ Two alternatives were rejected:
 
 ## Steps
 
-- [ ] **S1** `claude` — Write `docs/ux/screen-inventory.md` (AC1, AC3, AC4, AC6, AC7).
+- [x] **S1** `claude` — Write `docs/ux/screen-inventory.md` (AC1, AC3, AC4, AC6, AC7).
   - Rules: `prd-context` screens and design rules (quote them verbatim); `ui-design` §Frames and §PRD design rules; `ui-build` §Rules 4–8.
   - Verify: `V4`, `V6`, `V7`.
-- [ ] **S2** `claude` — Write `docs/ux/flows.md` (AC2, AC5).
+- [x] **S2** `claude` — Write `docs/ux/flows.md` (AC2, AC5).
   - Rules: `prd-context` pipeline rules and main flows; `compliance-review` §B; `security-check` §Input handling and §Data access; `CLAUDE.md` hard rules 1, 2, 3, 7 and 8.
   - Verify: `V5`.
-- [ ] **S3** `none` — `V1`–`V8`, then Claude review (`pr-review` + `compliance-review` + `security-check` scope).
+- [x] **S3** `none` — `V1`–`V8`, then Claude review (`pr-review` + `compliance-review` + `security-check` scope).
 
 ## Test plan
 
@@ -91,4 +91,44 @@ V8  every issue number exists
 
 ## Outcome
 
-<!-- Filled after execution. -->
+- **Shipped:**
+  - `docs/ux/screen-inventory.md`:
+    - the five PRD design rules as checkable constraints R1–R5, quoted verbatim;
+    - screens S1–S11, each with purpose, PRD key elements, what else is required, entry points, where it leads, phone-width behaviour, the rules it shows, its states and its design and build tasks;
+    - a primary-navigation model for desktop and phone, with its reading of #96 and #97's "nine areas";
+    - a Mermaid navigation map;
+    - a "does not decide" list.
+  - `docs/ux/flows.md`: three flows, 35 steps in all, each giving screen, actor, action and state change, with a "screens crossed / tables written" summary per flow and a cross-flow check table.
+  - The CV review queue (S10) and the name prompt (S11) are flagged for owner confirmation and linked to RC-2.
+- **Changed files / areas:** `docs/ux/screen-inventory.md` and `docs/ux/flows.md` (both new), plus this task's `spec.md` and `plan.md`.
+- **Tests added or updated:** none. The change is documentation only, and no test runner exists before #85 (spec A10).
+- **Verification:**
+  - V1: docs only.
+  - V2: links and anchors resolve, including the RC-2 anchor.
+  - V3: no secret patterns.
+  - V4: 11 screen entries, every one with Purpose, Phone width and Design / build rows, and 11 rows in the at-a-glance table, each naming a design task.
+  - V5: three flows with 35 five-cell step rows. Every table named in "Tables written" is in ADR-0002, except the re-score runs table, which is labelled as such.
+  - V6: S10 and S11 are flagged, with four RC-2 links.
+  - V7: primary navigation table present; R1–R5 verbatim.
+  - V8: every cited issue exists.
+- **Deviations:** none from the plan. The name-prompt wording in S11 was aligned with the reviewed RC-2 row from #20.
+- **Fix rounds / escalations:** none on implementation. One review round: 1 major, 4 minor and 4 nit findings, all applied.
+- **Models used:**
+  - Planning, writing, verification: Claude Opus 5 (`claude-opus-5`).
+  - Review: Claude subagent with the `opus` model alias. The runtime did not expose the exact model ID.
+  - No `cursor-agent` call was made.
+- **Claude direct fixes:** every step was executed by Claude, by design (spec A2).
+- **Review findings (all applied):**
+  - F1: the reading of #96 and #97's "nine MVP areas" is now stated where those tasks will look.
+  - F2: the shell layout is marked as a proposal for #96 and added to "does not decide".
+  - F3: step 1.2 now writes `cv_files`.
+  - F4: the re-score runs table (#150) is named.
+  - F5: the Add-to-pipeline audit row is marked as proposed for #151 and #156. #162 is cited for the start-date write, and S11 records what each change stores.
+  - F6: Client interview may also wait on the candidate.
+  - F7: map edges `D→JD` and `CS→JD` were added and `Q→CP` was removed.
+  - F8: the guarantee unit is left to #162.
+  - F9: the undefined column name is removed.
+- **Follow-ups:**
+  1. #151 or #156 confirms whether "Add to pipeline" writes a `stage_events` row with the typed name.
+  2. #96 confirms or revises the five-entry primary navigation.
+  3. The owner answers RC-2.

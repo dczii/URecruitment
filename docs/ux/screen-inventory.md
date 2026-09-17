@@ -91,6 +91,14 @@ table.
 - **Candidate profile.** It needs a candidate.
 - **Typed-name prompt.** It is a dialog, not a destination.
 
+> **Reading of #96 and #97.** Both scope *"navigation for the nine MVP areas"*. This record reads
+> that as every area being **reachable** from the shell, not as nine top-level links: three areas need
+> a job and one needs a candidate. [#96](https://github.com/dczii/URecruitment/issues/96) may revisit
+> this, and updates this table if it does. [#97](https://github.com/dczii/URecruitment/issues/97)'s
+> navigation test covers the five links above.
+
+**Proposed for [#96](https://github.com/dczii/URecruitment/issues/96), which decides:**
+
 **Desktop:** the navigation is always visible, and the header shows the page title plus the
 **recruiter-name affordance** ("Recording as *name* · Change"). On the Job detail and Candidate
 profile screens, a breadcrumb shows the path back (Jobs › *job title*).
@@ -120,16 +128,17 @@ flowchart LR
   JD --> CS["S5 Search from this job"]
   JD --> CP["S6 Candidate profile"]
   D --> PB
+  D --> JD
   D --> CP
   D --> P
   C --> CP
   CS --> CP
+  CS --> JD
   PB --> CP
   PB --> P
   CP --> JD
   P --> CP
   P --> JD
-  Q --> CP
   N{{"S11 Typed-name prompt (before the first change on a device)"}}
   PB -. move .-> N
   CP -. edit .-> N
@@ -224,7 +233,7 @@ states every design shows (`ui-design`): default, empty, loading, error, and a l
 | Purpose (PRD) | *"Check one person"* |
 | Key elements (PRD) | *"Parsed fields with source text, edit mode, original file, stage history"* |
 | Also required | Recruiter edits are shown **as differing from the parsed value**, with the parsed value still viewable, and they **survive re-processing** (**proposed**); the original file opens through a **short-lived signed link** requested on demand (`CLAUDE.md` hard rule 3); stage history shows **the typed name and the Singapore date** for each move |
-| Entry points | Search results, ranked matches, Pipeline board cards, Dashboard rows, Placements, the review queue (if confirmed) |
+| Entry points | Search results, ranked matches, Pipeline board cards, Dashboard rows, Placements |
 | Leads to | Job detail (from a stage-history entry) |
 | Phone width | One column. Parsed fields are grouped (Contact, Work history, Education, Skills, Languages). Source quotes expand in place. Edit mode edits one group at a time |
 | Rules shown | R1 on every parsed field; R3 (a Chinese CV, with `lang` marked on the quote); R5 on the first edit |
@@ -254,7 +263,7 @@ states every design shows (`ui-design`): default, empty, loading, error, and a l
 | Also required | The guarantee period comes from the client (default **30 days**, **decided**); a flag **5 working days** before the guarantee ends (**proposed**); confirming or changing a start date is a change, so it gets the name prompt ([#164](https://github.com/dczii/URecruitment/issues/164)) |
 | Entry points | Primary navigation; Dashboard (guarantees ending); Pipeline board (after Placed) |
 | Leads to | Candidate profile; Job detail |
-| Phone width | Cards: candidate, job, client, start date (confirmed or not), and a countdown **in words** ("Guarantee ends in 4 working days") |
+| Phone width | Cards: candidate, job, client, start date (confirmed or not), and a countdown **in words** ("Guarantee ends in 4 days · 12 Jan"; whether the unit is calendar or working days follows [#162](https://github.com/dczii/URecruitment/issues/162)) |
 | Rules shown | R2-style legibility for the countdown (words, not colour alone); R5 on start-date confirmation |
 | States | All five, plus "start date not yet confirmed" and "guarantee ended" |
 | Design / build | [#105](https://github.com/dczii/URecruitment/issues/105) / [#164](https://github.com/dczii/URecruitment/issues/164) |
@@ -296,13 +305,16 @@ states every design shows (`ui-design`): default, empty, loading, error, and a l
 | Purpose | Ask for the recruiter's name before their first change on a device; remember it; let them change it |
 | Key elements | First use (enter name); remembered name shown on each stage move with **"not you?"**; changing the name from the shell's name affordance; validation (not blank, not whitespace only, not too long; [#167](https://github.com/dczii/URecruitment/issues/167)) |
 | Where it appears | Before the first change of any kind on a device. On every stage move it shows the remembered name. The shell's name affordance opens it to change the name |
-| What it records | The name goes into the audit rows of the change being made: stage moves, profile edits, flag resolutions and settings changes ([#167](https://github.com/dczii/URecruitment/issues/167) scope). It is not a sign-in and verifies nobody (PRD *Users → 3*: *"Actions are tied to a typed name, not a verified person."*) |
+| What it records | The name goes into the audit rows of the change being made: stage moves, profile edits, flag resolutions and settings changes ([#167](https://github.com/dczii/URecruitment/issues/167) scope), and start-date confirmations ([#162](https://github.com/dczii/URecruitment/issues/162)). A job save asks for the name (design rule 5) but stores it nowhere. It is not a sign-in and verifies nobody (PRD *Users → 3*: *"Actions are tied to a typed name, not a verified person."*) |
 | Phone width | A full-width dialog or bottom sheet, with the input focused and the keyboard not covering the confirm button |
 | Design / build | [#98](https://github.com/dczii/URecruitment/issues/98) / [#99](https://github.com/dczii/URecruitment/issues/99), [#167](https://github.com/dczii/URecruitment/issues/167) |
 
 ## What this record does not decide
 
 - **Visual design:** tokens, spacing, colour and components (E02).
+- **The shell layout:** header content, breadcrumb, phone top bar, and where the recruiter-name
+  affordance sits ([#96](https://github.com/dczii/URecruitment/issues/96)). The shell description
+  above is a proposal for that task.
 - **The phone layout of the pipeline board** (tabs or in-board scrolling columns), which belongs to
   [#104](https://github.com/dczii/URecruitment/issues/104).
 - **Whether S10 exists, and the form of S11,** which the product owner decides
