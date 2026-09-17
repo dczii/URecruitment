@@ -8,10 +8,15 @@ Spec: [spec.md](./spec.md) · Branch: `{{BRANCH}}` · Created: {{DATE}}
 
 ## Skills in scope
 
-<!-- The skills whose rules bind this task. Each step below says which of them it must obey. -->
+<!--
+Inventory all repository-local skill descriptions before planning. List every matching skill
+and why it applies. Re-run discovery and update this list if the file or subsystem scope expands.
+Each step below says which selected skills it must obey.
+-->
 
-- `prd-context`
-- `testing`
+- `prd-context` — required for every task; …
+- `testing` — required for every task; …
+- `…` — matches … files / subsystem / acceptance criterion
 
 ## Files
 
@@ -28,7 +33,7 @@ Spec: [spec.md](./spec.md) · Branch: `{{BRANCH}}` · Created: {{DATE}}
 ## Steps
 
 <!--
-One step = one executor call. Executor tag: grok (default) | claude (pen.dev design, or Grok failed twice) | none (verification only).
+One step = one executor call. Executor tag: grok (default) | gpt (GPT-5.6 Sol; state why) | claude (pen.dev design, or the selected executor failed twice) | none (verification only).
 Logic is test-first: (a) failing tests, then (b) implementation.
 Mark `parallel-safe` only when files don't overlap with any other step.
 -->
@@ -39,14 +44,18 @@ Mark `parallel-safe` only when files don't overlap with any other step.
 - [ ] **S1b** `grok` — Implement … in `…` until S1a passes.
   - Rules: …
   - Verify: `npm test -- …` → pass; `npm run typecheck`
-- [ ] **S2** `claude` — Design … in `design/….pen` (if needed).
-- [ ] **S3** `none` — Full verification.
+- [ ] **S2** `gpt` — Implement … where GPT-5.6 is the better fit because ….
+- [ ] **S3** `claude` — Design … in `design/….pen` (if needed).
+- [ ] **S4** `none` — Full verification.
 
 ## Test plan
 
-| AC | Test | Type |
+Every acceptance criterion must name an automated test, or state why automation is not appropriate and name the manual evidence.
+
+| AC | Test or manual evidence | Type / reason |
 |---|---|---|
 | AC1 | `…test.ts › …` | unit / integration / e2e / eval |
+| AC2 | none — inspect rendered docs links | docs-only; manual verification |
 
 ## Verification
 
@@ -68,9 +77,12 @@ npm run eval         # if AI parsing/matching changed
 <!-- Filled after execution. -->
 
 - **Shipped:** 
+- **Changed files / areas:**
+- **Tests added or updated:** <!-- Name files and covered behaviours, or "none — <concrete reason>". -->
+- **Verification:** <!-- Each command and pass/fail. -->
 - **Deviations:** 
 - **Fix rounds / escalations:** 
-- **Executor model(s):** 
+- **Models used:** <!-- Role + step/round + exact model ID. Use "unknown (runtime did not expose it)" when necessary; never guess. -->
 - **Claude direct fixes:** 
 - **Review findings:** 
 - **Follow-ups:** 

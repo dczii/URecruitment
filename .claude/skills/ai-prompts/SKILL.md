@@ -10,7 +10,7 @@ description: >
 
 # In-app AI prompts
 
-Prompts are product logic. They are versioned, reviewed and **gated by `npm run eval`**. Prompt tasks are planned and written by Claude (executor tag `claude`). Grok wires them into services.
+Prompts are product logic. They are versioned, reviewed and **gated by `npm run eval`**. Prompt tasks are planned and written by Claude (executor tag `claude`). A Cursor code executor wires them into services.
 
 ## Layout
 

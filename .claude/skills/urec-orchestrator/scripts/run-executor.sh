@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Run one plan step through cursor-agent (Grok 4.6) on the current task branch and log the output.
-# Usage: run-executor.sh <issue>-<slug> <step-id> <prompt-file> [model]
-#   model defaults to .executor.model in .claude/github-project.json
+# Run one plan step through cursor-agent on the current task branch and log the output.
+# Usage: run-executor.sh <issue>-<slug> <step-id> <prompt-file> [executor-or-model]
+#   executor-or-model accepts "grok", "gpt", or a literal Cursor model ID.
+#   It defaults to .executor.model in .claude/github-project.json.
 # Extra cursor-agent flags can be passed via EXECUTOR_EXTRA_FLAGS (e.g. "--force").
 # Bash 3.2 compatible (macOS default).
 set -euo pipefail
@@ -17,7 +18,12 @@ prompt_file="$3"
 
 root="$(git rev-parse --show-toplevel)"
 config="$root/.claude/github-project.json"
-model="${4:-$(jq -r '.executor.model' "$config")}"
+requested_model="${4:-grok}"
+case "$requested_model" in
+  grok) model="$(jq -r '.executor.model' "$config")" ;;
+  gpt) model="$(jq -r '.executor.gptModel' "$config")" ;;
+  *) model="$requested_model" ;;
+esac
 default_branch="$(jq -r '.defaultBranch' "$config")"
 branch="$(git -C "$root" rev-parse --abbrev-ref HEAD)"
 
