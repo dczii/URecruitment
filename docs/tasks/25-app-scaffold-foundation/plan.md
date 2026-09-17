@@ -98,28 +98,28 @@ Checked on the npm registry today; exact versions are fixed by `package-lock.jso
 
 ## Steps
 
-- [ ] **S1** `claude` — Run the generators (spec A4).
+- [x] **S1** `claude` — Run the generators (spec A4).
   - Run `npx create-next-app@16.3.5 <tmp> --ts --eslint --tailwind --app --src-dir --import-alias "@/*" --use-npm --yes`, then `npx shadcn@4 init` (defaults, neutral) inside `<tmp>`.
   - Copy everything except `.git`, `node_modules`, `README.md` and `.gitignore` into the repo. Merge `.gitignore` by hand.
   - Install `server-only` and `zod`, add `.nvmrc`, and run `npm install`.
   - Verify: `npm run lint && npx tsc --noEmit && npm run build`.
-- [ ] **S2** `grok` — #83 shaping (AC5, AC6).
+- [x] **S2** `grok` — #83 shaping (AC5, AC6).
   - Rules: `nextjs-app` 1, 2, 6 and 7, plus "check the installed version"; `security-check` §Transport and headers; `ui-build` 1 and 2.
   - Verify: `npm run lint`, `npm run typecheck`, `npm run build`, then `npm start` and `curl -sI localhost:3000 | grep -iE 'content-security-policy|x-frame|referrer-policy|x-content-type|permissions-policy'`.
-- [ ] **S3** `grok` — #85 test tooling (AC1, AC7, AC8).
+- [x] **S3** `grok` — #85 test tooling (AC1, AC7, AC8).
   - Rules: `testing` §Layers and §Rules (no network, `desktop`/`phone` projects, overflow assertion, no `waitForTimeout`, role locators).
   - Verify: `npm test`, `npm run test:e2e`.
-- [ ] **S4a** `grok` — #84 failing tests (AC2, AC9, AC10). Write `src/server/env.test.ts` and `src/lib/env.test.ts` only.
+- [x] **S4a** `grok` — #84 failing tests (AC2, AC9, AC10). Write `src/server/env.test.ts` and `src/lib/env.test.ts` only.
   - Verify: `npm test` → the new tests fail on missing modules or assertions (checked by Claude).
-- [ ] **S4b** `grok` — #84 implementation, until S4a is green.
+- [x] **S4b** `grok` — #84 implementation, until S4a is green.
   - Rules: `nextjs-app` 7; `security-check` §Secrets; `release-deploy` env inventory; `testing` (env parsing is test-first).
   - Verify: `npm test`, `npm run typecheck`, `npm run build`.
-- [ ] **S5a** `grok` — #86 failing scrubber tests (AC4, AC11). Write `src/lib/sentry-scrub.test.ts` only.
+- [x] **S5a** `grok` — #86 failing scrubber tests (AC4, AC11). Write `src/lib/sentry-scrub.test.ts` only.
   - Verify: `npm test` → fails.
-- [ ] **S5b** `grok` — #86 Sentry wiring, scrubber, triggers and runbook, until green.
+- [x] **S5b** `grok` — #86 Sentry wiring, scrubber, triggers and runbook, until green.
   - Rules: `security-check` §Logging and monitoring; `compliance-review` minimisation; `nextjs-app` 11; the CSP from S2 (use `tunnelRoute`; no `unsafe-inline`).
   - Verify: `npm run lint`, `typecheck`, `test`, `build`, `test:e2e`, and the `curl` header check again.
-- [ ] **S6** `none` — Full verification plus `npm audit --omit=dev`, then Claude review (`pr-review` + `security-check` + `compliance-review`) on an Opus subagent.
+- [x] **S6** `none` — Full verification plus `npm audit --omit=dev`, then Claude review (`pr-review` + `security-check` + `compliance-review`) on an Opus subagent.
 
 ## Test plan
 
@@ -161,4 +161,69 @@ V3 secret scan on the diff; git ls-files | grep -E '(^|/)\.env' | grep -v '\.env
 
 ## Outcome
 
-<!-- Filled after execution. -->
+- **Shipped:** a working Next.js 16.3.5 baseline on Node 22.
+  - **#83:** the `create-next-app` + `shadcn init` scaffold; `vercel.json` pinning **`sin1`**;
+    `src/server/index.ts` marked `import "server-only"`; the `nextjs-app` folders; `typecheck` as
+    `next typegen && tsc --noEmit`; a token-only placeholder page; and the **security headers** the
+    security baseline assigns here — four static headers in `next.config.ts` plus a **per-request
+    nonce CSP** in `src/proxy.ts` (Next 16's name for middleware).
+  - **#85:** Vitest (node, `TZ=UTC`, `@/*` resolved, `server-only` aliased to a stub, any unexpected
+    `fetch` fails the test) and Playwright with **`desktop` (1440×900)** and **`phone` (390×844)**
+    projects, `retries: 0`, and the `test`, `test:e2e` and `test:db` scripts.
+  - **#84:** `src/server/env.ts` (server-only) and `src/lib/env.ts` (public), both Zod. Errors name the
+    variable and its reason and **never print a value**; an empty string counts as absent; parsing is
+    lazy so a build with no values succeeds.
+  - **#86:** Sentry for server, edge and client, with a pure `beforeSend` scrubber, tracing and replay
+    off, `sendDefaultPii: false`, a tunnel route that keeps `connect-src 'self'`, test-error triggers
+    that 404 in production, and a runbook.
+- **Changed files / areas:** `package.json` and the lockfile; `tsconfig`, `next.config.ts`,
+  `eslint.config.mjs`, `postcss.config.mjs`, `components.json`; `vercel.json`; `.nvmrc`; `src/app/**`,
+  `src/lib/**`, `src/server/**`, `src/proxy.ts`, `src/instrumentation*.ts`; `sentry.*.config.ts`;
+  `vitest.config.ts`, `playwright.config.ts`, `test/**`, `e2e/**`; `docs/runbooks/sentry-test-error.md`;
+  `AGENTS.md` (Next's managed block); `.gitignore`.
+- **Tests added or updated:** 38 unit tests in 6 files — `src/server/scaffold.test.ts`,
+  `src/lib/security-headers.test.ts`, `test/setup.test.ts`, `src/server/env.test.ts`,
+  `src/lib/env.test.ts`, `src/lib/sentry-scrub.test.ts` — plus 3 e2e tests × 2 projects in
+  `e2e/smoke.spec.ts`.
+- **Verification (all run by Claude on Node 22.12.0):**
+  - `npm run lint` → pass
+  - `npm run typecheck` → pass
+  - `npm test` → **38 passed** (6 files)
+  - `npm run build` → pass, with no env values set
+  - `npm run test:e2e` → **6 passed** (desktop + phone)
+  - `npm run test:db` → the stub message, exit 0 (#87 wires it up)
+  - `npm audit --omit=dev` → **0 vulnerabilities**
+  - `curl -sI` against `next start` → all five security headers, CSP with a nonce and no
+    `'unsafe-inline'` in `script-src`
+  - **Boundary check:** a temporary client component importing `@/server/env` makes
+    `npm run build` exit 1 with *"You're importing a module that depends on \"server-only\""*. The
+    file was deleted afterwards; the tree is clean.
+  - `git ls-files | grep .env` → only `.env.example`
+- **Deviations:**
+  1. **Step order.** #85 ran before #84 and #86, because both are test-first and need the runner.
+  2. **Generators run by Claude** (spec A4): `create-next-app` refuses a non-empty directory, so the
+     output was produced in a scratch directory and copied in.
+  3. **Claude ran the e2e suite** (spec A12): Playwright's browser segfaults inside the executor
+     sandbox. Both S3 and S5b were stopped while looping on that failure, their files kept, and the
+     verification re-run by Claude outside the sandbox, where everything passes.
+  4. **`AGENTS.md`** gained Next's managed agent-rules block (spec A11).
+  5. **`disableLogger`** was dropped from the Sentry config: it is deprecated and unsupported under
+     Turbopack, which Next 16 uses by default.
+- **Fix rounds / escalations:** no executor fix rounds. Two Claude direct fixes after inspection (see
+  below). Two executor runs were stopped on the sandbox browser limitation, which is an environment
+  fault rather than a code fault.
+- **Models used:**
+  - Planning, prompts, inspection, verification and direct fixes: **Claude Opus 5** (`claude-opus-5`).
+  - Implementation steps S2, S3, S4a, S4b, S5a, S5b: **`cursor-grok-4.6-high`** via `cursor-agent`
+    (confirmed in each `.orchestrator/25-app-scaffold-foundation/S*.log` header).
+  - Review: a Claude subagent with the `opus` model alias; the runtime does not expose the exact ID.
+- **Claude direct fixes:**
+  1. Removed the deprecated `disableLogger` Sentry option and recorded why.
+  2. `parseSentryDsn` now names the variable it actually parsed, rather than both DSN variables.
+- **Review findings:** see the PR body.
+- **Follow-ups:**
+  1. Seeing an event in Sentry needs a project and a DSN in Vercel Preview — a user step (spec A8).
+  2. Local nvm 22.12.0 sits just below `eslint-visitor-keys`'s engine range (`^22.13`); CI installs the
+     latest 22.x from `.nvmrc`, so only this machine warns.
+  3. `test:db` is a stub until #87.
+  4. Never put `npm run test:e2e` in a `cursor-agent` verification block (spec A12).

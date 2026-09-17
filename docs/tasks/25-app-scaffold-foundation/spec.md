@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `feat/25-app-scaffold-foundation` (stacked on `docs/24-infrastructure-delivery-plan`) |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -75,20 +75,20 @@ Without that baseline, each task would re-decide the basics, differently each ti
 
 Story ACs (#25):
 
-- [ ] **AC1** — Given a clean clone and `npm install`, when I run `npm run dev`, then the app serves a page locally with no runtime error. _Proved by:_ `e2e/smoke.spec.ts › "home page renders"` (desktop + phone, run against `next dev` by Playwright's `webServer`).
-- [ ] **AC2** — Given a missing or malformed env var, when the app starts, then it fails with a message naming the variable, and no secret value is printed. _Proved by:_ `src/server/env.test.ts` (missing variable; malformed URL; no secret in the message) and `src/lib/env.test.ts`.
-- [ ] **AC3** — Given `npm run lint`, `typecheck`, `test` and `build`, when each is run, then all four pass on the scaffold. _Proved by:_ the four commands (verification log).
-- [ ] **AC4** — Given an unhandled server or browser error, when it is thrown, then Sentry receives it and the event contains no candidate name, email, phone or CV text. _Proved by:_ `src/lib/sentry-scrub.test.ts` (the scrubber removes a name, an email, a phone, CV text and a key-shaped string) plus the wiring review. **Receipt in Sentry needs a DSN in a preview deployment (a human step, see Assumption A8).**
+- [x] **AC1** — Given a clean clone and `npm install`, when I run `npm run dev`, then the app serves a page locally with no runtime error. _Proved by:_ `e2e/smoke.spec.ts › "home page renders"` (desktop + phone, run against `next dev` by Playwright's `webServer`).
+- [x] **AC2** — Given a missing or malformed env var, when the app starts, then it fails with a message naming the variable, and no secret value is printed. _Proved by:_ `src/server/env.test.ts` (missing variable; malformed URL; no secret in the message) and `src/lib/env.test.ts`.
+- [x] **AC3** — Given `npm run lint`, `typecheck`, `test` and `build`, when each is run, then all four pass on the scaffold. _Proved by:_ the four commands (verification log).
+- [x] **AC4** — Given an unhandled server or browser error, when it is thrown, then Sentry receives it and the event contains no candidate name, email, phone or CV text. _Proved by:_ `src/lib/sentry-scrub.test.ts` (the scrubber removes a name, an email, a phone, CV text and a key-shaped string) plus the wiring review. **Receipt in Sentry needs a DSN in a preview deployment (a human step, see Assumption A8).**
 
 Task done-when:
 
-- [ ] **AC5** (#83) — `tsconfig.json` has `strict: true`; no `any` outside commented exceptions; `vercel.json` pins `sin1`; `src/server/index.ts` starts with `import "server-only"`. _Proved by:_ `src/server/scaffold.test.ts` (reads the files and asserts each).
-- [ ] **AC6** (#83, security baseline) — Every page response carries CSP (script-src with a nonce and no `unsafe-inline` in production), `frame-ancestors 'none'`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff` and `Permissions-Policy`. _Proved by:_ `curl -sI` against `next start` (verification log) and `e2e/smoke.spec.ts › "security headers are present"`.
-- [ ] **AC7** (#85) — `npm test` makes no network call, and an accidental `fetch` in a unit test fails that test. _Proved by:_ `test/setup.test.ts › "an unexpected fetch fails the test"`.
-- [ ] **AC8** (#85) — `npm run test:e2e` passes for `desktop` and `phone`, and the phone smoke asserts `document.documentElement.scrollWidth <= window.innerWidth`. _Proved by:_ `e2e/smoke.spec.ts`.
-- [ ] **AC9** (#84) — Importing the server env module from a client component fails the build or lint, and no `NEXT_PUBLIC_*` name is a secret. _Proved by:_ `src/server/env.test.ts › "server env module is server-only"` (asserts the `server-only` import) and `src/lib/env.test.ts › "no public variable is secret-shaped"`, which also checks `.env.example`.
-- [ ] **AC10** (#84) — `.env.example` holds every name in the infrastructure inventory's *Local* column, with no values. _Proved by:_ `src/lib/env.test.ts › ".env.example lists names only"`.
-- [ ] **AC11** (#86) — No DSN or token is committed, and the DSN comes from the env modules. _Proved by:_ `src/lib/sentry-scrub.test.ts` (config reads the env module), plus the V3 secret scan.
+- [x] **AC5** (#83) — `tsconfig.json` has `strict: true`; no `any` outside commented exceptions; `vercel.json` pins `sin1`; `src/server/index.ts` starts with `import "server-only"`. _Proved by:_ `src/server/scaffold.test.ts` (reads the files and asserts each).
+- [x] **AC6** (#83, security baseline) — Every page response carries CSP (script-src with a nonce and no `unsafe-inline` in production), `frame-ancestors 'none'`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff` and `Permissions-Policy`. _Proved by:_ `curl -sI` against `next start` (verification log) and `e2e/smoke.spec.ts › "security headers are present"`.
+- [x] **AC7** (#85) — `npm test` makes no network call, and an accidental `fetch` in a unit test fails that test. _Proved by:_ `test/setup.test.ts › "an unexpected fetch fails the test"`.
+- [x] **AC8** (#85) — `npm run test:e2e` passes for `desktop` and `phone`, and the phone smoke asserts `document.documentElement.scrollWidth <= window.innerWidth`. _Proved by:_ `e2e/smoke.spec.ts`.
+- [x] **AC9** (#84) — Importing the server env module from a client component fails the build or lint, and no `NEXT_PUBLIC_*` name is a secret. _Proved by:_ `src/server/env.test.ts › "server env module is server-only"` (asserts the `server-only` import) and `src/lib/env.test.ts › "no public variable is secret-shaped"`, which also checks `.env.example`.
+- [x] **AC10** (#84) — `.env.example` holds every name in the infrastructure inventory's *Local* column, with no values. _Proved by:_ `src/lib/env.test.ts › ".env.example lists names only"`.
+- [x] **AC11** (#86) — No DSN or token is committed, and the DSN comes from the env modules. _Proved by:_ `src/lib/sentry-scrub.test.ts` (config reads the env module), plus the V3 secret scan.
 
 ## Guardrails that apply
 
@@ -125,6 +125,11 @@ A placeholder page only. It has no product UI and no tokens (E02).
 - **A7 — The test-error triggers are disabled in production.** The MVP has no sign-in, so a public "throw an error" endpoint in production would let anyone spam the Sentry quota.
 - **A8 — Seeing the event in Sentry is a human step.** It needs a Sentry project and a DSN set in the Vercel Preview environment, and neither exists (release-deploy: agents never change Vercel settings unasked). The code, scrubber tests and trigger routes ship here. The receipt check is listed for the user.
 - **A9 — `test:db` is a stub in this story.** #87 wires it to the local Supabase stack. This machine has no Docker, so the DB layer is exercised in CI (#91).
+- **A12 — The e2e suite is run by Claude, not the executor.** Playwright's Chromium segfaults
+  (`SIGSEGV`) inside the `cursor-agent --sandbox enabled` runtime, so every browser test there fails
+  with `browserType.launch: Target page, context or browser has been closed`. The same suite passes in
+  about 10 seconds from a normal shell. Executors therefore run lint, typecheck, unit tests and build;
+  Claude runs `npm run test:e2e` and records the result.
 - **A11 — `AGENTS.md` gains Next 16's managed agent-rules block.** `next dev` writes it into `AGENTS.md` whenever it detects an AI agent (`node_modules/next/dist/server/lib/generate-agent-files.js`). Committing it avoids churn, and it points Cursor executors at the bundled docs. The generator's own `AGENTS.md`/`CLAUDE.md` are **not** copied.
 - **A10 — `@/*` resolves in Vitest** through `vite-tsconfig-paths`, the one test-only helper added besides Vitest and Playwright.
 
