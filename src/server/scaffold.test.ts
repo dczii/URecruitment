@@ -46,6 +46,31 @@ describe("scaffold (AC5)", () => {
     expect(vercel.regions).toEqual(["sin1"]);
   });
 
+  it("AC5: vercel.json declares the Next.js framework", () => {
+    // The Vercel project was created before the app existed, so it auto-detected
+    // framework "Other" and the first real build failed with "No Output Directory
+    // named \"public\" found". Declaring it here fixes it in version control
+    // rather than in dashboard settings that nothing in the repo records.
+    const vercel = JSON.parse(
+      readFileSync(join(process.cwd(), "vercel.json"), "utf8"),
+    ) as { framework?: string };
+    expect(vercel.framework).toBe("nextjs");
+  });
+
+  it("AC5: the Node version is pinned to the same major everywhere", () => {
+    // .nvmrc drives local and CI; engines.node drives Vercel. ">=22" let Vercel
+    // build on Node 24 while everything else ran 22.
+    const engines = (
+      JSON.parse(
+        readFileSync(join(process.cwd(), "package.json"), "utf8"),
+      ) as { engines?: { node?: string } }
+    ).engines;
+    const nvmrc = readFileSync(join(process.cwd(), ".nvmrc"), "utf8").trim();
+
+    expect(engines?.node).toBe("22.x");
+    expect(nvmrc).toBe("22");
+  });
+
   it('AC5: src/server/index.ts starts with import "server-only"', () => {
     const source = readFileSync(
       join(process.cwd(), "src/server/index.ts"),
