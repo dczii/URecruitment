@@ -80,7 +80,10 @@ V3  secret / Blob URL scan on the diff
 V4  infrastructure.md: an environment table with Local, Preview and Production columns and Supabase and Vercel rows; every name in .env.example appears in the inventory; every inventory row has Secret and Scope values
 V5  all seven PRD free-tier limit rows are present with a "Our response" cell; the recovery section contains `supabase db reset`, `supabase db push` and `npm run seed -- --reset`
 V6  delivery-plan.md: all 13 Phase field values from .claude/github-project.fields.json appear; "## Critical path", "## Parallel tracks" and "## Definition of done" are present; the DoD quote matches the #74 issue body's DoD text after whitespace normalisation
-V7  grep -RInE '(SEED_BLOB_BASE_URL=|BLOB_READ_WRITE_TOKEN=)[^\s]' -- . | grep -v '.env.example'   # empty (the task's own check); and every assignment in .env.example is `NAME=` with nothing after it
+V7  git ls-files -z | xargs -0 grep -InE '(SEED_BLOB_BASE_URL|BLOB_READ_WRITE_TOKEN)=[^[:space:]]' | grep -v '^.env.example'
+    # only the pattern text itself may match; and every assignment in .env.example is `NAME=` with nothing after it.
+    # Run it over TRACKED files. The task's original form (`grep -R … .`) also scans the gitignored
+    # .env.local and would print a local value to the terminal.
 V8  every issue number exists
 ```
 
