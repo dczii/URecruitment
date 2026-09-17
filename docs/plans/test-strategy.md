@@ -12,7 +12,7 @@ prove at minimum, and which gate blocks a merge. The `testing` skill is the work
 they differ, update both in the same PR.
 
 The PRD's testing layer is **proposed**: *"Vitest for logic, Playwright for key screens, and an AI
-quality script run against the sample answer key."* The quality bar the eval enforces is **decided**
+quality script run against the sample answer key"*. The quality bar the eval enforces is **decided**
 (see [ai-eval-plan.md](ai-eval-plan.md)).
 
 **There is no coverage percentage gate.** Quality comes from test-first logic and from mapping every
