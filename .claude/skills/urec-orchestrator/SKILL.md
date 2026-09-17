@@ -73,6 +73,8 @@ cursor-agent status                                  # executor is authenticated
 | An **Epic** number | List its open Stories, choose the first unblocked Story in roadmap order, then apply the Story workflow above. |
 | Free text | Search for a duplicate (`gh issue list --search "<keywords>" --state all`). If none exists, create a **Task** issue using the task form fields, attach it to the best-matching Story (create the Story under the right Epic if none fits), add it to Project 4, set the milestone (default `MVP`), and record the choice under Assumptions. |
 
+Before implementation, ensure the Task issue is open and has a milestone. Reopen a closed Task if work is resuming. Set a missing milestone to `MVP`; preserve an explicit `Real-data release` or `Later` milestone rather than silently overwriting it. Step 3 moves the issue to the configured in-development project status (`inProgress`).
+
 **Slug:** kebab-case, at most 5 words, taken from the issue title (`cv-parser-schema`). **Type:** `feat | fix | chore | docs | test | refactor | design | ci`.
 
 ## Step 2 — Load context
@@ -231,17 +233,28 @@ Build the model-usage ledger from evidence, not memory:
 git add -A && git status --porcelain      # check nothing unexpected is staged
 git commit -m "<type>(<area>): <summary> (#<issue>)"
 git push -u origin HEAD
+# The Task must be open, have a milestone (default MVP), and already be in the
+# configured in-development status (`inProgress`) before creating its PR.
+gh issue view <issue> --json state,milestone
+# If closed: gh issue reopen <issue>
+# If milestone is missing: gh issue edit <issue> --milestone MVP
+.claude/skills/github-workflow/scripts/set-status.sh <issue> inProgress
 # Write the body: copy .github/pull_request_template.md to .orchestrator/<issue>-<slug>/pr-body.md
 # and fill every section (Closes #<issue>, spec/plan links, verification output, review findings).
 PR_URL=$(gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
   --body-file .orchestrator/<issue>-<slug>/pr-body.md --assignee "@me")
 gh project item-add 4 --owner dczii --url "$PR_URL"
+# Confirm GitHub linked the PR in the issue's Development section. An empty
+# result means the body lacks a valid `Closes #<issue>` reference; fix the body.
+gh pr view "$PR_URL" --json closingIssuesReferences \
+  --jq '.closingIssuesReferences[] | select(.number == <issue>) | .url'
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
 - **Commits:** Conventional Commits. Split the commits logically if the diff is large: tests, implementation, docs.
 - **PR base:** use `main` for an independent Task or the immediate predecessor branch for a stacked Task. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
 - **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4. If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
+- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>`, and `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
 - **Then stop for a single-Task input.** For a Story or Epic input, continue with the next Task until every open Task has its own PR or a listed blocking condition is reached.
 - Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
