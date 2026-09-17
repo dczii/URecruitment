@@ -46,7 +46,9 @@ eval/
   answer-key/
     cvs/<cvKey>.json      # expected parsed fields for one sample CV
     jobs/<jobKey>.json    # expected top-5 for one sample job
-  scoring.ts              # the rules below, unit-tested first (T12 in the test strategy)
+  score.ts                # the rules below, unit-tested first (score.test.ts; T12 in the test strategy)
+  verify.ts               # the verified-flag workflow and coverage (#172; verify.test.ts)
+  report.ts               # JSON + Markdown report (#173)
   run.ts                  # npm run eval
   reports/                # gitignored; CI uploads it as an artifact
 ```
@@ -100,6 +102,7 @@ The key contains only fictional people and no secrets, so it **may be committed*
     "languages": ["…"],
     "totalYearsExperience": 8.6
   },
+  "totalYearsAsOf": "2026-09-17",
   "aliases": {
     "fields.location": ["…"],
     "fields.skills[]": { "…": ["…"] }
@@ -118,6 +121,8 @@ The key contains only fictional people and no secrets, so it **may be committed*
   *"A note of any CV whose correct answer is genuinely ambiguous, so a recruiter decides rather than
   the draft"*). **An entry with an unresolved ambiguity cannot be marked verified.**
 - `verifiedBy` is the recruiter's typed name, and `verifiedAt` is a Singapore date (`YYYY-MM-DD`).
+- ⊕ `totalYearsAsOf` is the date that "present" roles run up to when total years is computed (see
+  *Total years*). It is a structured field because the scorer needs to read it.
 
 ### `jobs/<jobKey>.json`
 
@@ -132,15 +137,20 @@ The key contains only fictional people and no secrets, so it **may be committed*
   "verifiedBy": null,
   "verifiedAt": null,
   "expectedTop5": ["<cvKey>", "<cvKey>", "<cvKey>", "<cvKey>", "<cvKey>"],
+  "reasons": { "<cvKey>": "one line: why this candidate belongs in the top 5" },
   "acceptableAlternates": ["<cvKey>"],
-  "rationale": "…",
+  "flags": [],
   "ambiguities": []
 }
 ```
 
 - `language` is the language **the job description is written in**.
-- `expectedTop5` has **exactly five** distinct `cvKey`s. Order is informative only (see the top-5
-  rule).
+- `expectedTop5` has **one to five** distinct `cvKey`s. Order is informative only (see the top-5
+  rule). Each has a **one-line reason** in `reasons`, as
+  [#171](https://github.com/dczii/URecruitment/issues/171) requires.
+- ⊕ **Fewer than five plausible candidates are flagged, never padded** (#171). Such a job lists
+  fewer keys and carries `"flags": ["fewer-than-five"]`. It can still be verified, and it is graded on
+  its own size K (see the top-5 rule).
 - `acceptableAlternates` holds candidates a recruiter would also accept in a top 5. It may be empty.
   It must not overlap `expectedTop5`.
 - The candidate pool for a job is **every sample CV**, in either language, as the matcher sees it.
@@ -151,7 +161,7 @@ The key contains only fictional people and no secrets, so it **may be committed*
   every field by reading it. **It never runs the app's parser or matcher**, which would make the check
   circular (`ai-eval`).
 - Every entry starts with `verified: false`.
-- Job rankings come from reading the job and the CVs, with the reasoning in `rationale`. Protected
+- Job rankings come from reading the job and the CVs, with a one-line reason per candidate in `reasons`. Protected
   attributes play no part in the ranking unless the job requires nationality or language **with a
   written reason**, exactly as the product rule says.
 - Drafting tasks: [#170](https://github.com/dczii/URecruitment/issues/170) (CVs) and
@@ -171,7 +181,7 @@ The key contains only fictional people and no secrets, so it **may be committed*
 |---|---|---|
 | `name`, `location` | 1 each | The normalised values are equal, or the output matches an approved alias |
 | `email` | 1 | Equal after lowercasing and trimming |
-| `phone` | 1 | ⊕ The **digit strings** are equal after removing everything but digits. The key records the number **as the CV writes it**, with a country code only if the CV shows one. The scorer adds no country code of its own |
+| `phone` | 1 | ⊕ The **digit strings** are equal after removing everything but digits. The key records the number **as the CV writes it**, with a country code only if the CV shows one. The scorer adds no country code of its own, and [#126](https://github.com/dczii/URecruitment/issues/126)'s schema returns the number as written, with no country code added |
 | `totalYearsExperience` | 1 | Within **±0.5 years** |
 | `workHistory[]` | 4 per **expected** entry (`employer`, `title`, `start`, `end`) | `employer`, `title`: normalised equal or alias. Dates: see *Dates* |
 | `education[]` | 3 per **expected** entry (`institution`, `qualification`, `end`) | as for `workHistory` |
@@ -187,18 +197,21 @@ The key contains only fictional people and no secrets, so it **may be committed*
    every sub-field of an **extra** work-history or education entry adds **one incorrect unit** to the
    denominator. So accuracy = correct ÷ (expected units + extra units). A **missing** entry's
    sub-fields are simply incorrect expected units.
-3. **Entries are aligned before they are compared.** Output entries are paired with expected entries
-   greedily, by the number of matching sub-fields, highest first. Ties go to the earlier expected
-   entry. Unpaired output entries are extras; unpaired expected entries are missing.
+3. **Entries are aligned before they are compared.** A pair is formed **only** between an output
+   entry and an expected entry that share **at least one** matching sub-field. Pairs are chosen
+   greedily, highest match count first. Ties go to the earlier expected entry, then to the earlier
+   output entry. Unpaired output entries are extras, and unpaired expected entries are missing.
 
 ### Normalisation
 
-Applied to both sides before comparing text:
+Applied to both sides of **text fields and list items**. It does **not** apply to `email` or
+`phone`, which have their own rules above, or to dates. The steps run in this order:
 
 1. Unicode **NFKC** (folds full-width and half-width forms, which matters for Chinese text);
-2. trim, and collapse internal whitespace;
-3. lowercase (Latin);
-4. strip punctuation (`.,;:()[]'"-/` and their full-width forms);
+2. lowercase (Latin);
+3. replace each punctuation character in `.,;:()[]'"-/`, and each full-width form of them, with a
+   **space**;
+4. trim, and collapse internal whitespace to single spaces;
 5. **no transliteration and no translation.** Chinese is compared as Simplified Chinese characters.
    A CV written in Chinese expects Chinese values unless the CV itself gives an English form.
 
@@ -216,8 +229,10 @@ as the same thing, the scorer does not guess, and the result is reproducible.
 
 ### Total years
 
-`totalYearsExperience` in the key is **computed from the expected work history** (overlapping periods
-counted once, present roles up to the CV's own date, or else the drafting date recorded in `notes`).
+`totalYearsExperience` in the key is **computed from the expected work history**, with overlapping
+periods counted once and present roles running up to `totalYearsAsOf`. That field holds the CV's own
+date if it gives one, and otherwise the drafting date. ⊕ **The eval computes the output's total years
+as of the same `totalYearsAsOf`**, so the result does not drift as calendar time passes.
 It is **not** taken from the CV's own claim (PRD: *"Total years of experience, calculated from work
 history"*). The output passes within ±0.5 years.
 
@@ -225,7 +240,10 @@ history"*). The output passes within ±0.5 years.
 
 **Per job:**
 
-> agreement(job) = |modelTop5 ∩ (expectedTop5 ∪ acceptableAlternates)| ÷ 5
+> agreement(job) = |modelTopK ∩ (expectedTop5 ∪ acceptableAlternates)| ÷ K
+>
+> where **K = the number of keys in `expectedTop5`** (5, or fewer for a job flagged
+> `fewer-than-five`), and **modelTopK** is the model's K highest-scored candidates.
 
 **Per language:** the **mean** of agreement(job) over every **verified** job whose job description is
 in that language.
@@ -233,17 +251,24 @@ in that language.
 - **What is compared.** The model's top 5 is compared as a **set** against the recruiter-verified
   acceptable set. The order within the top 5 is **not** scored. The PRD measures whether recruiters
   *"agree with"* the top-5 rankings, which is a question of who is in them.
-- **modelTop5** is the five highest stored scores for that job's **current version** and the
+- **modelTopK** is the K highest stored scores for that job's **current version** and the
   **active model version**. Stale scores are never used, which matches the product invariant.
 - ⊕ **Ties.** Candidates are ordered by score descending, then by `cvKey` ascending. This is
   deterministic, and it gives neither side an advantage. The report **flags every job where a tie
-  straddles 5th place**, so a verifier can see when the result hinged on it.
-- ⊕ **Fewer than five scored candidates.** The denominator stays **5**. Missing slots count as
+  straddles the K-th place**, so a verifier can see when the result hinged on it.
+- ⊕ **Fewer than K scored candidates.** The denominator stays **K**. Missing slots count as
   disagreement, because a thin shortlist is a real failure.
 - **Which language a job counts under.** A job counts under **the language of its job description**
   (`ai-eval`, confirmed). The PRD's *Languages* requirement (*"English and Simplified Chinese CVs and
   job descriptions"*, decided) means the sample set is expected to include Chinese job descriptions.
   The coverage minimum below keeps a partial set from passing silently.
+- **A dependency, raised rather than settled.** Release mode needs at least 3 verified **Chinese job
+  descriptions** and at least 10 verified **Chinese CVs** (see *Coverage minimums*). On 17 Sep 2026
+  the sample store held neither (`prd-context` → `references/sample-data.md`). This is recorded as
+  [RC-4](../decisions/open-questions.md#rc-4--chinese-coverage-of-the-sample-set) in the
+  open-questions register, for the product owner, who supplies the sample files. **Grading rankings by
+  CV language was considered and not adopted,** because a job's top 5 mixes languages, which would
+  split a single ranking across two grades.
 
 ## Verification and coverage
 
@@ -271,7 +296,9 @@ Each report contains:
 - **per language:** field accuracy (with correct and counted units), top-5 agreement (with the job
   count), coverage, and pass / fail / not evaluable;
 - the **worst fields** by error count, per language;
-- **per-CV diffs** (expected vs output, unit by unit), with local file names;
+- **per-CV diffs** (expected vs output, unit by unit). File names appear **only in local runs**.
+  ⊕ In CI, the report shows `cvKey` only, because the job summary and artifact belong to a public
+  repository;
 - **per-job** agreement, with tie flags;
 - **orphaned entries** (a key whose file no longer exists) and **unkeyed files** (a sample file with
   no entry);
@@ -297,9 +324,9 @@ Each report contains:
 
 | Trigger | What runs | Blocks |
 |---|---|---|
-| A PR touching `src/server/ai/**`, `eval/**`, or the parser, matcher or prompt schemas | The **affected half only** (`--only parse` or `--only match`), full set, default mode | Reported on the PR. A below-bar result is a finding for the Claude review, not an automatic merge block, because prompt work is iterative |
+| A PR touching `src/server/ai/**`, `eval/**`, or the parser, matcher or prompt schemas | The **affected half only** (`--only parse` or `--only match`), full set, default mode | Reported on the PR. The job can go red, but ⊕ **`eval.yml` is never made a required check**, so a below-bar result is a finding for the Claude review rather than an automatic merge block. Prompt work is iterative |
 | `workflow_dispatch` | Anything, with options | Nothing |
-| **Before each MVP release** and before the go/no-go | Full set, both halves, `--release` | **Yes.** The release does not proceed on a failing or non-evaluable result, unless the product owner accepts the gap in writing in the go/no-go pack |
+| **Before each MVP release** and before the go/no-go | Full set, both halves, `--release` | **Yes.** A failing or non-evaluable result is recorded as such by the release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179), which runs this mode) and raised as an issue. Proceeding anyway is the product owner's decision, recorded in [#181](https://github.com/dczii/URecruitment/issues/181). This plan does not pre-authorise it |
 | A fork, or missing secrets | Skipped with a visible notice | Nothing. It never fails silently |
 
 **Cost** (the provider is not chosen, so this is an order of magnitude, not a price):

@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `docs/23-quality-test-eval-a11y` (stacked on `docs/22-security-compliance-baselines`) |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -41,6 +41,8 @@ all three contracts before any prompt, screen or test exists.
 - `docs/plans/ai-eval-plan.md` (#79): the bar; the answer-key layout, keys and JSON formats; the rule for field correctness; the rule for top-5 agreement; verification and coverage; outputs and exit codes; triggers and cost; grading sessions. It records that the `ai-eval` scoring method was **proposed** and is **confirmed** here, and marks each refinement.
 - `docs/plans/accessibility-standard.md` (#80): rules A–G, each naming how it is checked (PW, AXE, UT, DR, CR); the overflow rule as an assertable condition; the `aria-label` pattern for delay status; the axe scan specification for #108; a checklist for screen tasks.
 
+- `docs/decisions/open-questions.md`: a new row, **RC-4** (Chinese coverage of the sample set), found while writing #79 (register rule 3).
+
 **Out of scope**
 
 - Writing any test, harness, workflow YAML or eval script.
@@ -51,14 +53,14 @@ all three contracts before any prompt, screen or test exists.
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given the PRD quality bar, when I read `docs/plans/ai-eval-plan.md`, then the answer-key format, the scoring method and the separate EN and ZH bars (≥ 90% fields, ≥ 80% top-5) are all fixed. _Proved by:_ `V5`.
-- [ ] **AC2** — Given a logic task, when its plan is written, then `docs/plans/test-strategy.md` already says which layer tests it and which behaviours are test-first. _Proved by:_ `V4`.
-- [ ] **AC3** — Given the dashboard and board must work at phone width, when a screen is built, then `docs/plans/accessibility-standard.md` states the keyboard, contrast, `lang` and overflow rules it must meet. _Proved by:_ `V6`.
-- [ ] **AC4** (#78) — All four layers appear with tool, location, command and what each runs against. Every command matches the script names in `CLAUDE.md`. _Proved by:_ `V4`.
-- [ ] **AC5** (#78) — The test-first list matches the behaviours the PRD makes rules about, and each MVP area has at least one "must prove" line. _Proved by:_ `V4`.
-- [ ] **AC6** (#79) — One unambiguous rule for field correctness and one for top-5 agreement; EN and ZH specified separately with the same bar; the answer-key format fixed, keyed by SHA-256, with unverified entries excluded; the method recorded as *proposed* in `ai-eval` and confirmed here. _Proved by:_ `V5`.
-- [ ] **AC7** (#80) — Every PRD design rule about access or device width appears as a checkable rule; each rule names its verification method; the phone-width overflow rule is stated as an assertable condition. _Proved by:_ `V6`.
-- [ ] **AC8** — Only files under `docs/` change, links and anchors resolve, every issue number exists, and no secret, Blob URL or real personal data appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
+- [x] **AC1** — Given the PRD quality bar, when I read `docs/plans/ai-eval-plan.md`, then the answer-key format, the scoring method and the separate EN and ZH bars (≥ 90% fields, ≥ 80% top-5) are all fixed. _Proved by:_ `V5`.
+- [x] **AC2** — Given a logic task, when its plan is written, then `docs/plans/test-strategy.md` already says which layer tests it and which behaviours are test-first. _Proved by:_ `V4`.
+- [x] **AC3** — Given the dashboard and board must work at phone width, when a screen is built, then `docs/plans/accessibility-standard.md` states the keyboard, contrast, `lang` and overflow rules it must meet. _Proved by:_ `V6`.
+- [x] **AC4** (#78) — All four layers appear with tool, location, command and what each runs against. Every command matches the script names in `CLAUDE.md`. _Proved by:_ `V4`.
+- [x] **AC5** (#78) — The test-first list matches the behaviours the PRD makes rules about, and each MVP area has at least one "must prove" line. _Proved by:_ `V4`.
+- [x] **AC6** (#79) — One unambiguous rule for field correctness and one for top-5 agreement; EN and ZH specified separately with the same bar; the answer-key format fixed, keyed by SHA-256, with unverified entries excluded; the method recorded as *proposed* in `ai-eval` and confirmed here. _Proved by:_ `V5`.
+- [x] **AC7** (#80) — Every PRD design rule about access or device width appears as a checkable rule; each rule names its verification method; the phone-width overflow rule is stated as an assertable condition. _Proved by:_ `V6`.
+- [x] **AC8** — Only files under `docs/` change, links and anchors resolve, every issue number exists, and no secret, Blob URL or real personal data appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
 
 ## Guardrails that apply
 
@@ -107,6 +109,8 @@ None.
 - **A9 — The 24 px and 44 px target sizes, and the three `aria-label` patterns, are set here.** `ui-build` gives one example label ("Overdue by 3 working days"), and the other two follow the same form.
 - **A10 — The PR-checks workflow is called `pr-checks.yml`,** as #89 names it, rather than `ci.yml` from the `ci-setup` sketch.
 - **A11 — No test runner** (as #19 A8).
+- **A12 — A job with fewer than five plausible candidates is graded on its own size K** (added after review). #171 says such jobs are *"flagged rather than padded"*, and dividing by 5 would penalise the model for the key's own gap.
+- **A13 — Chinese coverage is raised as RC-4, not settled.** The PRD grades English and Chinese CVs separately, and the store held no Chinese CVs or JDs on 17 Sep 2026. Grading rankings by CV language was considered and rejected, because a job's top 5 mixes languages.
 
 ## Open questions
 

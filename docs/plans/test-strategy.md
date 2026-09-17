@@ -23,10 +23,10 @@ the PRD makes a rule.
 
 | Layer | Tool | Location | Command | Runs against | Network |
 |---|---|---|---|---|---|
-| **Unit** | Vitest (`vitest.config.ts`) | `src/**/*.test.ts(x)`, next to the code; `scripts/**/*.test.ts` for scripts | `npm test` | Pure code with a **fake DB** and the **fake AI model** | **None.** An unexpected `fetch` fails the test (`test/setup.ts`) |
+| **Unit** | Vitest (`vitest.config.ts`) | `src/**/*.test.ts(x)`, next to the code; `scripts/**/*.test.ts` and `eval/**/*.test.ts` (all excluding `*.db.test.ts`) | `npm test` | Pure code with a **fake DB** and the **fake AI model** | **None.** An unexpected `fetch` fails the test (`test/setup.ts`) |
 | **DB integration** | Vitest, separate config (`vitest.db.config.ts`) | `src/**/*.db.test.ts`, `supabase/tests/*.db.test.ts` | `npm run test:db` | A **local Supabase** stack (`supabase start`, needs Docker), migrations applied from scratch | Local stack only. Never a remote project |
 | **End-to-end** | Playwright (`playwright.config.ts`), projects **`desktop`** (1440×900) and **`phone`** (390×844, `isMobile: true`) | `e2e/*.spec.ts`, shared helpers in `e2e/helpers/` | `npm run test:e2e` | The local dev server, or a Vercel **preview** URL in CI, with seeded fictional data | The app under test only |
-| **AI quality** | The eval script (`eval/run.ts`) | `eval/` (answer key under `eval/answer-key/`; `eval/scoring.ts` is unit-tested in the Unit layer) | `npm run eval` | **Real models** and the **verified** answer key ([ai-eval-plan.md](ai-eval-plan.md)) | Yes: the provider, plus listing and downloading from the sample-data store |
+| **AI quality** | The eval script (`eval/run.ts`) | `eval/` (answer key under `eval/answer-key/`; `eval/score.ts` and `eval/verify.ts` are unit-tested in the Unit layer) | `npm run eval` | **Real models** and the **verified** answer key ([ai-eval-plan.md](ai-eval-plan.md)) | Yes: the provider, plus listing and downloading from the sample-data store |
 
 The four commands, plus `npm run lint`, `npm run typecheck` and `npm run build`, are named **exactly**
 as in `CLAUDE.md`. The task that first needs a script adds it with that name:
@@ -73,13 +73,13 @@ makes, so a regression changes what recruiters see or what the portal is allowed
 | T6 | **Protected-attribute redaction**, including the nationality and language reason rule | Job matching 1–2 (decided) | [#148](https://github.com/dczii/URecruitment/issues/148), [#135](https://github.com/dczii/URecruitment/issues/135) | Unit |
 | T7 | **Evidence verification** (a quote not in the source is flagged, never stored as verified) | AI governance 1 (proposed) | [#127](https://github.com/dczii/URecruitment/issues/127), [#142](https://github.com/dczii/URecruitment/issues/142), [#148](https://github.com/dczii/URecruitment/issues/148) | Unit |
 | T8 | **Total years of experience** from work history, overlaps counted once | Parsed profile: *"calculated from work history"* (approved) | [#127](https://github.com/dczii/URecruitment/issues/127) | Unit |
-| T9 | **Recruiter-override merge** (edits survive re-parse) | CV processing 1 (proposed) | [#132](https://github.com/dczii/URecruitment/issues/132) | Unit + DB |
+| T9 | **Recruiter-override merge** (edits survive re-parse) | CV processing 1 (proposed) | [#132](https://github.com/dczii/URecruitment/issues/132) | Unit |
 | T10 | **Missing-field gap rules** (one rule per field, each with its client question) | Gap check → Missing (approved) | [#140](https://github.com/dczii/URecruitment/issues/140) | Unit |
 | T11 | **Search filter building and fusion** (protected terms ignored; job-scoped ranking) | Talent search 1–3 (proposed) | [#152](https://github.com/dczii/URecruitment/issues/152), [#153](https://github.com/dczii/URecruitment/issues/153), [#155](https://github.com/dczii/URecruitment/issues/155) | Unit + DB |
 | T12 | **Eval scoring rules** (field correctness, top-5 agreement, exclusion of unverified entries, coverage minimum) | Quality bar (decided) | [#173](https://github.com/dczii/URecruitment/issues/173), [#172](https://github.com/dczii/URecruitment/issues/172) | Unit |
 | T13 | **Spend cap** (Singapore month boundary; the refusal is recorded) | Security 5 (proposed) | [#175](https://github.com/dczii/URecruitment/issues/175) | Unit |
 | T14 | **Env parsing** (a missing or malformed variable names the variable, never its value) | `CLAUDE.md` hard rules 3 and 6 | [#84](https://github.com/dczii/URecruitment/issues/84), [#117](https://github.com/dczii/URecruitment/issues/117) | Unit |
-| T15 | **Typed-name validation** (blank, whitespace or over-long names refused; an audited write without a name refused) | Users 2–3 (decided); `CLAUDE.md` hard rule 8 | [#167](https://github.com/dczii/URecruitment/issues/167), [#156](https://github.com/dczii/URecruitment/issues/156) | Unit |
+| T15 | **Typed-name validation** (blank, whitespace or over-long names refused; an audited write without a name refused) | Users 2 (decided), 3; `CLAUDE.md` hard rule 8 | [#167](https://github.com/dczii/URecruitment/issues/167), [#156](https://github.com/dczii/URecruitment/issues/156) | Unit |
 
 Also test-first, because their tasks say so and the rule is security-relevant: the **Sentry
 scrubber** ([#86](https://github.com/dczii/URecruitment/issues/86)), the **server-only client
@@ -148,7 +148,7 @@ cover.
 | Area | Must prove | Layer |
 |---|---|---|
 | **Foundation** | A missing or malformed env var names the variable and prints no value; the client bundle contains no secret-key name; `npm run build` passes from a clean clone | Unit; build check |
-| **Security** | The publishable key reads nothing from **every** table (discovered, not listed); the storage bucket is private; a signed URL expires; a client module cannot import server code; security headers are present on a page response | DB; unit; e2e |
+| **Security** | The publishable key reads nothing from **every** table (discovered, not listed); the storage bucket is private; a signed URL expires; a client module cannot import server code; security headers are present on a page response; a request over the AI-route rate limit is refused with a clear message ([#175](https://github.com/dczii/URecruitment/issues/175)) | DB; unit; e2e |
 | **Design system** | No horizontal overflow at 390 px; delay status is not colour-only; the axe scan passes on the shell and shared patterns; `AiSuggestion` always shows its label, and its model version and date for scores; `TypedNameDialog` persists the name | E2E; unit (Testing Library) |
 | **Data & seed** | Migrations apply from scratch twice; working days match between SQL and TypeScript on the shared cases; the seed aborts on a wrong store or missing variable; after seeding, all three delay statuses exist | DB; unit |
 | **CV processing** | Scanned files are rejected with a reason; EN and ZH fixtures parse to the schema; the evidence check flags an invented quote; overrides survive re-parse | Unit; DB |
@@ -170,7 +170,7 @@ cover.
 | **PR checks:** `npm ci` → lint → typecheck → `npm test` → build (plus `npm audit --omit=dev`, per the [security baseline](../security/baseline.md)) | `.github/workflows/pr-checks.yml` ([#89](https://github.com/dczii/URecruitment/issues/89)) | Every PR and every push to `main` | **Yes**, once the user makes it a required check |
 | **DB:** local Supabase → migrations from scratch → `npm run test:db` | `.github/workflows/db.yml` ([#91](https://github.com/dczii/URecruitment/issues/91)) | PRs touching `supabase/**` (and DB services) | **Yes**, when it runs (required once stable) |
 | **E2E:** Playwright `desktop` + `phone` against the preview | `.github/workflows/e2e.yml` ([#90](https://github.com/dczii/URecruitment/issues/90)) | When a Vercel preview is ready | **Yes**, once stable. Skips, and does not fail, when no preview exists |
-| **AI quality:** `npm run eval` | `.github/workflows/eval.yml` ([#174](https://github.com/dczii/URecruitment/issues/174)) | PRs touching prompts, parser, matcher, schemas or `eval/`; `workflow_dispatch`; before each release | **The release, not every merge.** See [ai-eval-plan.md](ai-eval-plan.md#when-it-runs-and-what-it-costs). Skips with a notice when secrets are absent |
+| **AI quality:** `npm run eval` | `.github/workflows/eval.yml` ([#174](https://github.com/dczii/URecruitment/issues/174)); release mode run by [#179](https://github.com/dczii/URecruitment/issues/179) | PRs touching prompts, parser, matcher, schemas or `eval/`; `workflow_dispatch`; before each release | **The release, not every merge.** It is never made a required check. See [ai-eval-plan.md](ai-eval-plan.md#when-it-runs-and-what-it-costs). Skips with a notice when secrets are absent |
 | **Claude review** (`pr-review`) | The orchestrator, Step 8 | Every task PR | **Yes**: blocker and major findings go back to the fix loop |
 
 - **Required checks are a repository setting.** The user enables them. Agents recommend, never change
