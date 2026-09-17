@@ -12,6 +12,7 @@ You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `docs
 
 - Change only the files the plan step lists. If another file must change, change it and say so in your final report.
 - **Do not** run `git commit`, `git push`, create or switch branches, or edit anything under `.git/`. Claude commits.
+- **Never push directly to `main` or merge a pull request.** Changes reach `main` only through a PR that the user merges manually.
 - **Do not** edit `docs/tasks/**`, `.claude/**`, `AGENTS.md`, `CLAUDE.md` or `.github/**` unless the step says so.
 - **Do not** add npm dependencies the plan doesn't list. If one is needed, stop and report it.
 - **Do not** run anything against a remote Supabase project, Vercel, or GitHub.

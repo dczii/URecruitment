@@ -233,13 +233,15 @@ git commit -m "<type>(<area>): <summary> (#<issue>)"
 git push -u origin HEAD
 # Write the body: copy .github/pull_request_template.md to .orchestrator/<issue>-<slug>/pr-body.md
 # and fill every section (Closes #<issue>, spec/plan links, verification output, review findings).
-gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
-  --body-file .orchestrator/<issue>-<slug>/pr-body.md
+PR_URL=$(gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
+  --body-file .orchestrator/<issue>-<slug>/pr-body.md --assignee "@me")
+gh project item-add 4 --owner dczii --url "$PR_URL"
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
 - **Commits:** Conventional Commits. Split the commits logically if the diff is large: tests, implementation, docs.
 - **PR base:** use `main` for an independent Task or the immediate predecessor branch for a stacked Task. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
+- **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4. If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
 - **Then stop for a single-Task input.** For a Story or Epic input, continue with the next Task until every open Task has its own PR or a listed blocking condition is reached.
 - Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
