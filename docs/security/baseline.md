@@ -34,7 +34,7 @@ What that means in practice:
 | Surface | Treat it as | Consequence |
 |---|---|---|
 | **The production URL** | Public | Every page, Server Action and route handler is reachable by anyone. Nothing may rely on "nobody knows the URL" |
-| **Preview deployments** | Exactly as public as production | Previews use the Supabase **dev** project with fictional data only, unless the plan offers deployment protection ([#92](https://github.com/dczii/URecruitment/issues/92) checks) |
+| **Preview deployments** | Exactly as public as production | Previews use the Supabase **dev** project with fictional data only, unless the plan offers deployment protection (**Gap, assigned to [#92](https://github.com/dczii/URecruitment/issues/92)**: it checks and records whether the plan offers protection) |
 | **Uploads** (a JD in the MVP) | Untrusted input from an anonymous caller | Type checked **by content**, size capped, stored privately under a UUID path, never served directly |
 | **AI routes** | A way for a stranger to spend the agency's money | Every call is rate-limited and counted against a monthly cap **before** it reaches the provider |
 | **Server Actions** | Public POST endpoints | Every action validates its input with Zod and requires the typed name where it writes an audited change |
@@ -54,14 +54,19 @@ standing between an open URL and the AI bill. Control 6 is the real-data release
 | **C2** | *"Row Level Security is on for every table, with no public policies. The publishable key can read nothing."* | [#109](https://github.com/dczii/URecruitment/issues/109)–[#112](https://github.com/dczii/URecruitment/issues/112) E03-S01-T01…T04 (RLS + revoke in the migration that creates each table) · [#115](https://github.com/dczii/URecruitment/issues/115) (holidays table) · [#113](https://github.com/dczii/URecruitment/issues/113) E03-S01-T05 (the proof) | `supabase/tests/rls.db.test.ts`: tables are **discovered from the catalogue**, and each must have RLS on, zero policies, and zero rows readable with the publishable key. A new table without RLS fails it automatically. Runs in `npm run test:db` and the CI DB job ([#91](https://github.com/dczii/URecruitment/issues/91)) |
 | **C3** | *"CV files sit in a private bucket and open through short-lived signed links."* | [#114](https://github.com/dczii/URecruitment/issues/114) E03-S02-T01 (private bucket; server-side signing) · [#134](https://github.com/dczii/URecruitment/issues/134) E04-S05-T01 (profile requests the link on demand) | `supabase/tests/storage.db.test.ts` (the bucket is private, no public policy) · `src/server/storage.test.ts` (a URL expires; a path outside the bucket is refused; not importable from client code) · `e2e/candidate.spec.ts` (the original file opens through a link requested on demand) |
 | **C4** | *"Stage and settings changes record the name the recruiter types. The name is remembered on the device."* | [#167](https://github.com/dczii/URecruitment/issues/167) E10-S03-T01 (the one validator; device persistence) · [#156](https://github.com/dczii/URecruitment/issues/156) E08-S01-T01 (stage moves) · [#165](https://github.com/dczii/URecruitment/issues/165), [#166](https://github.com/dczii/URecruitment/issues/166) (settings) · [#143](https://github.com/dczii/URecruitment/issues/143) (flag resolve) · [#132](https://github.com/dczii/URecruitment/issues/132) (profile overrides) | `src/lib/recruiter-name.test.ts` (blank, whitespace, over-long refused; persistence; change of name) · `src/server/audit/name.test.ts` (an audited write without a name fails; a new write path that skips the validator fails) · `src/server/pipeline/move.test.ts` (a move writes one `stage_events` row with the name) |
-| **C5** | *"A Vercel firewall rule rate-limits the AI routes, and the AI provider has a monthly spend cap. Without sign-in, anyone with the link could otherwise run up AI costs."* | [#93](https://github.com/dczii/URecruitment/issues/93) E01-S04-T02 (one `/api/ai/*` prefix; the firewall rule or committed config; the provider-side cap procedure with an owner) · [#175](https://github.com/dczii/URecruitment/issues/175) E11-S04-T01 (app-side cap in `runAi()`; per-route app limit) | `src/server/ai/spend-cap.test.ts` (under cap proceeds; at cap refused and recorded; Singapore month boundary; non-AI pages still work) · the rate-limit test that #175's spec names · #93's recorded evidence of the rule (manual: config or dashboard screenshot, no secret) |
+| **C5** | *"A Vercel firewall rule rate-limits the AI routes, and the AI provider has a monthly spend cap. Without sign-in, anyone with the link could otherwise run up AI costs."* | [#93](https://github.com/dczii/URecruitment/issues/93) E01-S04-T02 (one `/api/ai/*` prefix; the firewall rule if the plan offers one; the provider-side cap procedure with an owner) · [#175](https://github.com/dczii/URecruitment/issues/175) E11-S04-T01 (app-side cap in `runAi()`; the app-level per-route limiter; records which rate-limit control is in force) | `src/server/ai/spend-cap.test.ts` (under cap proceeds; at cap refused and recorded; Singapore month boundary; non-AI pages still work) · **Gap, assigned to #175:** a test that a request over the limit on an `/api/ai/*` route is refused with a clear message · #93's recorded evidence of the firewall rule, if one exists (manual: config or a dashboard screenshot with no secret) |
 | **C6** | *"When sign-in is added, Supabase Auth with Microsoft sign-in fits the agency's Microsoft 365 setup. On Vercel Pro, password protection costs $20 a month per project and needs no code."* | **Not in the MVP.** Real-data release: [#16](https://github.com/dczii/URecruitment/issues/16) E15 *Access protection before real data* | Defined when E15 is planned. The deciding question is [OQ-1](../decisions/open-questions.md#oq-1--what-must-be-in-place-before-real-cvs-are-loaded) |
 
 **About C5's firewall rule.** The PRD names a Vercel firewall rule. Whether the Hobby plan offers a
 rate-limit rule for these paths is **checked by [#93](https://github.com/dczii/URecruitment/issues/93)**,
-not assumed here. If it does not, [#175](https://github.com/dczii/URecruitment/issues/175)'s app-level
-limiter backed by Supabase is the control, and #93 records which one is in force. **The app-side spend
-cap is required either way**, because a rate limit bounds the speed of spending, not the total.
+which configures it if so. It is not assumed here.
+[#175](https://github.com/dczii/URecruitment/issues/175) builds the app-level limiter backed by
+Supabase and **records in its spec which control is in force**
+([ADR-0001](../decisions/adr-0001-architecture.md);
+[ADR-0003](../decisions/adr-0003-ai-provider.md) C8). #175's done-when has no rate-limit test, so
+this baseline assigns one to it (the gap in the C5 row): **an AI route must never be left unbounded
+and untested.** The app-side spend cap is required either way, because a rate limit bounds the speed
+of spending, not the total.
 
 ## The baseline controls every task inherits
 
@@ -116,15 +121,15 @@ secret-like, even though it is not a credential.
 | Control | Built in | Proven by |
 |---|---|---|
 | Every call goes through `runAi()`, which validates output against the schema and writes `ai_runs` | [#169](https://github.com/dczii/URecruitment/issues/169) | `src/server/ai/run.test.ts`, including the test that fails on an AI call made outside the wrapper |
-| CV and JD text is passed as **delimited data**. Model output is **never executed**: no tool calls, no URL fetching, no SQL built from model text except through parameterised filters | [#169](https://github.com/dczii/URecruitment/issues/169) and every prompt task ([#126](https://github.com/dczii/URecruitment/issues/126), [#138](https://github.com/dczii/URecruitment/issues/138), [#141](https://github.com/dczii/URecruitment/issues/141), [#146](https://github.com/dczii/URecruitment/issues/146), [#152](https://github.com/dczii/URecruitment/issues/152)) | Prompt-injection fixtures in those tasks' tests ([ADR-0003](../decisions/adr-0003-ai-provider.md) C7) |
-| Model output that becomes a search filter is validated against allowed fields and value types | [#152](https://github.com/dczii/URecruitment/issues/152), [#153](https://github.com/dczii/URecruitment/issues/153) | Their filter-schema tests |
+| CV and JD text is passed as **delimited data**. Model output is **never executed**: no tool calls, no URL fetching, no SQL built from model text except through parameterised filters | [#169](https://github.com/dczii/URecruitment/issues/169) and every prompt task ([#126](https://github.com/dczii/URecruitment/issues/126), [#138](https://github.com/dczii/URecruitment/issues/138), [#141](https://github.com/dczii/URecruitment/issues/141), [#146](https://github.com/dczii/URecruitment/issues/146), [#152](https://github.com/dczii/URecruitment/issues/152)) No test file is listed for the prompt tasks. **Gap:** the spec of each service that wires a prompt ([#127](https://github.com/dczii/URecruitment/issues/127), [#139](https://github.com/dczii/URecruitment/issues/139), [#142](https://github.com/dczii/URecruitment/issues/142), [#148](https://github.com/dczii/URecruitment/issues/148), [#153](https://github.com/dczii/URecruitment/issues/153)) names its injection case, which proves the output is still schema-valid data and that nothing is executed ([ADR-0003](../decisions/adr-0003-ai-provider.md) C7) |
+| Model output that becomes a search filter is validated against allowed fields and value types | [#152](https://github.com/dczii/URecruitment/issues/152) (the filter schema; ADR-0003 names it as the C7 owner for filters) | The test that #152's spec names. #152 lists no test file yet |
 | AI routes live under **one** prefix, `/api/ai/*`, and are rate-limited (C5) | [#93](https://github.com/dczii/URecruitment/issues/93) | #93's done-when |
 
 ### Transport and headers
 
 | Control | Built in | Proven by |
 |---|---|---|
-| Security headers in `next.config`: **CSP** (no inline scripts unless nonce'd), `frame-ancestors 'none'`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, `Permissions-Policy` | **Gap, assigned to [#83](https://github.com/dczii/URecruitment/issues/83)** (the scaffold creates `next.config.ts`). Sentry ([#86](https://github.com/dczii/URecruitment/issues/86)) must extend the CSP for its ingest host rather than loosen it | A test or e2e assertion that a page response carries each header (named in #83's spec) |
+| Security headers in `next.config`: **CSP** (no inline scripts unless nonce'd), `frame-ancestors 'none'`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, `Permissions-Policy` | **Gap, assigned to [#83](https://github.com/dczii/URecruitment/issues/83)** (the scaffold creates `next.config.ts`). Sentry ([#86](https://github.com/dczii/URecruitment/issues/86)) must extend the CSP for its ingest host rather than loosen it #83 sets the headers and checks them with `curl -sI` against the local build in its verification. [#85](https://github.com/dczii/URecruitment/issues/85), which brings the test runner, adds an assertion to `e2e/smoke.spec.ts` that a page response carries each header |
 | No CORS opened on API routes | Every route task | PR review |
 | HTTPS only | Vercel (platform default) | n/a |
 
@@ -155,8 +160,9 @@ secret-like, even though it is not a credential.
 
 ## What must change before real CVs are loaded
 
-Everything above stays in place. The real-data release must **add** at least the following. Which
-items are required, and in what form, is the open question
+Everything above stays in place. The real-data release is expected to **add** the following. Items
+the PRD already requires say so. Which of the rest are required, and in what form, is the open
+question
 [OQ-1](../decisions/open-questions.md#oq-1--what-must-be-in-place-before-real-cvs-are-loaded). It is
 **not** settled here.
 

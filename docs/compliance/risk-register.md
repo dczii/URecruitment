@@ -115,7 +115,7 @@ data.
 |---|---|
 | Source | PRD *Security (suggested)* 5: *"Without sign-in, anyone with the link could otherwise run up AI costs."* |
 | Status | **Mitigated** |
-| MVP treatment | AI routes under one prefix and rate-limited ([#93](https://github.com/dczii/URecruitment/issues/93)); an app-side monthly cap checked before every call, plus the provider-side cap ([#175](https://github.com/dczii/URecruitment/issues/175)); no AI call on page load (PRD main flow 2) |
+| MVP treatment | AI routes under one prefix and rate-limited ([#93](https://github.com/dczii/URecruitment/issues/93)); an app-side monthly cap checked before every call ([#175](https://github.com/dczii/URecruitment/issues/175)), plus the provider-side cap procedure ([#93](https://github.com/dczii/URecruitment/issues/93)); no AI call on page load (PRD main flow 2) |
 | Residual | Up to the cap can still be spent by a stranger in a month. When the cap is reached, AI features stop for everyone until the month ends, **by design**, and recruiters see a clear message |
 | At the real-data release | Re-check the rate limit and the cap against real use (6–20 recruiters, under 1,000 CVs a month). Access protection (R-01) removes most of the exposure |
 
@@ -145,7 +145,7 @@ data.
 | Source | `CLAUDE.md` hard rule 6; the MVP job form includes **JD upload** (PRD Job input, **decided**) |
 | The risk | During feedback sessions, a recruiter uploads a **real** client JD, or types a real candidate's details into a profile edit, into a portal that has no sign-in. Separately, someone drops a real CV into the public sample-data store "just to test" |
 | Status | **Open.** Mitigation is proposed here, and no product feature is invented for it |
-| MVP treatment (proposed) | The grading-session guide ([#180](https://github.com/dczii/URecruitment/issues/180)) tells recruiters to use sample jobs only and never to enter real people; the release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179)) confirms the guide says so; the seed report ([#123](https://github.com/dczii/URecruitment/issues/123)) lists what the store holds, so an unexpected file is visible |
+| MVP treatment (proposed) | The grading-session guide ([#180](https://github.com/dczii/URecruitment/issues/180)) tells recruiters to use sample jobs only and never to enter real people; the release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179)) confirms the guide says so. Both **extend those tasks' scopes, and their specs add it**; the seed report ([#123](https://github.com/dczii/URecruitment/issues/123)) lists what the store holds, so an unexpected file is visible |
 | If it happens | Treat it as an incident: remove the data, re-seed, and record it in a `bug` issue **without** repeating the data |
 | At the real-data release | Superseded by access protection and the consent rules |
 

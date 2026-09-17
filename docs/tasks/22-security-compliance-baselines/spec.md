@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `docs/22-security-compliance-baselines` (stacked on `docs/21-ux-screen-inventory-flows`) |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -76,13 +76,13 @@ any code exists, so every later task inherits them and every reviewer checks aga
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given the MVP has no sign-in, when I read `docs/security/baseline.md`, then every control the PRD suggests is listed with the task that implements it and the test that proves it. _Proved by:_ `V4` (C1–C6 rows, each with a task link and a named test, or "not in the MVP" for C6).
-- [ ] **AC2** — Given PDPA applies from the real-data release, when I read `docs/compliance/baseline.md`, then each PDPA obligation shows its MVP position and what the real-data release must add. _Proved by:_ `V5` (six PDPA sections, each with *MVP position* and *Real-data requirement*; PRD text verbatim).
-- [ ] **AC3** — Given Risk 1 (anyone with the link can see every CV), when the risk register is written, then it records the risk as accepted for fictional data only and names the two cheapest fixes. _Proved by:_ `V6`.
-- [ ] **AC4** (#76) — The public-repo rules restate the Blob store as seed-source-only, with no URL committed. _Proved by:_ `V4` + `V3`.
-- [ ] **AC5** (#76) — The record names what must change before real CVs are loaded and links E15. _Proved by:_ `V4`.
-- [ ] **AC6** (#77) — The fair-employment section lists the ignored attributes exactly as the PRD decides them, and records the four Act attributes not yet covered as an open revisit. _Proved by:_ `V5` (verbatim rule; the four attributes present; RV-1 in the register).
-- [ ] **AC7** — Only files under `docs/` change, links and anchors resolve, every issue exists, and no secret, Blob URL or real personal data appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
+- [x] **AC1** — Given the MVP has no sign-in, when I read `docs/security/baseline.md`, then every control the PRD suggests is listed with the task that implements it and the test that proves it. _Proved by:_ `V4` (C1–C6 rows, each with a task link and a named test, or "not in the MVP" for C6).
+- [x] **AC2** — Given PDPA applies from the real-data release, when I read `docs/compliance/baseline.md`, then each PDPA obligation shows its MVP position and what the real-data release must add. _Proved by:_ `V5` (six PDPA sections, each with *MVP position* and *Real-data requirement*; PRD text verbatim).
+- [x] **AC3** — Given Risk 1 (anyone with the link can see every CV), when the risk register is written, then it records the risk as accepted for fictional data only and names the two cheapest fixes. _Proved by:_ `V6`.
+- [x] **AC4** (#76) — The public-repo rules restate the Blob store as seed-source-only, with no URL committed. _Proved by:_ `V4` + `V3`.
+- [x] **AC5** (#76) — The record names what must change before real CVs are loaded and links E15. _Proved by:_ `V4`.
+- [x] **AC6** (#77) — The fair-employment section lists the ignored attributes exactly as the PRD decides them, and records the four Act attributes not yet covered as an open revisit. _Proved by:_ `V5` (verbatim rule; the four attributes present; RV-1 in the register).
+- [x] **AC7** — Only files under `docs/` change, links and anchors resolve, every issue exists, and no secret, Blob URL or real personal data appears. _Proved by:_ `V1`, `V2`, `V3`, `V8`.
 
 ## Guardrails that apply
 
