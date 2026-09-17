@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `docs/19-architecture-decision-records` |
 | Created | 2026-09-17 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -58,24 +58,24 @@ Three decision records fix that, and the rest of the backlog cites them instead 
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given a new contributor, when they read `docs/decisions/adr-0001-architecture.md`, then they can name which code may touch Supabase (`src/server/**` only, with the secret key), where AI calls run (server-side, `sin1`, under `/api/ai/*` or services called from Server Actions) and why the browser never reaches the database (no sign-in exists, so RLS locks every table and the server is the only gate). _Proved by:_ manual — `V4` heading check, plus the three answers being present verbatim.
-- [ ] **AC2** — Given the seventeen-table data model, when a schema task starts, then `docs/decisions/adr-0002-data-model.md` already states each table's purpose, its owning migration task and the score key (candidate × job version × model version). _Proved by:_ `V5` — all seventeen PRD table names appear, each with an owning task key.
-- [ ] **AC3** — Given the AI provider is not chosen, when any AI code is planned, then `docs/decisions/adr-0003-ai-provider.md` states the provider-agnostic contract every AI call must satisfy and records the decision as **open**. _Proved by:_ `V6` and `V7` — status line reads `open`, and no provider brand appears as a decision.
-- [ ] **AC4** — Given ADR-0001, when a reader looks for the runtime shape, then all five PRD main flows (seeding, opening a job, saving a job, searching, delay status) are described with where each stage runs. _Proved by:_ `V4`.
-- [ ] **AC5** — Given ADR-0001, when a later task wants to revisit a layer choice, then every layer in the PRD technical-choices table appears with its **decided** or **proposed** status. _Proved by:_ `V4` — thirteen layer rows present with a status column.
-- [ ] **AC6** — Given ADR-0001, when a reviewer checks the boundary rule, then the record states that no browser code may import `src/server` or reach Supabase directly. _Proved by:_ `V4`.
-- [ ] **AC7** — Given ADR-0002, when a schema task starts, then each of the seventeen tables is marked MVP or real-data-release, and any table the MVP does not populate is marked as such. _Proved by:_ `V5`.
-- [ ] **AC8** — Given ADR-0002, when a later task changes scoring or parsing, then the four invariants (score key; overrides separate from parsed fields; every AI output row joins to `ai_runs`; UTC stored, Singapore shown) are stated as rules, each with the PRD line it comes from. _Proved by:_ `V5`.
-- [ ] **AC9** — Given ADR-0003, when a task is blocked on the provider decision, then the record links those tasks and names the decision-owner slot and what unblocks it. _Proved by:_ `V6`.
-- [ ] **AC10** — Given the whole change, when CI or a reviewer inspects it, then only files under `docs/` changed and every relative Markdown link resolves to a file that exists. _Proved by:_ `V1`, `V2`, `V3`.
+- [x] **AC1** — Given a new contributor, when they read `docs/decisions/adr-0001-architecture.md`, then they can name which code may touch Supabase (`src/server/**` only, with the secret key), where AI calls run (server-side, `sin1`, under `/api/ai/*` or services called from Server Actions) and why the browser never reaches the database (no sign-in exists, so RLS locks every table and the server is the only gate). _Proved by:_ manual — `V4` heading check, plus the three answers being present verbatim.
+- [x] **AC2** — Given the seventeen-table data model, when a schema task starts, then `docs/decisions/adr-0002-data-model.md` already states each table's purpose, its owning migration task and the score key (candidate × job version × model version). _Proved by:_ `V5` — all seventeen PRD table names appear, each with an owning task key.
+- [x] **AC3** — Given the AI provider is not chosen, when any AI code is planned, then `docs/decisions/adr-0003-ai-provider.md` states the provider-agnostic contract every AI call must satisfy and records the decision as **open**. _Proved by:_ `V6` and `V7` — status line reads `open`, and no provider brand appears as a decision.
+- [x] **AC4** — Given ADR-0001, when a reader looks for the runtime shape, then all five PRD main flows (seeding, opening a job, saving a job, searching, delay status) are described with where each stage runs. _Proved by:_ `V4`.
+- [x] **AC5** — Given ADR-0001, when a later task wants to revisit a layer choice, then every layer in the PRD technical-choices table appears with its **decided** or **proposed** status. _Proved by:_ `V4` — thirteen layer rows present with a status column.
+- [x] **AC6** — Given ADR-0001, when a reviewer checks the boundary rule, then the record states that no browser code may import `src/server` or reach Supabase directly. _Proved by:_ `V4`.
+- [x] **AC7** — Given ADR-0002, when a schema task starts, then each of the seventeen tables is marked MVP or real-data-release, and any table the MVP does not populate is marked as such. _Proved by:_ `V5`.
+- [x] **AC8** — Given ADR-0002, when a later task changes scoring or parsing, then the four invariants (score key; overrides separate from parsed fields; every AI output row joins to `ai_runs`; UTC stored, Singapore shown) are stated as rules, each with the PRD line it comes from. _Proved by:_ `V5`.
+- [x] **AC9** — Given ADR-0003, when a task is blocked on the provider decision, then the record links those tasks and names the decision-owner slot and what unblocks it. _Proved by:_ `V6`.
+- [x] **AC10** — Given the whole change, when CI or a reviewer inspects it, then only files under `docs/` changed and every relative Markdown link resolves to a file that exists. _Proved by:_ `V1`, `V2`, `V3`.
 
 ## Guardrails that apply
 
-- [x] **AI only suggests: no auto reject/advance/shortlist/contact** — ADR-0001 and ADR-0003 both restate it; ADR-0003's contract forbids tool calls and any action taken from model output.
+- [x] **AI only suggests: no auto reject/advance/shortlist/contact** — ADR-0001 D2 states it for every server-side call site; ADR-0003 C7 restates it at the provider boundary and forbids tool calls or any action taken from model output.
 - [x] **No email sent** — ADR-0001 records "Email: none" as a decided layer and notes that delay alerts are dashboard queries.
 - [x] **Server-only data access; secret key never reaches the browser** — the central subject of ADR-0001's trust boundary section.
 - [x] **RLS on new tables, no public policies; private Storage + signed URLs** — stated in ADR-0001 as the boundary's enforcement and carried into ADR-0002 as a per-table obligation on the owning migration.
-- [x] **AI output schema-validated, logged to `ai_runs`, shows source text** — ADR-0003's contract clauses C2, C4 and C6; ADR-0002 invariant 3.
+- [x] **AI output schema-validated, logged to `ai_runs`, shows source text** — ADR-0003's contract clauses C3, C4 and C6; ADR-0002 invariant 3.
 - [x] **Protected attributes ignored; nationality/language only with a written reason** — ADR-0003 contract clause C5 (redaction in code, before the provider boundary) and ADR-0002's `job_versions` row.
 - [x] **UTC stored, SGT shown; SG working days** — ADR-0002 invariant 4 and the `sg_public_holidays` row; ADR-0001's delay-status flow.
 - [ ] Typed recruiter name recorded on stage/settings changes — *recorded* in ADR-0002 (`stage_events`, `settings_log`) but no code here enforces it.

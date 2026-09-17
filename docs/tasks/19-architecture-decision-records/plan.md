@@ -50,7 +50,7 @@ than a test runner (spec A8).
 | `docs/decisions/README.md` | new — what an ADR is here, the status vocabulary, the index, how to supersede |
 | `docs/decisions/adr-0001-architecture.md` | new — trust boundary, five main flows, thirteen layer choices with status, the `src/server` import rule |
 | `docs/decisions/adr-0002-data-model.md` | new — seventeen tables with purpose / MVP standing / owning migration task, four invariants with PRD lines |
-| `docs/decisions/adr-0003-ai-provider.md` | new — decision **open**, criteria, provider-agnostic contract C1–C9, MVP provider requirements, owner slot, blocked tasks |
+| `docs/decisions/adr-0003-ai-provider.md` | new — decision **open**, criteria, provider-agnostic contract C1–C10, MVP provider requirements, owner slot, blocked tasks |
 | `docs/tasks/19-architecture-decision-records/spec.md` | new — this task's spec |
 | `docs/tasks/19-architecture-decision-records/plan.md` | new — this plan |
 
@@ -60,16 +60,16 @@ than a test runner (spec A8).
 
 ## Steps
 
-- [ ] **S1** `claude` — Write `docs/decisions/README.md` and `docs/decisions/adr-0001-architecture.md` (covers AC1, AC4, AC5, AC6).
+- [x] **S1** `claude` — Write `docs/decisions/README.md` and `docs/decisions/adr-0001-architecture.md` (covers AC1, AC4, AC5, AC6).
   - Rules: `prd-context` (technical choices table and its D/P statuses; main flows; guardrails 4 and 6; free-tier limits), `nextjs-app` §Rules 1, 4, 5, 6, 7, 10, `supabase-db` §Security, `security-check` §Secrets + §Data access.
   - Verify: `V4`.
-- [ ] **S2** `claude` — Write `docs/decisions/adr-0002-data-model.md` (covers AC2, AC7, AC8).
+- [x] **S2** `claude` — Write `docs/decisions/adr-0002-data-model.md` (covers AC2, AC7, AC8).
   - Rules: `prd-context` → `references/data-model.md` (the seventeen tables verbatim; the key invariant), `supabase-db` §Model notes, `compliance-review` §C (consent/retention columns present but unused in the MVP).
   - Verify: `V5`.
-- [ ] **S3** `claude` — Write `docs/decisions/adr-0003-ai-provider.md` (covers AC3, AC9).
+- [x] **S3** `claude` — Write `docs/decisions/adr-0003-ai-provider.md` (covers AC3, AC9).
   - Rules: `ai-pipeline` §Provider: not chosen yet + §The one wrapper + §Evidence is verbatim + §Fairness is enforced in code, `compliance-review` §C overseas transfer, `prd-context` (AI governance 6; Integrations).
   - Verify: `V6`, `V7`.
-- [ ] **S4** `none` — Full verification `V1`–`V7`, then Claude review (`pr-review`, plus `compliance-review` and `security-check` scope).
+- [x] **S4** `none` — Full verification `V1`–`V7`, then Claude review (`pr-review`, plus `compliance-review` and `security-check` scope).
 
 ## Test plan
 
@@ -124,15 +124,95 @@ V7  adr-0003: no provider brand name appears as a decision
 
 ## Outcome
 
-<!-- Filled after execution. -->
+- **Shipped:** Story #19 in full — all three of its task issues. `docs/decisions/` now holds an index
+  plus three records: **ADR-0001** (trust boundary, the five main flows, thirteen layer choices with
+  status, the `src/server` import rule) for #71; **ADR-0002** (seventeen tables with purpose, MVP
+  standing and owning migration task; the four invariants, each with its PRD line) for #72;
+  **ADR-0003** (the provider decision held **open**, contract C1–C10, criteria, MVP requirements,
+  owner slot, blocked tasks) for #73.
 
-- **Shipped:** 
-- **Changed files / areas:**
-- **Tests added or updated:** 
-- **Verification:** 
-- **Deviations:** 
-- **Fix rounds / escalations:** 
-- **Models used:** 
-- **Claude direct fixes:** 
-- **Review findings:** 
-- **Follow-ups:**
+- **Changed files / areas:** docs only — `docs/decisions/README.md` (+79),
+  `docs/decisions/adr-0001-architecture.md` (+240), `docs/decisions/adr-0002-data-model.md` (+242),
+  `docs/decisions/adr-0003-ai-provider.md` (+259), plus this task's `spec.md` and `plan.md`. No
+  application code, no `package.json`, no migration, no dependency, no env var.
+
+- **Tests added or updated:** **none** — and deliberately. This change adds no logic. The repository
+  has no test runner before the scaffold epic (`npm test` arrives with #85), and adding `package.json`
+  + Vitest to assert on three Markdown files would pre-empt #83 and contradict this task's own
+  "docs only, no app code" verification line. Evidence is the V1–V7 checks below, plus the Opus
+  review pass.
+
+- **Verification:** the project scripts do not exist yet (no `package.json` before #83), so
+  `npm run lint / typecheck / test / build / test:e2e / test:db / eval` are **n/a**. The planned set:
+
+  | Check | Result |
+  |---|---|
+  | `V1` docs-only diff | ✅ 6 files, all under `docs/`; `… \| grep -v '^docs/'` empty |
+  | `V2` relative links resolve | ✅ 0 broken across all 6 files |
+  | `V3` secret scan | ✅ env var **names** only (`BLOB_READ_WRITE_TOKEN`, `SEED_BLOB_BASE_URL`, `AI_MODEL_*`); no value, no `*.public.blob.vercel-storage.com` |
+  | `V4` ADR-0001 | ✅ 5/5 main flows; 13/13 layer rows with status, matching `requirements.md` one-for-one; `src/server` import rule present |
+  | `V5` ADR-0002 | ✅ 17/17 table names, exact-match diff against the PRD list; each with owning task + MVP standing; 4 invariants, 9 PRD quotes verified verbatim |
+  | `V6` ADR-0003 | ✅ status `Open`; owner slot; 5 unblocking conditions; 3 blocked + 9 buildable tasks linked; C1–C10 |
+  | `V7` no provider brand as a decision | ✅ **zero** brand names anywhere under `docs/decisions/` |
+
+- **Deviations:**
+  1. **The whole story shipped as one change, not the first unblocked task.** `urec-orchestrator`
+     Step 1 takes one task from a story; the request named the story, #72 and #73 depend only on
+     #71, and the story's three ACs map 1:1 to the three records. Spec assumption A1.
+  2. **Claude executed every step; nothing went to `cursor-agent`.** All three issues carry
+     `Executor hint: claude (judgment-heavy)`. The records' whole value is that each claim traces to
+     a PRD line, and an executor that cannot load `prd-context` would have to be fed the PRD
+     wholesale with no cheap way to check for invented claims. Spec assumption A2.
+  3. **ADR-0003 names no shortlist**, though #73's "What to build" asks for "the criteria, the
+     shortlist and … the contract". The same issue's "Done when" requires the record to "never name
+     a chosen provider", and brands inside a record the backlog cites would harden into a choice.
+     The refusal and who draws the shortlist instead are stated in the record (D5 preamble, D6).
+  4. **ADR-0002 D2 contains two SQL statements**, though #72 puts "RLS policy text" out of scope.
+     They are the lock-down (`enable row level security` + `revoke`), not policy text — the point is
+     that no policy is ever written — and the record now says so and points policy work at #113.
+  5. **The five main flows in ADR-0001 D4 became `####` headings** mid-verification, so they are
+     linkable and `V4a` can check them.
+
+- **Fix rounds / escalations:** none on implementation — V1–V7 passed on the first full run (one
+  self-corrected check pattern in V4a, not a content defect). One review round: twelve findings
+  applied, then re-verified.
+
+- **Models used:** planning, all three writing steps and the fixes — Claude Opus 5 (`claude-opus-5`).
+  Review gate — Claude Opus 5 (`claude-opus-5`) subagent. **No `cursor-agent` call was made**, so no
+  Grok or GPT model was used at any point.
+
+- **Claude direct fixes:** all of them, by definition (see deviation 2).
+
+- **Review findings:** `pr-review` + `compliance-review` + `security-check` scope, Opus subagent.
+  Verdict **pass with follow-ups**; **no blockers**. Confirmed independently: 17/17 table names
+  exact, all 15 cited issue numbers correct against `manifest.json` and the roadmap JSONs, all 10
+  PRD quotes verbatim, no secret or Blob URL, no provider brand, no decided PRD rule contradicted,
+  no open question settled, AC1–AC10 all MET. **All twelve findings were applied**, not deferred:
+  - *major 1* — ADR-0001 tagged the three trust-boundary rules `proposed`, contradicting
+    `CLAUDE.md` hard rule 3 and ADR-0002 D2's "not negotiable". D1 now carries a callout saying the
+    PRD status records only the PRD's wording and licenses nothing.
+  - *major 2* — "suggested" was a fourth status word the README never defined. README now maps it to
+    **proposed** and states that a proposed item can still be non-negotiable.
+  - *major 3* — this Outcome, the AC ticks, the step ticks and the spec status. Done.
+  - *minor 4* — "the AI only suggests" was absent from ADR-0001; added to D2 at the call-site list.
+  - *minor 5* — due-soon `≥ 0.8` and the end-state rule read as decided; both now tagged **proposed**.
+  - *minor 6* — C5 attributed date of birth, ethnicity and contact details to the PRD; the list is
+    now split into the seven PRD-decided attributes and the three stricter `ai-pipeline` additions.
+  - *minor 7* — the Vercel firewall was stated as *the* rate-limit mechanism; both records now say
+    firewall rule if the plan offers one, otherwise an app-level limiter, with #175 recording which.
+  - *minor 8* — ADR-0002 claimed `supabase-db` defers the table list to it; corrected to
+    `prd-context`, which this record expands.
+  - *minor 9* — the SQL in D2 now says why it is not policy text.
+  - *minor 10* — ADR-0001 D2 now notes the paths follow `nextjs-app`'s provisional layout, which #83
+    confirms.
+  - *minor 11* — stale cross-refs fixed: `plan.md` C1–C9 → C1–C10; `spec.md` C2 → C3.
+  - *minor 12* — the shortlist deviation is recorded here and in ADR-0003 D5.
+
+- **Follow-ups:** three, none blocking — see the PR body. (1) Point
+  `.claude/skills/supabase-db/SKILL.md` and `.claude/skills/ai-pipeline/SKILL.md` at the new records
+  so the deferral chain is real in both directions. (2) Re-check ADR-0002 D1's E03 partition and
+  ADR-0003 D5's blocked list whenever the backlog is re-cut. (3) Label
+  [#111](https://github.com/dczii/URecruitment/issues/111),
+  [#145](https://github.com/dczii/URecruitment/issues/145) and
+  [#128](https://github.com/dczii/URecruitment/issues/128) `needs-decision`, since ADR-0003 D5 now
+  records them as blocked on the open provider question.

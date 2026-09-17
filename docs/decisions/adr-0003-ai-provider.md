@@ -78,9 +78,15 @@ reference and SHA-256 of the input) and updates it after (output, token counts, 
 together with the `ai_run_id`, so every stored result links back to its run
 ([ADR-0002](adr-0002-data-model.md) invariant 3).
 
-**C5 — Fairness is enforced in code, before the provider boundary.** `buildScoringProfile()` removes
-name, photo, date of birth and age, gender, race and ethnicity, religion, marital status and contact
-details from anything sent for matching or scoring (PRD, **decided**). **Nationality and language are
+**C5 — Fairness is enforced in code, before the provider boundary.** `buildScoringProfile()` removes,
+from anything sent for matching or scoring:
+
+- **name, photo, age, gender, race, religion and marital status** — the seven the PRD names (PRD,
+  Job matching → Requirements 2, **decided**);
+- **plus date of birth, ethnicity and contact details** — stricter by design, from the `ai-pipeline`
+  skill rather than the PRD, because each is a close proxy for one of the seven.
+
+**Nationality and language are
 included only when the job version marks that requirement as required *and* carries a non-empty
 written reason** (PRD, **decided**). This is a property of the input, not of the prompt, so it cannot
 be lost by changing provider or wording, and unit tests prove each attribute is absent from the model
@@ -102,9 +108,10 @@ output rejects, advances, shortlists or contacts a candidate, or sends anything 
 
 **C8 — Cost and abuse are bounded before the call.** `runAi()` checks the **monthly spend cap**
 (`AI_MONTHLY_SPEND_CAP`, summed from `ai_runs.cost`) and fails fast without calling the model. AI
-routes live under `/api/ai/*` and are **rate-limited by path**
-([#175](https://github.com/dczii/URecruitment/issues/175)) — necessary because the MVP has no
-sign-in, so anyone with the URL could otherwise run up the agency's bill. Retries are for transient
+routes live under `/api/ai/*` and are **rate-limited by path** — a Vercel firewall rule if the plan
+offers one, otherwise an app-level limiter backed by Supabase;
+[#175](https://github.com/dczii/URecruitment/issues/175) picks one and records which. Necessary
+because the MVP has no sign-in, so anyone with the URL could otherwise run up the agency's bill. Retries are for transient
 errors only (rate limit, 5xx), with backoff, at most 3 attempts.
 
 **C9 — Embeddings may come from a different provider than text.** The interface takes text and
@@ -154,6 +161,14 @@ clear message (**decided**).
 > model — so picking it would mean a second provider for R4. It is repeated here only to show that
 > **C9 is a real constraint, not a hypothetical one.** Any evaluation starts from D3 and D4 with no
 > candidate pre-favoured.
+
+> **On the shortlist.** [#73](https://github.com/dczii/URecruitment/issues/73) asks for "the
+> criteria, the shortlist and — most importantly — the contract". This record gives the criteria
+> (D3), the requirements a candidate must meet (D4) and the contract (D2), but **deliberately names
+> no shortlist**: the same issue's "Done when" requires that the record "never names a chosen
+> provider", and a list of brands inside a record the backlog cites would harden into one. The
+> shortlist is drawn up by the owner named in D6, as part of unblocking step 2, and appears in the
+> successor record with its evidence.
 
 ### D5 — What this blocks, and what it does not
 

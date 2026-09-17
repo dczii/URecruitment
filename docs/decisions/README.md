@@ -35,6 +35,16 @@ because that is what tells a later task whether it may push back:
 | **proposed** | Build it as written, but you may revisit it with a reason. Say so in the spec, and label the issue `prd:proposed`. |
 | **open** | Never settle it silently. Label the issue `needs-decision`. |
 
+The PRD's own headings sometimes say **"suggested"** — for example *"Data model (suggested)"* and
+*"Security (suggested)"*. That is the PRD's word for what this vocabulary calls **proposed**, and the
+records use it only inside a verbatim PRD quote. Everywhere else, use one of the three words above.
+
+**A proposed item can still be non-negotiable here.** Where `CLAUDE.md` makes something a hard rule,
+that hard rule governs whatever status the PRD gave it. The security boundary is the case that
+matters: the PRD lists it under *"Security (suggested)"*, and `CLAUDE.md` hard rules 1–9 make it
+binding. `proposed` describes how firmly the **PRD** stated it, never how free a task is to ignore a
+hard rule.
+
 An **Accepted** record can still contain **proposed** items: the team has committed to building
 that way now, and the PRD status records how much freedom a later task has to argue.
 

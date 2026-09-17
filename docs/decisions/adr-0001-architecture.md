@@ -48,7 +48,14 @@ With no sign-in, there is no per-user authorisation to enforce and nothing to en
 ```
 
 **The browser never reaches Supabase and never reaches the AI provider.** Three rules make that
-true, and all three must hold together:
+true, and all three must hold together.
+
+> **These three are not arguable.** The PRD states them under *"Security (suggested)"*, and
+> `prd-context` therefore renders them **proposed** — but `CLAUDE.md` hard rule 3 makes server-only
+> data access and RLS-with-no-public-policies binding, and [ADR-0002](adr-0002-data-model.md) D2
+> repeats the lock-down as **not negotiable**. The PRD status below records how firmly the *PRD*
+> worded each one; it does **not** license a later task to weaken it. Changing any of the three
+> needs a record superseding this one.
 
 1. **The secret key lives only in Vercel environment variables** and is read only by server code
    (PRD Security 1, proposed). It bypasses RLS, which is exactly why it must never leave the server.
@@ -84,12 +91,25 @@ Concretely:
   model by role (`parse`, `match`, `gap`, `search`, `jd`, `embed`). See
   [ADR-0003](adr-0003-ai-provider.md).
 - **AI work runs behind `/api/ai/*` route handlers, or in services called from Server Actions**, so
-  the Vercel firewall can rate-limit it **by path** ([#175](https://github.com/dczii/URecruitment/issues/175)).
-  With no sign-in, an unbounded AI route is an open invitation to run up the agency's bill.
+  it can be rate-limited **by path** — a Vercel firewall rule if the plan offers one, otherwise an
+  app-level limiter backed by Supabase. [#175](https://github.com/dczii/URecruitment/issues/175)
+  picks one and records which in its spec. With no sign-in, an unbounded AI route is an open
+  invitation to run up the agency's bill.
 - **No AI call happens on page load** (PRD main flow 2, proposed). Pages read stored results. This
   keeps pages fast and the monthly cost predictable.
 - **Business rules never live in components.** Pure logic goes in `src/lib` (unit-tested); use-case
   logic goes in `src/server/services`.
+- **The AI only suggests, at every one of these call sites.** No route handler, service, Server
+  Action or `after()` job may reject, advance, shortlist or contact a candidate, or send anything to
+  a client, on the strength of a model result. Every AI value a recruiter sees is labelled a
+  suggestion and shows the CV or job text it came from. This is `CLAUDE.md` hard rule 1 and the PRD's
+  first guardrail; [ADR-0003](adr-0003-ai-provider.md) C7 restates it at the provider boundary.
+
+- **Paths are the layout `nextjs-app` proposes**, which that skill marks provisional until the
+  scaffold task [#83](https://github.com/dczii/URecruitment/issues/83) (E01-S01-T01) confirms it. The
+  **rule** — server-only code sits behind one boundary the browser cannot import — is what this
+  record fixes; if #83 renames a directory, it updates the paths here and in
+  [ADR-0003](adr-0003-ai-provider.md) C1.
 
 ### D3 — The rule a reviewer can check in one line
 
@@ -146,10 +166,11 @@ types — it never becomes SQL.
 #### Flow 5 — Delay status
 
 A Postgres view, no scheduled job. `pipeline_status` derives On track / Due
-soon / Overdue from the stage entry time, the limit hierarchy (job → client → default, decided) and
-`sg_public_holidays`, counting **Mon–Fri Singapore local days** (decided). Due soon is
-`used / limit ≥ 0.8`; end states and Placed have no status. The view is `security_invoker` and
-revoked from `anon, authenticated`. A TypeScript mirror in `src/lib` shares its test cases.
+soon / Overdue from the stage entry time, the limit hierarchy (job → client → default, **decided**)
+and `sg_public_holidays`, counting **Mon–Fri Singapore local days** (**decided**). Due soon is
+`used / limit ≥ 0.8` (**proposed**); end states and Placed have no status (**proposed**). The view is
+`security_invoker` and revoked from `anon, authenticated`. A TypeScript mirror in `src/lib` shares
+its test cases.
 
 > **Why a view and not a cron job:** Vercel Hobby runs cron **once a day**, so a scheduled job could
 > not keep delay status fresh. Deriving it on read is the free-tier-compatible answer, and it is

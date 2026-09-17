@@ -11,9 +11,10 @@ Read [README.md](README.md) for the status vocabulary.
 
 **This record is the *what*.** The *how* — migration commands, naming conventions, RLS statements,
 index choices, generated types, the seed — stays in the `supabase-db` skill, which is the mechanics
-reference and defers the table list and invariants here. The table list itself is mirrored in
-`prd-context` → `references/data-model.md`, which condenses the PRD. When they disagree, the PRD
-wins and both mirrors get fixed.
+reference and defers the table list and invariants to `prd-context` →
+`references/data-model.md`. That reference condenses the PRD; **this record expands it** into
+per-table ownership and the invariants below, and is the one to cite from an issue or a spec. When
+the two disagree, the PRD wins and both get fixed.
 
 ## Context
 
@@ -66,7 +67,10 @@ what is deferred is at **column** level, not table level (D3). Later tasks must 
 
 ### D2 — Every table is created locked down, in the same migration
 
-Not negotiable, and it belongs here because it is a property of the model, not of a migration style:
+Not negotiable, and it belongs here because it is a property of the model, not of a migration style.
+(The two statements below are the lock-down, **not policy text** — the point is that no policy is
+ever written. Policy-level work stays with
+[#113](https://github.com/dczii/URecruitment/issues/113).)
 
 ```sql
 alter table public.<t> enable row level security;
