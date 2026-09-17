@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Epics map to PRD capabilities. Link stories as **sub-issues**. Don't write "Parent: #N" in prose.
-        This repo is public: no credentials, Drive IDs or real personal data.
+        This repo is public: no credentials, sample-data Blob URLs or real personal data.
   - type: textarea
     id: goal
     attributes:

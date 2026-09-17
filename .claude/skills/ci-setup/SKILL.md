@@ -44,7 +44,7 @@ description: >
 | `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_PROD_PROJECT_REF` | `migrate.yml` |
 | `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_DB_PASSWORD` | `migrate.yml` |
 | AI provider key(s), `AI_*` model vars | `eval.yml` |
-| `SEED_DRIVE_FOLDER_ID`, Google auth secret(s) | `eval.yml` |
+| `BLOB_READ_WRITE_TOKEN` (listing the sample-data store only), `SEED_BLOB_BASE_URL` | `eval.yml` (and any seed job) |
 | `VERCEL_AUTOMATION_BYPASS_SECRET` (only if preview protection is on) | `e2e.yml` |
 
 Keep this table in sync with the workflows.

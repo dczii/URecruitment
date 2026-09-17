@@ -101,4 +101,4 @@ gh pr view --json number,url,statusCheckRollup
 - User-owned repos don't support GitHub *issue types*, so the hierarchy uses labels plus sub-issues.
 - The fields cache holds node IDs. If a field or option was renamed on the board, delete the cache and re-run `project-fields.sh`.
 - If Project 4's Status options don't include the names in `.statusFlow`, `project-fields.sh` reports them. Fix the config (or the board), and don't guess.
-- The repo is public, so issue bodies are too. Never paste credentials, Drive IDs or real personal data into them.
+- The repo is public, so issue bodies are too. Never paste credentials, sample-data Blob URLs or real personal data into them.

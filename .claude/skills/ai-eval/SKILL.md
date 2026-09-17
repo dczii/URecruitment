@@ -31,8 +31,8 @@ eval/
 
 **Keys**
 - `cvKey` is the first 16 hex characters of the SHA-256 of the file bytes.
-- **Don't commit Drive file IDs**, because the repo is public.
-- The eval matches keys by hashing the files the seed downloads.
+- **Don't commit blob URLs or the store's base URL**, because the repo is public and the store is public. `fileName` (the blob pathname) is fine on its own.
+- The eval matches keys by hashing the files the seed downloads from the Blob store.
 
 **`cvs/<cvKey>.json`**
 ```json
@@ -70,7 +70,7 @@ eval/
 ```
 
 **Drafting (Claude):**
-- Read each CV **directly**: the source file, via the Drive connector or a local download. **Don't** run the app's parser, which would make the check circular.
+- Read each CV **directly**: download the source file from the public Blob store (`$SEED_BLOB_BASE_URL/<pathname>`, or the seed's `.seed-cache/`) and read it yourself. **Don't** run the app's parser, which would make the check circular.
 - Fill every field, and set `verified: false`.
 - For jobs, rank the candidates by reading the job and the CVs. Explain the choice in `rationale`.
 
@@ -96,7 +96,10 @@ The comparison rules in `scoring.ts` are **unit-tested first**.
 
 ## `npm run eval`
 
-- **Inputs:** the Drive files (via the seed downloader and env credentials), the active prompt versions, and the active models.
+- **Inputs:**
+  - the sample files from the Blob store, via the seed downloader (`BLOB_READ_WRITE_TOKEN` for listing, public URLs for downloads);
+  - the active prompt versions;
+  - the active models.
 - **Options:**
   - `--only parse|match`
   - `--lang en|zh`
@@ -110,7 +113,7 @@ The comparison rules in `scoring.ts` are **unit-tested first**.
 ## CI
 
 - Run on PRs touching `src/server/ai/**`, `eval/**`, or parser/matcher services, and on release.
-- Needs secrets (AI keys, Drive credentials). **Skip the job, with a visible notice, on forks or when the secrets are absent.** Never fail silently.
+- Needs secrets (AI keys, `BLOB_READ_WRITE_TOKEN`, `SEED_BLOB_BASE_URL`). **Skip the job, with a visible notice, on forks or when the secrets are absent.** Never fail silently.
 - Post the Markdown summary as a job summary. Upload the JSON as an artifact.
 
 ## Grading sessions (MVP exit)

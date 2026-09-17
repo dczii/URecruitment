@@ -4,7 +4,7 @@ description: >
   Supabase/Postgres rules for URecruitment: migrations with the Supabase CLI, the 17-table model,
   RLS on every table with no public policies, private Storage + signed URLs, pgvector and PGroonga,
   security-invoker views (delay status), SG working-day SQL, generated types, and the idempotent
-  seed that reads sample CVs from Google Drive. Use for any schema, migration, query, view,
+  seed that pulls sample CVs from the public Vercel Blob store. Use for any schema, migration, query, view,
   function, storage or seed change.
 ---
 
@@ -59,7 +59,12 @@ revoke all on table public.<t> from anon, authenticated;
 - **`ai_runs`:**
   - input reference (+ hash), step, provider, model id, model version, prompt version, output jsonb, status, error, token counts, cost, duration, timestamps;
   - **no secrets**.
-- **`cv_files`:** `source` (`seed-drive` in the MVP), `source_ref` (the Drive file id, for idempotent seeding), `parse_status`, `parse_error`, `language`.
+- **`cv_files`:**
+  - `source` (`seed-blob` in the MVP);
+  - `source_ref` (the blob `pathname`, e.g. `Elaine Koh CV.pdf`) and `source_hash` (SHA-256 of the bytes), together giving idempotent seeding;
+  - `storage_path` (the private Supabase Storage copy);
+  - `doc_kind` (`cv`/`jd`), `parse_status`, `parse_error`, `language`.
+  - **Never store the public blob URL.**
 - **Consent and retention columns** on `candidates` (consent status/date/method, last activity) exist from the start, but stay unused until the real-data release.
 
 ## Search extensions
@@ -90,7 +95,12 @@ create extension if not exists pgroonga;
 
 The rules are in `prd-context` → `references/sample-data.md`. Mechanics:
 
-- **Script:** a TypeScript script under `supabase/seed/`. It runs locally or in CI with the secret key and Drive credentials **from env** (`SEED_DRIVE_FOLDER_ID` plus the auth vars chosen in the seed task).
+- **Script:** a TypeScript script under `supabase/seed/`. It runs locally or in CI with everything **from env**:
+  - the Supabase secret key;
+  - `BLOB_READ_WRITE_TOKEN`, used only for `list()` on the sample-data store;
+  - `SEED_BLOB_BASE_URL`, used to check that listed URLs belong to the expected store.
+- **Downloads** use the public blob URLs, with no token. **Never** `put`, `copy` or `del` on the store.
+- **Blob is the source only.** Every file is re-uploaded to the private Supabase Storage bucket, and the app reads it only from there.
 - **Uses the app's own services** (parser, embeddings, matcher, gap check). Never a separate code path.
 - **Idempotent:** upsert on `cv_files.source_ref` and the job natural keys. `--reset` truncates the seeded tables in dependency order first.
 - **Back-dated pipeline entries:** use explicit, documented offsets so all three delay statuses appear. Recompute them relative to "today" on each run.

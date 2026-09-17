@@ -50,7 +50,7 @@ description: >
 - **Fictional fixtures only.**
   - Small EN and ZH CV/JD snippets live in `test/fixtures/`.
   - Never use real people.
-  - Never download from Drive in unit or DB tests. Drive belongs to the seed and eval only.
+  - Never download from the Blob store in unit or DB tests. Blob belongs to the seed and eval only.
 - **No network in unit tests.** Use the fake AI model (see `ai-pipeline`), and make unexpected `fetch` calls fail the test.
 - **Time:**
   - Freeze it with `vi.setSystemTime()`.

@@ -68,7 +68,7 @@ The backlog map lives in [references/backlog-map.md](references/backlog-map.md).
 - Logic tasks mention "test-first".
 - Items marked *proposed* in the PRD get `prd:proposed`. Items that depend on an *open* question get `needs-decision`.
 - Priority: `priority:p0` for everything the MVP scope needs; `p1`/`p2` only where the map says so.
-- **Never** include credentials, Drive IDs or real personal data. The repo is public.
+- **Never** include credentials, sample-data Blob URLs or real personal data. The repo is public.
 
 ## Keeping it in sync
 

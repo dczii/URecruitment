@@ -28,7 +28,7 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
   - T02 Playwright job against the Vercel preview URL [grok]
   - T03 Migrations applied by the Supabase CLI in CI (dev project) [grok]
 - **E01-S04 — Previews and production deploy safely** · area:release
-  - T01 Vercel project: region sin1, env vars per environment, preview per PR [claude] (D? Hobby non-commercial)
+  - T01 Vercel project `u-recruitment` (scope `user-7407`): region sin1, env vars per environment, preview per PR [claude] (D? Hobby non-commercial)
   - T02 Vercel firewall rate limit on AI routes; document the provider spend cap [grok]
 
 ### E02 — Design system & screens · area:design-system · MVP
@@ -64,12 +64,13 @@ Stories inherit the milestone and `area:*` labels of their epic unless they say 
 - **E03-S03 — Working days follow the Singapore calendar**
   - T01 `sg_public_holidays` table + seed for the relevant years [grok]
   - T02 Working-day functions (SQL + TS mirror) with edge-case tests [grok] (TF)
-- **E03-S04 — Developers can rebuild all sample data from Drive**
-  - T01 Choose and document the Drive auth method; env vars only [claude] (D?)
-  - T02 Seed step: list/download the Drive folder, count by language/type, convert `.doc` [grok]
-  - T03 Seed step: upload to Storage → parse → embed → load jobs → gap check → score [grok]
-  - T04 Seed step: back-dated pipeline entries that cover on track / due soon / overdue [grok] (P)
-  - T05 Idempotent re-run + reset command [grok] (TF)
+- **E03-S04 — Developers can rebuild all sample data from the Vercel Blob store**
+  - T01 Seed env + guard: `BLOB_READ_WRITE_TOKEN` (listing only), `SEED_BLOB_BASE_URL` (never committed), URL-prefix check [grok] (TF)
+  - T02 Seed step: `list()` the flat store, download public URLs to `.seed-cache/`, hash, count by type/language, convert `.doc` [grok]
+  - T03 Seed step: classify CV vs JD by content (method chosen in spec; unclassifiable files reported, not guessed) [grok] (TF)
+  - T04 Seed step: upload to private Supabase Storage → parse → embed → load jobs → gap check → score [grok]
+  - T05 Seed step: back-dated pipeline entries that cover on track / due soon / overdue [grok] (P)
+  - T06 Idempotent re-run (key: blob pathname + SHA-256) + reset command [grok] (TF)
 
 ### E04 — CV processing · area:cv-processing · MVP
 

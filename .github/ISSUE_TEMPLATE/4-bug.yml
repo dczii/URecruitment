@@ -4,7 +4,7 @@ labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: Use fictional sample data only. Never paste real personal data, keys or Drive IDs.
+      value: Use fictional sample data only. Never paste real personal data, keys or sample-data Blob URLs.
   - type: textarea
     id: steps
     attributes:

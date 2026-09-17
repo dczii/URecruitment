@@ -57,8 +57,9 @@ eval/                         # answer key + eval script
 6. **Region is Singapore.** Pin functions to `sin1` (`vercel.json` `"regions": ["sin1"]`) and don't set other regions.
 7. **Env.**
    - A single Zod-validated env module splits server and public vars.
-   - Only non-sensitive values may use `NEXT_PUBLIC_*`. Never `NEXT_PUBLIC_` the Supabase secret key, AI keys or Drive credentials.
+   - Only non-sensitive values may use `NEXT_PUBLIC_*`. Never `NEXT_PUBLIC_` the Supabase secret key, AI keys or `BLOB_READ_WRITE_TOKEN`.
    - Keep `.env.example` in sync (names only, no values).
+   - `BLOB_READ_WRITE_TOKEN` is present in Vercel envs because the sample-data store is connected to the project. **The app never reads it and never imports `@vercel/blob`.** File storage is Supabase Storage.
 8. **Time.**
    - Store and pass UTC ISO strings.
    - Format for display with `Intl.DateTimeFormat("en-SG", { timeZone: "Asia/Singapore" })` through one helper in `src/lib`.

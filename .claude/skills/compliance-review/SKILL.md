@@ -54,7 +54,7 @@ The MVP holds **fictional data only**, so the PDPA risk is low. The review still
 - [ ] **Quality monitoring:** the eval gate (≥ 90% fields, ≥ 80% top-5, EN and ZH separately).
 
 ### E. Data in the public repo
-- [ ] No real personal data, Drive IDs, credentials or `.env` files are committed.
+- [ ] No real personal data, sample-data Blob URLs, credentials or `.env` files are committed.
 - [ ] Fixtures and answer-key entries are fictional.
 
 ## Output format

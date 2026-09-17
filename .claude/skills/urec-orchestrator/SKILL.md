@@ -33,7 +33,7 @@ Run straight through from intake to an open PR. **Don't** stop to ask "shall I p
 
 - The task would contradict a PRD item marked **decided** (see `prd-context`).
 - The task needs a PRD **open** question answered and no reasonable reversible default exists.
-- You need credentials, a paid plan, or a remote resource (Supabase project, Vercel env, Drive access) that isn't configured.
+- You need credentials, a paid plan, or a remote resource (Supabase project, Vercel env, Blob token) that isn't configured.
 - The task needs real candidate data, sending email, or anything else listed as a non-goal.
 - Verification still fails after the fix loop (Step 7) and the Claude fallback.
 

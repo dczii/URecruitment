@@ -20,6 +20,13 @@ description: >
 
 Supabase Free allows **2 active projects**, which is exactly dev and prod.
 
+**Vercel project:** `u-recruitment`, under scope `user-7407`. It also holds the **sample-data Blob store** (public, Singapore), which is the seed source only; see `prd-context` → `references/sample-data.md`.
+
+- **CLI account:** the Vercel CLI on the dev machine must be logged into the account that owns `user-7407`. On 17 Sep 2026 it was logged into a different account (`dzabala`), which can't see the project.
+- **Linking:** `vercel link --scope user-7407 --project u-recruitment` creates `.vercel/` (gitignored). Only run it when the user asks.
+- **Pulling env:** `vercel env pull` **overwrites `.env.local`**. Back up any local-only values first, or keep them in the project's Development environment.
+- **CLI version:** Blob CLI commands (`vercel blob …`) need a newer CLI than 37.x. The seed uses the `@vercel/blob` SDK, so it doesn't depend on the CLI.
+
 ## Hard rules for agents
 
 - **Never** deploy to production, change Vercel or Supabase settings, rotate keys, or run migrations or seeds against a remote project **unless the user explicitly asks in this session.** Prepare the commands and the runbook instead.
@@ -37,7 +44,8 @@ Supabase Free allows **2 active projects**, which is exactly dev and prod.
 | `AI_MONTHLY_SPEND_CAP` | Vercel, local | App-side cap (USD). The provider-side cap is also set in the provider console |
 | `MUST_HAVE_CAP` | Vercel, local | Default 50 (proposed) |
 | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | Vercel | The DSN is not a secret |
-| `SEED_DRIVE_FOLDER_ID` + Google auth vars | Local, CI (seed/eval) only | **Not** in Vercel. Never committed |
+| `BLOB_READ_WRITE_TOKEN` | Vercel (auto-added when the sample-data Blob store is connected), local via `vercel env pull`, CI (seed/eval) | **Seed/eval only, and only for `list()`.** App runtime code must never use it |
+| `SEED_BLOB_BASE_URL` | Local, CI (seed/eval); optionally Vercel *Development* so `vercel env pull` keeps it | Public base URL of the sample-data store. **Never committed.** The seed checks that listed URLs start with it |
 
 Add new variables to this table in the same PR that introduces them.
 

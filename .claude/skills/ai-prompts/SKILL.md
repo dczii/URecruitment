@@ -21,6 +21,7 @@ src/server/ai/prompts/
   score-match/v1.ts
   gap-check/v1.ts
   search-query/v1.ts
+  classify-doc/v1.ts    # optional: seed-time CV vs JD classification (only if the seed spec chooses an AI classifier)
   index.ts              # active version per step (the ONLY place to switch versions)
 ```
 
@@ -81,6 +82,12 @@ src/server/ai/prompts/
 - **Filters:** only those the query states. "5+ years" → `min_years: 5`. "in Singapore" → location.
 - **Protected terms** ("young", "female", "Malay", "married") go into `ignored_terms` with a reason. They are never filters.
 - **"Chinese" is ambiguous:** treat it as the *language* filter only when the query is clearly about language ("Chinese-speaking", "Mandarin"). Otherwise put it in `ignored_terms`.
+
+**classify-doc** (optional; only if the seed task's spec picks an AI classifier)
+- **Why it exists:** the sample-data Blob store is flat, so CVs and JDs must be told apart by content.
+- **Output:** `{ kind: "cv" | "jd" | "unknown", confidence: 0–1, source_text }`, where `source_text` is the phrase that decided it.
+- **When unsure,** answer `unknown`. The seed reports and skips unknown or low-confidence files, never guessing.
+- **Input size:** send only the first page or two of extracted text.
 
 ## Checklist before merging a prompt change
 

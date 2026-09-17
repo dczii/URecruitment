@@ -24,7 +24,7 @@ Details live in the references:
 | [references/pipeline-rules.md](references/pipeline-rules.md) | Stages, end states, working days, limits, delay status, placements |
 | [references/data-model.md](references/data-model.md) | The 17 tables, main flows, AI pipeline steps |
 | [references/screens.md](references/screens.md) | The MVP screens and design rules |
-| [references/sample-data.md](references/sample-data.md) | Where the fictional CVs/jobs come from, the seed flow, the answer key |
+| [references/sample-data.md](references/sample-data.md) | The sample-data Vercel Blob store (public, flat, Singapore), its env vars, the seed flow, the answer key |
 
 ## One-paragraph summary
 
@@ -43,7 +43,7 @@ URecruitment is a web portal for the **recruiters (6–20) of a Singapore recrui
 | Item | Decision |
 |---|---|
 | Users | Recruiters only. **No sign-in** in the MVP; actions are tied to a typed name |
-| Data | **Fictional only**: 200 sample CVs (~20 in Simplified Chinese) + 20 sample jobs, preloaded by devs through the real parser |
+| Data | **Fictional only**: 200 sample CVs (~20 in Simplified Chinese) + 20 sample jobs, preloaded by devs through the real parser. Source files come from a **public Vercel Blob store**, the seed source only; the app stores originals in private Supabase Storage |
 | Deadline | Live by **mid-December 2026**. Ends with recruiter feedback sessions and a go/no-go on real data |
 | Hosting | Vercel (functions `sin1`) + Supabase (`ap-southeast-1`), **free tiers** |
 | AI provider | Chosen by the dev team. **Not chosen yet**, so stay provider-agnostic |

@@ -23,7 +23,7 @@ The product source of truth is the PRD dated 17 Sep 2026, condensed in the `prd-
 3. **Server-only data access.** The browser talks only to Next.js. The Supabase secret key lives only in Vercel env vars. RLS is on for every table with **no public policies**. CV files open through short-lived signed URLs.
 4. **Traceable AI.** Every AI output is schema-validated, stored in `ai_runs` with its input, model id/version, date, cost and duration, and shows the source text it relied on. Match scores are keyed to job version + model version.
 5. **Fair scoring.** Scoring ignores name, photo, age, gender, race, religion and marital status. Nationality and language count only when the recruiter marks them as a real requirement and writes why.
-6. **Fictional data only in the MVP.** Never load real candidate data. Never commit secrets, credentials, `.env*` files or Drive folder IDs. **This repo is public.**
+6. **Fictional data only in the MVP.** Never load real candidate data. Never commit secrets, credentials, `.env*` files or the sample-data Blob store URL. **This repo is public.**
 7. **Time.** Store UTC, display Singapore time. Stage limits count Singapore working days (Mon–Fri minus SG public holidays).
 8. **Audit by typed name.** Stage and settings changes record the name the recruiter types (remembered on the device). There is no sign-in in the MVP.
 9. **Free tiers.** Vercel Hobby (cron once a day, one region) and Supabase Free (500 MB DB, 1 GB storage, 50 MB/file). Derive delay status in a DB view, not a scheduled job.
@@ -39,7 +39,7 @@ npm run test:db      # Vitest DB integration on local Supabase (needs Docker)
 npm run test:e2e     # Playwright (desktop + phone projects)
 npm run build
 npm run eval         # AI quality script against the answer key
-npm run seed         # rebuild sample data (reads the Drive folder via env)
+npm run seed         # rebuild sample data (lists the public Vercel Blob store via env)
 ```
 
 Until the app is scaffolded, these scripts don't exist. The task that first needs a script adds it with exactly this name.

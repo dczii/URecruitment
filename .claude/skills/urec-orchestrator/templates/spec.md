@@ -47,7 +47,7 @@
 - [ ] UTC stored, SGT shown; SG working days
 - [ ] Typed recruiter name recorded on stage/settings changes
 - [ ] Works at phone width; status not colour-only; Chinese text renders
-- [ ] Fictional data only; no secrets or Drive IDs committed
+- [ ] Fictional data only; no secrets or sample-data Blob URLs committed
 - [ ] Free-tier limits respected (no frequent cron, file ≤ 50 MB)
 
 ## UX / design

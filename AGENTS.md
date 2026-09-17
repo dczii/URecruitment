@@ -25,7 +25,11 @@ You are an **executor**. Claude plans the work in `docs/tasks/<issue>-<slug>/` a
 4. RLS is enabled on every table with no public policies. Private Storage bucket, short-lived signed URLs.
 5. Every AI output is validated against a Zod schema, saved to `ai_runs` (input, model, version, date, cost, duration) and carries the source text it relied on.
 6. Scoring ignores name, photo, age, gender, race, religion and marital status. Nationality and language count only when the job marks them required **with a written reason**.
-7. Fictional data only. Never hard-code secrets, keys, tokens or Drive IDs. This repository is public.
+7. Fictional data only. Never hard-code secrets, keys, tokens or sample-data Blob URLs. This repository is public.
+   - The public Vercel Blob store is the **seed source only**.
+   - App code under `src/` never imports `@vercel/blob`.
+   - The seed and eval only `list()` it and download its files. They never write to it.
+   - Uploaded and stored files live in the private Supabase Storage bucket.
 8. Store UTC, display `Asia/Singapore`. Limits count Singapore working days.
 9. Stage and settings changes record the recruiter's typed name.
 

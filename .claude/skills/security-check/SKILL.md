@@ -16,9 +16,9 @@ description: >
 ## Checklist
 
 ### Secrets
-- [ ] No keys, tokens, passwords, service-account JSON or Drive IDs in the diff, fixtures, docs, issues or logs.
+- [ ] No keys, tokens, passwords or sample-data Blob URLs (`*.public.blob.vercel-storage.com`) in the diff, fixtures, docs, issues or logs.
 - [ ] `.env*` is gitignored, except `.env.example`, which holds **names only**.
-- [ ] No `NEXT_PUBLIC_` prefix on the Supabase secret key, AI keys or Google credentials.
+- [ ] No `NEXT_PUBLIC_` prefix on the Supabase secret key, AI keys or `BLOB_READ_WRITE_TOKEN`.
 - [ ] The CI secrets named in the workflows exist only as GitHub Actions secrets. Workflows skip gracefully when they're absent (forks).
 
 ### Data access
@@ -26,6 +26,13 @@ description: >
 - [ ] New tables, views and functions: RLS enabled, `revoke all … from anon, authenticated`, views `security_invoker`, `security definer` only with a pinned `search_path`.
 - [ ] The RLS lock-down test covers every new table.
 - [ ] Storage bucket is private. Signed URLs are created on the server, last ≤ 300 s, and are never persisted.
+
+### Sample-data Blob store (public, seed source only)
+- [ ] App runtime code (`src/**`) never imports `@vercel/blob`. Only the seed and eval scripts do.
+- [ ] Seed and eval call only `list()` with `BLOB_READ_WRITE_TOKEN`. No `put`, `copy` or `del`.
+- [ ] Listed URLs are checked against `SEED_BLOB_BASE_URL` before downloading.
+- [ ] Nothing real is ever uploaded to the store. Anyone with a URL can read it.
+- [ ] The base URL and blob URLs appear only in env and `.seed-cache/`, never in commits, issues, fixtures or logs.
 
 ### Input handling
 - [ ] Every Server Action and route handler validates its input with Zod, and returns typed errors with no stack traces.
@@ -65,7 +72,7 @@ description: >
 ## Commands
 
 ```bash
-git diff origin/main...HEAD | grep -nEi "(secret|api[_-]?key|token|password|BEGIN [A-Z ]*PRIVATE KEY|service_role|eyJ[a-zA-Z0-9_-]{10,}|sk-[a-zA-Z0-9]{10,}|drive\.google\.com/drive/folders)"
+git diff origin/main...HEAD | grep -nEi "(secret|api[_-]?key|token|password|BEGIN [A-Z ]*PRIVATE KEY|service_role|eyJ[a-zA-Z0-9_-]{10,}|sk-[a-zA-Z0-9]{10,}|vercel_blob_rw_|blob\.vercel-storage\.com)"
 git ls-files | grep -E "(^|/)\.env" | grep -v "\.env\.example$"
 grep -rlE "^['\"]use client['\"]" src | xargs grep -lE "from ['\"](@/server|.*/server/)" 2>/dev/null   # client files importing server code
 npm run build && grep -rlE "SUPABASE_SECRET|AI_[A-Z_]*KEY" .next/static 2>/dev/null

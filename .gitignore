@@ -26,7 +26,7 @@ blob-report/
 # eval
 eval/reports/
 
-# seed downloads (sample CVs come from Drive at run time)
+# seed downloads (sample CVs are fetched from Vercel Blob at run time)
 .seed-cache/
 
 # orchestrator logs, prompts and PR bodies

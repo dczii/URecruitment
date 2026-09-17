@@ -33,13 +33,13 @@
 | Database | Supabase Postgres, SG | Candidates, jobs, pipeline, AI results, change logs |
 | File storage | Supabase Storage, **private bucket**, SG | Original CV and JD files |
 | AI provider | External, picked by the dev team | Reads CVs and jobs, returns structured JSON |
-| Seed script | Dev machine or CI | Loads the fictional CVs and jobs **through the real parser** |
+| Seed script | Dev machine or CI | Lists the public Vercel Blob store (seed source), downloads the fictional CVs and JDs, and loads them **through the real parser** |
 
 The browser talks **only** to the Next.js app. All database, file and AI calls happen on the server in Singapore.
 
 ## Main flows
 
-1. **Seeding (MVP):** upload the sample CVs to Storage → parse → create embeddings → score against every job → back-date stage entries so delays show from day one.
+1. **Seeding (MVP):** list and download the sample files from the Vercel Blob store → classify CV vs JD → upload to private Supabase Storage → parse → create embeddings → score against every job → back-date stage entries so delays show from day one.
 2. **Opening a job:** read the stored scores and flags. **No AI call on page load**, which keeps pages fast and costs predictable.
 3. **Saving a job:**
    1. Store a new `job_versions` row.
