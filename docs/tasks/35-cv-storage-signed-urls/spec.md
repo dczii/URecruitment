@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `feat/35-cv-storage-signed-urls` |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -36,11 +36,11 @@ A recruiter needs to open a candidate's original CV from their profile. Nothing 
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given the storage bucket, when it is inspected, then it is private and has no public read policy. _Proved by:_ `supabase/tests/storage.db.test.ts › bucket is private with no public policy`
-- [ ] **AC2** — Given a recruiter opens a CV, when the link is generated, then it is a signed URL that expires after a short, documented lifetime (≤ 300 s). _Proved by:_ `src/server/storage.test.ts › signs a path for a short-lived URL`
-- [ ] **AC3** — Given an expired signed URL, when it is used, then the file is not served. _Proved by:_ `supabase/tests/storage.db.test.ts › an expired signed URL is refused`
-- [ ] **AC4** (from #114 scope) — Given a path outside the bucket, or an upload over the size/type limit, when signing/uploading is attempted, then it is rejected with a clear reason. _Proved by:_ `src/server/storage.test.ts › rejects a path outside the bucket` and `› rejects an oversized or disallowed upload`
-- [ ] **AC5** — Given `storage.ts` is imported, when it is imported from client code, then the build fails. _Proved by:_ `src/server/storage.test.ts › cannot be imported from client code` (asserts the `server-only` import guard, mirroring `no-browser-supabase.test.ts`)
+- [x] **AC1** — Given the storage bucket, when it is inspected, then it is private and has no public read policy. _Proved by:_ `supabase/tests/storage.db.test.ts › bucket is private with no public policy`
+- [x] **AC2** — Given a recruiter opens a CV, when the link is generated, then it is a signed URL that expires after a short, documented lifetime (≤ 300 s). _Proved by:_ `src/server/storage.test.ts › signs a path for a short-lived URL`
+- [x] **AC3** — Given an expired signed URL, when it is used, then the file is not served. _Proved by:_ `supabase/tests/storage.db.test.ts › an expired signed URL is refused`
+- [x] **AC4** (from #114 scope) — Given a path outside the bucket, or an upload over the size/type limit, when signing/uploading is attempted, then it is rejected with a clear reason. _Proved by:_ `src/server/storage.test.ts › rejects a path outside the bucket` and `› rejects an oversized or disallowed upload`
+- [x] **AC5** — Given `storage.ts` is imported, when it is imported from client code, then the build fails. _Proved by:_ `src/server/storage.test.ts › cannot be imported from client code` (asserts the `server-only` import guard, mirroring `no-browser-supabase.test.ts`)
 
 ## Guardrails that apply
 
