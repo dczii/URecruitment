@@ -381,6 +381,204 @@ export type Database = {
           created_at?: string
         }
       }
+      pipeline_entries: {
+        Row: {
+          id: string
+          candidate_id: string
+          job_id: string
+          stage: string
+          entered_at: string
+          owner_name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          job_id: string
+          stage: string
+          entered_at?: string
+          owner_name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          job_id?: string
+          stage?: string
+          entered_at?: string
+          owner_name?: string
+          created_at?: string
+        }
+      }
+      stage_events: {
+        Row: {
+          id: string
+          pipeline_entry_id: string
+          from_stage: string | null
+          to_stage: string
+          recruiter_name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          pipeline_entry_id: string
+          from_stage?: string | null
+          to_stage: string
+          recruiter_name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          pipeline_entry_id?: string
+          from_stage?: string | null
+          to_stage?: string
+          recruiter_name?: string
+          created_at?: string
+        }
+      }
+      stage_limits: {
+        Row: {
+          id: string
+          scope: string
+          client_id: string | null
+          job_id: string | null
+          stage: string
+          limit_days: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          scope: string
+          client_id?: string | null
+          job_id?: string | null
+          stage: string
+          limit_days: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          scope?: string
+          client_id?: string | null
+          job_id?: string | null
+          stage?: string
+          limit_days?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      placements: {
+        Row: {
+          id: string
+          pipeline_entry_id: string
+          start_date: string
+          guarantee_period_days: number
+          guarantee_end_date: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          pipeline_entry_id: string
+          start_date: string
+          guarantee_period_days?: number
+          guarantee_end_date: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          pipeline_entry_id?: string
+          start_date?: string
+          guarantee_period_days?: number
+          guarantee_end_date?: string
+          created_at?: string
+        }
+      }
+      settings_log: {
+        Row: {
+          id: string
+          setting_key: string
+          old_value: Json | null
+          new_value: Json | null
+          recruiter_name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          setting_key: string
+          old_value?: Json | null
+          new_value?: Json | null
+          recruiter_name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          setting_key?: string
+          old_value?: Json | null
+          new_value?: Json | null
+          recruiter_name?: string
+          created_at?: string
+        }
+      }
+      ai_runs: {
+        Row: {
+          id: string
+          step: string
+          provider: string
+          model_id: string
+          model_version: string
+          prompt_version: string
+          input_ref: string | null
+          input_hash: string | null
+          output: Json | null
+          status: string
+          error: string | null
+          input_tokens: number | null
+          output_tokens: number | null
+          cost_usd: number | null
+          duration_ms: number | null
+          created_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          step: string
+          provider: string
+          model_id: string
+          model_version: string
+          prompt_version: string
+          input_ref?: string | null
+          input_hash?: string | null
+          output?: Json | null
+          status?: string
+          error?: string | null
+          input_tokens?: number | null
+          output_tokens?: number | null
+          cost_usd?: number | null
+          duration_ms?: number | null
+          created_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          step?: string
+          provider?: string
+          model_id?: string
+          model_version?: string
+          prompt_version?: string
+          input_ref?: string | null
+          input_hash?: string | null
+          output?: Json | null
+          status?: string
+          error?: string | null
+          input_tokens?: number | null
+          output_tokens?: number | null
+          cost_usd?: number | null
+          duration_ms?: number | null
+          created_at?: string
+          completed_at?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never
