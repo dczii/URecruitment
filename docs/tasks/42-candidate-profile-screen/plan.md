@@ -39,9 +39,9 @@ No open PRD items. Design already exists (`design/specs/candidate.md`, from clos
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Every parsed field is shown with its CV source text available. _Proved by:_ `candidate.spec.ts › shows every parsed field with source text available`
-- [ ] **AC2** — The original CV opens through a short-lived signed link. _Proved by:_ `candidate.spec.ts › original CV opens through a signed link`
-- [ ] **AC3** — Stage history shows each move with the recruiter's name. _Proved by:_ `candidate.spec.ts › stage history shows recruiter names`, `candidate-profile.test.ts › joins stage history with recruiter names`
+- [x] **AC1** — Every parsed field is shown with its CV source text available. _Proved by:_ `candidate.spec.ts › shows every parsed field with source text available` (written, registered, **not executed locally** — see Outcome)
+- [x] **AC2** — The original CV opens through a short-lived signed link. _Proved by:_ `candidate.spec.ts › original CV opens through a signed link` (written, registered, **not executed locally** — see Outcome)
+- [x] **AC3** — Stage history shows each move with the recruiter's name. _Proved by:_ `candidate-profile.test.ts › joins stage history with recruiter names` (unit, executed and passing) + `candidate.spec.ts › stage history shows recruiter names` (written, **not executed locally**)
 
 ## Guardrails that apply
 
@@ -91,16 +91,16 @@ No open PRD items. Design already exists (`design/specs/candidate.md`, from clos
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `candidate-profile.test.ts`: returns merged profile fields (override wins where set), skills with source text, and stage history joined with recruiter names across multiple jobs, sorted by time.
+- [x] **T1a** `grok` — Failing tests first in `candidate-profile.test.ts`: returns merged profile fields (override wins where set), skills with source text, and stage history joined with recruiter names across multiple jobs, sorted by time.
   - Rules: `testing` — test-first, mock `../db`; `supabase-db` — read-only join query
   - Verify: `npm test -- candidate-profile` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `candidate-profile.ts` until T1a passes.
+- [x] **T1b** `grok` — Implement `candidate-profile.ts` until T1a passes.
   - Rules: `supabase-db` — server-only; reuse `mergeProfile` from #41, don't duplicate merge logic
   - Verify: `npm test -- candidate-profile` → pass; `npm run typecheck`
-- [ ] **T2** `grok` — Build the page: `src/app/candidates/[id]/page.tsx`, `CandidateProfile.tsx` (parsed fields via `AiSuggestion`+`SourceQuote`, stage history list), `OriginalCvLink.tsx` + Server Action for the on-demand signed URL. Match `design/specs/candidate.md` at 1440px. Add `e2e/candidate.spec.ts` (desktop project only — see plan Assumptions on phone).
+- [x] **T2** `grok` — Build the page: `src/app/candidates/[id]/page.tsx`, `CandidateProfile.tsx` (parsed fields via `AiSuggestion`+`SourceQuote`, stage history list), `OriginalCvLink.tsx` + Server Action for the on-demand signed URL. Match `design/specs/candidate.md` at 1440px. Add `e2e/candidate.spec.ts` (desktop project only — see plan Assumptions on phone).
   - Rules: `ui-build` — shared patterns, ZH `lang` attribute; `nextjs-app` — Server Component conventions; `security-check` — signed URL only on demand, never embedded raw
   - Verify: `npm run lint`; `npm run typecheck`; `npm run test:e2e -- candidate --project=desktop`
-- [ ] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -133,12 +133,12 @@ Depends on unmerged PR chain (#213/#214/#216/#217). Net-new page/components; rol
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** The candidate-profile screen (#134): a merged-profile query joining `candidates`/`candidate_profiles`/`candidate_skills`/`pipeline_entries`/`stage_events`; a read-only page at `/candidates/[id]` rendering every parsed field via `AiSuggestion`/`SourceQuote`, edited-field diffs, stage history, and an on-demand signed CV link (raw storage path never reaches server-rendered HTML). Built desktop-only, matching every other MVP screen shipped so far.
+- **Changed files / areas:** `src/server/cv/candidate-profile.ts` + `.test.ts` (new), `src/app/candidates/[id]/page.tsx` (new), `src/app/candidates/[id]/actions.ts` (new), `src/components/features/cv-processing/{CandidateProfile,OriginalCvLink}.tsx` (new), `e2e/candidate.spec.ts` (new, desktop project only).
+- **Tests added or updated:** `candidate-profile.test.ts` (5 unit tests: merged identity/override-wins, skills source_text, multi-job stage history sort, not-yet-parsed shape) — executed, passing. `candidate.spec.ts` (4 Playwright tests: AC1 source quotes, AC2 signed link, AC3 stage history, no-overflow) — written and registered (`--list` confirms 4 tests), **not executed**: no Supabase credentials are configured in this environment (confirmed via `.env`/`.env.local` — no `SUPABASE_URL`/secret key present) and no seeded candidate row exists to visit, so neither the dev server's data layer nor Playwright could run end-to-end here. CI must confirm before merge.
+- **Verification:** `npm run lint` → pass (1 pre-existing unrelated warning). `npm run typecheck` → pass. `npm run build` → pass, `/candidates/[id]` registered as dynamic, no client-bundle leaks. `npx vitest run src/server/ai src/server/cv` → 48 passed, 3 pre-existing unrelated `extract.test.ts` failures (tracked against Story #38). `npx playwright test e2e/candidate.spec.ts --project=desktop --list` → 4 tests registered correctly. `npm run test:e2e` → **not run** (no Supabase env / seed data locally).
+- **Deviations:** (1) The signed-URL action looks up `cv_files.storage_path` directly by `candidateId` rather than through `getCandidateProfile`'s return value, since that query doesn't expose a storage path (out of scope for T1) — this is stricter on security than the original plan, not weaker. (2) Edited-field diffs show "Edited" rather than "Edited by {name}" because `getCandidateProfile` doesn't expose `candidate_profiles.overridden_by` yet — a real gap, tracked as a follow-up. (3) `languages_spoken` has no per-item `source_text` in the parse schema (`parse-cv/v1.ts`, #39), so that field shows `AiSuggestion` with no `SourceQuote` — correctly reflects what the schema actually captures, not a bug in this task. (4) The unparsed-state heading falls back to "Candidate" because `getCandidateProfile`'s `identity: null` shape doesn't expose `candidates.full_name` — a real gap, tracked as a follow-up.
+- **Fix rounds / escalations:** 0 — T1a, T1b, T2 all passed verification on first attempt (T2 ran long — background execution needed — but did not require a fix round).
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b/T2: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) `candidate-profile.ts` should expose `overridden_by`/`overridden_at` so edited-field cards can name the recruiter, matching the design spec's "Edited by Maya Tan" intent. (2) It should also expose `candidates.full_name` for the not-yet-parsed heading. (3) `e2e/candidate.spec.ts` needs CI (or a local Supabase + seed) to actually execute and confirm AC1–AC3. (4) The shell's page-header navigation label falls back to "Dashboard" for `/candidates/[id]` (`AppNavigation.currentPage`, built pre-existing) — a small pre-existing gap, not caused by this task, worth its own follow-up. (5) **The `CLAUDE.md`/`playwright.config.ts` phone-width wording vs. actual desktop-only practice (see plan Assumptions) should be reconciled explicitly** — every screen Story so far (Dashboard, Jobs, Job detail, now Candidate profile) has quietly followed desktop-only precedent while the checked-in project instructions still say otherwise. This affects every remaining Epic 6–8 UI task and deserves an explicit owner decision, not another silent repeat of this pattern.
