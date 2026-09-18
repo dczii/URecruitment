@@ -19,6 +19,22 @@ export type JobRequirement = {
   marking: "must_have" | "nice_to_have";
 };
 
+export const OPEN_GAP_FLAG_TYPES = [
+  "missing",
+  "uncertain",
+  "conflicting",
+  "fair-employment",
+] as const;
+
+export type OpenGapFlagType = (typeof OPEN_GAP_FLAG_TYPES)[number];
+
+export type OpenGapFlag = {
+  id: string;
+  flagType: OpenGapFlagType;
+  reason: string;
+  suggestedQuestion: string | null;
+};
+
 export type JobDetail = {
   id: string;
   title: string;
@@ -29,6 +45,7 @@ export type JobDetail = {
   mustHaves: JobRequirement[];
   niceToHaves: JobRequirement[];
   openFlagCount: number;
+  openFlags: OpenGapFlag[];
 };
 
 /**
@@ -133,7 +150,8 @@ export async function listJobs(): Promise<JobListItem[]> {
 
 /**
  * One job for the detail screen: current version's requirements, the
- * version's created date, and the open gap-flag count (never a blocker).
+ * version's created date, the open gap-flag count (never a blocker), and
+ * the open flag rows themselves (flat — the checklist groups by type).
  */
 export async function getJobDetail(
   jobId: string,
@@ -157,20 +175,22 @@ export async function getJobDetail(
     return null;
   }
 
-  let openFlagCount = 0;
+  let openFlags: OpenGapFlag[] = [];
   if (version) {
-    const { count, error: flagError } = await db
+    const { data, error: flagError } = await db
       .from("gap_flags")
-      .select("id", { count: "exact", head: true })
+      .select("id, flag_type, reason, suggested_question")
       .eq("job_version_id", version.id)
       .eq("resolution_state", "open");
 
     if (flagError) {
       throw new Error(
-        `Failed to count open gap flags for job ${jobId}: ${flagError.message}`,
+        `Failed to load open gap flags for job ${jobId}: ${flagError.message}`,
       );
     }
-    openFlagCount = count ?? 0;
+    openFlags = (data ?? [])
+      .map(toOpenGapFlag)
+      .filter((flag): flag is OpenGapFlag => flag !== null);
   }
 
   return {
@@ -182,7 +202,30 @@ export async function getJobDetail(
     versionCreatedAt: version?.created_at ?? null,
     mustHaves: requirementTexts(version?.must_haves, "must_have"),
     niceToHaves: requirementTexts(version?.nice_to_haves, "nice_to_have"),
-    openFlagCount,
+    openFlagCount: openFlags.length,
+    openFlags,
+  };
+}
+
+function isOpenGapFlagType(value: string): value is OpenGapFlagType {
+  return (OPEN_GAP_FLAG_TYPES as readonly string[]).includes(value);
+}
+
+function toOpenGapFlag(row: {
+  id: string;
+  flag_type: string;
+  reason: string;
+  suggested_question: string | null;
+}): OpenGapFlag | null {
+  if (!isOpenGapFlagType(row.flag_type)) {
+    return null;
+  }
+  const question = row.suggested_question?.trim();
+  return {
+    id: row.id,
+    flagType: row.flag_type,
+    reason: row.reason,
+    suggestedQuestion: question && question.length > 0 ? question : null,
   };
 }
 

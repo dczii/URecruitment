@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { FlagChecklist } from "@/components/features/gap-check/FlagChecklist";
 import { cn } from "@/lib/utils";
 import { getJobDetail, type JobRequirement } from "@/server/jobs/list";
 
@@ -90,11 +91,7 @@ export default async function JobDetailPage({
           )}
         </section>
 
-        <PlaceholderSection
-          headingId="open-gap-flags-heading"
-          title="Open gap flags"
-          note={`${job.openFlagCount === 1 ? "1 open gap flag" : `${job.openFlagCount} open gap flags`}. Matching is not blocked while flags are open. Coming in a later phase.`}
-        />
+        <FlagChecklist jobId={job.id} flags={job.openFlags} />
       </div>
 
       <PlaceholderSection
