@@ -17,8 +17,9 @@ describe("generated database types (AC5)", () => {
   it("AC5: Database is usable as a generic", () => {
     type AsClient<T extends Database> = T["public"];
     expectTypeOf<AsClient<Database>>().toHaveProperty("Tables");
-    expectTypeOf<Database["public"]["Tables"]>().toEqualTypeOf<{
-      [_ in never]: never;
-    }>();
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("clients");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("jobs");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("job_versions");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("gap_flags");
   });
 });

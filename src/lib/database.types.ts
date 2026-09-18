@@ -42,7 +42,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          id: string
+          name: string
+          guarantee_period_days: number
+          stage_limit_overrides: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          guarantee_period_days?: number
+          stage_limit_overrides?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          guarantee_period_days?: number
+          stage_limit_overrides?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      jobs: {
+        Row: {
+          id: string
+          client_id: string
+          owner_name: string
+          status: string
+          current_version_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          client_id: string
+          owner_name: string
+          status?: string
+          current_version_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string
+          owner_name?: string
+          status?: string
+          current_version_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      job_versions: {
+        Row: {
+          id: string
+          job_id: string
+          fields: Json
+          must_haves: Json
+          nice_to_haves: Json
+          requires_nationality: boolean
+          nationality_reason: string | null
+          requires_language: boolean
+          language_reason: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          job_id: string
+          fields: Json
+          must_haves?: Json
+          nice_to_haves?: Json
+          requires_nationality?: boolean
+          nationality_reason?: string | null
+          requires_language?: boolean
+          language_reason?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          job_id?: string
+          fields?: Json
+          must_haves?: Json
+          nice_to_haves?: Json
+          requires_nationality?: boolean
+          nationality_reason?: string | null
+          requires_language?: boolean
+          language_reason?: string | null
+          created_at?: string
+        }
+      }
+      gap_flags: {
+        Row: {
+          id: string
+          job_version_id: string
+          flag_type: string
+          reason: string
+          suggested_question: string | null
+          resolution_state: string
+          resolution_note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          job_version_id: string
+          flag_type: string
+          reason: string
+          suggested_question?: string | null
+          resolution_state?: string
+          resolution_note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          job_version_id?: string
+          flag_type?: string
+          reason?: string
+          suggested_question?: string | null
+          resolution_state?: string
+          resolution_note?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
