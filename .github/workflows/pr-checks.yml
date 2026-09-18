@@ -1,0 +1,58 @@
+# Lint, typecheck, unit tests and build on every pull request and on push to main.
+# No secret is referenced — not even conditionally. Least-privilege GITHUB_TOKEN.
+name: PR checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      # npm run build also runs scripts/check-client-bundle.mjs, which is what
+      # keeps the Supabase secret key out of the browser bundle.
+      - name: Build
+        run: npm run build
+
+      - name: Job summary
+        if: ${{ always() }}
+        run: |
+          {
+            echo "## PR checks"
+            echo
+            echo "- lint (\`npm run lint\`)"
+            echo "- typecheck (\`npm run typecheck\`)"
+            echo "- unit tests (\`npm test\`)"
+            echo "- build (\`npm run build\`, including \`scripts/check-client-bundle.mjs\`)"
+          } >> "$GITHUB_STEP_SUMMARY"
