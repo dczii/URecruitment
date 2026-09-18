@@ -46,7 +46,7 @@ Mark `parallel-safe` only when files don't overlap with any other step.
   - Verify: `npm test -- …` → pass; `npm run typecheck`
 - [ ] **S2** `gpt` — Implement … where GPT-5.6 is the better fit because ….
 - [ ] **S3** `claude` — Design … in `design/….pen` (if needed).
-- [ ] **S4** `none` — Full verification.
+- [ ] **S4** `none` — Full verification until green, then close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -84,5 +84,4 @@ npm run eval         # if AI parsing/matching changed
 - **Fix rounds / escalations:** 
 - **Models used:** <!-- Role + step/round + exact model ID. Use "unknown (runtime did not expose it)" when necessary; never guess. -->
 - **Claude direct fixes:** 
-- **Review findings:** 
 - **Follow-ups:** 

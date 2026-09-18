@@ -139,8 +139,9 @@ The GitHub Task form (`.github/ISSUE_TEMPLATE/3-task.yml`) lacks that section, w
 3. **Verification commands green.** `npm run lint`, `npm run typecheck` and `npm test` always, once the scaffold (#83) exists.
    `npm run build` when app code changed, `npm run test:db` for database work, `npm run test:e2e` for a
    screen, `npm run eval` for parser, matcher, prompt or schema changes. The PR pastes the results.
-4. **Review passed.** Claude's `pr-review` has no open blocker or major finding. `security-check` and
-   `compliance-review` have run where their scope is touched. Minor findings are listed as follow-ups.
+4. **Verification green, then docs.** `/task` does not run `pr-review`. Lint, typecheck, tests and
+   applicable build/e2e/db/eval commands must be green, then close out docs. Optional `/review`
+   remains available on request.
 5. **Guardrails hold.** The spec's guardrail checklist is ticked with reasons, and nothing breaks a
    `CLAUDE.md` hard rule or settles an open question
    ([open-questions.md](../decisions/open-questions.md)).

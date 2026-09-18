@@ -171,7 +171,7 @@ cover.
 | **DB:** local Supabase → migrations from scratch → `npm run test:db` | `.github/workflows/db.yml` ([#91](https://github.com/dczii/URecruitment/issues/91)) | PRs touching `supabase/**` (and DB services) | **Yes**, when it runs (required once stable) |
 | **E2E:** Playwright `desktop` + `phone` against the preview | `.github/workflows/e2e.yml` ([#90](https://github.com/dczii/URecruitment/issues/90)) | When a Vercel preview is ready | **Yes**, once stable. Skips, and does not fail, when no preview exists |
 | **AI quality:** `npm run eval` | `.github/workflows/eval.yml` ([#174](https://github.com/dczii/URecruitment/issues/174)); release mode run by [#179](https://github.com/dczii/URecruitment/issues/179) | PRs touching prompts, parser, matcher, schemas or `eval/`; `workflow_dispatch`; before each release | **The release, not every merge.** It is never made a required check. See [ai-eval-plan.md](ai-eval-plan.md#when-it-runs-and-what-it-costs). Skips with a notice when secrets are absent |
-| **Claude review** (`pr-review`) | The orchestrator, Step 8 | Every task PR | **Yes**: blocker and major findings go back to the fix loop |
+| **Optional Claude review** (`pr-review`) | `/review` only (not `/task`) | When asked | **No** for `/task`. Green verification is the close-out gate |
 
 - **Required checks are a repository setting.** The user enables them. Agents recommend, never change
   settings (`ci-setup`).
