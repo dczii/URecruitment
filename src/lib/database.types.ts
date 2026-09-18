@@ -352,6 +352,8 @@ export type Database = {
           reason: string
           resolution_note: string | null
           resolution_state: string
+          resolved_at: string | null
+          resolved_by: string | null
           suggested_question: string | null
         }
         Insert: {
@@ -362,6 +364,8 @@ export type Database = {
           reason: string
           resolution_note?: string | null
           resolution_state?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           suggested_question?: string | null
         }
         Update: {
@@ -372,6 +376,8 @@ export type Database = {
           reason?: string
           resolution_note?: string | null
           resolution_state?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           suggested_question?: string | null
         }
         Relationships: [
@@ -609,6 +615,44 @@ export type Database = {
             columns: ["pipeline_entry_id"]
             isOneToOne: false
             referencedRelation: "pipeline_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rescore_runs: {
+        Row: {
+          candidate_ids_scored: Json
+          created_at: string
+          error: string | null
+          id: string
+          job_version_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_ids_scored?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_version_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_ids_scored?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_version_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rescore_runs_job_version_id_fkey"
+            columns: ["job_version_id"]
+            isOneToOne: false
+            referencedRelation: "job_versions"
             referencedColumns: ["id"]
           },
         ]
