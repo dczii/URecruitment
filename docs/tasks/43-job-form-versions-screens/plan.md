@@ -44,10 +44,10 @@ No open PRD items. Design already exists (`design/specs/job-form.md`, `jobs.md`,
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Every requirement row must be marked must-have or nice-to-have. _Proved by:_ `schema.test.ts › rejects a requirement with no must-have/nice-to-have marking`
-- [ ] **AC2** — Nationality/language required without a written reason is refused, in both form and Server Action. _Proved by:_ `schema.test.ts` — 4 cases (nationality no reason, language no reason, whitespace-only reason, both accepted with a reason)
-- [ ] **AC3** — Each save stores a new version; the previous version is still readable. _Proved by:_ `versions.test.ts › two saves produce two versions, pointer follows latest, old version unchanged`
-- [ ] **AC4** — The jobs list shows status, owner, open gap-flag count, candidates per stage (pipeline count). _Proved by:_ `jobs.spec.ts › AC4: jobs list shows status, owner, flag count, candidate count`
+- [x] **AC1** — Every requirement row must be marked must-have or nice-to-have. _Proved by:_ `schema.test.ts › rejects a requirement with no must-have/nice-to-have marking`
+- [x] **AC2** — Nationality/language required without a written reason is refused, in both form and Server Action. _Proved by:_ `schema.test.ts` — 4 cases (nationality no reason, language no reason, whitespace-only reason, both accepted with a reason)
+- [x] **AC3** — Each save stores a new version; the previous version is still readable. _Proved by:_ `versions.test.ts › two saves produce two versions, pointer follows latest, old version unchanged`
+- [x] **AC4** — The jobs list shows status, owner, open gap-flag count, candidates per stage (pipeline count). _Proved by:_ `jobs.spec.ts › AC4: jobs list shows status, owner, flag count, candidate count`
 
 ## Guardrails that apply
 
@@ -103,21 +103,21 @@ No open PRD items. Design already exists (`design/specs/job-form.md`, `jobs.md`,
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `schema.test.ts`: nationality required + no reason rejected; language required + no reason rejected; whitespace-only reason rejected; both accepted with a real reason; a requirement with no must-have/nice-to-have marking rejected.
+- [x] **T1a** `grok` — Failing tests first in `schema.test.ts`: nationality required + no reason rejected; language required + no reason rejected; whitespace-only reason rejected; both accepted with a real reason; a requirement with no must-have/nice-to-have marking rejected.
   - Verify: `npm test -- jobs/schema` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `schema.ts` until T1a passes.
+- [x] **T1b** `grok` — Implement `schema.ts` until T1a passes.
   - Verify: `npm test -- jobs/schema` → pass; `npm run typecheck`
-- [ ] **T2a** `grok` — Failing tests first in `versions.test.ts`: two saves produce two version rows; `jobs.current_version_id` follows the latest; an old version's `fields`/`must_haves`/etc. are unchanged after a later save; a read helper always resolves the current version.
+- [x] **T2a** `grok` — Failing tests first in `versions.test.ts`: two saves produce two version rows; `jobs.current_version_id` follows the latest; an old version's `fields`/`must_haves`/etc. are unchanged after a later save; a read helper always resolves the current version.
   - Verify: `npm test -- jobs/versions` → fails (module missing)
-- [ ] **T2b** `grok` — Implement `versions.ts` until T2a passes.
+- [x] **T2b** `grok` — Implement `versions.ts` until T2a passes.
   - Verify: `npm test -- jobs/versions` → pass; `npm run typecheck`
-- [ ] **T3** `grok` — Build `JobForm.tsx`, `src/app/jobs/new/page.tsx`, `src/app/jobs/actions.ts` (Server Action using `schema.ts`+`versions.ts`), `clients.ts`. Match `design/specs/job-form.md` (desktop only). Add `e2e/job-form.spec.ts` (desktop project, refused-save and accepted-save cases).
+- [x] **T3** `grok` — Build `JobForm.tsx`, `src/app/jobs/new/page.tsx`, `src/app/jobs/actions.ts` (Server Action using `schema.ts`+`versions.ts`), `clients.ts`. Match `design/specs/job-form.md` (desktop only). Add `e2e/job-form.spec.ts` (desktop project, refused-save and accepted-save cases).
   - Rules: `ui-build` — shared patterns, destructive-toned reason-required marker; `nextjs-app` — Server Action + Zod
   - Verify: `npm run lint`; `npm run typecheck`; `npx playwright test e2e/job-form.spec.ts --project=desktop --list`
-- [ ] **T4** `grok` — Build `src/app/jobs/page.tsx` (list) and `src/app/jobs/[id]/page.tsx` (detail: requirements + version shown; explicit placeholder text for ranked matches/gap checklist/pipeline board — do not build those). Match `design/specs/jobs.md`/`job-detail.md`. Add `e2e/jobs.spec.ts`.
+- [x] **T4** `grok` — Build `src/app/jobs/page.tsx` (list) and `src/app/jobs/[id]/page.tsx` (detail: requirements + version shown; explicit placeholder text for ranked matches/gap checklist/pipeline board — do not build those). Match `design/specs/jobs.md`/`job-detail.md`. Add `e2e/jobs.spec.ts`.
   - Rules: `ui-build` — table-per-row pattern; `nextjs-app` — Server Component reads
   - Verify: `npm run lint`; `npm run typecheck`; `npx playwright test e2e/jobs.spec.ts --project=desktop --list`
-- [ ] **S5** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S5** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -151,12 +151,12 @@ Depends on unmerged PR chain (#213→#219). Net-new modules/pages + one modified
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** All three tasks (#135, #136, #137): a shared job-version Zod schema mirroring the DB's fairness check constraints; immutable job versioning (`saveJobVersion`/`getCurrentJobVersion`); the job creation form with must-have/nice-to-have marking and the reason-gated nationality/language section; the jobs list (status, owner, open-flag count, pipeline count) and job detail (requirements + version shown, explicit later-phase placeholders for matches/gap checklist/pipeline board). Story #43 fully closes.
+- **Changed files / areas:** `src/server/jobs/{schema,versions,clients,list}.ts` + `.test.ts` (new), `src/app/jobs/actions.ts` (new), `src/app/jobs/new/page.tsx` (new), `src/components/features/jobs/JobForm.tsx` (new), `src/app/jobs/page.tsx` (replaced stub), `src/app/jobs/[id]/page.tsx` (new), `e2e/job-form.spec.ts` + `e2e/jobs.spec.ts` (new).
+- **Tests added or updated:** `schema.test.ts` (6 tests: must-have marking, nationality/language reason rule incl. whitespace-only) and `versions.test.ts` (4 tests: two saves → two versions, pointer follows latest, no update ever hits `job_versions`, current-version read helper) — both executed, all 10 passing. `job-form.spec.ts` (2 tests) and `jobs.spec.ts` (2 tests) — written, registered via `--list`, **not executed**: no Supabase credentials/seeded `clients` data in this environment (same constraint as every Epic 5 screen). CI must confirm.
+- **Verification:** `npm run lint` → pass (1 pre-existing unrelated warning). `npm run typecheck` → pass. `npx vitest run src/server/jobs` → 10/10 passing. `npm run build` → pass, `/jobs`, `/jobs/[id]`, `/jobs/new` all registered dynamic, no client-bundle leaks. Full `npm test` shows pre-existing failures in `src/server/db.test.ts` (2 — `Node.js detected but native WebSocket not found`, a local Node/Supabase-realtime-js environment quirk, confirmed present on this branch's parent commit via `git stash`) and `src/server/cv/extract.test.ts` (3, tracked against Story #38) — neither caused by this Story.
+- **Deviations:** (1) Job title became a required field (feeds `fields.title` and the page heading) — implied by the design and by `job_versions.fields` needing a title, not explicitly named in #135's task body. (2) Owner name + client picker sit in a "Job details" card not explicitly drawn in `design/specs/job-form.md`'s mock, but required by the task's own scope. (3) `getJobDetail()` lives in `list.ts` alongside `listJobs()` rather than a separate file, keeping the detail page a thin Server Component. (4) Jobs list includes a "New job" link per the screen inventory even though it's not in the `jobs.md` mock. (5) The job-detail "open flags" banner only renders when the count is > 0 (currently always 0, since gap-check isn't built yet) — correct behavior, not a bug.
+- **Fix rounds / escalations:** 0 — all six executor steps (T1a, T1b, T2a, T2b, T3, T4) passed verification on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b/T2a/T2b/T3/T4: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) `e2e/job-form.spec.ts` and `e2e/jobs.spec.ts` (4 tests total) need CI or local Supabase + seed data to actually execute. (2) No client creation/editing UI exists anywhere yet — `listClients()` assumes rows already exist; flag this gap if no other Epic/Story is found to cover it. (3) The `src/server/db.test.ts` WebSocket failure is a local-environment quirk (missing native WebSocket in this Node runtime) worth a maintainer look, though it doesn't block CI (which likely runs a different Node setup) — not caused by this Story, noted for visibility. (4) The `CLAUDE.md`/desktop-only-practice inconsistency (flagged first in #42's plan) continues to apply here and to every remaining Epic 6-8 screen — still unresolved, still worth an explicit owner decision.
