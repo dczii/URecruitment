@@ -37,8 +37,8 @@ description: >
 
 | Name | Where | Notes |
 |---|---|---|
-| `SUPABASE_URL` | Vercel (all), local | Server use only |
-| `SUPABASE_SECRET_KEY` | Vercel (all), local, CI | **Server only.** Bypasses RLS |
+| `SUPABASE_URL` | Vercel Preview + Production (**not** Development), local | Server use only |
+| `SUPABASE_SECRET_KEY` | Vercel Preview + Production (**not** Development, so `vercel env pull` never copies it to a laptop), local, CI | **Server only.** Bypasses RLS |
 | `AI_MODEL_PARSE`, `AI_MODEL_MATCH`, `AI_MODEL_GAP`, `AI_MODEL_SEARCH`, `AI_MODEL_JD`, `AI_EMBED_MODEL` | Vercel, local, CI (eval) | Provider not chosen yet |
 | Provider API key(s) | Vercel, local, CI (eval) | Named after the chosen provider(s) |
 | `AI_MONTHLY_SPEND_CAP` | Vercel, local | App-side cap (USD). The provider-side cap is also set in the provider console |
@@ -65,7 +65,7 @@ Add new variables to this table in the same PR that introduces them.
 - **Spend cap:** set the provider's monthly limit in its console **and** `AI_MONTHLY_SPEND_CAP` in the app.
   - **Owner:** the dev lead (repository owner).
   - The person running each recruiter session checks month-to-date spend the day before.
-- **Preview exposure:** Vercel Authentication protects previews (observed 2026-09-18; available on Hobby). Previews still use only the dev project with fictional data.
+- **Preview exposure:** Vercel Authentication protects previews (observed 2026-09-18; available on Hobby). Previews share the one Supabase project with Production, and it holds fictional data only.
 
 ## Free-tier limits and runbook
 

@@ -233,9 +233,26 @@ deployment records and response headers:
   was rejected** ([run](https://github.com/dczii/URecruitment/actions/runs/35296758183): *"Vercel
   bypass was rejected (HTTP 200, ended on vercel.com)"*). Check that the Actions secret's value matches
   Vercel → Deployment Protection → Protection Bypass for Automation.
-- **Not observed:** which variables are actually set. The Vercel CLI on the dev machine is logged into
-  an account that can't see the project (`release-deploy`), and agents don't change or read Vercel
-  settings unasked. A person confirms the matrix below with the commands after it.
+- **Which variables are set.** The agent couldn't read them: the Vercel CLI on the dev machine is
+  logged into an account that can't see the project. Another session read the dashboard read-only on
+  2026-09-18 while recording [#193](https://github.com/dczii/URecruitment/issues/193). Names only:
+  - **Preview and Production:** `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `BLOB_READ_WRITE_TOKEN`,
+    plus names the Supabase and Blob integrations added and this inventory doesn't use:
+    - `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+      `SUPABASE_JWT_SECRET`;
+    - `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`, `POSTGRES_PRISMA_URL`, `POSTGRES_HOST`,
+      `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DATABASE`;
+    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`;
+    - `BLOB_STORE_ID`, `BLOB_WEBHOOK_PUBLIC_KEY`.
+  - **Development:** nothing, so `vercel env pull` brings no variable, including
+    `BLOB_READ_WRITE_TOKEN`.
+  - **Gaps against the matrix:**
+    - The Sentry DSNs were not listed.
+    - The integration-added names are unused by the app. The browser never talks to Supabase, and
+      `src/server/no-browser-supabase.test.ts` guards that. Each one should be removed or recorded here.
+    - A `NEXT_PUBLIC_` name is bundled only if code reads it, and none may.
+  - A person reconciles these gaps in [#199](https://github.com/dczii/URecruitment/issues/199).
 
 **The matrix.** ✓ = must be set in that Vercel environment. — = must **not** be set there. Every name
 in `.env.example` has a row, and `test/infra/vercel-config.test.ts` fails if one is added without a
@@ -251,7 +268,7 @@ row here. Values are never written anywhere in the repository.
 | `MUST_HAVE_CAP` | ✓ | ✓ | ✓ | [#148](https://github.com/dczii/URecruitment/issues/148) | Defaults to 50 (**proposed**) if a person forgets it, so a missing value degrades safely |
 | `SENTRY_DSN` | ✓ | ✓ | ✓ | Now ([#86](https://github.com/dczii/URecruitment/issues/86)) | A DSN is not a secret. Optional in a developer's own `.env.local` |
 | `NEXT_PUBLIC_SENTRY_DSN` | ✓ | ✓ | ✓ | Now | Public by design (bundled into the client) |
-| `BLOB_READ_WRITE_TOKEN` | auto | auto | auto | Added by Vercel when the sample-data store is connected | App runtime never reads it ([#117](https://github.com/dczii/URecruitment/issues/117)'s check) |
+| `BLOB_READ_WRITE_TOKEN` | optional (not set on 2026-09-18) | auto | auto | Added by Vercel to the environments the sample-data store is connected to | App runtime never reads it ([#117](https://github.com/dczii/URecruitment/issues/117)'s check). For local seeding, connect the store to *Development* too, or copy the token into `.env.local` by hand |
 | `SEED_BLOB_BASE_URL` | optional | — | — | [#117](https://github.com/dczii/URecruitment/issues/117) | Only so `vercel env pull` keeps it locally. **Never committed** |
 | `PLAYWRIGHT_BASE_URL` | — | — | — | n/a | Local and CI only. The e2e job sets it from the deployment URL |
 
