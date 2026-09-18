@@ -52,7 +52,11 @@ eval/                         # answer key + eval script
    3. Calls one `src/server/services/*` function.
    4. Revalidates the affected paths.
    5. Returns a typed result (`{ ok: true, … } | { ok: false, error }`). It never throws raw errors to the client.
-4. **AI work goes through route handlers under `/api/ai/*`** (or services called from actions), so the Vercel firewall can rate-limit them by path. **No AI call on page load:** pages read stored results.
+4. **AI work goes through route handlers under `/api/ai/*`**, so the Vercel firewall can rate-limit them by path (one rule, `infra/vercel/ai-rate-limit.rule.json`; the prefix is `AI_ROUTE_PREFIX` in `src/lib/ai-routes.ts`).
+   - A Server Action posts to its page's path, which the firewall can't see. It **never calls a model in response to the browser**. The one exception is `after()` background work scheduled by a non-AI save (rule 5), which is bounded by the spend cap in `runAi()`.
+   - Never add a route at the bare `/api/ai` or inside a route group on that path. `test/infra/ai-route-prefix.test.ts` fails any AI-importing route handler outside `src/app/api/ai/`.
+   - Client code checks `response.status` with `aiFailureMessage()` **before** parsing the body. A firewall 429 is Vercel's response, not our JSON.
+   - **No AI call on page load:** pages read stored results.
 5. **Background work uses `after()`.** Re-scoring after a job save runs in `after()`, and its progress is persisted in the runs table so failures can be retried. Don't rely on cron: Hobby runs cron once a day.
 6. **Region is Singapore.** Pin functions to `sin1` (`vercel.json` `"regions": ["sin1"]`) and don't set other regions.
 7. **Env.**

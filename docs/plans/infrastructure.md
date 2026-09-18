@@ -10,10 +10,9 @@ This record maps each environment to its Supabase project and Vercel target, lis
 environment variable by name** (never by value), and sets out the response to every free-tier limit
 the PRD lists. It also covers the recovery plan that stands in for backups.
 
-Later tasks fill in the sections marked **→ filled by**. [#92](https://github.com/dczii/URecruitment/issues/92)
-records which variables are actually set where, and
-[#93](https://github.com/dczii/URecruitment/issues/93) records the rate limit and the spend-cap
-procedure. Add a variable to the inventory **in the same PR that introduces it** (`release-deploy`).
+[#92](https://github.com/dczii/URecruitment/issues/92) recorded
+[what is set where](#what-is-set-where-92), and [#93](https://github.com/dczii/URecruitment/issues/93)
+recorded the [rate limit and spend-cap procedure](#rate-limit-and-spend-cap-93) (both 2026-09-18). Add a variable to the inventory **in the same PR that introduces it** (`release-deploy`).
 
 **Agents never act on remote infrastructure.** No deploy, no settings change, no key rotation, and no
 migration or seed against a remote project unless the user asks in that session (`release-deploy`).
@@ -41,7 +40,7 @@ project ([below](#one-supabase-project-for-preview-and-production)).
 | **Deploys when** | Always | Every push to a PR branch | Merge to `main` |
 | **Schema comes from** | `supabase/migrations/`, applied by `supabase db reset` | The shared project, so `supabase/migrations/` **as merged to `main`** and pushed | `supabase/migrations/`, pushed by the migrate workflow **after manual approval** |
 | **Data** | Fictional, from `npm run seed` | Fictional, the same rows Production shows | Fictional, seeded into the one project (MVP) |
-| **Who can reach it** | The developer | **Anyone with the URL**, unless the plan offers deployment protection ([#92](https://github.com/dczii/URecruitment/issues/92) checks) | **Anyone with the URL** (no sign-in, accepted for fictional data only) |
+| **Who can reach it** | The developer | People signed in to the Vercel team. Vercel Authentication is on for previews, which Hobby offers ([#92](https://github.com/dczii/URecruitment/issues/92), 2026-09-18). CI gets in with the automation bypass secret | **Anyone with the URL** (no sign-in, accepted for fictional data only) |
 
 **Known limitation: previews and schema changes.** A PR that adds a migration is validated on an
 **ephemeral** local Supabase in CI ([#91](https://github.com/dczii/URecruitment/issues/91)). Its Vercel
@@ -213,23 +212,213 @@ URL.
 `VERCEL_ENV`, `VERCEL_URL` and `VERCEL_REGION` are provided by Vercel. The app may read `VERCEL_ENV` to
 tell Preview from Production, and must not rely on anything else about them.
 
-### → filled by #92: what is set where
+### What is set where (#92)
 
-*[#92](https://github.com/dczii/URecruitment/issues/92) records here, by name, which variables it set
-in each Vercel environment, whether preview deployment protection is available on the plan, and the
-date.*
+Recorded by [#92](https://github.com/dczii/URecruitment/issues/92) on **2026-09-18**.
 
-### → filled by #93: rate limit and spend cap
+**What the Vercel project does today.** An agent observed this without credentials, from GitHub's
+deployment records and response headers:
 
-*[#93](https://github.com/dczii/URecruitment/issues/93) records here:*
+- **A preview per PR push, production from `main`.** The Git integration is connected. `vercel[bot]`
+  creates a GitHub *Preview* deployment for each pushed PR commit (for example, every commit of
+  [#196](https://github.com/dczii/URecruitment/pull/196)). It creates a *Production* deployment for
+  each merge to `main` (`1903a4d`).
+- **Functions run in `sin1`.** `vercel.json` pins `"regions": ["sin1"]`
+  (`test/infra/vercel-config.test.ts` keeps it that way). The production alias answers with
+  `x-vercel-id: sin1::sin1::…`: a Singapore edge, then a function run in `sin1`.
+- **Preview deployment protection is on, and Hobby offers it.** An unauthenticated request to a
+  preview URL answers `302` to `vercel.com/sso-api` (Vercel Authentication). Production is public, as
+  the MVP accepts for fictional data. The e2e job reaches previews through
+  `VERCEL_AUTOMATION_BYPASS_SECRET`, which is set as an Actions secret (2026-09-18). **Its first run
+  was rejected** ([run](https://github.com/dczii/URecruitment/actions/runs/35296758183): *"Vercel
+  bypass was rejected (HTTP 200, ended on vercel.com)"*). Check that the Actions secret's value matches
+  Vercel → Deployment Protection → Protection Bypass for Automation.
+- **Which variables are set.** The agent couldn't read them: the Vercel CLI on the dev machine is
+  logged into an account that can't see the project. Another session read the dashboard read-only on
+  2026-09-18 while recording [#193](https://github.com/dczii/URecruitment/issues/193). Names only:
+  - **Preview and Production:** `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `BLOB_READ_WRITE_TOKEN`,
+    plus names the Supabase and Blob integrations added and this inventory doesn't use:
+    - `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+      `SUPABASE_JWT_SECRET`;
+    - `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`, `POSTGRES_PRISMA_URL`, `POSTGRES_HOST`,
+      `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DATABASE`;
+    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`;
+    - `BLOB_STORE_ID`, `BLOB_WEBHOOK_PUBLIC_KEY`.
+  - **Development:** nothing, so `vercel env pull` brings no variable, including
+    `BLOB_READ_WRITE_TOKEN`.
+  - **Gaps against the matrix:**
+    - The Sentry DSNs were not listed.
+    - The integration-added names are unused by the app. The browser never talks to Supabase, and
+      `src/server/no-browser-supabase.test.ts` guards that. Each one should be removed or recorded here.
+    - A `NEXT_PUBLIC_` name is bundled only if code reads it, and none may.
+  - A person reconciles these gaps in [#199](https://github.com/dczii/URecruitment/issues/199).
 
-- *the `/api/ai/*` prefix;*
-- *whether a firewall rate-limit rule exists on the plan, and its setting;*
-- *how the provider-side monthly spend cap is set, and **who** checks it;*
-- *what a rate-limited recruiter sees.*
+**The matrix.** ✓ = must be set in that Vercel environment. — = must **not** be set there. Every name
+in `.env.example` has a row, and `test/infra/vercel-config.test.ts` fails if one is added without a
+row here. Values are never written anywhere in the repository.
 
-*[#175](https://github.com/dczii/URecruitment/issues/175) adds which rate-limit control is in force
-and the value of `AI_MONTHLY_SPEND_CAP`'s default.*
+| Name | Development | Preview | Production | Needed from | Note |
+|---|---|---|---|---|---|
+| `SUPABASE_URL` | — | ✓ (the one project) | ✓ (the one project) | The first page that reads data (E03 onwards) | Not in *Development*, so `vercel env pull` never points a laptop at a remote project |
+| `SUPABASE_SECRET_KEY` | — | ✓ (the one project) | ✓ (the one project) | As above | **Secret**, and **Sensitive** in Vercel. Never `NEXT_PUBLIC_` |
+| `AI_MODEL_PARSE`, `AI_MODEL_MATCH`, `AI_MODEL_GAP`, `AI_MODEL_SEARCH`, `AI_MODEL_JD`, `AI_EMBED_MODEL` | ✓ | ✓ | ✓ | [DT-1](../decisions/open-questions.md#dt-1--the-ai-provider) is decided and [#169](https://github.com/dczii/URecruitment/issues/169) ships | Model ids aren't secret. Leave them unset until a provider is chosen; the env schema treats them as optional |
+| *Provider API key(s)* | ✓ | ✓ | ✓ | As above | Named after the provider. Added to `.env.example` and this row in the ADR-0004 PR |
+| `AI_MONTHLY_SPEND_CAP` | ✓ | ✓ | ✓ | **Before any `/api/ai/*` route is deployed** ([#175](https://github.com/dczii/URecruitment/issues/175)) | USD. Should stay at or below the provider-side cap ([rate limit and spend cap](#rate-limit-and-spend-cap-93)) |
+| `MUST_HAVE_CAP` | ✓ | ✓ | ✓ | [#148](https://github.com/dczii/URecruitment/issues/148) | Defaults to 50 (**proposed**) if a person forgets it, so a missing value degrades safely |
+| `SENTRY_DSN` | ✓ | ✓ | ✓ | Now ([#86](https://github.com/dczii/URecruitment/issues/86)) | A DSN is not a secret. Optional in a developer's own `.env.local` |
+| `NEXT_PUBLIC_SENTRY_DSN` | ✓ | ✓ | ✓ | Now | Public by design (bundled into the client) |
+| `BLOB_READ_WRITE_TOKEN` | optional (not set on 2026-09-18) | auto | auto | Added by Vercel to the environments the sample-data store is connected to | App runtime never reads it ([#117](https://github.com/dczii/URecruitment/issues/117)'s check). For local seeding, connect the store to *Development* too, or copy the token into `.env.local` by hand |
+| `SEED_BLOB_BASE_URL` | optional | — | — | [#117](https://github.com/dczii/URecruitment/issues/117) | Only so `vercel env pull` keeps it locally. **Never committed** |
+| `PLAYWRIGHT_BASE_URL` | — | — | — | n/a | Local and CI only. The e2e job sets it from the deployment URL |
+
+**Confirming it (a person, read-only):**
+
+```bash
+vercel login                                                 # as the account that owns user-7407
+vercel link --scope user-7407 --project u-recruitment        # creates .vercel/ (gitignored)
+vercel env ls development
+vercel env ls preview
+vercel env ls production
+```
+
+Compare the names listed with the matrix. `vercel env ls` shows names and environments, not
+values. Don't paste its output into an issue if it shows anything other than names. Record the date
+of the check in this section. **Changing a variable is a person's action**, per `release-deploy`.
+
+**Vercel Hobby and commercial use** is still open:
+[RC-3](../decisions/open-questions.md#rc-3--vercel-hobby-and-commercial-use) (owner: the agency
+director), and the paid plan is [OQ-2](../decisions/open-questions.md#oq-2--which-paid-plans-to-move-to).
+This record assumes neither answer.
+
+### Rate limit and spend cap (#93)
+
+Recorded by [#93](https://github.com/dczii/URecruitment/issues/93) on **2026-09-18**. It implements
+[security baseline](../security/baseline.md) C5 (PRD *Security (suggested)* 5, **proposed**).
+
+**The prefix.** Every AI route handler lives under `/api/ai/`: `AI_ROUTE_PREFIX` in
+`src/lib/ai-routes.ts`, with the contract in `src/app/api/ai/README.md`.
+
+- `test/infra/ai-route-prefix.test.ts` fails if a route handler outside `src/app/api/ai/` imports AI
+  code, or if one sits at the bare `/api/ai`.
+- Server Actions never call a model for the browser. The only exception is `after()` background work
+  after a non-AI save, and the spend cap bounds it (`nextjs-app` rule 4).
+
+**What the plan offers.** Vercel Hobby includes WAF rate limiting, checked in Vercel's docs on
+2026-09-18:
+
+- **one** rate-limit rule per project (up to 3 custom rules in total);
+- a fixed window of 10 seconds to 10 minutes;
+- counted by IP or JA4 digest;
+- 1,000,000 allowed requests included.
+
+`vercel.json` cannot express a rate limit (its `mitigate` only denies or challenges), so the rule is
+committed as JSON and applied by a person. **The control in force is this firewall rule.**
+[#175](https://github.com/dczii/URecruitment/issues/175) may add the app-level limiter as a second
+layer, and it records the `AI_MONTHLY_SPEND_CAP` default.
+
+**The rule** (`infra/vercel/ai-rate-limit.rule.json`). `test/infra/ai-rate-limit-rule.test.ts` ties
+it to the prefix, to Hobby's limits and to this section.
+
+- **Match:** request path starts with `/api/ai/` (one condition).
+- **Limit:** **60 requests per 60 seconds**, per client IP, fixed window.
+- **Excess:** the default action, **HTTP 429**. There is no persistent block, so a shared office
+  network is never locked out beyond the current window.
+- **Why 60 a minute:**
+  - The whole office may share one public IP, so the count is per *network*.
+  - 60 a minute gives up to 20 recruiters about 3 AI calls a minute each, above normal use (a search
+    submit, a job save).
+  - It still caps one scripted client at about 3,600 calls an hour.
+  - **The rule bounds the speed of spending; the spend cap bounds the total.**
+- **Counters are per region.** Traffic that reaches several Vercel edge regions can exceed 60 in
+  total. That is acceptable, because the spend cap is the backstop.
+- **Status on 2026-09-18: committed, not yet published.** No AI route exists yet. The rule must be
+  published before the first `/api/ai/*` route reaches production.
+
+**Applying it (a person, with a current Vercel CLI).** The dev machine's CLI 37.x predates
+`vercel firewall`, and it must be logged into the account that owns `user-7407`.
+
+```bash
+vercel link --scope user-7407 --project u-recruitment
+vercel firewall rules add --json "$(cat infra/vercel/ai-rate-limit.rule.json)" --yes
+# the same rule in flag form, if --json is refused:
+vercel firewall rules add "Rate limit AI routes" \
+  --condition '{"type":"path","op":"pre","value":"/api/ai/"}' \
+  --action rate_limit --rate-limit-algo fixed_window \
+  --rate-limit-window 60 --rate-limit-requests 60 \
+  --rate-limit-keys ip --rate-limit-action rate_limit --yes
+vercel firewall diff                     # review the staged change
+vercel firewall publish --yes            # applies at once; no redeploy
+vercel firewall rules inspect "Rate limit AI routes" --json
+```
+
+- **If `inspect` shows a different shape** than the committed JSON, update the JSON to match in a PR,
+  so the repository keeps describing what is live.
+- **Dashboard alternative:** Project → Firewall → Configure → New Rule, with the same values.
+- **Changing the values** means editing the JSON (the test keeps this section in step), then
+  `vercel firewall rules edit "Rate limit AI routes" --json "$(cat infra/vercel/ai-rate-limit.rule.json)" --yes`
+  and `publish`.
+
+**Checking it rejects the excess** (story #28 S-AC2). The firewall runs before routing, so this needs
+no AI route and costs nothing:
+
+```bash
+for i in $(seq 1 70); do
+  curl -s -o /dev/null -w "%{http_code}\n" -X POST "https://<production host>/api/ai/rate-limit-probe"
+done | sort | uniq -c        # expect about 60 × 404, then 429 for the rest
+```
+
+Record the date and the counts here. Afterwards, check Project → Firewall → *Rate limit AI routes*
+traffic after each recruiter session. Repeated 429s during normal work mean the limit needs raising.
+
+**What a rate-limited recruiter sees.**
+
+- A request over the limit gets Vercel's **429**. It never reaches the function, so the body is not
+  our JSON.
+- Client code calls `aiFailureMessage(response.status)` from `src/lib/ai-routes.ts` **before**
+  parsing, and shows the result next to the action as a visible notice. It never fails silently.
+- The recruiter sees: *"Too many AI requests from your network just now. Wait a minute, then try
+  again. Your work hasn't been lost."*
+- Any other AI failure shows: *"The AI suggestion couldn't be produced. Try again in a moment. If it
+  keeps failing, carry on without it."*
+- The AI only suggests, so neither message blocks the recruiter's own work.
+
+**The monthly spend cap: the procedure.**
+
+- **Two caps.** The **provider-side** cap is set in the AI provider's console. The **app-side** cap is
+  `AI_MONTHLY_SPEND_CAP` (USD), which `runAi()` checks before every call
+  ([#175](https://github.com/dczii/URecruitment/issues/175)).
+- **Owner: the dev lead (repository owner).** The PRD says the dev team picks and runs the provider
+  (**decided**).
+- **When:** in the ADR-0004 PR that chooses the provider
+  ([DT-1](../decisions/open-questions.md#dt-1--the-ai-provider)), and before any `/api/ai/*` route
+  reaches production.
+
+**Setting it up (the owner):**
+
+1. **Set the provider's monthly limit.** Use a hard limit in the provider's billing console, at the
+   budget the agency director approves. The figure is not set here; it comes with the provider
+   choice. If the provider offers only alerts and no hard limit, say so in this section and in
+   ADR-0004. The app-side cap and the rate limit are then the only hard stops.
+2. **Set `AI_MONTHLY_SPEND_CAP`** in every Vercel environment the [matrix](#what-is-set-where-92)
+   marks ✓, **at or below** the provider limit. The app then refuses with a clear message first, and the
+   provider limit only acts as the backstop.
+3. **Record here** the date, the provider, and whether its limit is hard or alert-only. Never record a
+   key or a billing URL with an account id.
+
+**Who checks it, and when:**
+
+| Check | Who | When |
+|---|---|---|
+| Month-to-date spend in the provider console against both caps | The person running each recruiter session (the role [#178](https://github.com/dczii/URecruitment/issues/178) names for the keep-alive check) | The day before each session |
+| Both caps still set, and the provider limit still ≥ `AI_MONTHLY_SPEND_CAP` | The dev lead | The first working day of each month (SGT) |
+| Remaining budget before an expensive run (a re-seed or a full eval) | Whoever runs it | Before starting ([what a rebuild costs](#what-a-rebuild-costs)) |
+| Firewall traffic for *Rate limit AI routes* | The dev lead | After each recruiter session |
+
+The app sends no alert, and there is no email, ever (`CLAUDE.md` rule 2). These are checks a person
+makes on the console and dashboard. When the app-side cap is reached, AI features stop for everyone
+until the month ends, **by design** ([R-07](../compliance/risk-register.md)). Recruiters see a clear
+message, and their non-AI work carries on.
 
 ## Free-tier limits and our responses
 
