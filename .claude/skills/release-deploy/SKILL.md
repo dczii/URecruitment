@@ -1,8 +1,8 @@
 ---
 name: release-deploy
 description: >
-  URecruitment environments and releases: local / preview / production mapping to Supabase dev
-  and prod projects, Vercel (sin1) and Supabase (ap-southeast-1) configuration, env var inventory,
+  URecruitment environments and releases: local / preview / production mapping to the one Supabase
+  project they share, Vercel (sin1) and Supabase (ap-southeast-1) configuration, env var inventory,
   migration promotion, rate-limit and spend-cap setup, re-seed as the recovery plan, free-tier
   limits (Hobby non-commercial, Supabase pause/no backups), rollback. Use for deployment, env var,
   environment, release or runbook work.
@@ -15,10 +15,10 @@ description: >
 | Env | App | Database | Data | Deploys when |
 |---|---|---|---|---|
 | Local | `npm run dev` | Local Supabase (`supabase start`) | Seeded fictional | Always |
-| Preview | Vercel preview per PR | Supabase **dev** project | Seeded fictional | Every push to a PR |
-| Production | Vercel production | Supabase **prod** project | Seeded fictional (MVP) | Merge to `main` |
+| Preview | Vercel preview per PR | The **one** Supabase project, shared with Production | Seeded fictional, the same rows as Production | Every push to a PR |
+| Production | Vercel production | The **one** Supabase project | Seeded fictional (MVP) | Merge to `main` |
 
-Supabase Free allows **2 active projects**, which is exactly dev and prod.
+**One project, not dev + prod** (the owner's decision, 2026-09-18, #193; the PRD's two projects are only proposed). A preview runs unmerged code against Production's data, and a migration or seed has nowhere to rehearse except the local stack. Treat every remote `db push` or seed as a production change. The real-data go/no-go revisits this (`docs/plans/infrastructure.md` → *One Supabase project for Preview and Production*).
 
 **Vercel project:** `u-recruitment`, under scope `user-7407`. It also holds the **sample-data Blob store** (public, Singapore), which is the seed source only; see `prd-context` → `references/sample-data.md`.
 

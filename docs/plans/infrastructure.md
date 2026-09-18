@@ -29,30 +29,33 @@ on free tiers for the MVP"*.
 
 The PRD's shape: *"Every pull request gets a Vercel preview deployment. The main branch deploys to
 production."* *"Supabase Free allows 2 active projects: one for development and previews, one for
-production."*
+production."* **The second half is not followed:** Preview and Production share **one** Supabase
+project ([below](#one-supabase-project-for-preview-and-production)).
 
 | | **Local** | **Preview** | **Production** |
 |---|---|---|---|
 | **App** | `npm run dev` on a developer machine | Vercel **Preview** deployment, one per PR push | Vercel **Production** deployment |
 | **Functions region** | n/a | **`sin1`** | **`sin1`** |
-| **Supabase** | **Local stack** (`supabase start`, Docker). Never a remote project for day-to-day work | Supabase **dev** project, `ap-southeast-1` | Supabase **prod** project, `ap-southeast-1` |
+| **Supabase** | **Local stack** (`supabase start`, Docker). Never a remote project for day-to-day work | The **one** remote project, `ap-southeast-1`, shared with Production | The **one** remote project, `ap-southeast-1` |
 | **Vercel environment** | *Development* (only as the source for `vercel env pull`) | *Preview* | *Production* |
 | **Deploys when** | Always | Every push to a PR branch | Merge to `main` |
-| **Schema comes from** | `supabase/migrations/`, applied by `supabase db reset` | `supabase/migrations/` **as merged to `main`**, pushed to dev by the migrate workflow | `supabase/migrations/`, pushed to prod by the migrate workflow **after manual approval** |
-| **Data** | Fictional, from `npm run seed` | Fictional, seeded into dev | Fictional, seeded into prod (MVP) |
+| **Schema comes from** | `supabase/migrations/`, applied by `supabase db reset` | The shared project, so `supabase/migrations/` **as merged to `main`** and pushed | `supabase/migrations/`, pushed by the migrate workflow **after manual approval** |
+| **Data** | Fictional, from `npm run seed` | Fictional, the same rows Production shows | Fictional, seeded into the one project (MVP) |
 | **Who can reach it** | The developer | **Anyone with the URL**, unless the plan offers deployment protection ([#92](https://github.com/dczii/URecruitment/issues/92) checks) | **Anyone with the URL** (no sign-in, accepted for fictional data only) |
 
 **Known limitation: previews and schema changes.** A PR that adds a migration is validated on an
 **ephemeral** local Supabase in CI ([#91](https://github.com/dczii/URecruitment/issues/91)). Its Vercel
-preview, however, still talks to the **dev** project, whose schema matches `main`. That preview may
+preview, however, still talks to the **shared** project, whose schema matches `main`. That preview may
 break on the new columns until the PR merges and the migration is pushed. This is accepted, because
-applying unmerged migrations to the shared dev project would be worse. The PR's e2e run should be
-read with that in mind.
+applying unmerged migrations to the project Production also uses would be worse. The PR's e2e run
+should be read with that in mind.
 
 **Migration promotion** (`ci-setup`, `release-deploy`; built by the migrate workflow in the release
-phase): merge to `main` → `supabase db push` to **dev** → a GitHub environment with **required manual
-approval** → `supabase db push` to **prod**. **Never edit a merged migration**, and fix forward.
-**Until that workflow exists, a person runs `supabase db push`, and the dev schema lags `main`.** No
+phase): merge to `main` → a GitHub environment with **required manual approval** → `supabase db push`
+to **the one project**. There is no dev project to rehearse on first, so the migration's CI run on the
+ephemeral local stack ([#91](https://github.com/dczii/URecruitment/issues/91)) is the only rehearsal.
+**Never edit a merged migration**, and fix forward.
+**Until that workflow exists, a person runs `supabase db push`, and the project's schema lags `main`.** No
 task builds the migrate workflow yet ([#91](https://github.com/dczii/URecruitment/issues/91) excludes
 remote projects, and [#177](https://github.com/dczii/URecruitment/issues/177) applies production
 migrations by hand). That is a follow-up.
@@ -60,6 +63,47 @@ migrations by hand). That is a follow-up.
 **Production deploys at merge, before the approved prod `db push`.** Migrations must therefore be
 backward-compatible: expand first, and contract in a later migration once the code no longer needs
 the old shape.
+
+### One Supabase project for Preview and Production
+
+**Decided by the repository owner on 2026-09-18** ([#193](https://github.com/dczii/URecruitment/issues/193)).
+The PRD's two projects are *suggested* (**proposed**), and the owner chose one project for the MVP.
+The region is unchanged and still **decided**: `ap-southeast-1`.
+
+**Observed on 2026-09-18** in the Vercel and Supabase dashboards, read-only, names only:
+
+- **One project**, AWS **ap-southeast-1**, Free plan, Nano compute, in the organisation the Vercel
+  Marketplace manages. The `us-east-1` project the integration first created is **deleted**.
+- **Connected to Vercel *Preview* and *Production*** through the Supabase integration, with **no
+  custom prefix**. **Vercel *Development* has no variables at all**, so `vercel env pull` copies no
+  remote key to a laptop. Neither does it bring `BLOB_READ_WRITE_TOKEN`, so a developer sets that
+  one in `.env.local` by hand.
+- **Names the integration sets**, in Preview and Production:
+  - read by the app: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`;
+  - not read by the app: `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_ANON_KEY`,
+    `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`,
+    `POSTGRES_PRISMA_URL`, `POSTGRES_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
+    `POSTGRES_DATABASE`, and the three `NEXT_PUBLIC_SUPABASE_*` names
+    ([why they stay](#application-runtime)).
+- The sample-data Blob store adds `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` and
+  `BLOB_WEBHOOK_PUBLIC_KEY`.
+
+**What one project changes:**
+
+- **Previews share Production's data.** A preview runs a PR's unmerged code against the same rows
+  Production shows, and can change them. That is accepted only while every row is fictional and
+  re-seedable. Previews are behind Vercel Authentication.
+- **There is nowhere to rehearse.** `supabase db push` and `npm run seed` act on what Production
+  serves. The migration's CI run on the ephemeral local stack is the only rehearsal. #122's
+  `--reset` must count this project as production and refuse it.
+- **The keep-alive covers previews too**, because the production cron reads the same project.
+- **The migrate workflow needs one project ref and one database password**
+  ([Tests and CI only](#tests-and-ci-only)).
+- Supabase Free's second active-project slot stays free.
+
+**Before real data.** A preview running unmerged code against real CVs is a PDPA protection question.
+The real-data go/no-go must revisit this layout: split into dev and prod, or keep one project and
+write down why. This record does not settle it.
 
 ## Env var inventory
 
@@ -82,8 +126,8 @@ typed env schema is written against this inventory.
 
 | Name | Purpose | Local | Dev | Prev | Prod | CI | Scope | Secret | Introduced by |
 |---|---|---|---|---|---|---|---|---|---|
-| `SUPABASE_URL` | API URL of the environment's Supabase project (local stack, dev or prod) | ✓ (local stack) | — | ✓ (dev) | ✓ (prod) | ✓ (eval only) | server | no, but not published | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
-| `SUPABASE_SECRET_KEY` | Server-only key. **It bypasses RLS**, so it never leaves the server | ✓ (local stack) | — | ✓ (dev) | ✓ (prod) | ✓ (eval only; `ci-setup` lets only the migrate and eval workflows reach a remote project) | **server** | **yes** | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
+| `SUPABASE_URL` | API URL of the environment's Supabase project (the local stack, or the one remote project) | ✓ (local stack) | — | ✓ (the project) | ✓ (the project) | ✓ (eval only) | server | no, but not published | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
+| `SUPABASE_SECRET_KEY` | Server-only key. **It bypasses RLS**, so it never leaves the server | ✓ (local stack) | — | ✓ (the project) | ✓ (the project) | ✓ (eval only; `ci-setup` lets only the migrate and eval workflows reach a remote project) | **server** | **yes** | [#84](https://github.com/dczii/URecruitment/issues/84), [#88](https://github.com/dczii/URecruitment/issues/88) |
 | `AI_MODEL_PARSE`, `AI_MODEL_MATCH`, `AI_MODEL_GAP`, `AI_MODEL_SEARCH`, `AI_MODEL_JD` | Model id per AI role ([ADR-0003](../decisions/adr-0003-ai-provider.md) C2) | ✓ | ✓ | ✓ | ✓ | ✓ (eval) | server | no | [#84](https://github.com/dczii/URecruitment/issues/84) (names), [#169](https://github.com/dczii/URecruitment/issues/169) (use) |
 | `AI_EMBED_MODEL` | Embedding model id (C2, C9) | ✓ | ✓ | ✓ | ✓ | ✓ (eval) | server | no | as above |
 | *Provider API key(s)* | **Named after the chosen provider(s), once [DT-1](../decisions/open-questions.md#dt-1--the-ai-provider) is decided.** No name is reserved now | ✓ | ✓ | ✓ | ✓ | ✓ (eval) | **server** | **yes** | the ADR-0004 follow-up |
@@ -95,7 +139,7 @@ typed env schema is written against this inventory.
 | `CRON_SECRET` | Authorises the daily keep-alive request. Vercel sends it on cron invocations ([keep-alive](#supabase-free-pauses-after-a-week-idle)) | — | — | — | ✓ | — | server | **yes** | [#178](https://github.com/dczii/URecruitment/issues/178) |
 
 **The two Supabase variables are not set in Vercel *Development*.** That way `vercel env pull` never
-copies the dev project's secret key to a laptop, and local work never points at a remote project.
+copies the remote project's secret key to a laptop, and local work never points at a remote project.
 Local values come from `supabase status` for the local stack. `ci-setup`'s secrets table should list
 both names for the eval workflow (follow-up).
 
@@ -105,6 +149,24 @@ both names for the eval workflow (follow-up).
 **Not used by the app:** the Supabase **publishable** key. With no sign-in, the browser never talks to
 Supabase ([ADR-0001](../decisions/adr-0001-architecture.md)). It appears only in the DB test below,
 to prove it reads nothing.
+
+**Browser-exposed Supabase names stay set, unread** ([#193](https://github.com/dczii/URecruitment/issues/193)).
+The Vercel Supabase integration sets `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in Preview and Production, and sets them again on every
+reconnect. They stay, because:
+
+- **none of them is a secret.** The anon and publishable keys are designed to be public, and with RLS
+  on and **no public policies** they read nothing;
+- **Next inlines a `NEXT_PUBLIC_` value only where code reads it,** and no code does. So none of the
+  three reaches the browser;
+- **`src/server/no-browser-supabase.test.ts` keeps it that way.** It fails if any source file mentions
+  `NEXT_PUBLIC_SUPABASE`, or if a file outside `src/server/` imports a `@supabase/` package.
+  `check-client-bundle.mjs` can't do this, because the name is gone from the bundle once inlined.
+
+The integration's other names in the [one-project list](#one-supabase-project-for-preview-and-production)
+(`POSTGRES_*`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`, and the un-prefixed anon and
+publishable keys) are server-side and unread. `check-client-bundle.mjs` fails the build if the two
+secret names, or a JWT-shaped value, reach client output.
 
 ### Seed and eval (sample-data store)
 
@@ -127,8 +189,8 @@ that `src/` never imports the Blob SDK is what keeps the running app from using 
 | `PLAYWRIGHT_BASE_URL` | Base URL for e2e runs: the local dev server by default, the preview URL in CI (`deployment_status.target_url`) | Local (optional), the CI e2e job | no | [#85](https://github.com/dczii/URecruitment/issues/85), [#90](https://github.com/dczii/URecruitment/issues/90) |
 | `PLAYWRIGHT_BYPASS_SECRET` | The e2e job's copy of `VERCEL_AUTOMATION_BYPASS_SECRET`. `playwright.config.ts` sends it as the `x-vercel-protection-bypass` header, and only when `PLAYWRIGHT_BASE_URL` is also set | CI e2e job only (set from the Actions secret, never stored) | **yes** | [#90](https://github.com/dczii/URecruitment/issues/90) |
 | `SUPABASE_ACCESS_TOKEN` | Supabase CLI auth for pushing migrations | CI (migrate workflow) only | **yes** | the migrate workflow; **no task builds it yet** (follow-up). Until then, #177 applies migrations by hand |
-| `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_PROD_PROJECT_REF` | Which remote project the migrate workflow targets | CI (migrate workflow) only | treat as secret | as above |
-| `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_DB_PASSWORD` | Database password for `supabase db push` | CI (migrate workflow) only | **yes** | as above |
+| `SUPABASE_PROJECT_REF` | The one remote project the migrate workflow targets ([one project](#one-supabase-project-for-preview-and-production)) | CI (migrate workflow) only | treat as secret | as above |
+| `SUPABASE_DB_PASSWORD` | Database password for `supabase db push` | CI (migrate workflow) only | **yes** | as above |
 | `VERCEL_AUTOMATION_BYPASS_SECRET` | Lets the e2e job reach a protected preview. **Required:** preview protection is on (checked 2026-09-18: a preview URL answers `302 → vercel.com/sso-api`). Until it is added as an Actions secret, `e2e.yml` skips with a `::notice::` | CI (e2e) only | **yes** | [#90](https://github.com/dczii/URecruitment/issues/90) |
 
 **Rules for CI secrets** (`ci-setup`): a job that needs a secret checks for it first. If the secret is
@@ -200,8 +262,9 @@ is a follow-up.
   authorisation header, returns no data, and logs only success or failure.
 - **Why daily when a week is the threshold:** a single missed run then still leaves six days of
   margin. Whether this stays within both providers' terms is for #178 to confirm.
-- **Dev project:** no cron (Vercel runs cron only on production). The dev project is restored from the
-  dashboard if a quiet week pauses it. That affects previews only.
+- **Previews:** they share the production project
+  ([one project](#one-supabase-project-for-preview-and-production)), so the production cron keeps
+  them awake too.
 - **Who checks it:** the person running each recruiter session opens the production app the day
   before. #178 names that role, and whoever holds it also looks at the cron's last result in the
   Vercel dashboard.
@@ -231,10 +294,10 @@ workflow, never by an agent unasked.**
 supabase start                 # local stack (Docker); from #87
 supabase db reset              # drop and re-apply every migration in supabase/migrations/
 npm run seed                   # rebuild fictional data through the real parser; script from #117–#123
-npm run seed -- --reset        # truncate the seeded tables first; flag from #122 (refused outside local/dev)
+npm run seed -- --reset        # truncate the seeded tables first; flag from #122 (local only: the remote project is production)
 ```
 
-**Remote (dev or prod)**
+**Remote (the one project, which Preview and Production share)**
 
 ```bash
 # Schema: the migrate workflow runs this once it exists; until then, a person does.
@@ -242,7 +305,7 @@ supabase login && supabase link --project-ref <ref from the Supabase dashboard> 
 supabase db push                                   # applies pending migrations
 
 # Data: a person runs the seed with that environment's variables loaded (never committed).
-npm run seed                                       # idempotent; #122's --reset is refused outside local/dev
+npm run seed                                       # idempotent; #122's --reset is refused here
 ```
 
 **Full rebuild of production:**
@@ -251,7 +314,7 @@ npm run seed                                       # idempotent; #122's --reset 
 2. `supabase db push`. If the data is broken, a person runs `supabase db reset --linked` instead.
    **This is destructive**: it drops the remote database and re-applies every migration.
 3. `npm run seed` with the production environment's variables. The seed is idempotent, and
-   `--reset` is refused outside local and dev by design ([#122](https://github.com/dczii/URecruitment/issues/122)).
+   `--reset` is refused on the remote project by design ([#122](https://github.com/dczii/URecruitment/issues/122)).
 4. Run the smoke check from #177: the dashboard, a job, a candidate and a search all load.
 5. Record the elapsed time and AI cost in `docs/runbooks/re-seed.md`.
 

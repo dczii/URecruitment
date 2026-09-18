@@ -3,8 +3,8 @@ name: ci-setup
 description: >
   GitHub Actions for URecruitment: PR checks (lint, typecheck, unit, build), migration validation
   on ephemeral local Supabase, DB integration tests, Playwright against Vercel previews at desktop
-  and phone width, path-filtered AI eval with secret gating, and migration promotion to dev/prod
-  with manual approval. Covers least-privilege permissions, caching, concurrency and job
+  and phone width, path-filtered AI eval with secret gating, and migration promotion to the one
+  Supabase project with manual approval. Covers least-privilege permissions, caching, concurrency and job
   summaries. Use when creating or changing anything under .github/workflows or CI scripts.
 ---
 
@@ -18,7 +18,7 @@ description: >
 | `db.yml` | PRs touching `supabase/**`, `src/server/db/**` | `supabase start` → `supabase db reset` → `npm run test:db` → check that generated types are up to date |
 | `e2e.yml` | `deployment_status` (Vercel preview/production success) | Playwright `desktop` + `phone` against `deployment_status.target_url` |
 | `eval.yml` | PRs touching `src/server/ai/**`, `eval/**`, parser/matcher services; `workflow_dispatch` | `npm run eval` (skipped with a notice when secrets are missing) |
-| `migrate.yml` | `push: main` touching `supabase/migrations/**` | `supabase db push` to dev → (environment `production`, manual approval) → prod |
+| `migrate.yml` | `push: main` touching `supabase/migrations/**` | (environment `production`, manual approval) → `supabase db push` to the one project Preview and Production share |
 
 ## Rules
 
@@ -41,8 +41,8 @@ description: >
 | Secret | Used by |
 |---|---|
 | `SUPABASE_ACCESS_TOKEN` | `migrate.yml` |
-| `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_PROD_PROJECT_REF` | `migrate.yml` |
-| `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_DB_PASSWORD` | `migrate.yml` |
+| `SUPABASE_PROJECT_REF` | `migrate.yml` |
+| `SUPABASE_DB_PASSWORD` | `migrate.yml` |
 | AI provider key(s), `AI_*` model vars | `eval.yml` |
 | `BLOB_READ_WRITE_TOKEN` (listing the sample-data store only), `SEED_BLOB_BASE_URL` | `eval.yml` (and any seed job) |
 | `VERCEL_AUTOMATION_BYPASS_SECRET` (only if preview protection is on) | `e2e.yml` |
