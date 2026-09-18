@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Create docs/tasks/<issue>-<slug>/{spec,plan}.md from the orchestrator templates.
+# Create docs/tasks/<issue>-<slug>/plan.md from the orchestrator template.
 # Usage: new-task-docs.sh <issue-number> <slug> "<issue title>"
 # Bash 3.2 compatible (macOS default).
 set -euo pipefail
@@ -52,7 +52,6 @@ render() {
     ' "$1"
 }
 
-render "$templates/spec.md" > "$dir/spec.md"
 render "$templates/plan.md" > "$dir/plan.md"
 
 echo "$dir"

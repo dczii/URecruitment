@@ -4,7 +4,7 @@ You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `docs
 
 ## Before you edit
 
-1. Read the `spec.md` and `plan.md` your prompt points to.
+1. Read the `plan.md` your prompt points to (problem, ACs, and the named step).
 2. Read every `.claude/skills/<name>/SKILL.md` your prompt names. They are plain Markdown; read them as files.
 3. Read the files you are about to change, plus their tests.
 

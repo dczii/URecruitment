@@ -9,13 +9,12 @@ You are implementing ONE step of task #{{ISSUE}} in the URecruitment repo (Next.
 ## Required reading (read these files first)
 
 - `AGENTS.md`
-- `docs/tasks/{{ISSUE}}-{{SLUG}}/spec.md`
-- `docs/tasks/{{ISSUE}}-{{SLUG}}/plan.md`, step **{{STEP_ID}}**
+- `docs/tasks/{{ISSUE}}-{{SLUG}}/plan.md`, step **{{STEP_ID}}** (and that file's ACs / scope)
 {{SKILL_FILES}}   <!-- e.g. - `.claude/skills/supabase-db/SKILL.md` -->
 
 ## Goal of the task
 
-{{TASK_GOAL}}   <!-- one or two sentences from the spec Problem -->
+{{TASK_GOAL}}   <!-- one or two sentences from the plan Problem -->
 
 ## Your step: {{STEP_ID}}
 

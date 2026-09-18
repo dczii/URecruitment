@@ -6,7 +6,6 @@ Closes #
 
 ## Task docs
 
-- Spec: `docs/tasks/<issue>-<slug>/spec.md`
 - Plan: `docs/tasks/<issue>-<slug>/plan.md`
 
 ## Acceptance criteria
