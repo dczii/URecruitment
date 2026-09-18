@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `feat/28-previews-rate-limit-spend-cap` (from `main`; no open predecessor PR) |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -87,45 +87,46 @@ Story ACs (from #28) are **S-AC1…3**. Task ACs follow, mapped 1:1 to each Task
 
 ### #92
 
-- [ ] **AC1** (#92 done-when 1, S-AC1). Given a pull request, when Vercel builds it, then a preview
+- [x] **AC1** (#92 done-when 1, S-AC1). Given a pull request, when Vercel builds it, then a preview
   deployment exists and functions are pinned to `sin1`. _Proved by:_
   `test/infra/vercel-config.test.ts › AC1: vercel.json pins functions to sin1` (config), plus
   manual evidence in the infra plan: GitHub deployments by `vercel[bot]` for this PR's commits
   (Preview) and for `main` (Production), and production answering `x-vercel-id: sin1::sin1::…`.
-- [ ] **AC2** (#92 done-when 2). Given `.env.example`, when the infrastructure plan's *what is set
+- [x] **AC2** (#92 done-when 2). Given `.env.example`, when the infrastructure plan's *what is set
   where* matrix is read, then every name in `.env.example` has a row saying which Vercel
   environments must hold it, and no value appears in the repository. _Proved by:_
   `test/infra/vercel-config.test.ts › AC2: every .env.example name has a row in the set-where
   matrix` and `› AC2: .env.example holds names only`. **Confirming the dashboard matches is a person's
   step** (A1); the PR lists it under follow-ups.
-- [ ] **AC3** (#92 done-when 3, S-AC3). Given Vercel Hobby forbids commercial use, when the
+- [x] **AC3** (#92 done-when 3, S-AC3). Given Vercel Hobby forbids commercial use, when the
   open-questions register is read, then RC-3 is still **Open**, names an owner, and links #92's record
   in the infrastructure plan. _Proved by:_ none automated (docs-only). Manual evidence: the RC-3 row
   and the infra plan link, checked in review.
 
 ### #93
 
-- [ ] **AC4** (#93 done-when 1). Given the AI routes, when the committed firewall rule is compared
+- [x] **AC4** (#93 done-when 1). Given the AI routes, when the committed firewall rule is compared
   with the code, then the rule matches exactly the one prefix `AI_ROUTE_PREFIX` (`/api/ai/`). It is a
   fixed-window rate limit keyed by IP with the default 429 action, and it fits Hobby's limits
   (10–600 s window). _Proved by:_ `test/infra/ai-rate-limit-rule.test.ts › AC4: …`.
-- [ ] **AC5** (#93 done-when 1, S-AC2 in code). Given a route handler that imports AI code, when it
+- [x] **AC5** (#93 done-when 1, S-AC2 in code). Given a route handler that imports AI code, when it
   lives outside `src/app/api/ai/`, then the guard test fails. A route file placed directly at
   `src/app/api/ai/route.ts` (which the trailing-slash prefix would not match) also fails. _Proved by:_
   `test/infra/ai-route-prefix.test.ts › AC5: …` (fixture cases plus the real `src/app` tree).
-- [ ] **AC6** (#93 done-when 2). Given an AI request answered with HTTP 429, when the UI asks
+- [x] **AC6** (#93 done-when 2). Given an AI request answered with HTTP 429, when the UI asks
   `aiFailureMessage(429)`, then it gets a plain-language message saying requests from this network
   were limited and to wait a minute and try again. Given any other failure status, the UI gets a
   different, generic message. Given a success, the result is `null`. No AI failure maps to an empty
   message. _Proved by:_ `src/lib/ai-routes.test.ts › AC6: …`.
-- [ ] **AC7** (#93 done-when 2–3, S-AC2 operationally). Given the infrastructure plan, when a person
+- [x] **AC7** (#93 done-when 2–3, S-AC2 operationally). Given the infrastructure plan, when a person
   reads *rate limit and spend cap*, then it states the prefix, the rule's values, and the exact
   commands to apply and check it. It also documents the 429 response and the recruiter-facing message,
   and the provider-side spend-cap procedure with a named owner and check cadence. _Proved by:_
   `test/infra/ai-rate-limit-rule.test.ts › AC7: the infrastructure plan states the committed rule's
   values` (keeps the doc in sync with the JSON). The procedure text itself is checked in review.
 
-**S-AC2 (the firewall actually rejects the excess)** is proven once a person publishes the rule. The
+**S-AC2 (the firewall actually rejects the excess)** is proven once a person publishes the rule,
+tracked in [#199](https://github.com/dczii/URecruitment/issues/199). The
 plan gives a burst-probe command: over-limit requests to `/api/ai/…` return `429`. Until then it is
 a follow-up, not a claim.
 
