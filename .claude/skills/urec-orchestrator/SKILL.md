@@ -4,7 +4,7 @@ description: >
   URecruitment task orchestrator. In this repo, use it INSTEAD of the global `orchestrator` skill
   (it extends that skill with project rules). Use for every piece of development work: `/task <description | #issue>`, "create a task", "work on #42",
   "implement <feature>", "start the next task". Resolves or creates the GitHub issue, writes
-  docs/tasks/<issue>-<slug>/spec.md and plan.md, delegates implementation to Cursor Grok 4.6 or
+  docs/tasks/<issue>-<slug>/plan.md only (no spec.md), delegates implementation to Cursor Grok 4.6 or
   GPT-5.6 via cursor-agent with the repo's skill rules inlined. After coding, skip review: verify
   until lint, typecheck, tests and (when applicable) build, e2e, db and eval are green, then close
   out docs, open a PR and move the Project 4 card to In Review. No approval gate. Never merges.
@@ -24,8 +24,25 @@ This skill **extends** the global `~/.claude/skills/orchestrator`.
 Precedence, highest first: `CLAUDE.md` → this skill → other project skills → the global `orchestrator`.
 
 **Config:** `.claude/github-project.json` (repo, Project 4, status names, executor models).
-**Templates:** `templates/spec.md`, `templates/plan.md`, `templates/executor-prompt.md`.
+**Templates:** `templates/plan.md`, `templates/executor-prompt.md`.
 **Scripts:** `scripts/new-task-docs.sh`, `scripts/run-executor.sh`, plus the `github-workflow` scripts.
+
+**One task doc:** `docs/tasks/<issue>-<slug>/plan.md` holds both the contract (problem, PRD, scope, ACs, guardrails, assumptions) and the execution plan. **Do not create `spec.md`.** Existing folders that already have a `spec.md` may keep it; new work never adds one. If an old folder is the current task, copy any still-needed AC/guardrail text into `plan.md` and stop linking `spec.md`.
+
+## Speed (do these; they are rules, not optional tips)
+
+Planning and handoffs are the usual bottleneck, not the compiler. Default to the cheaper path:
+
+1. **One plan file, written once.** Fill `plan.md` in a single pass. Do not draft a spec, then a plan, then rewrite both.
+2. **Skill discovery is routing, not a reading marathon.** List skill *frontmatter* (`name` + `description`) from `.claude/skills/*/SKILL.md`. **Read the full `SKILL.md` only for matches.** Always match `prd-context` and `testing`; add others from the table. Do not re-inventory mid-task unless the file/subsystem scope actually expanded.
+3. **Fewer executor calls.** Merge sequential edits to the same files into one step. Keep the test-first split **only** for logic (working days, score caps, delay, gaps). Mechanical UI/docs/wiring can be one `grok` (or `grok-low`) step.
+4. **Targeted tests during the loop; full suite once.** After each coding step, run only the command named in that step. Run the full Step 7 set **once** before the PR, and again only after a fix that could have broken it.
+5. **Inspect with `git diff --stat` first.** Open the full diff only when the stat shows surprise files or a large unexplained hunk. Revert stray files with `git restore`; don't re-read the whole tree.
+6. **Parallel only for disjoint files.** Mark `parallel-safe` and use worktrees. Never parallelise overlapping files "to go faster".
+7. **Cheap model for mechanical steps.** Use `executor.cheapModel` (`cursor-grok-4.6-low`) when the step is copy-shape-from-neighbour, rename, or boilerplate. Default `grok` / `gpt` for logic, schema, scoring, RLS, AI.
+8. **Short prompts.** Goal, this step, allowed files, 3–6 inlined rules, verify command. Do not paste whole skills or the whole plan.
+9. **Skip work that is already done.** If `plan.md` exists for the issue, do not regenerate it. If the branch exists, don't recreate it. If origin/main was fetched in this session, don't fetch again.
+10. **No review in `/task`.** Verification is the gate. Do not spawn review subagents.
 
 ## Operating mode: no approval gate
 
@@ -37,15 +54,15 @@ Run straight through from intake to an open PR. **Don't** stop to ask "shall I p
 - The task needs real candidate data, sending email, or anything else listed as a non-goal.
 - Verification still fails after the fix loop (Step 7) and the Claude fallback.
 
-Record every other judgment call under **Assumptions** in `spec.md`, then keep going.
+Record every other judgment call under **Assumptions** in `plan.md`, then keep going.
 
 ## Story workflow: one Story, one PR
 
 A Story is the unit of delivery. Its Tasks are the units of work inside it:
 
 - When creating a Story, decompose it into Task sub-issues before writing code, so every Task keeps its own "Done when" items and board card.
-- When the input is a Story, run the **whole Story on one branch with one PR**: one `docs/tasks/<story>-<slug>/` spec and plan, every open Task sub-issue processed in dependency order through Steps 4–7, and **at least one commit per Task** whose subject ends in `(#<task>)`. Never mix two Tasks' changes in one commit.
-- The spec maps each Task's "Done when" items to acceptance criteria, so a reviewer can check the Story Task by Task.
+- When the input is a Story, run the **whole Story on one branch with one PR**: one `docs/tasks/<story>-<slug>/plan.md`, every open Task sub-issue processed in dependency order through Steps 4–7, and **at least one commit per Task** whose subject ends in `(#<task>)`. Never mix two Tasks' changes in one commit.
+- The plan maps each Task's "Done when" items to acceptance criteria, so a reviewer can check the Story Task by Task.
 - The PR closes every Task and the Story: one `Closes #<task>` line per Task, then `Closes #<story>`.
 - Stories may be **stacked** when the next Story depends on one whose PR is still open. Branch from the predecessor Story's branch and set it as the PR base. State `Stacked on:` and `Merge order:` in every affected PR body.
 - After the predecessor merges, rebase onto `main`, retarget the PR to `main`, and check that its diff contains only this Story.
@@ -62,6 +79,8 @@ git fetch origin && git log --oneline -1 origin/main
 cursor-agent status                                  # executor is authenticated
 ```
 
+Skip `git fetch` if origin/main was already updated in this session.
+
 - A dirty working tree that isn't yours means **stop**. Never stash or discard someone else's changes.
 - If the token lacks `project` scope, keep going without board updates, and list `gh auth refresh -s project` in the final report.
 - If `.claude/github-project.fields.json` is missing, run `.claude/skills/github-workflow/scripts/project-fields.sh`.
@@ -71,7 +90,7 @@ cursor-agent status                                  # executor is authenticated
 | Input | Action |
 |---|---|
 | `#42` or an issue URL | `gh issue view 42 --json number,title,body,labels,milestone,state`. Read its parent story/epic too (see `github-workflow`). |
-| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run the Story once through Steps 2–9 on one branch: one spec and plan, Tasks in dependency order, one or more commits per Task, and one PR that closes every Task and the Story. Stack it on the predecessor Story's branch when that PR is still open. |
+| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run the Story once through Steps 2–9 on one branch: one plan, Tasks in dependency order, one or more commits per Task, and one PR that closes every Task and the Story. Stack it on the predecessor Story's branch when that PR is still open. |
 | An **Epic** number | List its open Stories, choose the first unblocked Story in roadmap order, then apply the Story workflow above. |
 | Free text | Search for a duplicate (`gh issue list --search "<keywords>" --state all`). If none exists, create a **Task** issue using the task form fields, attach it to the best-matching Story (create the Story under the right Epic if none fits), add it to Project 4, set the milestone (default `MVP`), and record the choice under Assumptions. |
 
@@ -81,14 +100,14 @@ Before implementation, ensure the Task issue is open and has a milestone. For a 
 
 ## Step 2 — Load context
 
-Skill discovery is mandatory for every task; do not rely on the list remembered from an earlier task or session.
+Skill discovery is mandatory for every task, but **frontmatter-only unless matched**.
 
-1. Inventory every repository-local skill under `.claude/skills/*/SKILL.md`, `.cursor/skills/*/SKILL.md` and `.agents/skills/*/SKILL.md` (where those directories exist). Read each skill's frontmatter `name` and `description`.
-2. Match skills against the request, issue acceptance criteria, likely file paths and subsystems. The routing table below is the minimum set, not an exhaustive allowlist; newly added local skills apply when their description matches.
-3. Read the complete `SKILL.md` for every match **before** writing the spec or plan. Record each selected skill and why it applies in `plan.md` under **Skills in scope**.
-4. Load `prd-context` and `testing` for every task, plus `github-workflow` whenever issues, branches, commits or PRs are involved.
-5. Read the existing code and tests in the area (`git ls-files | grep …`). Read any earlier `docs/tasks/*` that touched the same area.
-6. If investigation or execution expands the files or subsystem in scope, pause before that work, repeat this discovery for the new scope, update `plan.md`, and propagate the newly applicable rules into subsequent executor prompts.
+1. Inventory names/descriptions under `.claude/skills/*/SKILL.md` (and `.cursor/skills`, `.agents/skills` if those dirs exist). Do not read every full skill.
+2. Match against the request, issue acceptance criteria, likely file paths and subsystems. The routing table is the minimum set.
+3. Read the complete `SKILL.md` for every **match** before writing the plan. Record each selected skill and why in `plan.md` under **Skills in scope**.
+4. Load `prd-context` and `testing` for every task, plus `github-workflow` whenever issues, branches, commits or PRs are involved. For `prd-context`, read only the sections the issue cites, not the entire PRD dump unless the task is cross-cutting.
+5. Read the existing code and tests in the area (`git ls-files | grep …`). Read any earlier `docs/tasks/*/plan.md` that touched the same area **only if you need prior decisions**; don't open every historical folder.
+6. If investigation or execution expands the files or subsystem in scope, pause, match skills for the new scope, update `plan.md`, and inline the new binding rules in later prompts.
 
 | Task touches… | Load |
 |---|---|
@@ -119,42 +138,43 @@ git switch -c <type>/<issue>-<slug>
 .claude/skills/urec-orchestrator/scripts/new-task-docs.sh <issue> <slug> "<issue title>"
 ```
 
-Fill in `docs/tasks/<issue>-<slug>/spec.md` (**what** and **why**) and `plan.md` (**how**) from the templates. Rules:
+Fill **only** `docs/tasks/<issue>-<slug>/plan.md` from the template. Rules:
 
-- **Spec acceptance criteria** use Given/When/Then, are testable, and map 1:1 to tests named in the plan.
+- **Acceptance criteria** use Given/When/Then, are testable, and map 1:1 to tests named in the same file.
 - **Every PRD reference** cites the section name and its status (decided, proposed or open).
 - **Guardrail checklist:** tick only the items that apply, and explain each tick.
-- **Plan steps** are small, and each is executable by one `cursor-agent` call: explicit file paths, the exact change, the tests, and a verification command.
-- **Test applicability:** for every acceptance criterion, name the test to add or update. If no automated test is appropriate (for example, a docs-only change), record `none` with a concrete reason and the manual verification evidence. Never omit tests silently.
-- **Test-first:** any step with logic is split into **(a) write failing tests** and **(b) implement until green**.
+- **Plan steps** are small enough to be one `cursor-agent` call, but **not** artificially split: explicit file paths, the exact change, the tests, and a verification command.
+- **Test applicability:** for every acceptance criterion, name the test to add or update. If no automated test is appropriate, record `none` with a concrete reason and the manual verification evidence.
+- **Test-first:** any step with **logic** is split into **(a) write failing tests** and **(b) implement until green**. Other steps are not.
 - **Executor tag:** every plan step carries one of:
   - `grok`, the default for code;
+  - `grok-low`, mechanical / boilerplate (`executor.cheapModel`);
   - `gpt`, for code assigned to GPT-5.6 Sol; record why it is a better fit than the default;
   - `claude` for `.pen` design work via the pencil MCP (Cursor executors have no pen.dev access), and for anything where the selected executor failed twice;
   - `none` for pure verification.
 - Say which skills' rules each step must obey. Step 4 inlines them.
 
-Update the board and commit the docs as the first commit:
+Update the board and commit the plan as the first commit:
 
 ```bash
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inProgress
 git add docs/tasks/<issue>-<slug>
-git commit -m "docs(<area>): spec and plan for #<issue>"
+git commit -m "docs(<area>): plan for #<issue>"
 ```
 
 ## Step 4 — Build executor prompts
 
-For each `grok` or `gpt` step, fill `templates/executor-prompt.md`:
+For each `grok`, `grok-low` or `gpt` step, fill `templates/executor-prompt.md`:
 
-- **Self-contained.** Include the task goal, the step text, exact file paths, the acceptance criteria this step covers, and the verification commands.
-- **Required reading:** `AGENTS.md`, the task's `spec.md` and `plan.md`, and the named `.claude/skills/<skill>/SKILL.md` files.
-- **Inline the 3–6 rules that bind these files**, quoted from the skills. Assume the executor skips the files. The inlined rules are what actually protect the change.
-- **Out of scope:** list the files it must not touch.
+- **Self-contained.** Task goal, this step, exact file paths, the ACs this step covers, verification commands.
+- **Required reading:** `AGENTS.md`, the task's `plan.md` (the named step), and the named `.claude/skills/<skill>/SKILL.md` files.
+- **Inline the 3–6 rules that bind these files**, quoted from the skills. Assume the executor skips the files.
+- **Out of scope:** files it must not touch.
 - **Report format:** the one from `AGENTS.md`.
 
 A prompt that omits the rules of a skill covering its files is malformed. Fix it before spending the call.
 
-Before each executor call, compare its allowed files and change description with the current local-skill inventory. Confirm that every matching skill is listed as required reading and its binding rules are inlined. If a new match appears, read it and update the plan and prompt before execution.
+Before each executor call, confirm matching skills are listed and inlined. If a new match appears, read it and update the plan and prompt before execution.
 
 ## Step 5 — Execute
 
@@ -162,11 +182,13 @@ Before each executor call, compare its allowed files and change description with
 .claude/skills/urec-orchestrator/scripts/run-executor.sh <issue>-<slug> <step-id> <prompt-file> [grok|gpt|model]
 ```
 
+For `grok-low`, pass `cursor-grok-4.6-low` as the model argument (same as `executor.cheapModel`).
+
 The wrapper runs `cursor-agent -p --model <resolved-model> --sandbox enabled --trust --output-format text` in the current checkout (the task branch), and logs to `.orchestrator/<issue>-<slug>/<step-id>.log` (gitignored). `grok` resolves to `executor.model` (`cursor-grok-4.6-high`); `gpt` resolves to `executor.gptModel` (`gpt-5.6-sol-high`).
 
 - **Order:** steps run **sequentially** on the task branch by default.
 - **Parallel steps:** only when the plan marks them independent (disjoint files). Give each its own worktree with `cursor-agent -w <issue>-<step> --worktree-base <branch>`. Then bring the changes back with `git -C <worktree> diff | git apply` and review them.
-- **Test-first steps:** after the "(a) failing tests" step, run the tests yourself. Confirm they fail for the stated reason and that they match the acceptance criteria. Only then run step (b).
+- **Test-first steps:** after the "(a) failing tests" step, run the tests yourself. Confirm they fail for the stated reason. Only then run step (b).
 - **`claude` steps** (design): do them yourself with the `ui-design` skill.
 
 ## Step 6 — Inspect every step
@@ -176,20 +198,19 @@ Never trust the executor's report. After each step:
 ```bash
 git status --porcelain
 git diff --stat
-git diff
 ```
 
-Check the diff against:
+Open `git diff` only if the stat is unexpected. Check:
 - the step scope (no stray files, and nothing under `docs/tasks`, `.claude` or `.github` unless planned);
 - the inlined rules;
-- the "Deviations" section of the executor's report.
-- test adequacy: changed behaviour has focused regression coverage at the correct layer; tests exercise the acceptance criteria rather than only implementation details.
+- the "Deviations" section of the executor's report;
+- test adequacy for behaviour this step claimed to cover.
 
 Revert out-of-scope edits with `git restore <file>`, not by hand. Deleted or `.skip`ped tests count as a failure.
 
 ## Step 7 — Verify until green, then fix loop
 
-Run the verification set for what changed:
+Run the verification set **once** after the last coding step (and after any later fix):
 
 ```bash
 npm run lint && npm run typecheck && npm test
@@ -202,7 +223,7 @@ npm run eval                  # parser, matcher, prompts or schemas changed
 On failure, work through the fix loop (max rounds = `executor.maxFixRounds`, default 3):
 
 1. Send the selected executor a fix prompt containing the failing output, the files involved and the same inlined rules.
-2. Re-verify.
+2. Re-verify **only the failing command**, then the full applicable set if the fix could have broken other checks.
 3. After round 2, switch to the matching escalation model: `executor.escalationModel` (`cursor-grok-4.6-xhigh`) or `executor.gptEscalationModel` (`gpt-5.6-sol-xhigh`).
 4. If it's still red after the last round, **Claude fixes it directly**, and the plan's Outcome notes it.
 5. If Claude can't fix it either, stop and report (see Operating mode).
@@ -214,8 +235,7 @@ applicable command is red.
 
 ## Step 8 — Close out docs
 
-- `plan.md`: tick the steps. Fill in **Outcome**: what shipped, files changed, tests added or updated (or why none were needed), verification, deviations, fix rounds, the complete model-usage ledger, and follow-ups.
-- `spec.md`: tick the acceptance criteria that are proven. Name the test that proves each one.
+In `plan.md`: tick the steps and the acceptance criteria that are proven (name the proving test). Fill **Outcome**: what shipped, files changed, tests added or updated (or why none were needed), verification, deviations, fix rounds, the complete model-usage ledger, and follow-ups.
 
 Build the model-usage ledger from evidence, not memory:
 
@@ -239,7 +259,7 @@ gh issue view <issue> --json state,milestone
 # If milestone is missing: gh issue edit <issue> --milestone MVP
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inProgress
 # Write the body: copy .github/pull_request_template.md to .orchestrator/<issue>-<slug>/pr-body.md
-# and fill every section (Closes #<issue>, spec/plan links, verification output).
+# and fill every section (Closes #<issue>, plan link, verification output).
 # Review section: write "Skipped — verification is the close-out gate."
 PR_URL=$(gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
   --body-file .orchestrator/<issue>-<slug>/pr-body.md --assignee "@me")
@@ -301,12 +321,16 @@ The final response is mandatory after the PR is opened (or after reporting a blo
 
 ## Anti-patterns
 
-- Planning without reading `prd-context` and the domain skills.
-- Executor prompts that say "follow the skills" without inlining the rules.
+- Writing `spec.md` for a new task.
+- Planning without reading `prd-context` and the domain skills that match.
+- Reading every skill file in the repo "just in case".
+- Splitting one file's work across many executor calls.
+- Re-running the full test suite after every tiny step.
+- Executor prompts that say "follow the skills" without inlining the rules, or that paste entire skills.
 - Letting an executor commit, push, add dependencies, or touch `docs/tasks`.
 - Trusting "all tests pass" without running them.
 - Running `pr-review` (or any review subagent) as part of `/task`. Review is only for `/review`.
-- Treating a **proposed** PRD item as decided without saying so in the spec.
+- Treating a **proposed** PRD item as decided without saying so in the plan.
 - Splitting a Story into one PR per Task when the user didn't ask for it.
 - A Story PR that is missing a `Closes #<task>` line, or that mixes two Tasks' changes in one commit.
 - Merging, or moving a card to Done.

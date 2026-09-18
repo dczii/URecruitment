@@ -85,7 +85,7 @@ gh issue list --search "in:title parser" --state all
   - Base is `main`.
   - Body follows `.github/pull_request_template.md` and contains `Closes #<issue>`. A Story PR has one `Closes #<task>` line per Task, then `Closes #<story>`.
   - Label the PR with the issue's `area:*` labels.
-  - Link the spec and plan as repo-relative paths.
+  - Link the plan as a repo-relative path (`docs/tasks/<issue>-<slug>/plan.md`).
 - **Hands off:** Claude never merges, never enables auto-merge, and never force-pushes to `main`. Force-pushing your own task branch is fine only before review starts.
 
 ```bash

@@ -21,6 +21,7 @@ config="$root/.claude/github-project.json"
 requested_model="${4:-grok}"
 case "$requested_model" in
   grok) model="$(jq -r '.executor.model' "$config")" ;;
+  grok-low) model="$(jq -r '.executor.cheapModel' "$config")" ;;
   gpt) model="$(jq -r '.executor.gptModel' "$config")" ;;
   *) model="$requested_model" ;;
 esac

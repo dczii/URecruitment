@@ -2,7 +2,7 @@
 name: pr-review
 description: >
   Claude's review gate for URecruitment changes (usually written by a Cursor executor): checks
-  the diff against the task's spec.md acceptance criteria and plan.md scope, PRD guardrails, the
+  the diff against the task's plan.md acceptance criteria and scope, PRD guardrails, the
   rules of every skill in scope, test quality, migrations, UI fidelity at desktop/phone width and
   git/PR conventions. Use for `/review [PR# | branch]`, or whenever asked to review a branch or PR
   in this repo. Not part of `/task`: urec-orchestrator skips review and uses green verification.
@@ -19,14 +19,14 @@ description: >
 | Target | Diff | Context |
 |---|---|---|
 | Current branch | `git diff origin/main...HEAD` | `docs/tasks/<issue>-<slug>/` from the branch name |
-| `#N` (PR) | `gh pr diff N` and `gh pr view N --json title,body,headRefName,files,statusCheckRollup` | Spec and plan linked in the PR body |
+| `#N` (PR) | `gh pr diff N` and `gh pr view N --json title,body,headRefName,files,statusCheckRollup` | Plan linked in the PR body |
 
-If no spec or plan exists, review against the issue body and the PRD, and flag the missing docs as a `major` finding.
+If no `plan.md` exists, review against the issue body and the PRD, and flag the missing docs as a `major` finding. Historical `spec.md` files are optional context only.
 
 ## Procedure
 
 1. **Load context:**
-   - the spec, plan and issue;
+   - the plan and issue;
    - `prd-context`;
    - every skill listed in the plan's "Skills in scope";
    - `security-check` and `compliance-review` if their scope is touched.
@@ -35,7 +35,7 @@ If no spec or plan exists, review against the issue body and the PRD, and flag t
    - is there a test that actually proves it (not just touches it)?
    - does it pass?
    - Build a table: AC → test → ✅/❌.
-4. **Guardrails:** walk the spec's guardrail checklist, plus the hard rules in `CLAUDE.md`.
+4. **Guardrails:** walk the plan's guardrail checklist, plus the hard rules in `CLAUDE.md`.
 5. **Skill rules:** check the diff against each in-scope skill's rules, and quote the rule in each finding.
 6. **Run verification yourself:** `npm run lint`, `typecheck`, `test`, plus `build`, `test:e2e`, `test:db` and `eval` as relevant. Paste the results.
 7. **Migrations:**
