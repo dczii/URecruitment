@@ -310,6 +310,77 @@ export type Database = {
           created_at?: string
         }
       }
+      embeddings: {
+        Row: {
+          id: string
+          owner_type: string
+          owner_id: string
+          // Placeholder string until ADR-0003 fixes the vector dimension; regenerate with `npm run db:types`.
+          embedding: string
+          embedding_model: string
+          ai_run_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          owner_type: string
+          owner_id: string
+          embedding?: string
+          embedding_model: string
+          ai_run_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          owner_type?: string
+          owner_id?: string
+          embedding?: string
+          embedding_model?: string
+          ai_run_id?: string | null
+          created_at?: string
+        }
+      }
+      match_scores: {
+        Row: {
+          id: string
+          candidate_id: string
+          job_version_id: string
+          model_version: string
+          score: number
+          raw_score: number | null
+          matched: Json
+          missing: Json
+          uncertain: Json
+          ai_run_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          job_version_id: string
+          model_version: string
+          score: number
+          raw_score?: number | null
+          matched?: Json
+          missing?: Json
+          uncertain?: Json
+          ai_run_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          job_version_id?: string
+          model_version?: string
+          score?: number
+          raw_score?: number | null
+          matched?: Json
+          missing?: Json
+          uncertain?: Json
+          ai_run_id?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

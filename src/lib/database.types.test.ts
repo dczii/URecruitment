@@ -25,5 +25,7 @@ describe("generated database types (AC5)", () => {
     expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("cv_files");
     expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("candidate_profiles");
     expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("candidate_skills");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("embeddings");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("match_scores");
   });
 });
