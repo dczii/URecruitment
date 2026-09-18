@@ -634,6 +634,24 @@ export type Database = {
         }
         Relationships: []
       }
+      sg_public_holidays: {
+        Row: {
+          date: string
+          name: string
+          year: number
+        }
+        Insert: {
+          date: string
+          name: string
+          year: number
+        }
+        Update: {
+          date?: string
+          name?: string
+          year?: number
+        }
+        Relationships: []
+      }
       stage_events: {
         Row: {
           created_at: string
@@ -722,7 +740,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      sg_add_working_days: {
+        Args: { days: number; from_utc: string }
+        Returns: string
+      }
+      sg_working_days_between: {
+        Args: { from_utc: string; to_utc: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
