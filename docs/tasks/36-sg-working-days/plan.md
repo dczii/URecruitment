@@ -67,12 +67,32 @@ New table and pure functions only; no existing behaviour touched. Rollback is a 
 
 ## Outcome
 
-- **Shipped:** `sg_public_holidays` table + seed (#115) and working-day arithmetic in SQL + TypeScript with full edge-case and cross-check coverage (#116).
-- **Changed files / areas:** see Files table above.
-- **Tests added or updated:** `supabase/tests/holidays.db.test.ts` (new), `src/lib/working-days.test.ts` (new), `supabase/tests/working-days.db.test.ts` (new).
-- **Verification:** see PR body / final report for command-by-command results.
-- **Deviations:** none expected; record here if any step diverges.
-- **Fix rounds / escalations:** recorded per step during execution.
-- **Models used:** recorded from `.orchestrator/36-sg-working-days/*.log` headers.
-- **Claude direct fixes:** none expected.
-- **Follow-ups:** none expected beyond the standard stacked-PR rebase-onto-main follow-up once PR #206 and PR #207 merge.
+- **Shipped:** `sg_public_holidays` table + RLS + idempotent 2025–2027 seed (#115); `workingDaysElapsed`/`addWorkingDays` in TypeScript and `sg_working_days_between`/`sg_add_working_days` in SQL, both skipping weekends and holidays with the SGT-midnight boundary and a stated no-round-up rule, plus a cross-check DB test proving SQL and TypeScript agree (#116).
+- **Changed files / areas:**
+  - `supabase/migrations/20260918000006_sg_public_holidays.sql` — table, RLS (no policies), seed, `sg_working_days_between`, `sg_add_working_days`
+  - `supabase/tests/holidays.db.test.ts` — unique key, RLS/grants, seeded counts, re-seed idempotency
+  - `src/lib/working-days.ts` — TypeScript mirror
+  - `src/lib/working-days.test.ts` — 12 unit tests covering every edge case in the issue plus the rounding rule
+  - `supabase/tests/working-days.db.test.ts` — SQL vs TypeScript cross-check over a 13-date range (weekends, single holiday, consecutive-holiday run, ordinary weekdays) × multiple day-counts
+- **Tests added or updated:** all three DB/unit test files above are new; none deleted, skipped, or weakened.
+- **Verification:**
+  - `npm run typecheck` → pass
+  - `npm run lint` → pass (1 pre-existing unrelated warning in `supabase/migration-lint.ts`, not touched by this Story)
+  - `npm test` → 180 passed, 2 failed in `src/server/db.test.ts` (pre-existing, unrelated: `@supabase/realtime-js` native-WebSocket error in this Node/sandbox environment — reproduced identically on `main` before this Story's changes; not introduced here)
+  - `npm run test:db` → `holidays.db.test.ts` and `working-days.db.test.ts` fail with `ECONNREFUSED 127.0.0.1:54322` (no Docker/local Supabase in this environment, per the repo's documented no-Docker-locally constraint). Both files were written test-first, reviewed, and are expected to pass once CI's `db.yml` job runs them against an ephemeral local Supabase stack.
+- **Deviations:**
+  - Seed for #115 lives inside the same migration file as the table (not a separate `supabase/seed/holidays.sql`), since the table and its seed are one migration-time concern and no other file was planned for it.
+  - The S2b executor also revoked `execute` from `public` (not only `anon`/`authenticated`) on the two SQL functions, since Postgres grants `execute` to `public` by default — a correct tightening beyond what the prompt asked, noted here rather than silently accepted.
+  - Some 2027 Islamic-calendar and Vesak Day dates in the #115 seed are best-known estimates pending the official MOM 2027 gazette (moon-sighting-dependent holidays cannot be certain this far out); flagged as an open follow-up below rather than treated as fully authoritative.
+- **Fix rounds / escalations:** none — every step passed verification on the first executor run; no fix loop was needed, no escalation to `-xhigh` models, no Claude direct fix.
+- **Models used:**
+  - Planning/orchestration (spec, plan, prompts, review, docs close-out, PR): Claude Sonnet 5
+  - S1 (Task #115 migration + DB test): `cursor-grok-4.6-high`
+  - S2a (Task #116 failing tests): `cursor-grok-4.6-high`
+  - S2b (Task #116 implementation, TS + SQL): `cursor-grok-4.6-high`
+  - S3 (cross-check DB test): written directly by Claude Sonnet 5 (tagged `none` — verification/glue step, not delegated)
+- **Claude direct fixes:** none — S3 was a planned `none`-tagged step (Claude writes it directly), not a fix of failed executor work.
+- **Follow-ups:**
+  - Once PR #206 and PR #207 merge: rebase `feat/36-sg-working-days` onto `main`, retarget this PR's base to `main`, and confirm the diff still contains only this Story's changes.
+  - Confirm CI's `db.yml` job actually runs `holidays.db.test.ts` and `working-days.db.test.ts` green against the ephemeral local Supabase stack (could not be verified locally — no Docker).
+  - Reconcile the 2027 Hari Raya Puasa/Haji, Vesak Day, and Deepavali dates in the seed against the official MOM 2027 gazette once published, and update the seed migration (or a follow-up migration) if any date is off by the ±1 day moon-sighting variance.

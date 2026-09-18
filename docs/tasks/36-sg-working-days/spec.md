@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `feat/36-sg-working-days` |
 | Created | 2026-09-18 |
-| Status | Planned <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
