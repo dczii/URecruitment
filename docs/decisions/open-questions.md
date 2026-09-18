@@ -208,6 +208,7 @@ ambiguous or silent **and** an MVP task needs a clear answer. Each one has a `ne
 | Blocked tasks | [#106](https://github.com/dczii/URecruitment/issues/106) (design the review queue), [#131](https://github.com/dczii/URecruitment/issues/131) (build it) |
 | Deciding issue | [#106](https://github.com/dczii/URecruitment/issues/106) E02-S04-T07 *Design the CV review queue screen* |
 | What unblocks it | The owner confirms (a) and (b). #106 records the answer here before the review-queue design is finalised. The screen inventory (story [#21](https://github.com/dczii/URecruitment/issues/21), task [#75](https://github.com/dczii/URecruitment/issues/75)) will flag both for the owner |
+| Design status | #106 (via Story [#32](https://github.com/dczii/URecruitment/issues/32)) designed `Desktop / CV review queue / Default` in `design/shell.pen` (mirror: [design/specs/review-queue.md](../../design/specs/review-queue.md)) as a **proposal**, with an in-frame note pointing back to this row. Designing the proposal does **not** answer (a) — this row's status stays **Awaiting owner** until a product owner is actually reachable |
 
 ### RC-3 — Vercel Hobby and commercial use
 
