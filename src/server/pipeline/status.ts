@@ -54,7 +54,9 @@ export function resolveDelayStatus(
 
 /** Reads the `pipeline_status` view. End states and Placed are already excluded. */
 export async function getPipelineStatus(): Promise<PipelineStatusRow[]> {
-  // View is added in a later migration; generated Database types don't include it yet.
+  // View exists (20260919130100_pipeline_status_view.sql); the generated
+  // Database types haven't been regenerated against it yet (needs a local
+  // Supabase stack — CI's db:types:check catches drift and fixes commit it).
   const db = getDb() as unknown as PipelineStatusClient;
   const { data, error } = await db.from("pipeline_status").select("*");
 
