@@ -17,7 +17,16 @@ test("AC1: home page renders without errors", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "URecruitment" }),
   ).toBeVisible();
-  expect(consoleErrors).toEqual([]);
+
+  // Vercel Preview deployments inject a "Vercel Live" feedback toolbar that
+  // tries to frame vercel.live. Our CSP has no frame-src, so it falls back to
+  // default-src 'self' and correctly blocks it — that's our security header
+  // working as intended, not an app error, and it never appears in
+  // Production. Ignore only this specific, known message.
+  const appConsoleErrors = consoleErrors.filter(
+    (message) => !message.includes("Framing 'https://vercel.live/'"),
+  );
+  expect(appConsoleErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
 
