@@ -30,6 +30,27 @@ test("AC8: no horizontal overflow", async ({ page }) => {
   ).toBe(true);
 });
 
+test("AC5: Simplified Chinese sample uses Noto Sans SC without missing glyphs", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const sample = page.locator('[lang="zh-Hans"]').first();
+  await expect(sample).toBeVisible();
+
+  const snapshot = await sample.evaluate((element) => {
+    const text = element.textContent ?? "";
+    return {
+      text,
+      fontFamily: getComputedStyle(element).fontFamily,
+    };
+  });
+
+  expect(snapshot.text.trim().length).toBeGreaterThan(0);
+  expect(snapshot.text.includes("\uFFFD")).toBe(false);
+  expect(snapshot.fontFamily).toMatch(/Noto Sans SC/);
+});
+
 test("AC6: security headers are present", async ({ page }) => {
   const res = await page.goto("/");
   expect(res).not.toBeNull();
