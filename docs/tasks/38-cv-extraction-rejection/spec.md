@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `feat/38-cv-extraction-rejection` |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review -->
+| Status | In review <!-- Planned → In progress → In review -->
 
 ## Problem
 
@@ -52,17 +52,17 @@ rejection reason for a CV file.
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given a text-based PDF or DOCX, when it is processed, then its text is
+- [x] **AC1** — Given a text-based PDF or DOCX, when it is processed, then its text is
   extracted on the server and returned for parsing.
   _Proved by:_ `extract.test.ts › AC1: extracts text from an English text PDF`,
   `extract.test.ts › AC1: extracts text from a Simplified Chinese text PDF`,
   `extract.test.ts › AC1: extracts text from a DOCX`.
-- [ ] **AC2** — Given an image-only or scanned file, when it is processed, then it is rejected
+- [x] **AC2** — Given an image-only or scanned file, when it is processed, then it is rejected
   with a reason a recruiter understands and no text recognition is attempted.
   _Proved by:_ `extract.test.ts › AC2: flags an image-only PDF as likely scanned`,
   `extract.test.ts › AC2: never imports an OCR/image-recognition package`,
   `rejections.test.ts › AC2: the scanned-file message names the scan as the cause and says no text recognition is available`.
-- [ ] **AC3** — Given a rejected file, when I look at it later, then the reason is stored
+- [x] **AC3** — Given a rejected file, when I look at it later, then the reason is stored
   against the file rather than only logged.
   _Proved by:_ `rejections.test.ts › AC3: writes a stored reason code and message to cv_files`,
   `rejections.test.ts › AC3: every rejection path leaves cv_files with a status`.

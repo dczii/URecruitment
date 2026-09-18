@@ -60,7 +60,7 @@ check.
 
 ## Steps
 
-- [ ] **S1a** `grok` — Write failing tests first in `src/server/cv/extract.test.ts` covering
+- [x] **S1a** `grok` — Write failing tests first in `src/server/cv/extract.test.ts` covering
   AC1 (EN PDF, ZH PDF, DOCX extract non-empty text) and AC2 (an image-only PDF fixture is
   flagged `isLikelyScanned: true`; a normal one-page text PDF just above the threshold is
   flagged `false`), plus: the module's first line is `import "server-only";`; no import of any
@@ -72,7 +72,7 @@ check.
     extractable text per page" is the rejection trigger, no OCR ever. `nextjs-app` — server-only
     file convention.
   - Verify: `npm test -- extract` → fails (module doesn't exist yet), not a typo/syntax error.
-- [ ] **S1b** `grok` — Implement `src/server/cv/extract.ts`: `import "server-only"` as the
+- [x] **S1b** `grok` — Implement `src/server/cv/extract.ts`: `import "server-only"` as the
   first line; export `MIN_CHARS_PER_PAGE` as the single documented threshold; export
   `extractCvText(bytes: Uint8Array, contentType: "application/pdf" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"): Promise<{ text: string; quality: { totalChars: number; pageCount: number | null; avgCharsPerPage: number | null; isLikelyScanned: boolean } }>`.
   For PDF, use `pdfjs-dist`'s legacy Node build to read per-page text and page count; compute
@@ -84,7 +84,7 @@ check.
   - Rules: same as S1a, plus `security-check` — never log the extracted CV text (no
     `console.log`/`console.error` of `text`).
   - Verify: `npm test -- extract` → pass; `npm run typecheck`; `npm run lint`.
-- [ ] **S2a** `grok` — Write failing tests first in `src/server/cv/rejections.test.ts` covering
+- [x] **S2a** `grok` — Write failing tests first in `src/server/cv/rejections.test.ts` covering
   AC2 (the scanned/image-only message text names the scan as the cause and states no text
   recognition is available) and AC3 (a test proves the reason-code set is exhaustive — every
   `RejectionReasonCode` has a message; a helper call writes both a `parse_status` and a
@@ -98,7 +98,7 @@ check.
     policy changes needed; the helper must go through `getDb()`, never a new client.
     `security-check` — `parse_error` never contains raw CV text, only the fixed message.
   - Verify: `npm test -- rejections` → fails for the stated reason.
-- [ ] **S2b** `grok` — Implement `src/server/cv/rejections.ts`: `import "server-only"` first
+- [x] **S2b** `grok` — Implement `src/server/cv/rejections.ts`: `import "server-only"` first
   line; export the closed union type
   `RejectionReasonCode = "image_only_or_scanned" | "unsupported_type" | "too_large" | "no_usable_text" | "parse_failed_schema_validation"`;
   export a `Record<RejectionReasonCode, string>` of recruiter-language messages (the
@@ -114,7 +114,7 @@ check.
     is re-runnable (`create or replace`/`drop constraint if exists` style); regenerate
     `src/lib/database.types.ts` into `src/lib`, not `src/server`.
   - Verify: `npm test -- rejections` → pass; `npm run typecheck`; `npm run lint`.
-- [ ] **S3** `none` — Full verification until green (lint, typecheck, unit tests; `test:db` only
+- [x] **S3** `none` — Full verification until green (lint, typecheck, unit tests; `test:db` only
   if the local Supabase/Docker setup is available here — otherwise rely on CI's `db.yml` per
   memory "no Docker locally"), then close out docs. Do not run `pr-review`.
 
@@ -154,14 +154,59 @@ re-runnability.)
 
 ## Outcome
 
-<!-- Filled after execution. -->
-
-- **Shipped:**
+- **Shipped:** #124 (`extractCvText`: PDF/DOCX text extraction with an image-only/scanned
+  quality signal) and #125 (`recordCvFileRejection`: a closed set of rejection reason codes and
+  recruiter-language messages, stored on `cv_files` via a new `rejected` `parse_status` value).
 - **Changed files / areas:**
+  - `src/server/cv/extract.ts`, `src/server/cv/extract.test.ts` (new)
+  - `src/server/cv/rejections.ts`, `src/server/cv/rejections.test.ts` (new)
+  - `supabase/migrations/20260918122944_cv_files_rejected_status.sql` (new)
+  - `package.json`, `package-lock.json` (added `pdfjs-dist`, `mammoth`)
 - **Tests added or updated:**
-- **Verification:**
+  - `extract.test.ts` — AC1 (EN PDF, ZH PDF, DOCX extract to text), AC2 (image-only PDF flagged
+    `isLikelyScanned`, single documented threshold, no OCR import, server-only guard). 7 tests.
+  - `rejections.test.ts` — AC3 (exhaustive reason-code set, DB write of status + message,
+    every code leaves a status, a DB error is surfaced not swallowed), AC2 (scanned message
+    wording), server-only guard. 6 tests.
+- **Verification (Node 22.12.0 via nvm — this sandbox's default shell is Node 20.19.4, which
+  is below `pdfjs-dist@6`'s Node floor and makes the PDF path throw silently into the
+  catch-fallback; re-run everything under Node 22 before trusting results here):**
+  - `npm test -- extract` → pass (7/7)
+  - `npm test -- rejections` → pass (6/6)
+  - `npm run typecheck` → pass
+  - `npm run lint` → pass (1 pre-existing unrelated warning in `supabase/migration-lint.ts`)
+  - `npm test` (full suite) → pass (225/225)
+  - `npm run build` → pass, `no leaks (scanned 2 directories)` (client-bundle secret scan)
+  - `npm run test:e2e`, `npm run eval` — not applicable (no screen, no AI/model call)
+  - `npm run test:db` — not run; no local Docker/Supabase in this environment (see Follow-ups)
 - **Deviations:**
-- **Fix rounds / escalations:**
+  - The first executor pass for S1b set `MIN_CHARS_PER_PAGE = 10` instead of the spec's `20`,
+    to make the initial (too-short, 13-character) Simplified Chinese AC1 fixture pass rather
+    than fixing the fixture. That defeats the point of a real image-only threshold. Claude
+    fixed this directly: lengthened `ZH_CV_SNIPPET` in `extract.test.ts` to a realistic
+    one-line CV snippet and restored `MIN_CHARS_PER_PAGE = 20`, then re-verified all extractor
+    tests green under Node 22.
+  - `npm run db:types` could not run (no Docker/local Supabase here); `src/lib/database.types.ts`
+    was left untouched. `parse_status` is already typed as `string`, so nothing broke, but the
+    generated types don't yet reflect the widened check constraint.
+- **Fix rounds / escalations:** one direct Claude fix after S1b (see Deviations); no
+  `cursor-agent` fix-loop rounds or model escalations were needed — every executor step passed
+  verification on its first pass (aside from the threshold issue Claude corrected directly).
 - **Models used:**
-- **Claude direct fixes:**
+  - Planning/orchestration: Claude Sonnet 5 (this session).
+  - S1a (failing tests, extract): `cursor-grok-4.6-high` (per `.orchestrator/.../S1a.log`).
+  - S1b (implement extract): `cursor-grok-4.6-high` (per `.orchestrator/.../S1b.log`).
+  - S2a (failing tests, rejections): `cursor-grok-4.6-high` (per `.orchestrator/.../S2a.log`).
+  - S2b (implement rejections + migration): `cursor-grok-4.6-high` (per `.orchestrator/.../S2b.log`).
+  - No escalation-tier or GPT-5.6 calls were needed.
+- **Claude direct fixes:** restored `MIN_CHARS_PER_PAGE` to `20` and lengthened the ZH fixture
+  in `extract.test.ts` (see Deviations) after S1b's implementation quietly narrowed the
+  threshold to fit an under-length test fixture instead of the fixture being realistic.
 - **Follow-ups:**
+  - Regenerate `src/lib/database.types.ts` (`npm run db:types`) wherever a local Supabase/Docker
+    stack is available, and commit the diff if the constraint change surfaces there — CI's
+    `db.yml` should also catch this via its own ephemeral local Supabase.
+  - This task only produces the quality signal; the Chinese-PDF-fallback path itself
+    (E04-S02-T03) and the actual AI parse call (E04-S02-T02) consume it next.
+  - The review-queue screen (E04-S03-T02) is the first UI consumer of the stored
+    `parse_status='rejected'` / `parse_error` values written here.
