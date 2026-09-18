@@ -619,6 +619,44 @@ export type Database = {
           },
         ]
       }
+      rescore_runs: {
+        Row: {
+          candidate_ids_scored: Json
+          created_at: string
+          error: string | null
+          id: string
+          job_version_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_ids_scored?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_version_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_ids_scored?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          job_version_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rescore_runs_job_version_id_fkey"
+            columns: ["job_version_id"]
+            isOneToOne: false
+            referencedRelation: "job_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings_log: {
         Row: {
           created_at: string

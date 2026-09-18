@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { isValidRecruiterName } from "@/lib/recruiter-name";
@@ -16,6 +17,7 @@ import {
 import { runGapCheck } from "@/server/gap-check/run";
 import { jobVersionInputSchema } from "@/server/jobs/schema";
 import { saveJobVersion } from "@/server/jobs/versions";
+import { startRescoreRun } from "@/server/matching/rescore";
 
 const SAVE_FAILED = "The job could not be saved.";
 const OWNER_NAME_MAX = 80;
@@ -215,6 +217,14 @@ export async function createJob(input: unknown): Promise<CreateJobResult> {
   } catch {
     // The job save must succeed even when the gap check fails entirely.
   }
+
+  after(() =>
+    startRescoreRun({
+      jobVersionId,
+      model: getModel("match"),
+      runs: createSupabaseAiRunsWriter(),
+    }),
+  );
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${jobId}`);
