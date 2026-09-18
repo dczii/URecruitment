@@ -243,7 +243,13 @@ gh issue view <issue> --json state,milestone
 # Review section: write "Skipped — verification is the close-out gate."
 PR_URL=$(gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
   --body-file .orchestrator/<issue>-<slug>/pr-body.md --assignee "@me")
+PR_NUM=$(gh pr view "$PR_URL" --json number --jq .number)
+# Milestone and labels on the PR itself, mirrored from the Task/Story issue(s)
+# it closes (never guessed — read them off the issue).
+gh pr edit "$PR_NUM" --milestone MVP   # or the issue's actual milestone if not MVP
+gh pr edit "$PR_NUM" --add-label <area:*-labels-from-the-issues>
 gh project item-add 4 --owner dczii --url "$PR_URL"
+.claude/skills/github-workflow/scripts/set-status.sh "$PR_NUM" inReview   # sets the PR's own card, not just the issue's
 # Confirm GitHub linked the PR in the issue's Development section. An empty
 # result means the body lacks a valid `Closes #<issue>` reference; fix the body.
 # GitHub links closing keywords only on PRs based on `main`: for a stacked PR
@@ -251,13 +257,22 @@ gh project item-add 4 --owner dczii --url "$PR_URL"
 #   gh pr view "$PR_URL" --json body --jq .body | grep -nE '^Closes #'
 gh pr view "$PR_URL" --json closingIssuesReferences \
   --jq '.closingIssuesReferences[] | select(.number == <issue>) | .url'
+# For every `Closes #<N>` line the query above does NOT return (always true for
+# a stacked base, sometimes true even on `main`), leave an explicit fallback
+# link so the connection is discoverable without relying on auto-close:
+#   gh pr comment "$PR_NUM" --body "Also implements #<N> — not auto-linked
+#   because this PR is stacked on <predecessor PR> (base \`<base-branch>\`,
+#   not \`main\`); tracking here until the rebase/retarget follow-up."
+# Then move every issue the PR closes — Task(s) and Story alike, not just the
+# one issue used in the loop variable — to inReview:
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
 - **Commits:** Conventional Commits. For a Story, at least one commit per Task, each ending in `(#<task>)`. Split further if a Task's diff is large: tests, implementation, docs.
 - **PR base:** use `main` for an independent Story or Task, or the immediate predecessor Story's branch for a stacked one. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
-- **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4. If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
-- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>` (for a Story PR, one line per Task plus the Story), and, for a PR based on `main`, `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title.
+- **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4, with its own Status set to the in-review status (`set-status.sh` accepts a PR number the same way it accepts an issue number). If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
+- **PR milestone and labels:** every PR gets the same milestone as the issue(s) it closes (`MVP` unless the issue carries `Real-data release` or `Later`) and is labelled with each closed issue's `area:*` label(s). Read these off the issues — never guess or leave the PR's milestone/labels empty.
+- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>` (for a Story PR, one line per Task plus the Story), and, for a PR based on `main`, `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title. After PR creation, every issue named in a `Closes #<N>` line — not only the loop variable's issue — must end up at the in-review status, and any `Closes #<N>` GitHub did not resolve into `closingIssuesReferences` (always the case for a stacked-branch base) must get an explicit PR comment naming the issue and why the auto-link didn't fire, so the connection survives without relying on GitHub's keyword resolution.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
 - **Then stop** for a Task or Story input. For an Epic input, continue with the next unblocked Story until every open Story has its own PR or a listed blocking condition is reached.
 - Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
