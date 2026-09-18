@@ -43,10 +43,10 @@ No open PRD items. No design needed (code + prompt only, no UI in this Story —
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Protected attributes (name, photo ref, age, gender, race, religion, marital status) never reach the scoring call. _Proved by:_ `redact.test.ts` — one case per attribute
-- [ ] **AC2** — Nationality/language never affect the score unless the job requires them with a written reason. _Proved by:_ `redact.test.ts › nationality/language included only when required+reasoned`
-- [ ] **AC3** — A missing must-have caps the score at the agreed value. _Proved by:_ `score.test.ts` — at/above/below the cap boundary, multiple missing must-haves don't stack below the cap
-- [ ] **AC4** — A displayed score shows its model version and date; a stale (older job/model version) score is never shown. _Proved by:_ `read.test.ts` — old job version, old model version, not-yet-scored cases
+- [x] **AC1** — Protected attributes (name, photo ref, age, gender, race, religion, marital status) never reach the scoring call. _Proved by:_ `redact.test.ts` — one case per attribute
+- [x] **AC2** — Nationality/language never affect the score unless the job requires them with a written reason. _Proved by:_ `redact.test.ts › nationality/language included only when required+reasoned`
+- [x] **AC3** — A missing must-have caps the score at the agreed value. _Proved by:_ `score.test.ts` — at/above/below the cap boundary, multiple missing must-haves don't stack below the cap
+- [x] **AC4** — A displayed score shows its model version and date; a stale (older job/model version) score is never shown. _Proved by:_ `read.test.ts` — old job version, old model version, not-yet-scored cases
 
 ## Guardrails that apply
 
@@ -101,26 +101,26 @@ No open PRD items. No design needed (code + prompt only, no UI in this Story —
 
 ## Steps
 
-- [ ] **T1** `claude` — Write `src/server/ai/prompts/match-score/v1.ts` + `index.ts`: schema (score 0-100, `matched`/`missing`/`uncertain` arrays each with `requirement_id`/`source_text`/`note`), prompt with rubric anchors at 90/70/50/30, "only the job's stated requirements count," "never infer or use a protected attribute," "never recommend a decision," EN + Simplified Chinese fictional examples.
+- [x] **T1** `claude` — Write `src/server/ai/prompts/match-score/v1.ts` + `index.ts`: schema (score 0-100, `matched`/`missing`/`uncertain` arrays each with `requirement_id`/`source_text`/`note`), prompt with rubric anchors at 90/70/50/30, "only the job's stated requirements count," "never infer or use a protected attribute," "never recommend a decision," EN + Simplified Chinese fictional examples.
   - Rules: `ai-prompts`; `compliance-review`; `ai-eval` — rubric anchors must be eval-ready
   - Verify: `npm run typecheck`
-- [ ] **T2a** `grok` — Failing tests first in `retrieve.test.ts`: hard filters exclude correctly; exactly 50 returned when more qualify; fewer than 50 returns all; deterministic tie-breaking; nationality/language never used as a filter unless the job requires them with a reason.
+- [x] **T2a** `grok` — Failing tests first in `retrieve.test.ts`: hard filters exclude correctly; exactly 50 returned when more qualify; fewer than 50 returns all; deterministic tie-breaking; nationality/language never used as a filter unless the job requires them with a reason.
   - Verify: `npm test -- matching/retrieve` → fails (module missing)
-- [ ] **T2b** `grok` — Implement `retrieve.ts` until T2a passes.
+- [x] **T2b** `grok` — Implement `retrieve.ts` until T2a passes.
   - Verify: `npm test -- matching/retrieve` → pass; `npm run typecheck`
-- [ ] **T3a** `grok` — Failing tests first in `redact.test.ts`: one case per protected attribute (name, photo ref if modeled, age, gender, race, religion, marital status) proving it's absent from the built scoring profile; nationality/language present only when the job version requires them with a written reason.
+- [x] **T3a** `grok` — Failing tests first in `redact.test.ts`: one case per protected attribute (name, photo ref if modeled, age, gender, race, religion, marital status) proving it's absent from the built scoring profile; nationality/language present only when the job version requires them with a written reason.
   - Verify: `npm test -- matching/redact` → fails (module missing)
-- [ ] **T3b** `grok` — Implement `redact.ts` until T3a passes.
+- [x] **T3b** `grok` — Implement `redact.ts` until T3a passes.
   - Verify: `npm test -- matching/redact` → pass; `npm run typecheck`
-- [ ] **T4a** `grok` — Failing tests first in `score.test.ts` (fake model + in-memory writer/db mocks): a missing must-have caps the score at 50; a score already below 50 is unchanged; multiple missing must-haves don't push below 50; an invented (non-verbatim) evidence quote invalidates that skill claim rather than being stored; every run writes to `ai_runs` with model/version/prompt-version/cost/duration.
+- [x] **T4a** `grok` — Failing tests first in `score.test.ts` (fake model + in-memory writer/db mocks): a missing must-have caps the score at 50; a score already below 50 is unchanged; multiple missing must-haves don't push below 50; an invented (non-verbatim) evidence quote invalidates that skill claim rather than being stored; every run writes to `ai_runs` with model/version/prompt-version/cost/duration.
   - Verify: `npm test -- matching/score` → fails (module missing)
-- [ ] **T4b** `grok` — Implement `score.ts` (composing `redact.ts`, `runAi` with the match-score prompt, evidence check, cap, persist) until T4a passes.
+- [x] **T4b** `grok` — Implement `score.ts` (composing `redact.ts`, `runAi` with the match-score prompt, evidence check, cap, persist) until T4a passes.
   - Verify: `npm test -- matching/score` → pass; `npm run typecheck`
-- [ ] **T5a** `grok` — Failing tests first in `read.test.ts`: a score for a job version that isn't the job's current version is not returned; a score from an older model version than the configured current one is marked stale/not returned as current; a job with no scores yet returns an explicit not-yet-scored state, not an empty array indistinguishable from "scored zero candidates."
+- [x] **T5a** `grok` — Failing tests first in `read.test.ts`: a score for a job version that isn't the job's current version is not returned; a score from an older model version than the configured current one is marked stale/not returned as current; a job with no scores yet returns an explicit not-yet-scored state, not an empty array indistinguishable from "scored zero candidates."
   - Verify: `npm test -- matching/read` → fails (module missing)
-- [ ] **T5b** `grok` — Implement `read.ts` until T5a passes.
+- [x] **T5b** `grok` — Implement `read.ts` until T5a passes.
   - Verify: `npm test -- matching/read` → pass; `npm run typecheck`
-- [ ] **S6** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S6** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -153,12 +153,12 @@ Depends on unmerged PR chain (#213→#226). Net-new modules; rollback is deletin
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** The full matching pipeline for Story #49 (#146-#149): `match-score` v1 prompt/schema with rubric anchors; `retrieveCandidates` (one query, hard filters + top-50 vector similarity, deterministic tie-break, nationality/language gated); `buildScoringProfile` (allow-list redaction, never a pass-through); `scoreCandidate` (redact → one `runAi` call → verbatim evidence check → must-have cap in code → persist); `getMatchScore`/`listMatchScoresForJob` (current-job-version + current-model-version resolution, with `"current"`/`"stale"`/`"not_scored"` states that correctly distinguish "an old score exists" from "nothing has been scored yet").
+- **Changed files / areas:** `src/server/ai/prompts/match-score/{v1,index}.ts` (new, written directly by Claude), `src/server/matching/{retrieve,redact,score,read}.ts` + `.test.ts` (new, 4 modules).
+- **Tests added or updated:** `retrieve.test.ts` (6), `redact.test.ts` (7), `score.test.ts` (7), `read.test.ts` (10) — 30 new tests across the Story, all executed, all passing.
+- **Verification:** `npm run lint` → pass (4 warnings, all pre-existing/intentional-unused-param style, none new errors). `npm run typecheck` → pass. `npx vitest run src/server/matching src/server/ai` → 47/47 passing. `npx vitest run src/server` (full) → 165 passed, 5 pre-existing unrelated failures (2 `db.test.ts` local WebSocket quirk, 3 `extract.test.ts` tracked against Story #38) — same known set as every prior Story in this session.
+- **Deviations:** None from the plan's intent, though the executor-designed contracts refined several details beyond the plan's own wording: (1) `retrieveCandidates` takes the job version snapshot + its embedding as input (not just a `jobVersionId`) so retrieval stays one query with no prior fetch. (2) The `read.ts` contract explicitly avoids pre-filtering the `match_scores` query by `model_version`, since doing so would silently collapse "stale" into "not_scored" — a real correctness risk the T5a executor caught and documented before T5b implemented against it. (3) `redact.ts` allow-lists explicitly (never spreads the input), proven by defensive tests that bolt extra properties (`age`, `nationality`, `photo_url`) onto fixture inputs and assert they never leak through — stronger than the plan's literal wording since the parsed schema has no such fields to test directly today.
+- **Fix rounds / escalations:** 0 across all 8 executor steps (T2a/b, T3a/b, T4a/b, T5a/b) plus T1 (prompt authoring) — everything passed verification on first attempt.
+- **Models used:** Planning/orchestration + T1 (prompt authoring): Claude Sonnet 5 (claude-sonnet-5). T2a/T2b/T3a/T3b/T4a/T4b/T5a/T5b: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) Nationality has no field anywhere in the parsed candidate-profile schema (#39 deliberately never captures it) — `retrieve.ts`'s nationality filter and `redact.ts`'s nationality exclusion are both correctly *gated* but have no real data to act on yet; a future schema decision would need to introduce a nationality field before this filter does anything beyond proving the gate logic. (2) Nothing yet calls this pipeline in bulk — no seed→retrieve→score pipeline exists. Wiring it (and re-scoring on job save) is #50's job. (3) The ranked-match list UI is #51's job — `read.ts`'s `listMatchScoresForJob` is built and ready for it.
