@@ -64,7 +64,7 @@ this is the first Story to unit-test rendered components.
 
 ## Steps
 
-- [ ] **S1** `claude` — Create `design/pattern.pen` and `design/specs/patterns.md`: `AiSuggestion`
+- [x] **S1** `claude` — Create `design/pattern.pen` and `design/specs/patterns.md`: `AiSuggestion`
   (value + score variant with model version/date), `SourceQuote` (collapsed/expanded, EN + ZH),
   `DelayStatusBadge` (on-track/due-soon/overdue/no-status, greyscale-legible), `TypedNameDialog`
   (first use, remembered, change), `EmptyState`/`ErrorState`/loading skeleton — desktop + phone frames
@@ -76,7 +76,7 @@ this is the first Story to unit-test rendered components.
   - Verify: pen.dev validation of `design/pattern.pen`; greyscale check of the delay badge frame;
     confirm `design/specs/patterns.md` lists every pattern's props/states so Grok can build without
     opening the `.pen` file.
-- [ ] **S2a** `grok` — Add devDependencies (`@testing-library/react`, `@testing-library/jest-dom`,
+- [x] **S2a** `grok` — Add devDependencies (`@testing-library/react`, `@testing-library/jest-dom`,
   `jsdom`) and write failing tests: `AiSuggestion.test.tsx` (label always shown; score variant fails
   typecheck without model version+date — assert via a `// @ts-expect-error` case plus a runtime
   render assertion), `DelayStatusBadge.test.tsx` (wording + `aria-label` per status; end states/Placed
@@ -86,29 +86,29 @@ this is the first Story to unit-test rendered components.
     network, use `// @vitest-environment jsdom` per file; `ui-build` §Tests (aria/badge text, name
     persistence).
   - Verify: `npm test -- src/components/patterns/AiSuggestion.test.tsx src/components/patterns/DelayStatusBadge.test.tsx src/lib/recruiter-name.test.ts` → fails because the modules don't exist yet, not because of import/config errors.
-- [ ] **S2b** `grok` — Implement `AiSuggestion.tsx`, `DelayStatusBadge.tsx`, `src/lib/recruiter-name.ts`
+- [x] **S2b** `grok` — Implement `AiSuggestion.tsx`, `DelayStatusBadge.tsx`, `src/lib/recruiter-name.ts`
   from `design/specs/patterns.md` until S2a is green (covers AC1, AC3, half of AC4; Task #99).
   - Rules: `ui-build` §Rules 1–5 (tokens only, shadcn-first, no automatic-decision UI, accessibility);
     `prd-context` guardrail 7 (device-remembered name).
   - Verify: `npm test -- src/components/patterns/AiSuggestion.test.tsx src/components/patterns/DelayStatusBadge.test.tsx src/lib/recruiter-name.test.ts` → pass; `npm run typecheck`.
-- [ ] **S3a** `grok` — Write failing tests: `SourceQuote.test.tsx` (expand/collapse, `lang="zh-Hans"`
+- [x] **S3a** `grok` — Write failing tests: `SourceQuote.test.tsx` (expand/collapse, `lang="zh-Hans"`
   on Chinese text, CSS truncation class present — never string slicing) and `TypedNameDialog.test.tsx`
   (opens on first render when no name is stored, rejects blank/whitespace submission, stores and
   reuses the name, "change name" reopens the dialog) (covers AC2, rest of AC4; Task #99).
   - Rules: `testing` §Test-first protocol; `ui-build` §Rules 3, 7 (`SourceQuote`, Chinese `lang` +
     CSS truncation) and §4 (`TypedNameDialog`).
   - Verify: `npm test -- src/components/patterns/SourceQuote.test.tsx src/components/patterns/TypedNameDialog.test.tsx` → fails because the components don't exist yet.
-- [ ] **S3b** `grok` — Add the shadcn `dialog` primitive, then implement `SourceQuote.tsx` and
+- [x] **S3b** `grok` — Add the shadcn `dialog` primitive, then implement `SourceQuote.tsx` and
   `TypedNameDialog.tsx` (using `src/lib/recruiter-name.ts` from S2b) until S3a is green (covers AC2,
   rest of AC4; Task #99).
   - Rules: `ui-build` §Rules 2–4, 7 (shadcn-first, `SourceQuote`/`TypedNameDialog` contracts, ZH
     handling); `prd-context` guardrail 7.
   - Verify: `npm test -- src/components/patterns/SourceQuote.test.tsx src/components/patterns/TypedNameDialog.test.tsx` → pass; `npm run typecheck`.
-- [ ] **S4** `grok` — Build `states.tsx` (`EmptyState`, `ErrorState`, loading skeletons) matching
+- [x] **S4** `grok` — Build `states.tsx` (`EmptyState`, `ErrorState`, loading skeletons) matching
   `design/specs/patterns.md`; no dedicated logic, so no test-first split (Task #99).
   - Rules: `ui-build` §Rules 1, 3, 5 (tokens, shared states, accessibility).
   - Verify: `npm run typecheck`; `npm run lint`.
-- [ ] **S5** `none` — Inspect the complete Story diff, run all verification until green, visually
+- [x] **S5** `none` — Inspect the complete Story diff, run all verification until green, visually
   compare each component against `design/pattern.pen`/`design/specs/patterns.md`. Do not run
   `pr-review`. Close out docs when checks are green.
 
@@ -149,14 +149,65 @@ change, no AI prompt/parsing change in this Story.
 
 ## Outcome
 
-<!-- Filled after execution. -->
-
-- **Shipped:** 
-- **Changed files / areas:**
-- **Tests added or updated:** <!-- Name files and covered behaviours, or "none — <concrete reason>". -->
-- **Verification:** <!-- Each command and pass/fail. -->
-- **Deviations:** 
-- **Fix rounds / escalations:** 
-- **Models used:** <!-- Role + step/round + exact model ID. Use "unknown (runtime did not expose it)" when necessary; never guess. -->
-- **Claude direct fixes:** 
-- **Follow-ups:** 
+- **Shipped:** Five shared patterns — `AiSuggestion`, `SourceQuote`, `DelayStatusBadge`,
+  `TypedNameDialog`, and `EmptyState`/`ErrorState`/loading skeletons — plus the
+  `src/lib/recruiter-name.ts` device-persistence helper and the shadcn `dialog` primitive. Three of
+  the five patterns (`AiSuggestion`, `DelayStatusBadge`, `SourceQuote`) also have working frames in
+  `design/pattern.pen`; `TypedNameDialog` and the states pattern are fully specified in
+  `design/specs/patterns.md` but not yet drawn in `.pen` (see Deviations/Follow-ups).
+- **Changed files / areas:** `design/pattern.pen`, `design/specs/patterns.md`,
+  `src/components/patterns/{AiSuggestion,DelayStatusBadge,SourceQuote,TypedNameDialog,states}.tsx`
+  + their `.test.tsx` files, `src/lib/recruiter-name.ts` + its test, `src/components/ui/dialog.tsx`,
+  `package.json`/`package-lock.json` (added `@testing-library/react`, `@testing-library/jest-dom`,
+  `jsdom` as devDependencies).
+- **Tests added or updated:** `AiSuggestion.test.tsx` (AC1), `DelayStatusBadge.test.tsx` (AC3),
+  `recruiter-name.test.ts` (AC4 persistence), `SourceQuote.test.tsx` (AC2), `TypedNameDialog.test.tsx`
+  (AC4 dialog behaviour) — 25 tests total, all test-first (failing commit, then a separate
+  implementation commit). `states.tsx` has no dedicated test file: it has no branching logic per the
+  plan's S4 rationale (verified by typecheck/lint and visual inspection instead).
+- **Verification:** `npm run lint` → pass (1 pre-existing warning in `supabase/migration-lint.ts`,
+  untouched by this Story). `npm run typecheck` → pass. `npm test` → 158/160 pass; the 2 failures are
+  in `src/server/db.test.ts`, pre-existing and unrelated (local Node v20 vs the repo's required v22,
+  a Supabase realtime-js WebSocket-constructor check — the file predates this branch, commit
+  `041904c`). `npm run build` → pass, including the client-bundle secret-leak scan ("no leaks").
+  `npm run test:e2e`/`test:db`/`eval` → not applicable (no screen wiring, no DB/schema or AI-prompt
+  change).
+- **Deviations:**
+  - The pencil MCP tools initially failed with "a file needs to be open in the editor"; the user then
+    opened `design/pattern.pen` (singular, not the `patterns.pen` originally planned) directly in
+    pen.dev mid-session, and docs/spec were updated to the actual filename.
+  - Partway through drawing frames, the pen.dev renderer in this session started returning blank
+    screenshots and clipped bounds for newly created nodes (reproducible via `Get` bounds, not just a
+    screenshot artifact) while previously-created frames kept rendering correctly. `AiSuggestion`,
+    `DelayStatusBadge` and `SourceQuote` frames were built and screenshot-verified before this started;
+    `TypedNameDialog` and the states pattern have correct underlying node data (verified via `Get`)
+    but exhibit the clipping bug visually. `design/specs/patterns.md` — the actual contract Grok built
+    from — is complete and correct for all five patterns regardless.
+  - `npx shadcn@latest add dialog` failed inside the cursor-agent sandbox (network 403); Grok
+    hand-authored `src/components/ui/dialog.tsx` to match the existing generated `sheet.tsx`. Claude
+    re-ran the CLI directly afterward (network was reachable outside the sandbox) and overwrote it
+    with the official registry version; `TypedNameDialog`'s tests still pass unchanged against it.
+  - `AiSuggestion`'s SGT date formatting: `Intl.DateTimeFormat("en-SG", …)` renders "Sept" on this
+    Node's ICU data; the implementation normalizes it to "Sep" to match the spec/tests.
+- **Fix rounds / escalations:** None — every executor step passed its stated verification on the
+  first attempt; no fix-loop rounds or model escalations were needed.
+- **Models used:** Planning/orchestration: Claude (Sonnet 5, this session). Design (S1, frames +
+  `design/specs/patterns.md`): Claude via the pencil MCP (this session). Implementation steps S2a,
+  S2b, S3a, S3b, S4: `cursor-grok-4.6-high` (per `.claude/github-project.json` `executor.model`,
+  resolved by `run-executor.sh grok`; exact per-call model identity not independently exposed by the
+  `cursor-agent` CLI output beyond this configured id — treated as `cursor-grok-4.6-high` per the
+  logged invocation, not "unknown", since the wrapper always passes this literal `--model` value).
+  Direct fix: Claude re-ran `npx shadcn@latest add dialog` against the real registry (S3b deviation
+  above); no code fix rounds were otherwise needed.
+- **Claude direct fixes:** Re-generated `src/components/ui/dialog.tsx` from the official shadcn
+  registry (replacing Grok's hand-authored fallback) after confirming the S3a tests still pass
+  unchanged.
+- **Follow-ups:**
+  - Open `design/pattern.pen` in pen.dev and finish the `TypedNameDialog` and
+    `EmptyState`/`ErrorState`/skeleton frames — the node data is present but needs a fresh session to
+    resolve the renderer clipping bug and get clean screenshots.
+  - No screen yet consumes these five patterns; the next Story in this area should wire them into a
+    real screen and add Playwright coverage per Assumption A1/A4.
+  - `src/server/db.test.ts`'s 2 pre-existing failures (Node v20 vs required v22) are unrelated to this
+    Story but worth flagging separately — CI likely runs Node 22 per `package.json` `engines`, so this
+    may only affect local runs on an older Node.

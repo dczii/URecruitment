@@ -9,7 +9,7 @@
 | Branch | `feat/31-shared-ai-delay-patterns` |
 | Base | `main` |
 | Created | 2026-09-18 |
-| Status | Planned <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -53,22 +53,26 @@ an audit name, all built once and reused everywhere.
 
 ## Acceptance criteria
 
-- [ ] **AC1** (#98, #99) — Given any AI-derived value on screen, when it is displayed via
+- [x] **AC1** (#98, #99) — Given any AI-derived value on screen, when it is displayed via
   `AiSuggestion`, then it carries a visible "AI suggestion" label, and when the value is a score it
   also shows its model version and date; passing a score without them fails typecheck.
   _Proved by:_ `src/components/patterns/AiSuggestion.test.tsx › AC1`.
-- [ ] **AC2** (#98, #99) — Given an AI-derived value, when its `SourceQuote` is expanded, then the
+- [x] **AC2** (#98, #99) — Given an AI-derived value, when its `SourceQuote` is expanded, then the
   exact CV/job text it came from is shown, and Chinese text renders with `lang="zh-Hans"` and is
   truncated by CSS, never by slicing the string.
   _Proved by:_ `src/components/patterns/SourceQuote.test.tsx › AC2`.
-- [ ] **AC3** (#98, #99) — Given a delay status, when `DelayStatusBadge` renders it, then it shows an
+- [x] **AC3** (#98, #99) — Given a delay status, when `DelayStatusBadge` renders it, then it shows an
   icon and a word as well as colour, carries an `aria-label` stating the status in full, and end
   states / Placed render no status.
   _Proved by:_ `src/components/patterns/DelayStatusBadge.test.tsx › AC3`.
-- [ ] **AC4** (#98, #99) — Given a recruiter's first change on a device, when they act, then
+- [x] **AC4** (#98, #99) — Given a recruiter's first change on a device, when they act, then
   `TypedNameDialog` asks for their name, rejects blank/whitespace-only input, and remembers the name
-  on the device so it does not ask again until it is changed.
-  _Proved by:_ `src/components/patterns/TypedNameDialog.test.tsx › AC4`.
+  on the device so it does not ask again until it is changed. The dialog's own open/close is
+  caller-controlled (no screen wires it yet — Assumption A1), so this is proved at the component
+  level: validation/submit behaviour in `TypedNameDialog.test.tsx › AC4`, and device persistence in
+  `src/lib/recruiter-name.test.ts › AC4`.
+  _Proved by:_ `src/components/patterns/TypedNameDialog.test.tsx › AC4`,
+  `src/lib/recruiter-name.test.ts › AC4`.
 
 ## Guardrails that apply
 
