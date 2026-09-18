@@ -37,10 +37,10 @@ Today a CV that fails to parse just sits with an error on `cv_files` — nothing
 
 Story #40's ACs (AC1–AC3) are all screen-facing ("when I open the review queue…") and cannot be proved without #131. This task instead proves #130's own Done-when list as the acceptance surface for this PR:
 
-- [ ] **T130-AC1** — Given a file with `parse_status = 'error'`, when the queue query runs, it is returned with its reason, file name and failed-at time. _Proved by:_ `review-queue.test.ts › lists failed files with reason`
-- [ ] **T130-AC2** — Given a queued file, when retried and the retry succeeds, it leaves the queue (status becomes `parsed`). _Proved by:_ `review-queue.test.ts › a successful retry clears the file from the queue`
-- [ ] **T130-AC3** — Given a queued file, when retried and it fails again, it stays queued with an updated reason and incremented attempt count. _Proved by:_ `review-queue.test.ts › a repeated failure keeps the file queued with an updated reason and attempt count`
-- [ ] **T130-AC4** — No code path retries a file without an explicit recruiter-invoked call. _Proved by:_ code review — `retryParse` takes no scheduler/cron entry point; it's a plain exported function only a Server Action (future #131) would call.
+- [x] **T130-AC1** — Given a file with `parse_status = 'error'`, when the queue query runs, it is returned with its reason, file name and failed-at time. _Proved by:_ `review-queue.test.ts › lists failed files with reason`
+- [x] **T130-AC2** — Given a queued file, when retried and the retry succeeds, it leaves the queue (status becomes `parsed`). _Proved by:_ `review-queue.test.ts › a successful retry clears the file from the queue`
+- [x] **T130-AC3** — Given a queued file, when retried and it fails again, it stays queued with an updated reason and incremented attempt count. _Proved by:_ `review-queue.test.ts › a repeated failure keeps the file queued with an updated reason and attempt count`
+- [x] **T130-AC4** — No code path retries a file without an explicit recruiter-invoked call. _Proved by:_ code review — `retryParse` takes no scheduler/cron entry point; it's a plain exported function only a Server Action (future #131) would call.
 
 ## Guardrails that apply
 
@@ -83,16 +83,16 @@ Story #40's ACs (AC1–AC3) are all screen-facing ("when I open the review queue
 
 ## Steps
 
-- [ ] **M1** `grok-low` — Write the migration adding `attempt_count`/`last_attempted_at` to `cv_files`.
+- [x] **M1** `grok-low` — Write the migration adding `attempt_count`/`last_attempted_at` to `cv_files`.
   - Rules: `supabase-db` — additive, RLS already correct, no new policies needed
   - Verify: `npm run lint` (migration lint), `npm run typecheck`
-- [ ] **T1a** `grok` — Failing tests first in `review-queue.test.ts`: lists failed files with reason; successful retry clears the queue; repeated failure keeps it queued with incremented attempt count and updated reason.
+- [x] **T1a** `grok` — Failing tests first in `review-queue.test.ts`: lists failed files with reason; successful retry clears the queue; repeated failure keeps it queued with incremented attempt count and updated reason.
   - Rules: `testing` — test-first, no network; mock `../db` per `rejections.test.ts` pattern
   - Verify: `npm test -- review-queue` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `review-queue.ts` until T1a passes.
+- [x] **T1b** `grok` — Implement `review-queue.ts` until T1a passes.
   - Rules: `supabase-db` — server-only, service-role writes; reuse `extractCvText`/`parseCv`
   - Verify: `npm test -- review-queue` → pass; `npm run typecheck`
-- [ ] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -124,12 +124,12 @@ Depends on unmerged PR #214. Net-new query/action module + additive migration; r
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** #130 only — the CV review-queue backend: `listFailedCvFiles()` query and a recruiter-invoked `retryParse()` action, plus the `attempt_count`/`last_attempted_at` migration that makes repeated failures visible. **#131 (the screen) was not built** — it remains blocked on RC-2 (open PRD question, "Awaiting owner"), exactly as `docs/decisions/open-questions.md` already directs. Story #40's issue and #131 stay open.
+- **Changed files / areas:** `supabase/migrations/20260918214200_cv_files_attempt_count.sql` (new), `src/server/cv/review-queue.ts` + `.test.ts` (new), `src/lib/database.types.ts` (modified — added the two new columns; hand-edited since `db:types` couldn't run without local Supabase/Docker).
+- **Tests added or updated:** `review-queue.test.ts` — lists only failed files with reason/attempt count; successful retry clears the queue; failed retry keeps it queued with incremented attempt count and updated reason; `retryParse` has no scheduler wiring.
+- **Verification:** `npm run lint` → pass (1 pre-existing unrelated warning). `npm run typecheck` → pass. `npx vitest run src/server/ai src/server/cv` → 38 passed, 3 pre-existing unrelated `extract.test.ts` failures (already confirmed on `main`, tracked against Story #38). `npm run test:db` → not run locally (no Docker); CI must confirm the migration and `db:types:check`.
+- **Deviations:** `database.types.ts` was hand-edited to add the two new columns since the generator needs local Supabase. This is a stopgap — CI's `db:types:check` should be watched on this PR to confirm the hand-edit matches the generator's real output.
+- **Fix rounds / escalations:** 0 — both executor steps (T1a, T1b) passed on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). Migration (M1): written directly by Claude (mechanical, one-line schema change, not worth a cursor-agent round-trip). T1a/T1b: cursor-grok-4.6-high. No escalations, no direct Claude fixes beyond the migration itself.
+- **Claude direct fixes:** none beyond authoring M1 directly.
+- **Follow-ups:** (1) **#131 remains blocked** — build it only after RC-2 is resolved by the product owner; `design/specs/review-queue.md` already exists as a proposal per #106 but that alone doesn't answer RC-2. (2) Confirm `database.types.ts`'s hand-edit against a real `npm run db:types` run once Docker/CI is available. (3) Story #40's GitHub issue and #131 stay open — do not mark Story #40 done from this PR alone.
