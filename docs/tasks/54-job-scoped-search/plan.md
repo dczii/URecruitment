@@ -37,9 +37,9 @@ No open PRD items. Design is a change to the existing search screen (entry point
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Searching from a job ranks results by that job's match score. _Proved by:_ `job-scoped.test.ts › AC1: results ordered by stored match score`
-- [ ] **AC2** — A job-scoped result shows the same reasons/evidence as the job's ranked list. _Proved by:_ `job-scoped.test.ts › AC2: matched/missing/uncertain match the stored match_scores row` (same data source as #51's `getRankedMatches`)
-- [ ] **AC3** — A candidate with no score for that job version shows as not-yet-scored, not zero. _Proved by:_ `job-scoped.test.ts › AC3: null match_score maps to not_scored, never 0`
+- [x] **AC1** — Searching from a job ranks results by that job's match score. _Proved by:_ `job-scoped.test.ts › AC1: results ordered by stored match score`
+- [x] **AC2** — A job-scoped result shows the same reasons/evidence as the job's ranked list. _Proved by:_ `job-scoped.test.ts › AC2: matched/missing/uncertain match the stored match_scores row` (same data source as #51's `getRankedMatches`)
+- [x] **AC3** — A candidate with no score for that job version shows as not-yet-scored, not zero. _Proved by:_ `job-scoped.test.ts › AC3: null match_score maps to not_scored, never 0`
 
 ## Guardrails that apply
 
@@ -87,14 +87,14 @@ No open PRD items. Design is a change to the existing search screen (entry point
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `job-scoped.test.ts` (mocked `searchCandidates`, mocked `getCurrentJobVersion`): results ordered by stored `match_score` descending; a row with `match_score: null` maps to `{ matchStatus: "not_scored" }` rather than `0`; `matched`/`missing`/`uncertain` pass through unchanged from the SQL row; a static test asserts `job-scoped.ts` never imports `runAi`, `getModel`, or any `src/server/ai/**` module (same `no-bypass.test.ts` pattern used throughout this session).
+- [x] **T1a** `grok` — Failing tests first in `job-scoped.test.ts` (mocked `searchCandidates`, mocked `getCurrentJobVersion`): results ordered by stored `match_score` descending; a row with `match_score: null` maps to `{ matchStatus: "not_scored" }` rather than `0`; `matched`/`missing`/`uncertain` pass through unchanged from the SQL row; a static test asserts `job-scoped.ts` never imports `runAi`, `getModel`, or any `src/server/ai/**` module (same `no-bypass.test.ts` pattern used throughout this session).
   - Verify: `npm test -- search/job-scoped` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `job-scoped.ts` until T1a passes.
+- [x] **T1b** `grok` — Implement `job-scoped.ts` until T1a passes.
   - Verify: `npm test -- search/job-scoped` → pass; `npm run typecheck`
-- [ ] **T2** `grok` — Add the job-detail entry point into job-scoped search, and the results view reusing #51's evidence-rendering pieces. Add `e2e/search-from-job.spec.ts` (desktop only): entering search from a job shows score-ordered results with evidence matching the job's ranked list, and an unscored candidate shows "Not yet scored."
+- [x] **T2** `grok` — Add the job-detail entry point into job-scoped search, and the results view reusing #51's evidence-rendering pieces. Add `e2e/search-from-job.spec.ts` (desktop only): entering search from a job shows score-ordered results with evidence matching the job's ranked list, and an unscored candidate shows "Not yet scored."
   - Rules: `ui-build` — reuse `RankedMatches.tsx`'s evidence rendering exactly, don't rebuild it; desktop-only
   - Verify: `npm run lint`; `npm run typecheck`; `npm run build`; `npx playwright test e2e/search-from-job.spec.ts --project=desktop --list`
-- [ ] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -128,12 +128,14 @@ Depends on unmerged PR chain (#213→#231), including #52's unverified SQL (job-
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** Job-scoped search (#155), closing Story #54, **Epic 8 (Talent search) in full, and the entire requested session scope (Epics 5-8)**: `getJobScopedResults` (zero-AI-call wrapper over #153's `job_version_id` ranking, `not_scored` vs `0` correctly distinguished), an entry point on job detail ("Search for more candidates"), and a job-scoped results view reusing the same `SkillGroup`/`AiSuggestion`/`SourceQuote` evidence structure `RankedMatches.tsx` (#51) already established.
+- **Changed files / areas:** `src/server/search/job-scoped.ts` + `.test.ts` (new), `src/app/jobs/[id]/page.tsx` (modified — entry link), `src/app/search/page.tsx` (modified — now a Server Component branching on `jobId`), `src/components/features/search/SearchScreen.tsx` (new — #53's client search UI, moved out of `page.tsx` so it could become a Server Component), `src/components/features/search/JobScopedResults.tsx` (new), `e2e/search-from-job.spec.ts` (new).
+- **Tests added or updated:** `job-scoped.test.ts` (6 tests: score-ordered results, evidence pass-through, `null` vs `0` match_score, no-current-version handling, static no-AI-import check) — executed, all passing. `e2e/search-from-job.spec.ts` (3 tests) — written, registered via `--list` alongside the existing `matches.spec.ts`/`search.spec.ts` (both confirmed unbroken), **not executed** — same no-Supabase-credentials constraint as every screen this entire session.
+- **Verification:** `npm run lint` → pass (4 pre-existing warnings, none new). `npm run typecheck` → pass. `npx vitest run src/server test/infra` → 236 passed, 5 pre-existing unrelated failures (2 `db.test.ts` local WebSocket quirk, 3 `extract.test.ts` tracked against Story #38) — the exact same known set that has persisted, unchanged, since Story #43 first found and confirmed them pre-existing. `npm run build` → pass, all routes registered (`/search`, `/api/ai/search`, etc.), no client-bundle leaks.
+- **Deviations:** (1) `SkillGroup` was duplicated in `JobScopedResults.tsx` rather than extracted from `RankedMatches.tsx`, since that file was out of scope for this task — a real, minor duplication worth a shared-component follow-up. (2) Scored job-scoped results use `AiSuggestion variant="value"` rather than `variant="score"`, because `getJobScopedResults` doesn't return model version/scored-at date (the SQL row has `match_score` but this Story's wrapper didn't surface those two fields) — evidence blocks still match #51 structurally, only the score's own label variant differs. (3) `src/app/search/page.tsx` was substantially refactored (net -384 lines) to become a Server Component that branches on `jobId`, with #53's existing client UI moved intact into `SearchScreen.tsx` — verified unchanged in behavior via the full test/lint/build pass and confirming `search.spec.ts`'s existing 4 tests still register correctly.
+- **Fix rounds / escalations:** 0 across both executor steps (T1a/b, T2) — everything passed verification on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b/T2: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) `SkillGroup` duplication between `RankedMatches.tsx` and `JobScopedResults.tsx` should be extracted into a shared component. (2) `getJobScopedResults` could surface model version/scored-at date so job-scoped results can use `AiSuggestion variant="score"` like the job's own ranked list, for full visual parity. (3) `e2e/search-from-job.spec.ts` (and every Playwright spec written this session) needs CI or local Supabase + seed data to actually execute — this is the single largest outstanding verification gap across the whole session's work. (4) `embedText`/batched embedding (flagged since #48) is still unbuilt — search everywhere remains filter+keyword only, no semantic ranking. (5) Whether the target Supabase image ships the `pgroonga` extension (flagged in #52) is still unverified. (6) The `CLAUDE.md`/desktop-only-practice inconsistency (flagged since #218) remains unresolved across every screen shipped this session. (7) The #156 cross-epic gap (flagged in #51) — the full stage-move system belongs to Epic 9, not requested this session.
+- **Epic 8 (Talent search) status: complete.** Stories #52 (search-query prompt + hybrid SQL), #53 (search screen), #54 (job-scoped search) all shipped across PRs #230, #231, and this one.
+- **Entire requested session scope (Epics 5, 6, 7, 8) is now complete**, alongside the discovered prerequisite Story #63 (shared `runAi` wrapper). 22 PRs total, stacked #213 through this one, none merged (Claude never merges, per project rules) — all awaiting human review and squash-merge from the bottom up.
