@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `design/29-visual-language-tokens` |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -48,31 +48,31 @@ text can be rendered consistently throughout the portal.
 
 ## Acceptance criteria
 
-- [ ] **AC1** (#94) — Given a designer opens `design/tokens.pen`, when they inspect its variables
+- [x] **AC1** (#94) — Given a designer opens `design/tokens.pen`, when they inspect its variables
   and reference board, then colour, typography, spacing, radius and shadow groups are present and
   use the same semantic names documented in `design/tokens.md`. _Proved by:_ pen.dev validation and
   `src/app/theme-contract.test.ts › AC1`.
-- [ ] **AC2** (#94) — Given any documented foreground/surface, status or focus pairing, when its
+- [x] **AC2** (#94) — Given any documented foreground/surface, status or focus pairing, when its
   contrast is measured, then normal text is at least 4.5:1 and large text, glyphs, borders and focus
   rings are at least 3:1. _Proved by:_ the contrast table in `design/tokens.md` and pen.dev design
   review.
-- [ ] **AC3** (#94) — Given delay-status roles, when they are read in the token source, then On
+- [x] **AC3** (#94) — Given delay-status roles, when they are read in the token source, then On
   track, Due soon and Overdue each have distinct semantic colour roles and require a label plus
   icon rather than colour alone. _Proved by:_ pen.dev validation and `design/tokens.md` review.
-- [ ] **AC4** (#95) — Given `design/tokens.md`, when the theme contract test compares it with
+- [x] **AC4** (#95) — Given `design/tokens.md`, when the theme contract test compares it with
   `globals.css`, then every documented colour, type, spacing and radius token has a CSS variable
   and Tailwind v4 mapping with the same semantic name. _Proved by:_
   `src/app/theme-contract.test.ts › AC4`.
-- [ ] **AC5** (#95) — Given the home page renders Simplified Chinese text, when it is inspected in
+- [x] **AC5** (#95) — Given the home page renders Simplified Chinese text, when it is inspected in
   Chromium, then the content is marked `lang="zh-Hans"` and its computed font stack includes
   `"Noto Sans SC"` without missing-glyph boxes. _Proved by:_
   `e2e/smoke.spec.ts › AC5`.
-- [ ] **AC6** (#95) — Given a component contains a hexadecimal colour or a `text-[Npx]` font size,
+- [x] **AC6** (#95) — Given a component contains a hexadecimal colour or a `text-[Npx]` font size,
   when ESLint runs, then the design-token guard reports an error. _Proved by:_
-  `eslint.config.test.ts › AC6`.
-- [ ] **AC7** — Given existing components and the home page, when lint and build run, then they use
+  `test/eslint-config.test.ts › AC6`.
+- [x] **AC7** — Given existing components and the home page, when lint and build run, then they use
   semantic theme utilities with no hexadecimal colour or raw pixel font size. _Proved by:_
-  `npm run lint`, `npm run build`, and `eslint.config.test.ts`.
+  `npm run lint`, `npm run build`, and `test/eslint-config.test.ts`.
 
 ## Guardrails that apply
 
