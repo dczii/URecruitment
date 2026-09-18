@@ -57,13 +57,25 @@ jobs:
         run: |
           set -euo pipefail
           # Map `supabase status -o env` onto the names the RLS harness reads.
-          # Values are never printed (the env dump includes JWT material).
-          eval "$(supabase status -o env)"
-          export SUPABASE_URL="${API_URL:-}"
-          export SUPABASE_DB_URL="${DB_URL:-}"
-          export SUPABASE_PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-${ANON_KEY:-}}"
-          if [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_DB_URL}" ] || [ -z "${SUPABASE_PUBLISHABLE_KEY}" ]; then
+          # Parsed rather than eval'd, and values are never printed (the dump
+          # includes JWT material). On a miss, print the variable names only.
+          status_env="$(supabase status -o env)" || {
+            echo "db.yml: \`supabase status -o env\` exited non-zero" >&2
+            exit 1
+          }
+          value() {
+            printf '%s\n' "$status_env" | sed -n -E "s/^(export )?$1=\"?([^\"]*)\"?\$/\2/p" | head -n 1
+          }
+          export SUPABASE_URL="$(value API_URL)"
+          export SUPABASE_DB_URL="$(value DB_URL)"
+          export SUPABASE_PUBLISHABLE_KEY="$(value PUBLISHABLE_KEY)"
+          if [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            export SUPABASE_PUBLISHABLE_KEY="$(value ANON_KEY)"
+          fi
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_DB_URL" ] || [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "db.yml: supabase status did not provide API_URL, DB_URL and a publishable/anon key" >&2
+            echo "Lines: $(printf '%s\n' "$status_env" | wc -l). Names seen:" >&2
+            printf '%s\n' "$status_env" | grep -oE '^(export )?[A-Za-z_][A-Za-z0-9_]*=' >&2 || echo "(none)" >&2
             exit 1
           fi
           npm run test:db
