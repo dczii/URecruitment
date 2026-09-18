@@ -11,8 +11,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:db": "vitest run --config vitest.db.config.ts",
-    "db:types": "supabase gen types typescript --local > src/lib/database.types.ts",
-    "db:types:check": "bash scripts/db-types-check.sh"
+    "db:types": "bash scripts/db-types.sh",
+    "db:types:check": "bash scripts/db-types.sh --check"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

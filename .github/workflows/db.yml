@@ -10,7 +10,7 @@ on:
       - src/server/db*
       - src/server/db/**
       - src/lib/database.types.ts
-      - scripts/db-types-check.sh
+      - scripts/db-types.sh
       - vitest.db.config.ts
       - .github/workflows/db.yml
 
@@ -50,10 +50,8 @@ jobs:
         run: supabase start
 
       - name: Apply migrations from scratch
+        id: reset
         run: supabase db reset --local --no-seed
-
-      - name: Generated types match schema
-        run: npm run db:types:check
 
       - name: DB integration tests
         run: |
@@ -69,6 +67,24 @@ jobs:
             exit 1
           fi
           npm run test:db
+
+      # Runs even when the DB tests fail, so one push reports both signals.
+      - name: Generated types match schema
+        if: ${{ !cancelled() && steps.reset.outcome == 'success' }}
+        env:
+          DB_TYPES_GENERATED_OUT: ${{ runner.temp }}/database.types.ts
+        run: npm run db:types:check
+
+      # Schema-only output, no data or secrets. Lets a machine without Docker
+      # fix drift by committing this file.
+      - name: Upload generated types
+        if: ${{ failure() && steps.reset.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: ${{ runner.temp }}/database.types.ts
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Stop local stack
         if: ${{ always() }}
