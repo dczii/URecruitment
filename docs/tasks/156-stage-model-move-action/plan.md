@@ -148,19 +148,14 @@ existing coverage from #112 already asserts `pipeline_entries`/`stage_events` ar
 - [x] **S2** `grok-low` — Add `supabase/migrations/20260919120000_stage_check_constraints.sql`: `check (stage in (<10 literals>))` on `pipeline_entries.stage`, and equivalent checks on `stage_events.from_stage` (nullable-safe) and `to_stage`, matching `src/lib/stages.ts` exactly (comment cross-referencing it). Then regenerate types: `npm run db:types` if a local Supabase is reachable, otherwise note types are unaffected (no new columns) and skip.
   - Rules: `supabase-db` — one concern per migration, never edit a merged migration, `snake_case`, must be re-runnable on a fresh DB.
   - Verify: migration file only; validated in CI (no local Docker — do not run `supabase db reset` here).
-- [x] **S3a** `grok` — Write failing tests for the move service in `src/server/pipeline/move.test.ts` (covers AC1, AC2, AC4), mocking `../db` exactly as `src/server/cv/overrides.test.ts` does: (1) a move writes one `stage_events` row with `recruiter_name` and updates `pipeline_entries.stage`/`entered_at`; (2) a backwards move also resets `entered_at`; (3) a move without a name (blank/whitespace) is refused with no `getDb()` call; (4) an invalid target stage is refused with no DB write.
+- [x] **S3a+S3b** `grok` (combined into one executor call — same file, disjoint from S3c) — Wrote failing tests for the move service in `src/server/pipeline/move.test.ts` covering AC1 (forward + backwards move), AC2 (single-row update, no duplicate insert), AC3 (all 3 end states, `from()` never called with `"stage_limits"`), AC4 (blank/whitespace name and invalid stage each refused with no `getDb()` call).
   - Rules: `testing` — typed-name validation always test-first, no network, fake DB; `prd-context` — clock resets on every move including backwards.
-  - Verify: `npm test -- pipeline/move` → fails
-- [x] **S3b** `grok` — Write failing tests for AC3 in the same file: moving into each of the 3 end states succeeds and the service never calls `.from("stage_limits")`.
-  - Rules: same as S3a.
-  - Verify: `npm test -- pipeline/move` → fails (new cases only)
-- [x] **S3c** `grok` — Implement `src/server/pipeline/move.ts` (`import "server-only"`) until S3a/S3b pass: Zod-validate `{ pipelineEntryId: string, toStage: PipelineStage, recruiterName: string (trim, 1-80) }` against `isValidPipelineStage`; read the entry's current `stage`; update `pipeline_entries` (`stage`, `entered_at: now`); insert one `stage_events` row (`from_stage` = old stage, `to_stage`, `recruiter_name` = trimmed name); return the updated row. No `stage_limits` read/write anywhere in this file.
-  - Rules: `nextjs-app` rule 9 (typed name 1–80 chars, not authentication); `supabase-db` — `stage_events` append-only, `recruiter_name text not null`.
-  - Verify: `npm test -- pipeline/move` → pass; `npm run typecheck`
-- [x] **S4** `grok-low` — Add `src/app/jobs/[id]/pipeline-move-actions.ts` (`"use server"`), mirroring `pipeline-add-actions.ts`: Zod-parse `{ pipelineEntryId, toStage, typedName }`, call `movePipelineStage`, `revalidatePath(/jobs/[id])`, return `{ ok: true, entry } | { ok: false, error }`, never throw to the client.
-  - Rules: `nextjs-app` rules 3 (Server Action shape) and 9 (typed name); reuse `isValidRecruiterName` from `src/lib/recruiter-name.ts` exactly as `pipeline-add-actions.ts` does.
-  - Verify: `npm run typecheck`; `npm run lint`
-- [x] **S5** `none` — Full verification until green (Step 7 set below), then close out docs. Do not run `pr-review`.
+  - Verify: `npm test -- pipeline/move` → failed as expected (import error: `src/server/pipeline/move.ts` didn't exist)
+- [x] **S3c** `grok` — Implemented `src/server/pipeline/move.ts` (`import "server-only"`) until S3a/S3b passed: validates recruiter name and stage before any DB call, reads the entry's current stage, updates `pipeline_entries` (`stage`, `entered_at: now`), inserts one `stage_events` row (`from_stage` = old stage, `to_stage`, `recruiter_name` = trimmed name). No `stage_limits` read/write anywhere in the file.
+  - Verify: `npm test -- pipeline/move` → pass (9/9); `npm run typecheck` → pass
+- [x] **S4** `grok` — Added `src/app/jobs/[id]/pipeline-move-actions.ts` (`"use server"`), mirroring `pipeline-add-actions.ts`: Zod-parses `{ pipelineEntryId, toStage, typedName }`, gates on `isValidRecruiterName`, calls `movePipelineStage`, `revalidatePath(/jobs/[id])`, returns `{ ok: true, entry } | { ok: false, error }`, never throws to the client.
+  - Verify: `npm run typecheck` → pass; `npm run lint` → pass
+- [x] **S5** `none` — Full verification green (see Verification below), docs closed out. `pr-review` not run, per this skill.
 
 ## Test plan
 
@@ -184,8 +179,9 @@ npm test
 `npm run test:db` is listed in the issue's verification block, but this machine has no Docker (existing
 project rule: verify Supabase/DB work in CI, not locally). This task adds no new table and no new RLS
 surface — only check constraints on already-locked-down tables — so the migration is validated by CI's
-migration-apply job on push, not run here. `npm run build` / `npm run test:e2e` / `npm run eval` don't
-apply: no screen, page, or AI change.
+migration-apply job on push, not run here. `npm run test:e2e` / `npm run eval` don't apply: no screen or
+AI change. `npm run build` was also run (not originally planned) because `pipeline-move-actions.ts`
+lands under `src/app/`; it passed with no new route surfaced (the file has no page, only an action).
 
 ## UX / design
 
