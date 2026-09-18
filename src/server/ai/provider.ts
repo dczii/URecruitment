@@ -1,6 +1,7 @@
 import "server-only";
 
 import { serverEnv, type ServerEnv } from "../env";
+import type { Embedder } from "./embeddings";
 import type { AiModel, AiModelGenerateResult } from "./types";
 
 /**
@@ -54,6 +55,20 @@ export function getModel(role: AiRole): AiModel {
 }
 
 /**
+ * Role-aware embedder. The model id comes from `AI_EMBED_MODEL`, never from
+ * callers. Until ADR-0003/ADR-0004 pick a provider, `embed` throws.
+ */
+export function getEmbedder(): Embedder {
+  const model = getModel("embed");
+  return {
+    modelId: model.modelId,
+    embed(text: string) {
+      return embedWithConfiguredProvider(text);
+    },
+  };
+}
+
+/**
  * The single function to replace when a provider is chosen. Do not call a
  * vendor SDK from `run.ts` or any other module. The real implementation will
  * take the role's model id and the prompt text and call the Vercel AI SDK.
@@ -61,5 +76,18 @@ export function getModel(role: AiRole): AiModel {
 async function generateWithConfiguredProvider(): Promise<AiModelGenerateResult> {
   throw new Error(
     "AI provider is not chosen yet (ADR-0003). Implement generateWithConfiguredProvider in src/server/ai/provider.ts when a provider is selected.",
+  );
+}
+
+/**
+ * The single embedding function to replace when a provider is chosen. Do not
+ * call a vendor SDK from `embeddings.ts` or any other module. Reach this only
+ * through `getEmbedder()`.
+ */
+async function embedWithConfiguredProvider(
+  _text: string,
+): Promise<{ vector: number[]; costUsd?: number }> {
+  throw new Error(
+    "AI provider is not chosen yet (ADR-0003). Implement embedWithConfiguredProvider in src/server/ai/provider.ts when a provider is selected.",
   );
 }
