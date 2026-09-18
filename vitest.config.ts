@@ -21,8 +21,17 @@ export default defineConfig({
       "scripts/**/*.test.ts",
       "eval/**/*.test.ts",
       "test/**/*.test.ts",
+      // supabase/migrations.test.ts is a unit test: it reads migration SQL and
+      // needs no stack. The DB layer under supabase/tests/ is excluded below.
+      "supabase/*.test.ts",
     ],
-    exclude: ["**/node_modules/**", "**/*.db.test.ts", "e2e/**", ".next/**"],
+    exclude: [
+      "**/node_modules/**",
+      "**/*.db.test.ts",
+      "supabase/tests/**",
+      "e2e/**",
+      ".next/**",
+    ],
     setupFiles: ["test/setup.ts"],
     env: { TZ: "UTC" },
     passWithNoTests: false,

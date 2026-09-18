@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:db": "node -e \"console.log('test:db: the DB integration layer needs the local Supabase stack (Docker). It is wired up in #87; nothing to run yet.')\""
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "db:types": "supabase gen types typescript --local > src/lib/database.types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -33,6 +34,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "postgres": "^3.4.9",
     "shadcn": "^4.21.0",
     "tailwindcss": "^4",
     "typescript": "^5",
