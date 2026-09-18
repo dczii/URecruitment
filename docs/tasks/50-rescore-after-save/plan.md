@@ -38,9 +38,9 @@ No open PRD items. No design needed — the "user-visible state on job detail" i
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Saving a job returns before re-scoring completes. _Proved by:_ `rescore.test.ts › AC1: the save action returns before the re-score run completes` (asserting the Server Action's own await chain doesn't block on the `after()`-scheduled work — `after()` itself can't be directly unit-tested for real async deferral, so this is proven structurally: the re-score call happens via `after()`, never `await`ed inline in the action)
-- [ ] **AC2** — Job detail shows recalculation is in progress rather than a stale score as current. _Proved by:_ manual/code review of the extended placeholder text, reading `rescore_runs` status — no automated e2e test in this task (no UI Story task exists for this beyond the minimal text swap)
-- [ ] **AC3** — A failed re-score run resumes rather than restarting. _Proved by:_ `rescore.test.ts › AC3: a retried run resumes from its recorded position, does not re-score already-scored candidates`
+- [x] **AC1** — Saving a job returns before re-scoring completes. _Proved by:_ `rescore.test.ts › AC1: the save action returns before the re-score run completes` (asserting the Server Action's own await chain doesn't block on the `after()`-scheduled work — `after()` itself can't be directly unit-tested for real async deferral, so this is proven structurally: the re-score call happens via `after()`, never `await`ed inline in the action)
+- [x] **AC2** — Job detail shows recalculation is in progress rather than a stale score as current. _Proved by:_ manual/code review of the extended placeholder text, reading `rescore_runs` status — no automated e2e test in this task (no UI Story task exists for this beyond the minimal text swap)
+- [x] **AC3** — A failed re-score run resumes rather than restarting. _Proved by:_ `rescore.test.ts › AC3: a retried run resumes from its recorded position, does not re-score already-scored candidates`
 
 ## Guardrails that apply
 
@@ -88,15 +88,15 @@ No open PRD items. No design needed — the "user-visible state on job detail" i
 
 ## Steps
 
-- [ ] **M1** `claude` — Write the `rescore_runs` migration.
+- [x] **M1** `claude` — Write the `rescore_runs` migration.
   - Verify: `npm run lint` (migration lint — new table, must include RLS + revoke)
-- [ ] **T1a** `grok` — Failing tests first in `rescore.test.ts`: `startRescoreRun` is never awaited inline by the save action (structural check on `actions.ts`, or a unit test on `rescore.ts` proving it returns a promise the caller can fire-and-forget); a failure partway records the position (candidates scored so far) and marks the run `failed`; calling `startRescoreRun` again for the same version with an existing `failed` run resumes from the recorded position, skipping already-scored candidates, and does not re-call `scoreCandidate` for them; calling `startRescoreRun` twice in quick succession for the same version while one is `pending`/`running` does not start a second run.
+- [x] **T1a** `grok` — Failing tests first in `rescore.test.ts`: `startRescoreRun` is never awaited inline by the save action (structural check on `actions.ts`, or a unit test on `rescore.ts` proving it returns a promise the caller can fire-and-forget); a failure partway records the position (candidates scored so far) and marks the run `failed`; calling `startRescoreRun` again for the same version with an existing `failed` run resumes from the recorded position, skipping already-scored candidates, and does not re-call `scoreCandidate` for them; calling `startRescoreRun` twice in quick succession for the same version while one is `pending`/`running` does not start a second run.
   - Verify: `npm test -- matching/rescore` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `rescore.ts` until T1a passes; wire `after()` into `src/app/jobs/actions.ts`'s `createJob`.
+- [x] **T1b** `grok` — Implement `rescore.ts` until T1a passes; wire `after()` into `src/app/jobs/actions.ts`'s `createJob`.
   - Verify: `npm test -- matching/rescore` → pass; `npm run typecheck`; `npm run build`
-- [ ] **T2** `grok` — Extend `src/app/jobs/[id]/page.tsx`'s "Ranked matches" placeholder to read `rescore_runs` for the job's current version and show "Recalculating scores" when one is `pending`/`running`.
+- [x] **T2** `grok` — Extend `src/app/jobs/[id]/page.tsx`'s "Ranked matches" placeholder to read `rescore_runs` for the job's current version and show "Recalculating scores" when one is `pending`/`running`.
   - Verify: `npm run lint`; `npm run typecheck`; `npm run build`
-- [ ] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -130,12 +130,12 @@ Depends on unmerged PR chain (#213→#227). Additive migration + net-new module 
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** Retryable, background re-scoring: `rescore_runs` migration; `startRescoreRun` (dedup-guarded, resume-from-position, sequential per-candidate scoring, append-only progress); `after()`-scheduled from `createJob`'s save path (never blocking the redirect); job detail shows "Recalculating scores" while a run is in progress. Closes Story #50 in full.
+- **Changed files / areas:** `supabase/migrations/20260919000002_rescore_runs.sql` (new), `src/server/matching/rescore.ts` + `.test.ts` (new), `src/app/jobs/actions.ts` (modified — `after()` call alongside the existing gap-check call), `src/lib/database.types.ts` (modified — added `rescore_runs`, removing a cast the implementation step had used as a workaround), `src/server/jobs/list.ts` (modified — `isRescoring` on `getJobDetail`), `src/app/jobs/[id]/page.tsx` (modified — conditional placeholder copy).
+- **Tests added or updated:** `rescore.test.ts` — 6 tests: fire-and-forget structural proof, failure records position, retry resumes without re-scoring completed candidates, in-flight dedup guard, full successful run. All executed, all passing.
+- **Verification:** `npm run lint` → pass (4 pre-existing warnings, none new). `npm run typecheck` → pass. `npx vitest run src/server` (full) → 171 passed, 5 pre-existing unrelated failures (2 `db.test.ts` local WebSocket quirk, 3 `extract.test.ts` tracked against Story #38) — same known set as every prior Story. `npm run build` → pass, all routes registered, no client-bundle leaks.
+- **Deviations:** T1b's first implementation used `getDb().from("rescore_runs" as never)` to sidestep `database.types.ts` lagging the new migration. **Claude fixed this directly** by hand-adding `rescore_runs` to the generated types file (same precedent as #216/#225) and removing the cast, then re-verified typecheck/tests held.
+- **Fix rounds / escalations:** 0 within the executor pipeline (M1, T1a, T1b, T2 all passed verification on first attempt). 1 direct Claude fix (the `database.types.ts` hand-update, applied proactively rather than accepting the cast).
+- **Models used:** Planning/orchestration + M1 (migration) + the `database.types.ts` fix: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b/T2: cursor-grok-4.6-high. No escalations.
+- **Claude direct fixes:** `src/lib/database.types.ts` — added `rescore_runs` types, removed the `as never` cast in `rescore.ts`.
+- **Follow-ups:** (1) AC2 (the recalculating-scores UI state) has no automated e2e coverage — it was proven only by code review, since no dedicated screen task exists for this beyond the minimal text swap. (2) The full ranked-match list UI is #51's job — `isRescoring` and `read.ts`'s current/stale/not-scored states are both ready for it. (3) Nothing yet triggers the *initial* score for a newly-created job's candidates outside of a save — the first `createJob` call does schedule `startRescoreRun`, so this should already cover it, but it hasn't been exercised end-to-end (no seed pipeline, no live Supabase in this environment).
