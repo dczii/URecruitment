@@ -37,9 +37,9 @@ No open PRD items. No design needed (code only, no UI in this task — the gap-f
 
 ## Acceptance criteria
 
-- [ ] **AC1** — A saved job with no salary range raises a missing-salary flag with a client question. _Proved by:_ `missing-fields.test.ts › AC1: missing salary range raises a flag with a question`
-- [ ] **AC2** — Every PRD missing-field rule raises exactly one flag when its field is absent. _Proved by:_ `missing-fields.test.ts` — one case per field (7 rules × absent case)
-- [ ] **AC3** — A present field raises no missing flag. _Proved by:_ `missing-fields.test.ts` — one case per field (7 rules × present case), plus a whitespace-only case counted as absent
+- [x] **AC1** — A saved job with no salary range raises a missing-salary flag with a client question. _Proved by:_ `missing-fields.test.ts › AC1: missing salary range raises a flag with a question`
+- [x] **AC2** — Every PRD missing-field rule raises exactly one flag when its field is absent. _Proved by:_ `missing-fields.test.ts` — one case per field (7 rules × absent case)
+- [x] **AC3** — A present field raises no missing flag. _Proved by:_ `missing-fields.test.ts` — one case per field (7 rules × present case), plus a whitespace-only case counted as absent
 
 ## Guardrails that apply
 
@@ -80,11 +80,11 @@ No open PRD items. No design needed (code only, no UI in this task — the gap-f
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `missing-fields.test.ts`: for each of the 7 approved fields, a case where it's absent (flag raised, correct type/reason/question) and a case where it's present (no flag); a whitespace-only value counts as absent (at least one field tested this way, e.g. salary range as `"   "`); exactly one flag per rule (no duplicate flags from one missing field).
+- [x] **T1a** `grok` — Failing tests first in `missing-fields.test.ts`: for each of the 7 approved fields, a case where it's absent (flag raised, correct type/reason/question) and a case where it's present (no flag); a whitespace-only value counts as absent (at least one field tested this way, e.g. salary range as `"   "`); exactly one flag per rule (no duplicate flags from one missing field).
   - Verify: `npm test -- missing-fields` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `missing-fields.ts` (`checkMissingFields`, `persistMissingFieldFlags`) until T1a passes.
+- [x] **T1b** `grok` — Implement `missing-fields.ts` (`checkMissingFields`, `persistMissingFieldFlags`) until T1a passes.
   - Verify: `npm test -- missing-fields` → pass; `npm run typecheck`
-- [ ] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -117,12 +117,12 @@ Depends on unmerged PR chain (#213→#222). Net-new module; rollback is deleting
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** The seven approved missing-field rules (`checkMissingFields`) plus persistence (`persistMissingFieldFlags`), closing Story #45/#140 in full. Location and work arrangement are correctly modeled as one combined rule (present if either is filled) per the PRD's own phrasing ("location or work arrangement").
+- **Changed files / areas:** `src/server/gap-check/missing-fields.ts` + `.test.ts` (new).
+- **Tests added or updated:** `missing-fields.test.ts` — 19 tests: one absent/present pair per field (7×2=14), the location-or-work-arrangement OR behavior (2 extra cases), a fully-specified job returning no flags, a whitespace-only value counted as absent, and the `gap_flags` insert shape. All executed, all passing.
+- **Verification:** `npm run lint` → pass (2 warnings: 1 pre-existing unrelated, 1 new — an intentionally-unused mock parameter in the test file, harmless, consistent with existing repo style). `npm run typecheck` → pass. `npx vitest run src/server/gap-check` → 19/19 passing.
+- **Deviations:** none from the plan.
+- **Fix rounds / escalations:** 0 — both steps passed verification on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) The job form (#43) needs to be extended to actually collect salary/location/work arrangement/employment type/headcount/start date/interview steps — until then, every job saved through the current form will legitimately show all 7 missing-field flags (correct behavior given current data, not a bug, but worth tracking as a real product gap). (2) Wiring `checkMissingFields`/`persistMissingFieldFlags` into the actual job-save path (so flags are computed automatically on every `saveJobVersion` call, per the PRD's "Saving a job" flow) isn't done in this task — it's pure logic + a persistence helper, ready to be called from #46/#47 or a dedicated wiring task. (3) Re-running the check against an already-flagged job version's duplicate-row behavior is unresolved — noted as an implementation question for whoever wires this into the save path.
