@@ -1,0 +1,91 @@
+# Migration + RLS checks against an ephemeral local Supabase stack.
+# This job never reaches a remote project: no `supabase link`, no
+# `supabase db push`, and no `--project-id` / `--linked`.
+name: DB
+
+on:
+  pull_request:
+    paths:
+      - supabase/**
+      - src/server/db*
+      - src/server/db/**
+      - src/lib/database.types.ts
+      - scripts/db-types-check.sh
+      - vitest.db.config.ts
+      - .github/workflows/db.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
+        with:
+          version: 2.106.0
+
+      - name: Start local stack
+        run: supabase start
+
+      - name: Apply migrations from scratch
+        run: supabase db reset --local --no-seed
+
+      # A second reset must also succeed. #91 uses this to catch a migration
+      # that cannot be replayed on a fresh database.
+      - name: Re-apply migrations
+        run: supabase db reset --local --no-seed
+
+      - name: Generated types match schema
+        run: npm run db:types:check
+
+      - name: DB integration tests
+        run: |
+          set -euo pipefail
+          # Map `supabase status -o env` onto the names the RLS harness reads.
+          # Values are never printed (the env dump includes JWT material).
+          eval "$(supabase status -o env)"
+          export SUPABASE_URL="${API_URL:-}"
+          export SUPABASE_DB_URL="${DB_URL:-}"
+          export SUPABASE_PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-${ANON_KEY:-}}"
+          if [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_DB_URL}" ] || [ -z "${SUPABASE_PUBLISHABLE_KEY}" ]; then
+            echo "db.yml: supabase status did not provide API_URL, DB_URL and a publishable/anon key" >&2
+            exit 1
+          fi
+          npm run test:db
+
+      - name: Stop local stack
+        if: ${{ always() }}
+        run: supabase stop
+
+      - name: Job summary
+        if: ${{ always() }}
+        run: |
+          {
+            echo "## DB checks"
+            echo
+            echo "Migrations applied:"
+            echo
+            if [ -d supabase/migrations ] && [ -n "$(ls -A supabase/migrations 2>/dev/null)" ]; then
+              ls -1 supabase/migrations | sed 's/^/- /'
+            else
+              echo "- (none yet)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
