@@ -34,7 +34,7 @@ an audit name, all built once and reused everywhere.
 ## Scope
 
 **In scope**
-- `design/patterns.pen` with a frame per pattern (AI suggestion label, source quote, delay badge,
+- `design/pattern.pen` with a frame per pattern (AI suggestion label, source quote, delay badge,
   typed-name prompt, empty/loading/error states) at desktop and phone width, plus
   `design/specs/patterns.md` as the readable build contract (Task #98).
 - `src/components/patterns/AiSuggestion.tsx`, `SourceQuote.tsx`, `DelayStatusBadge.tsx`,
@@ -94,7 +94,7 @@ an audit name, all built once and reused everywhere.
 
 ## UX / design
 
-`design/patterns.pen` is the visual source of truth; `design/specs/patterns.md` is its build
+`design/pattern.pen` is the visual source of truth; `design/specs/patterns.md` is its build
 contract. Frames: `AiSuggestion` (value + score variants), `SourceQuote` (collapsed/expanded, EN/ZH),
 `DelayStatusBadge` (on-track/due-soon/overdue/no-status), `TypedNameDialog` (first use, remembered,
 changing the name), and `EmptyState`/`ErrorState`/loading skeleton — each at desktop and phone width.

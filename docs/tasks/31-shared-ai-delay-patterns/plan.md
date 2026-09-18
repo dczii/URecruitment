@@ -4,7 +4,7 @@ Spec: [spec.md](./spec.md) · Branch: `feat/31-shared-ai-delay-patterns` · Crea
 
 ## Approach
 
-Design all five patterns as one `design/patterns.pen` file with a readable `design/specs/patterns.md`
+Design all five patterns as one `design/pattern.pen` file with a readable `design/specs/patterns.md`
 mirror (Task #98, Claude via pencil MCP), then build them as small, composable React components under
 `src/components/patterns/` (Task #99, Grok via cursor-agent), test-first for every piece of logic:
 badge wording/aria mapping, `AiSuggestion`'s score-requires-model-version-and-date typing, name
@@ -21,7 +21,7 @@ this is the first Story to unit-test rendered components.
   above and the guardrail that the name prompt is device-remembered, not server sign-in.
 - `testing` — required for every task; test-first for typed-name validation logic per the "always
   test-first" list, Vitest fixtures only, no network, frozen fake data.
-- `ui-design` — governs `design/patterns.pen` (pencil MCP only, semantic tokens, desktop+phone
+- `ui-design` — governs `design/pattern.pen` (pencil MCP only, semantic tokens, desktop+phone
   frames, states) and the `design/specs/patterns.md` mirror Grok builds from.
 - `ui-build` — governs the component contracts for `AiSuggestion`, `SourceQuote`,
   `DelayStatusBadge`, `TypedNameDialog`, `EmptyState`/`ErrorState`, token-only Tailwind, shadcn-first
@@ -35,7 +35,7 @@ this is the first Story to unit-test rendered components.
 
 | File | Change |
 |---|---|
-| `design/patterns.pen` | new — five pattern frames at desktop + phone width, all states |
+| `design/pattern.pen` | new — five pattern frames at desktop + phone width, all states |
 | `design/specs/patterns.md` | new — readable spec: props, states, copy per pattern |
 | `src/components/patterns/AiSuggestion.tsx` | new — suggestion label; score variant requires model version + date |
 | `src/components/patterns/AiSuggestion.test.tsx` | new — label/score-variant tests (AC1) |
@@ -64,7 +64,7 @@ this is the first Story to unit-test rendered components.
 
 ## Steps
 
-- [ ] **S1** `claude` — Create `design/patterns.pen` and `design/specs/patterns.md`: `AiSuggestion`
+- [ ] **S1** `claude` — Create `design/pattern.pen` and `design/specs/patterns.md`: `AiSuggestion`
   (value + score variant with model version/date), `SourceQuote` (collapsed/expanded, EN + ZH),
   `DelayStatusBadge` (on-track/due-soon/overdue/no-status, greyscale-legible), `TypedNameDialog`
   (first use, remembered, change), `EmptyState`/`ErrorState`/loading skeleton — desktop + phone frames
@@ -73,7 +73,7 @@ this is the first Story to unit-test rendered components.
     state), §PRD design rules 1–3/5 (suggestion label, source quote, ZH Noto Sans SC, name prompt);
     `prd-context` guardrail 7 (device-remembered name, no sign-in); `compliance-review` §A (AI only
     suggests, source text shown).
-  - Verify: pen.dev validation of `design/patterns.pen`; greyscale check of the delay badge frame;
+  - Verify: pen.dev validation of `design/pattern.pen`; greyscale check of the delay badge frame;
     confirm `design/specs/patterns.md` lists every pattern's props/states so Grok can build without
     opening the `.pen` file.
 - [ ] **S2a** `grok` — Add devDependencies (`@testing-library/react`, `@testing-library/jest-dom`,
@@ -109,7 +109,7 @@ this is the first Story to unit-test rendered components.
   - Rules: `ui-build` §Rules 1, 3, 5 (tokens, shared states, accessibility).
   - Verify: `npm run typecheck`; `npm run lint`.
 - [ ] **S5** `none` — Inspect the complete Story diff, run all verification until green, visually
-  compare each component against `design/patterns.pen`/`design/specs/patterns.md`. Do not run
+  compare each component against `design/pattern.pen`/`design/specs/patterns.md`. Do not run
   `pr-review`. Close out docs when checks are green.
 
 ## Test plan

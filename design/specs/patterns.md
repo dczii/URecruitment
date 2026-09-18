@@ -2,11 +2,11 @@
 
 Story: #31 · Design task: #98 · Build task: #99
 
-> **Note on the visual source.** `design/patterns.pen` (desktop + phone frames for every pattern
+> **Note on the visual source.** `design/pattern.pen` (desktop + phone frames for every pattern
 > below) could not be authored in this session because the pencil MCP tools require the target
 > `.pen` file to already be open in the pen.dev desktop app, and no app session was available here.
 > This spec was written directly from the PRD design rules and `design/tokens.md` instead. Creating
-> `design/patterns.pen` from this spec — so the two stay in sync — is a follow-up once pen.dev is
+> `design/pattern.pen` from this spec — so the two stay in sync — is a follow-up once pen.dev is
 > open (see the plan's Outcome/Follow-ups).
 
 ## Purpose
