@@ -42,542 +42,680 @@ export type Database = {
   }
   public: {
     Tables: {
-      clients: {
+      ai_runs: {
         Row: {
-          id: string
-          name: string
-          guarantee_period_days: number
-          stage_limit_overrides: Json | null
+          completed_at: string | null
+          cost_usd: number | null
           created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          guarantee_period_days?: number
-          stage_limit_overrides?: Json | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          guarantee_period_days?: number
-          stage_limit_overrides?: Json | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      jobs: {
-        Row: {
+          duration_ms: number | null
+          error: string | null
           id: string
-          client_id: string
-          owner_name: string
+          input_hash: string | null
+          input_ref: string | null
+          input_tokens: number | null
+          model_id: string
+          model_version: string
+          output: Json | null
+          output_tokens: number | null
+          prompt_version: string
+          provider: string
           status: string
-          current_version_id: string | null
-          created_at: string
-          updated_at: string
+          step: string
         }
         Insert: {
+          completed_at?: string | null
+          cost_usd?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
           id?: string
-          client_id: string
-          owner_name: string
+          input_hash?: string | null
+          input_ref?: string | null
+          input_tokens?: number | null
+          model_id: string
+          model_version: string
+          output?: Json | null
+          output_tokens?: number | null
+          prompt_version: string
+          provider: string
           status?: string
-          current_version_id?: string | null
-          created_at?: string
-          updated_at?: string
+          step: string
         }
         Update: {
+          completed_at?: string | null
+          cost_usd?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
           id?: string
-          client_id?: string
-          owner_name?: string
+          input_hash?: string | null
+          input_ref?: string | null
+          input_tokens?: number | null
+          model_id?: string
+          model_version?: string
+          output?: Json | null
+          output_tokens?: number | null
+          prompt_version?: string
+          provider?: string
           status?: string
-          current_version_id?: string | null
-          created_at?: string
-          updated_at?: string
+          step?: string
         }
-      }
-      job_versions: {
-        Row: {
-          id: string
-          job_id: string
-          fields: Json
-          must_haves: Json
-          nice_to_haves: Json
-          requires_nationality: boolean
-          nationality_reason: string | null
-          requires_language: boolean
-          language_reason: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          job_id: string
-          fields: Json
-          must_haves?: Json
-          nice_to_haves?: Json
-          requires_nationality?: boolean
-          nationality_reason?: string | null
-          requires_language?: boolean
-          language_reason?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          job_id?: string
-          fields?: Json
-          must_haves?: Json
-          nice_to_haves?: Json
-          requires_nationality?: boolean
-          nationality_reason?: string | null
-          requires_language?: boolean
-          language_reason?: string | null
-          created_at?: string
-        }
-      }
-      gap_flags: {
-        Row: {
-          id: string
-          job_version_id: string
-          flag_type: string
-          reason: string
-          suggested_question: string | null
-          resolution_state: string
-          resolution_note: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          job_version_id: string
-          flag_type: string
-          reason: string
-          suggested_question?: string | null
-          resolution_state?: string
-          resolution_note?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          job_version_id?: string
-          flag_type?: string
-          reason?: string
-          suggested_question?: string | null
-          resolution_state?: string
-          resolution_note?: string | null
-          created_at?: string
-        }
-      }
-      candidates: {
-        Row: {
-          id: string
-          full_name: string
-          email: string | null
-          phone: string | null
-          consent_status: string | null
-          consent_date: string | null
-          consent_method: string | null
-          last_activity_at: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          full_name: string
-          email?: string | null
-          phone?: string | null
-          consent_status?: string | null
-          consent_date?: string | null
-          consent_method?: string | null
-          last_activity_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          full_name?: string
-          email?: string | null
-          phone?: string | null
-          consent_status?: string | null
-          consent_date?: string | null
-          consent_method?: string | null
-          last_activity_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      cv_files: {
-        Row: {
-          id: string
-          candidate_id: string | null
-          source: string
-          source_ref: string | null
-          source_hash: string | null
-          storage_path: string
-          doc_kind: string
-          language: string | null
-          parse_status: string
-          parse_error: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          candidate_id?: string | null
-          source?: string
-          source_ref?: string | null
-          source_hash?: string | null
-          storage_path: string
-          doc_kind: string
-          language?: string | null
-          parse_status?: string
-          parse_error?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          candidate_id?: string | null
-          source?: string
-          source_ref?: string | null
-          source_hash?: string | null
-          storage_path?: string
-          doc_kind?: string
-          language?: string | null
-          parse_status?: string
-          parse_error?: string | null
-          created_at?: string
-        }
+        Relationships: []
       }
       candidate_profiles: {
         Row: {
-          id: string
-          candidate_id: string
-          cv_file_id: string | null
-          parsed: Json
-          overrides: Json
-          overridden_by: string | null
-          overridden_at: string | null
           ai_run_id: string | null
+          candidate_id: string
           created_at: string
+          cv_file_id: string | null
+          id: string
+          overridden_at: string | null
+          overridden_by: string | null
+          overrides: Json
+          parsed: Json
           updated_at: string
         }
         Insert: {
-          id?: string
-          candidate_id: string
-          cv_file_id?: string | null
-          parsed?: Json
-          overrides?: Json
-          overridden_by?: string | null
-          overridden_at?: string | null
           ai_run_id?: string | null
+          candidate_id: string
           created_at?: string
+          cv_file_id?: string | null
+          id?: string
+          overridden_at?: string | null
+          overridden_by?: string | null
+          overrides?: Json
+          parsed?: Json
           updated_at?: string
         }
         Update: {
-          id?: string
-          candidate_id?: string
-          cv_file_id?: string | null
-          parsed?: Json
-          overrides?: Json
-          overridden_by?: string | null
-          overridden_at?: string | null
           ai_run_id?: string | null
+          candidate_id?: string
           created_at?: string
+          cv_file_id?: string | null
+          id?: string
+          overridden_at?: string | null
+          overridden_by?: string | null
+          overrides?: Json
+          parsed?: Json
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_profiles_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_profiles_cv_file_id_fkey"
+            columns: ["cv_file_id"]
+            isOneToOne: false
+            referencedRelation: "cv_files"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       candidate_skills: {
         Row: {
-          id: string
+          ai_run_id: string | null
           candidate_id: string
+          created_at: string
+          id: string
           skill: string
           source_text: string
-          ai_run_id: string | null
-          created_at: string
         }
         Insert: {
-          id?: string
+          ai_run_id?: string | null
           candidate_id: string
+          created_at?: string
+          id?: string
           skill: string
           source_text: string
-          ai_run_id?: string | null
-          created_at?: string
         }
         Update: {
-          id?: string
+          ai_run_id?: string | null
           candidate_id?: string
+          created_at?: string
+          id?: string
           skill?: string
           source_text?: string
-          ai_run_id?: string | null
-          created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_skills_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      embeddings: {
+      candidates: {
         Row: {
-          id: string
-          owner_type: string
-          owner_id: string
-          // Placeholder string until ADR-0003 fixes the vector dimension; regenerate with `npm run db:types`.
-          embedding: string
-          embedding_model: string
-          ai_run_id: string | null
+          consent_date: string | null
+          consent_method: string | null
+          consent_status: string | null
           created_at: string
-        }
-        Insert: {
-          id?: string
-          owner_type: string
-          owner_id: string
-          embedding?: string
-          embedding_model: string
-          ai_run_id?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          owner_type?: string
-          owner_id?: string
-          embedding?: string
-          embedding_model?: string
-          ai_run_id?: string | null
-          created_at?: string
-        }
-      }
-      match_scores: {
-        Row: {
+          email: string | null
+          full_name: string
           id: string
-          candidate_id: string
-          job_version_id: string
-          model_version: string
-          score: number
-          raw_score: number | null
-          matched: Json
-          missing: Json
-          uncertain: Json
-          ai_run_id: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          candidate_id: string
-          job_version_id: string
-          model_version: string
-          score: number
-          raw_score?: number | null
-          matched?: Json
-          missing?: Json
-          uncertain?: Json
-          ai_run_id?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          candidate_id?: string
-          job_version_id?: string
-          model_version?: string
-          score?: number
-          raw_score?: number | null
-          matched?: Json
-          missing?: Json
-          uncertain?: Json
-          ai_run_id?: string | null
-          created_at?: string
-        }
-      }
-      pipeline_entries: {
-        Row: {
-          id: string
-          candidate_id: string
-          job_id: string
-          stage: string
-          entered_at: string
-          owner_name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          candidate_id: string
-          job_id: string
-          stage: string
-          entered_at?: string
-          owner_name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          candidate_id?: string
-          job_id?: string
-          stage?: string
-          entered_at?: string
-          owner_name?: string
-          created_at?: string
-        }
-      }
-      stage_events: {
-        Row: {
-          id: string
-          pipeline_entry_id: string
-          from_stage: string | null
-          to_stage: string
-          recruiter_name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          pipeline_entry_id: string
-          from_stage?: string | null
-          to_stage: string
-          recruiter_name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          pipeline_entry_id?: string
-          from_stage?: string | null
-          to_stage?: string
-          recruiter_name?: string
-          created_at?: string
-        }
-      }
-      stage_limits: {
-        Row: {
-          id: string
-          scope: string
-          client_id: string | null
-          job_id: string | null
-          stage: string
-          limit_days: number
-          created_at: string
+          last_activity_at: string | null
+          phone: string | null
           updated_at: string
         }
         Insert: {
-          id?: string
-          scope: string
-          client_id?: string | null
-          job_id?: string | null
-          stage: string
-          limit_days: number
+          consent_date?: string | null
+          consent_method?: string | null
+          consent_status?: string | null
           created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          last_activity_at?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Update: {
-          id?: string
-          scope?: string
-          client_id?: string | null
-          job_id?: string | null
-          stage?: string
-          limit_days?: number
+          consent_date?: string | null
+          consent_method?: string | null
+          consent_status?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          last_activity_at?: string | null
+          phone?: string | null
           updated_at?: string
         }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          created_at: string
+          guarantee_period_days: number
+          id: string
+          name: string
+          stage_limit_overrides: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guarantee_period_days?: number
+          id?: string
+          name: string
+          stage_limit_overrides?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guarantee_period_days?: number
+          id?: string
+          name?: string
+          stage_limit_overrides?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cv_files: {
+        Row: {
+          candidate_id: string | null
+          created_at: string
+          doc_kind: string
+          id: string
+          language: string | null
+          parse_error: string | null
+          parse_status: string
+          source: string
+          source_hash: string | null
+          source_ref: string | null
+          storage_path: string
+        }
+        Insert: {
+          candidate_id?: string | null
+          created_at?: string
+          doc_kind: string
+          id?: string
+          language?: string | null
+          parse_error?: string | null
+          parse_status?: string
+          source?: string
+          source_hash?: string | null
+          source_ref?: string | null
+          storage_path: string
+        }
+        Update: {
+          candidate_id?: string | null
+          created_at?: string
+          doc_kind?: string
+          id?: string
+          language?: string | null
+          parse_error?: string | null
+          parse_status?: string
+          source?: string
+          source_hash?: string | null
+          source_ref?: string | null
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cv_files_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      embeddings: {
+        Row: {
+          ai_run_id: string | null
+          created_at: string
+          embedding: string | null
+          embedding_model: string
+          id: string
+          owner_id: string
+          owner_type: string
+        }
+        Insert: {
+          ai_run_id?: string | null
+          created_at?: string
+          embedding?: string | null
+          embedding_model: string
+          id?: string
+          owner_id: string
+          owner_type: string
+        }
+        Update: {
+          ai_run_id?: string | null
+          created_at?: string
+          embedding?: string | null
+          embedding_model?: string
+          id?: string
+          owner_id?: string
+          owner_type?: string
+        }
+        Relationships: []
+      }
+      gap_flags: {
+        Row: {
+          created_at: string
+          flag_type: string
+          id: string
+          job_version_id: string
+          reason: string
+          resolution_note: string | null
+          resolution_state: string
+          suggested_question: string | null
+        }
+        Insert: {
+          created_at?: string
+          flag_type: string
+          id?: string
+          job_version_id: string
+          reason: string
+          resolution_note?: string | null
+          resolution_state?: string
+          suggested_question?: string | null
+        }
+        Update: {
+          created_at?: string
+          flag_type?: string
+          id?: string
+          job_version_id?: string
+          reason?: string
+          resolution_note?: string | null
+          resolution_state?: string
+          suggested_question?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gap_flags_job_version_id_fkey"
+            columns: ["job_version_id"]
+            isOneToOne: false
+            referencedRelation: "job_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_versions: {
+        Row: {
+          created_at: string
+          fields: Json
+          id: string
+          job_id: string
+          language_reason: string | null
+          must_haves: Json
+          nationality_reason: string | null
+          nice_to_haves: Json
+          requires_language: boolean
+          requires_nationality: boolean
+        }
+        Insert: {
+          created_at?: string
+          fields: Json
+          id?: string
+          job_id: string
+          language_reason?: string | null
+          must_haves?: Json
+          nationality_reason?: string | null
+          nice_to_haves?: Json
+          requires_language?: boolean
+          requires_nationality?: boolean
+        }
+        Update: {
+          created_at?: string
+          fields?: Json
+          id?: string
+          job_id?: string
+          language_reason?: string | null
+          must_haves?: Json
+          nationality_reason?: string | null
+          nice_to_haves?: Json
+          requires_language?: boolean
+          requires_nationality?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_versions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          client_id: string
+          created_at: string
+          current_version_id: string | null
+          id: string
+          owner_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          current_version_id?: string | null
+          id?: string
+          owner_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          current_version_id?: string | null
+          id?: string
+          owner_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_current_version_id_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "job_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_scores: {
+        Row: {
+          ai_run_id: string | null
+          candidate_id: string
+          created_at: string
+          id: string
+          job_version_id: string
+          matched: Json
+          missing: Json
+          model_version: string
+          raw_score: number | null
+          score: number
+          uncertain: Json
+        }
+        Insert: {
+          ai_run_id?: string | null
+          candidate_id: string
+          created_at?: string
+          id?: string
+          job_version_id: string
+          matched?: Json
+          missing?: Json
+          model_version: string
+          raw_score?: number | null
+          score: number
+          uncertain?: Json
+        }
+        Update: {
+          ai_run_id?: string | null
+          candidate_id?: string
+          created_at?: string
+          id?: string
+          job_version_id?: string
+          matched?: Json
+          missing?: Json
+          model_version?: string
+          raw_score?: number | null
+          score?: number
+          uncertain?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_scores_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_scores_job_version_id_fkey"
+            columns: ["job_version_id"]
+            isOneToOne: false
+            referencedRelation: "job_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pipeline_entries: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          entered_at: string
+          id: string
+          job_id: string
+          owner_name: string
+          stage: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          entered_at?: string
+          id?: string
+          job_id: string
+          owner_name: string
+          stage: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          entered_at?: string
+          id?: string
+          job_id?: string
+          owner_name?: string
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_entries_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_entries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       placements: {
         Row: {
+          created_at: string
+          guarantee_end_date: string
+          guarantee_period_days: number
           id: string
           pipeline_entry_id: string
           start_date: string
-          guarantee_period_days: number
-          guarantee_end_date: string
-          created_at: string
         }
         Insert: {
+          created_at?: string
+          guarantee_end_date: string
+          guarantee_period_days?: number
           id?: string
           pipeline_entry_id: string
           start_date: string
-          guarantee_period_days?: number
-          guarantee_end_date: string
-          created_at?: string
         }
         Update: {
+          created_at?: string
+          guarantee_end_date?: string
+          guarantee_period_days?: number
           id?: string
           pipeline_entry_id?: string
           start_date?: string
-          guarantee_period_days?: number
-          guarantee_end_date?: string
-          created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "placements_pipeline_entry_id_fkey"
+            columns: ["pipeline_entry_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       settings_log: {
         Row: {
+          created_at: string
           id: string
-          setting_key: string
-          old_value: Json | null
           new_value: Json | null
+          old_value: Json | null
           recruiter_name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
           setting_key: string
-          old_value?: Json | null
-          new_value?: Json | null
-          recruiter_name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          setting_key?: string
-          old_value?: Json | null
-          new_value?: Json | null
-          recruiter_name?: string
-          created_at?: string
-        }
-      }
-      ai_runs: {
-        Row: {
-          id: string
-          step: string
-          provider: string
-          model_id: string
-          model_version: string
-          prompt_version: string
-          input_ref: string | null
-          input_hash: string | null
-          output: Json | null
-          status: string
-          error: string | null
-          input_tokens: number | null
-          output_tokens: number | null
-          cost_usd: number | null
-          duration_ms: number | null
-          created_at: string
-          completed_at: string | null
         }
         Insert: {
-          id?: string
-          step: string
-          provider: string
-          model_id: string
-          model_version: string
-          prompt_version: string
-          input_ref?: string | null
-          input_hash?: string | null
-          output?: Json | null
-          status?: string
-          error?: string | null
-          input_tokens?: number | null
-          output_tokens?: number | null
-          cost_usd?: number | null
-          duration_ms?: number | null
           created_at?: string
-          completed_at?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          recruiter_name: string
+          setting_key: string
         }
         Update: {
-          id?: string
-          step?: string
-          provider?: string
-          model_id?: string
-          model_version?: string
-          prompt_version?: string
-          input_ref?: string | null
-          input_hash?: string | null
-          output?: Json | null
-          status?: string
-          error?: string | null
-          input_tokens?: number | null
-          output_tokens?: number | null
-          cost_usd?: number | null
-          duration_ms?: number | null
           created_at?: string
-          completed_at?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          recruiter_name?: string
+          setting_key?: string
         }
+        Relationships: []
+      }
+      stage_events: {
+        Row: {
+          created_at: string
+          from_stage: string | null
+          id: string
+          pipeline_entry_id: string
+          recruiter_name: string
+          to_stage: string
+        }
+        Insert: {
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          pipeline_entry_id: string
+          recruiter_name: string
+          to_stage: string
+        }
+        Update: {
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          pipeline_entry_id?: string
+          recruiter_name?: string
+          to_stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_events_pipeline_entry_id_fkey"
+            columns: ["pipeline_entry_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stage_limits: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          id: string
+          job_id: string | null
+          limit_days: number
+          scope: string
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          limit_days: number
+          scope: string
+          stage: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          limit_days?: number
+          scope?: string
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_limits_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_limits_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
