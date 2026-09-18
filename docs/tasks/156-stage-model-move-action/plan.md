@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `feat/55-stage-model-move-action` |
 | Created | 2026-09-19 |
-| Status | Planned <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -53,14 +53,14 @@ board UI that calls this action is a separate, later task (E08-S03-T01).
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given a candidate on a job, when I move them to another stage, then the move is
-  recorded with my typed name and the time. _Proved by:_ `move.test.ts › AC1: move writes one stage_events row with the name and time`
-- [ ] **AC2** — Given a candidate, when I look at them on a job, then they are in exactly one stage.
-  _Proved by:_ `move.test.ts › AC2: a candidate never occupies two stages (single stage column, unique constraint)` — plus the existing DB-level `pipeline_entries_one_stage_per_job` unique constraint and the `stage` column being singular per row.
-- [ ] **AC3** — Given an end state, when a candidate is moved into it, then no time limit applies to
-  them any more. _Proved by:_ `stages.test.ts › AC3: isEndState is true for all three end states and false for the seven stages` and `move.test.ts › AC3: moving into an end state succeeds and never touches stage_limits`
-- [ ] **AC4** — Given I have not typed my name on this device, when I try to move anyone, then the
-  portal asks for my name first. _Proved by:_ `move.test.ts › AC4: a move without a name is refused, no DB write` (service layer refuses; the once-per-device prompt itself is existing `TypedNameDialog`/`recruiter-name.ts` behaviour reused here, not rebuilt)
+- [x] **AC1** — Given a candidate on a job, when I move them to another stage, then the move is
+  recorded with my typed name and the time. _Proved by:_ `move.test.ts › AC1: …` (5 assertions covering forward + backwards moves)
+- [x] **AC2** — Given a candidate, when I look at them on a job, then they are in exactly one stage.
+  _Proved by:_ `move.test.ts › AC2: …` — plus the existing DB-level `pipeline_entries_one_stage_per_job` unique constraint and the `stage` column being singular per row.
+- [x] **AC3** — Given an end state, when a candidate is moved into it, then no time limit applies to
+  them any more. _Proved by:_ `stages.test.ts › AC3: isEndState is true for all three end states and false for the seven stages` and `move.test.ts › AC3: …never touches stage_limits`
+- [x] **AC4** — Given I have not typed my name on this device, when I try to move anyone, then the
+  portal asks for my name first. _Proved by:_ `move.test.ts › AC4: …` (blank name, whitespace-only name, and an unknown stage are each refused with no `getDb()` call). The once-per-device prompt itself is existing `TypedNameDialog`/`recruiter-name.ts` behaviour, reused unchanged by `pipeline-move-actions.ts`'s `isValidRecruiterName` gate.
 
 ## Guardrails that apply
 
@@ -139,28 +139,28 @@ existing coverage from #112 already asserts `pipeline_entries`/`stage_events` ar
 
 ## Steps
 
-- [ ] **S1a** `grok` — Write failing tests for the stage model in `src/lib/stages.test.ts` (covers AC2, AC3): the ordered 7-stage list, the 3 end states, `isEndState` true only for end states, `isValidPipelineStage` true for all 10 and false for junk input, and the waiting-on map covering every stage.
+- [x] **S1a** `grok` — Write failing tests for the stage model in `src/lib/stages.test.ts` (covers AC2, AC3): the ordered 7-stage list, the 3 end states, `isEndState` true only for end states, `isValidPipelineStage` true for all 10 and false for junk input, and the waiting-on map covering every stage.
   - Rules: `testing` — test-first for logic, name tests with the AC id; `prd-context` pipeline-rules stage table and end-state list.
   - Verify: `npm test -- stages` → fails (module doesn't exist yet)
-- [ ] **S1b** `grok` — Implement `src/lib/stages.ts` until S1a passes. Pure, no imports from `server-only` code.
+- [x] **S1b** `grok` — Implement `src/lib/stages.ts` until S1a passes. Pure, no imports from `server-only` code.
   - Rules: `nextjs-app` — `src/lib` is pure isomorphic logic; single source of truth reused by DB + server (+ later UI).
   - Verify: `npm test -- stages` → pass; `npm run typecheck`
-- [ ] **S2** `grok-low` — Add `supabase/migrations/20260919120000_stage_check_constraints.sql`: `check (stage in (<10 literals>))` on `pipeline_entries.stage`, and equivalent checks on `stage_events.from_stage` (nullable-safe) and `to_stage`, matching `src/lib/stages.ts` exactly (comment cross-referencing it). Then regenerate types: `npm run db:types` if a local Supabase is reachable, otherwise note types are unaffected (no new columns) and skip.
+- [x] **S2** `grok-low` — Add `supabase/migrations/20260919120000_stage_check_constraints.sql`: `check (stage in (<10 literals>))` on `pipeline_entries.stage`, and equivalent checks on `stage_events.from_stage` (nullable-safe) and `to_stage`, matching `src/lib/stages.ts` exactly (comment cross-referencing it). Then regenerate types: `npm run db:types` if a local Supabase is reachable, otherwise note types are unaffected (no new columns) and skip.
   - Rules: `supabase-db` — one concern per migration, never edit a merged migration, `snake_case`, must be re-runnable on a fresh DB.
   - Verify: migration file only; validated in CI (no local Docker — do not run `supabase db reset` here).
-- [ ] **S3a** `grok` — Write failing tests for the move service in `src/server/pipeline/move.test.ts` (covers AC1, AC2, AC4), mocking `../db` exactly as `src/server/cv/overrides.test.ts` does: (1) a move writes one `stage_events` row with `recruiter_name` and updates `pipeline_entries.stage`/`entered_at`; (2) a backwards move also resets `entered_at`; (3) a move without a name (blank/whitespace) is refused with no `getDb()` call; (4) an invalid target stage is refused with no DB write.
+- [x] **S3a** `grok` — Write failing tests for the move service in `src/server/pipeline/move.test.ts` (covers AC1, AC2, AC4), mocking `../db` exactly as `src/server/cv/overrides.test.ts` does: (1) a move writes one `stage_events` row with `recruiter_name` and updates `pipeline_entries.stage`/`entered_at`; (2) a backwards move also resets `entered_at`; (3) a move without a name (blank/whitespace) is refused with no `getDb()` call; (4) an invalid target stage is refused with no DB write.
   - Rules: `testing` — typed-name validation always test-first, no network, fake DB; `prd-context` — clock resets on every move including backwards.
   - Verify: `npm test -- pipeline/move` → fails
-- [ ] **S3b** `grok` — Write failing tests for AC3 in the same file: moving into each of the 3 end states succeeds and the service never calls `.from("stage_limits")`.
+- [x] **S3b** `grok` — Write failing tests for AC3 in the same file: moving into each of the 3 end states succeeds and the service never calls `.from("stage_limits")`.
   - Rules: same as S3a.
   - Verify: `npm test -- pipeline/move` → fails (new cases only)
-- [ ] **S3c** `grok` — Implement `src/server/pipeline/move.ts` (`import "server-only"`) until S3a/S3b pass: Zod-validate `{ pipelineEntryId: string, toStage: PipelineStage, recruiterName: string (trim, 1-80) }` against `isValidPipelineStage`; read the entry's current `stage`; update `pipeline_entries` (`stage`, `entered_at: now`); insert one `stage_events` row (`from_stage` = old stage, `to_stage`, `recruiter_name` = trimmed name); return the updated row. No `stage_limits` read/write anywhere in this file.
+- [x] **S3c** `grok` — Implement `src/server/pipeline/move.ts` (`import "server-only"`) until S3a/S3b pass: Zod-validate `{ pipelineEntryId: string, toStage: PipelineStage, recruiterName: string (trim, 1-80) }` against `isValidPipelineStage`; read the entry's current `stage`; update `pipeline_entries` (`stage`, `entered_at: now`); insert one `stage_events` row (`from_stage` = old stage, `to_stage`, `recruiter_name` = trimmed name); return the updated row. No `stage_limits` read/write anywhere in this file.
   - Rules: `nextjs-app` rule 9 (typed name 1–80 chars, not authentication); `supabase-db` — `stage_events` append-only, `recruiter_name text not null`.
   - Verify: `npm test -- pipeline/move` → pass; `npm run typecheck`
-- [ ] **S4** `grok-low` — Add `src/app/jobs/[id]/pipeline-move-actions.ts` (`"use server"`), mirroring `pipeline-add-actions.ts`: Zod-parse `{ pipelineEntryId, toStage, typedName }`, call `movePipelineStage`, `revalidatePath(/jobs/[id])`, return `{ ok: true, entry } | { ok: false, error }`, never throw to the client.
+- [x] **S4** `grok-low` — Add `src/app/jobs/[id]/pipeline-move-actions.ts` (`"use server"`), mirroring `pipeline-add-actions.ts`: Zod-parse `{ pipelineEntryId, toStage, typedName }`, call `movePipelineStage`, `revalidatePath(/jobs/[id])`, return `{ ok: true, entry } | { ok: false, error }`, never throw to the client.
   - Rules: `nextjs-app` rules 3 (Server Action shape) and 9 (typed name); reuse `isValidRecruiterName` from `src/lib/recruiter-name.ts` exactly as `pipeline-add-actions.ts` does.
   - Verify: `npm run typecheck`; `npm run lint`
-- [ ] **S5** `none` — Full verification until green (Step 7 set below), then close out docs. Do not run `pr-review`.
+- [x] **S5** `none` — Full verification until green (Step 7 set below), then close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -207,14 +207,12 @@ is built in E08-S03-T01, which will call `pipeline-move-actions.ts`.
 
 ## Outcome
 
-<!-- Filled after execution. -->
-
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** the stage model (`src/lib/stages.ts`), DB check constraints tying `pipeline_entries.stage`/`stage_events.from_stage`/`to_stage` to it, the `movePipelineStage` service (typed-name audit, clock reset on every move including backwards, end states never touch `stage_limits`), and the `movePipelineStageAction` Server Action wrapper for the future board UI.
+- **Changed files / areas:** `src/lib/stages.ts`, `src/lib/stages.test.ts`, `supabase/migrations/20260919120000_stage_check_constraints.sql`, `src/server/pipeline/move.ts`, `src/server/pipeline/move.test.ts`, `src/app/jobs/[id]/pipeline-move-actions.ts`.
+- **Tests added or updated:** `stages.test.ts` (6 tests, AC2/AC3), `move.test.ts` (9 tests, AC1–AC4).
+- **Verification:** `npm run lint` — pass (4 pre-existing warnings, unrelated files); `npm run typecheck` — pass; `npm test -- stages` — 6/6 pass; `npm test -- pipeline/move` — 9/9 pass; `npm test` — 414/419 pass, the 5 failures (`db.test.ts` AC7/AC9, `extract.test.ts` AC1×2/AC2) are pre-existing on `main` (confirmed by running the same suite on `main` before this branch's changes), unrelated to this task. `npm run test:db` not run locally (no Docker; validated in CI per project rule). `npm run build`/`test:e2e`/`eval` don't apply — no screen or AI change.
+- **Deviations:** none from the plan.
+- **Fix rounds / escalations:** 0 — implementation was already complete and green on branch pickup; this session ran verification and closed out docs.
+- **Models used:** planning/orchestration — Claude Sonnet 5 (this session); implementation — model unknown (runtime did not expose it; work was already committed/present on the branch from a prior session before this one picked it up).
+- **Claude direct fixes:** none needed.
+- **Follow-ups:** the two-write (`pipeline_entries` update + `stage_events` insert) is not atomic — flagged as a future issue if it ever needs to be transactional (see Assumptions).
