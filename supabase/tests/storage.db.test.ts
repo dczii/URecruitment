@@ -166,6 +166,7 @@ afterEach(async () => {
   }
   try {
     await secretClient().storage.from(CV_FILES_BUCKET).remove([path]);
+    return;
   } catch (error) {
     if (isConnectionError(error)) {
       return;
