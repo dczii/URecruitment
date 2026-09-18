@@ -31,8 +31,11 @@ export type CandidateStageEvent = {
 
 export type CandidateProfilePage = {
   parseStatus: CandidateParseStatus;
+  fullName: string;
   identity: CandidateIdentity | null;
   profile: MergedProfile | null;
+  overriddenBy: string | null;
+  overriddenAt: string | null;
   skills: CandidateSkill[];
   stageHistory: CandidateStageEvent[];
 };
@@ -51,7 +54,7 @@ export async function getCandidateProfile(
         .maybeSingle(),
       db
         .from("candidate_profiles")
-        .select("parsed, overrides")
+        .select("parsed, overrides, overridden_by, overridden_at")
         .eq("candidate_id", candidateId)
         .maybeSingle(),
       db
@@ -97,8 +100,11 @@ export async function getCandidateProfile(
   if (!profileResult.data) {
     return {
       parseStatus: "not_yet_parsed",
+      fullName: candidateResult.data.full_name,
       identity: null,
       profile: null,
+      overriddenBy: null,
+      overriddenAt: null,
       skills,
       stageHistory,
     };
@@ -111,6 +117,7 @@ export async function getCandidateProfile(
 
   return {
     parseStatus: "ready",
+    fullName: candidateResult.data.full_name,
     identity: {
       name: profile.effective.name,
       email: profile.effective.email,
@@ -118,6 +125,8 @@ export async function getCandidateProfile(
       location: profile.effective.location,
     },
     profile,
+    overriddenBy: profileResult.data.overridden_by,
+    overriddenAt: profileResult.data.overridden_at,
     skills,
     stageHistory,
   };

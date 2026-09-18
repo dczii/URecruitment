@@ -12,10 +12,13 @@ vi.mock("../db", () => ({ getDb: vi.fn() }));
  *
  * getCandidateProfile(candidateId) →
  *   parseStatus: "ready" | "not_yet_parsed"
+ *   fullName: candidates.full_name (always, including not_yet_parsed)
  *   identity: { name, email, phone, location } taken from
  *     mergeProfile(parsed, overrides).effective (null when not_yet_parsed)
  *   profile: mergeProfile(parsed, overrides) — reuse that helper, do not
  *     reimplement the spread-merge (null when not_yet_parsed)
+ *   overriddenBy: candidate_profiles.overridden_by (null when unset / not_yet_parsed)
+ *   overriddenAt: candidate_profiles.overridden_at (null when unset / not_yet_parsed)
  *   skills: { skill, source_text }[] from candidate_skills
  *   stageHistory: { recruiter_name, from_stage, to_stage, created_at }[]
  *     for every pipeline_entries row of this candidate, oldest-to-newest
@@ -40,6 +43,10 @@ const ENTRY_OTHER_ID = "00000000-0000-0000-0000-000000000083";
 /** Fictional recruiter typed names (CLAUDE.md hard rule 8). */
 const RECRUITER_MEI = "Mei Lin";
 const RECRUITER_PRIYA = "Priya Rao";
+/** UTC timestamp stored on candidate_profiles.overridden_at. */
+const OVERRIDDEN_AT = "2026-09-18T04:00:00.000Z";
+/** Distinct from parsed/override names so fullName cannot be confused with identity. */
+const CANDIDATE_FILE_NAME = "Jordan Chen";
 
 const PARSED = {
   name: "Alex Rivera",
@@ -234,7 +241,7 @@ function seedReadyProfile() {
         parsed: { ...PARSED },
         overrides: { ...OVERRIDES },
         overridden_by: RECRUITER_MEI,
-        overridden_at: "2026-09-18T04:00:00.000Z",
+        overridden_at: OVERRIDDEN_AT,
       },
     ],
     candidate_skills: SKILLS.map((entry, index) => ({
@@ -448,5 +455,61 @@ describe("getCandidateProfile (AC1, AC3)", () => {
     expect(firstNonEmptyLine(source)).toBe('import "server-only";');
     expect(source).toMatch(/from\s+["']\.\/overrides["']/);
     expect(source).toMatch(/\bmergeProfile\s*\(/);
+  });
+});
+
+describe("getCandidateProfile (AC4)", () => {
+  it("AC4: exposes candidates.full_name as fullName, including when not yet parsed", async () => {
+    mockProfileDb({
+      candidates: [candidateRow(CANDIDATE_ID, { full_name: CANDIDATE_FILE_NAME })],
+      candidate_profiles: [],
+      candidate_skills: [],
+      pipeline_entries: [],
+      stage_events: [],
+    });
+
+    const result = asRecord(await getCandidateProfile(CANDIDATE_ID));
+
+    expect(result.parseStatus).toBe("not_yet_parsed");
+    expect(result.identity).toBeNull();
+    expect(result.profile).toBeNull();
+    expect(result.fullName).toBe(CANDIDATE_FILE_NAME);
+    expect(result.overriddenBy).toBeNull();
+    expect(result.overriddenAt).toBeNull();
+  });
+
+  it("AC4: exposes overridden_by and overridden_at so the UI can show who edited the profile", async () => {
+    mockProfileDb({
+      candidates: [
+        candidateRow(CANDIDATE_ID, { full_name: CANDIDATE_FILE_NAME }),
+      ],
+      candidate_profiles: [
+        {
+          id: PROFILE_ID,
+          candidate_id: CANDIDATE_ID,
+          parsed: { ...PARSED },
+          overrides: { ...OVERRIDES },
+          overridden_by: RECRUITER_MEI,
+          overridden_at: OVERRIDDEN_AT,
+        },
+      ],
+      candidate_skills: [],
+      pipeline_entries: [],
+      stage_events: [],
+    });
+
+    const result = asRecord(await getCandidateProfile(CANDIDATE_ID));
+    const identity = asRecord(result.identity);
+
+    expect(result.parseStatus).toBe("ready");
+    expect(result.fullName).toBe(CANDIDATE_FILE_NAME);
+    expect(result.fullName).not.toBe(identity.name);
+    expect(result.fullName).not.toBe(PARSED.name);
+    expect(result.fullName).not.toBe(OVERRIDES.name);
+
+    expect(result.overriddenBy).toBe(RECRUITER_MEI);
+    expect(result.overriddenAt).toBe(OVERRIDDEN_AT);
+    expect(typeof result.overriddenBy).toBe("string");
+    expect(String(result.overriddenBy).trim().length).toBeGreaterThan(0);
   });
 });
