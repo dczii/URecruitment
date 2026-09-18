@@ -37,9 +37,9 @@ No open PRD items. No design needed.
 
 ## Acceptance criteria
 
-- [ ] **AC1** — An EN or ZH CV, when embedded, stores a vector with the embedding model's id. _Proved by:_ `embeddings.test.ts › AC1: embedding a CV profile stores a vector with the model id`
-- [ ] **AC2** — A saved job version's embedding is created and stored the same way. _Proved by:_ `embeddings.test.ts › AC2: embedding a job version stores a vector with the model id`
-- [ ] **AC3** — No provider name appears outside the configured client module. _Proved by:_ `embeddings.test.ts › AC3: no provider name outside provider.ts` (a static grep-style test, same pattern as `no-bypass.test.ts` from #169)
+- [x] **AC1** — An EN or ZH CV, when embedded, stores a vector with the embedding model's id. _Proved by:_ `embeddings.test.ts › AC1: embedding a CV profile stores a vector with the model id`
+- [x] **AC2** — A saved job version's embedding is created and stored the same way. _Proved by:_ `embeddings.test.ts › AC2: embedding a job version stores a vector with the model id`
+- [x] **AC3** — No provider name appears outside the configured client module. _Proved by:_ `embeddings.test.ts › AC3: no provider name outside provider.ts` (a static grep-style test, same pattern as `no-bypass.test.ts` from #169)
 
 ## Guardrails that apply
 
@@ -83,11 +83,11 @@ No open PRD items. No design needed.
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `embeddings.test.ts` using a fake embedder: embedding a CV profile stores a vector + model id (AC1); embedding a job version does the same (AC2); a fake embedder returning the wrong vector dimension is rejected with a clear error; re-embedding the same owner+model with unchanged content skips the call (no new `ai_runs` row, no duplicate `embeddings` row); a static test asserts no file outside `provider.ts` imports a provider/vendor SDK (AC3).
+- [x] **T1a** `grok` — Failing tests first in `embeddings.test.ts` using a fake embedder: embedding a CV profile stores a vector + model id (AC1); embedding a job version does the same (AC2); a fake embedder returning the wrong vector dimension is rejected with a clear error; re-embedding the same owner+model with unchanged content skips the call (no new `ai_runs` row, no duplicate `embeddings` row); a static test asserts no file outside `provider.ts` imports a provider/vendor SDK (AC3).
   - Verify: `npm test -- embeddings` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `provider.ts`'s embedding addition + `embeddings.ts` until T1a passes.
+- [x] **T1b** `grok` — Implement `provider.ts`'s embedding addition + `embeddings.ts` until T1a passes.
   - Verify: `npm test -- embeddings` → pass; `npm run typecheck`
-- [ ] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -120,12 +120,12 @@ Depends on unmerged PR chain (#213→#225). Net-new module + additive provider.t
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** `embedCvProfile`/`embedJobVersion`, provider-agnostic via a new `getEmbedder()` in `provider.ts` (same stub-throws pattern as text generation until ADR-0003/ADR-0004 pick a provider), with dimension validation, owner+model dedup skip, and `ai_runs` logging. AC1-3 all met.
+- **Changed files / areas:** `src/server/ai/embeddings.ts` + `.test.ts` (new), `src/server/ai/provider.ts` (modified — additive `getEmbedder()`/`embedWithConfiguredProvider`).
+- **Tests added or updated:** `embeddings.test.ts` — 10 tests: AC1 (CV embed stores vector + model id), AC2 (job version embed, same shape), dimension-mismatch rejection (with a still-logged failed run), owner+model dedup skip (no re-embed, no duplicate row), a *different* model id for the same owner correctly re-embeds (not skipped), AC3 (static import-check, no vendor SDK outside `provider.ts`). All executed, all passing.
+- **Verification:** `npm run lint` → pass (4 warnings total: 1 new intentionally-unused parameter in the provider stub, 3 pre-existing unrelated). `npm run typecheck` → pass. `npx vitest run src/server/ai` → 17/17 passing.
+- **Deviations:** **A real, acknowledged scope gap**: #145's own Done-when list names a generic `embedText(text)` export and "batched embedding for the seed's volume," neither of which T1a's tests covered (a planning gap in this task's own T1a prompt, not something T1b skipped on its own initiative) — so neither was built. `embedCvProfile`/`embedJobVersion` cover AC1-3 fully; the missing pieces are pure scope, not correctness gaps, and nothing in this codebase currently calls embeddings in bulk (no seed→embed pipeline is wired up yet), so there's no live consumer waiting on batching today.
+- **Fix rounds / escalations:** 0 — both steps passed verification on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) **Add `embedText(text)` and batched embedding for the seed's volume** — the two pieces from #145's own scope this PR didn't cover. Needed before any seed→embed pipeline is wired up. (2) `EXPECTED_EMBEDDING_DIMENSION` is a placeholder (8) pending ADR-0004's actual provider/model choice — must be updated to the real model's dimension when a provider is picked. (3) Nothing yet calls `embedCvProfile`/`embedJobVersion` from the seed pipeline or job-save path — that wiring is presumably #49/#51's job (retrieval/ranking) or a dedicated follow-up.
