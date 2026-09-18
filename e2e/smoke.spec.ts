@@ -15,9 +15,18 @@ test("AC1: home page renders without errors", async ({ page }) => {
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "URecruitment" }),
+    page.getByRole("heading", { name: "What needs attention today" }),
   ).toBeVisible();
-  expect(consoleErrors).toEqual([]);
+
+  // Vercel Preview deployments inject a "Vercel Live" feedback toolbar that
+  // tries to frame vercel.live. Our CSP has no frame-src, so it falls back to
+  // default-src 'self' and correctly blocks it — that's our security header
+  // working as intended, not an app error, and it never appears in
+  // Production. Ignore only this specific, known message.
+  const appConsoleErrors = consoleErrors.filter(
+    (message) => !message.includes("Framing 'https://vercel.live/'"),
+  );
+  expect(appConsoleErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
 
@@ -28,6 +37,27 @@ test("AC8: no horizontal overflow", async ({ page }) => {
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+test("AC5: Simplified Chinese sample uses Noto Sans SC without missing glyphs", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const sample = page.locator('[lang="zh-Hans"]').first();
+  await expect(sample).toBeVisible();
+
+  const snapshot = await sample.evaluate((element) => {
+    const text = element.textContent ?? "";
+    return {
+      text,
+      fontFamily: getComputedStyle(element).fontFamily,
+    };
+  });
+
+  expect(snapshot.text.trim().length).toBeGreaterThan(0);
+  expect(snapshot.text.includes("\uFFFD")).toBe(false);
+  expect(snapshot.fontFamily).toMatch(/Noto Sans SC/);
 });
 
 test("AC6: security headers are present", async ({ page }) => {

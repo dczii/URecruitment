@@ -1,0 +1,1463 @@
+{
+  "version": "2.17",
+  "children": [
+    {
+      "type": "frame",
+      "id": "wyO33",
+      "x": 0,
+      "y": 0,
+      "name": "Component / Navigation item / Active",
+      "reusable": true,
+      "width": 216,
+      "height": 44,
+      "fill": "$accent",
+      "cornerRadius": "$radius-md",
+      "gap": "$space-3",
+      "padding": [
+        0,
+        "$space-3"
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "t4uWt",
+          "name": "Nav Icon",
+          "width": 20,
+          "height": 20,
+          "icon": "layout-dashboard",
+          "library": "lucide",
+          "fill": "$accent-foreground"
+        },
+        {
+          "type": "text",
+          "id": "fUE6N",
+          "name": "Nav Label",
+          "fill": "$accent-foreground",
+          "content": "Dashboard",
+          "fontFamily": "$font-sans",
+          "fontSize": "$text-label",
+          "fontWeight": "600"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "HQ3LY",
+      "x": 240,
+      "y": 0,
+      "name": "Component / Navigation item / Default",
+      "reusable": true,
+      "width": 216,
+      "height": 44,
+      "cornerRadius": "$radius-md",
+      "gap": "$space-3",
+      "padding": [
+        0,
+        "$space-3"
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "BFXss",
+          "name": "Nav Icon",
+          "width": 20,
+          "height": 20,
+          "icon": "briefcase-business",
+          "library": "lucide",
+          "fill": "$muted-foreground"
+        },
+        {
+          "type": "text",
+          "id": "tJrt2",
+          "name": "Nav Label",
+          "fill": "$foreground",
+          "content": "Jobs",
+          "fontFamily": "$font-sans",
+          "fontSize": "$text-label",
+          "fontWeight": "600"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "sPJYs",
+      "x": 0,
+      "y": 124,
+      "name": "Desktop / Dashboard / Default",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "$background",
+      "children": [
+        {
+          "type": "frame",
+          "id": "bi20u",
+          "name": "Desktop Sidebar",
+          "width": 248,
+          "height": "fill_container",
+          "fill": "$card",
+          "stroke": "$border",
+          "strokeWidth": {
+            "right": 1
+          },
+          "strokeAlignment": "inner",
+          "layout": "vertical",
+          "gap": "$space-6",
+          "padding": [
+            "$space-6",
+            "$space-4"
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "UjCtQ",
+              "name": "Product Brand",
+              "width": "fill_container",
+              "height": 48,
+              "gap": "$space-3",
+              "padding": [
+                0,
+                "$space-2"
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "rnXLU",
+                  "name": "Product Mark",
+                  "width": 36,
+                  "height": 36,
+                  "fill": "$primary",
+                  "cornerRadius": "$radius-md",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "S4okg",
+                      "name": "Briefcase Icon",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "briefcase-business",
+                      "library": "lucide",
+                      "fill": "$primary-foreground"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "bsFCU",
+                  "name": "Product Name",
+                  "fill": "$foreground",
+                  "content": "URecruitment",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-heading",
+                  "fontWeight": "650"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "g3Xhq",
+              "name": "Primary Navigation",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": "$space-1",
+              "children": [
+                {
+                  "id": "k8vqJ6",
+                  "type": "ref",
+                  "ref": "wyO33",
+                  "name": "Dashboard navigation active",
+                  "width": "fill_container",
+                  "descendants": {
+                    "t4uWt": {
+                      "icon": "layout-dashboard"
+                    },
+                    "fUE6N": {
+                      "content": "Dashboard"
+                    }
+                  }
+                },
+                {
+                  "id": "d7jM5",
+                  "type": "ref",
+                  "ref": "HQ3LY",
+                  "name": "Jobs navigation keyboard focus",
+                  "width": "fill_container",
+                  "stroke": "$ring",
+                  "strokeWidth": 2,
+                  "strokeAlignment": "outer",
+                  "descendants": {
+                    "BFXss": {
+                      "icon": "briefcase-business"
+                    },
+                    "tJrt2": {
+                      "content": "Jobs"
+                    }
+                  }
+                },
+                {
+                  "id": "HhbHh",
+                  "type": "ref",
+                  "ref": "HQ3LY",
+                  "name": "Candidates navigation",
+                  "width": "fill_container",
+                  "descendants": {
+                    "BFXss": {
+                      "icon": "search"
+                    },
+                    "tJrt2": {
+                      "content": "Candidates"
+                    }
+                  }
+                },
+                {
+                  "id": "mkcnG",
+                  "type": "ref",
+                  "ref": "HQ3LY",
+                  "name": "Placements navigation",
+                  "width": "fill_container",
+                  "descendants": {
+                    "BFXss": {
+                      "icon": "badge-check"
+                    },
+                    "tJrt2": {
+                      "content": "Placements"
+                    }
+                  }
+                },
+                {
+                  "id": "L8Eg9h",
+                  "type": "ref",
+                  "ref": "HQ3LY",
+                  "name": "Settings navigation",
+                  "width": "fill_container",
+                  "descendants": {
+                    "BFXss": {
+                      "icon": "settings"
+                    },
+                    "tJrt2": {
+                      "content": "Settings"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "G2qA28",
+              "name": "Sidebar Flexible Space",
+              "width": "fill_container",
+              "height": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "eGgAn",
+              "name": "Prototype Notice",
+              "width": "fill_container",
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": "$space-1",
+              "padding": "$space-3",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SAxpn",
+                  "name": "Prototype Label",
+                  "fill": "$foreground",
+                  "content": "MVP prototype",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "u2XSP",
+                  "name": "Fictional Data Label",
+                  "fill": "$muted-foreground",
+                  "content": "Fictional data only",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "S9Qca",
+          "name": "Desktop Main",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "$background",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "N5yCO",
+              "name": "Desktop Page Header",
+              "width": "fill_container",
+              "height": 72,
+              "fill": "$card",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner",
+              "padding": [
+                0,
+                "$space-8"
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VJCcK",
+                  "name": "Current Page Title",
+                  "fill": "$foreground",
+                  "content": "Dashboard",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-title",
+                  "fontWeight": "650"
+                },
+                {
+                  "type": "frame",
+                  "id": "BdItq",
+                  "name": "Recruiter Name Affordance",
+                  "height": 44,
+                  "cornerRadius": "$radius-md",
+                  "gap": "$space-2",
+                  "padding": [
+                    0,
+                    "$space-3"
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "IbRzV",
+                      "name": "Recruiter Icon",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "user-round",
+                      "library": "lucide",
+                      "fill": "$muted-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "WCTT1",
+                      "name": "Recording Name",
+                      "fill": "$foreground",
+                      "content": "Recording as Maya Tan",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DvFn2",
+                      "name": "Change Name Action",
+                      "fill": "$primary",
+                      "content": "Change",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mpwHJ",
+              "name": "Desktop Content Region",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": "$space-6",
+              "padding": "$space-8",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "PFYBW",
+                  "name": "Content Introduction",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": "$space-2",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PVMQA",
+                      "name": "Content Heading",
+                      "fill": "$foreground",
+                      "content": "What needs attention today",
+                      "fontFamily": "$font-heading",
+                      "fontSize": "$text-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "n5ZjHP",
+                      "name": "Content Description",
+                      "fill": "$muted-foreground",
+                      "content": "Individual screen content starts inside this bounded region.",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-body",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VmlK6",
+                  "name": "Screen Content Placeholder",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "layout": "vertical",
+                  "gap": "$space-3",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "lTd49",
+                      "name": "Content Placeholder Icon",
+                      "width": 28,
+                      "height": 28,
+                      "icon": "panel-top",
+                      "library": "lucide",
+                      "fill": "$muted-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "QFW7T",
+                      "name": "Content Placeholder Label",
+                      "fill": "$foreground",
+                      "content": "Dashboard content · designed in #100",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LKIMb",
+                      "name": "Content Placeholder Note",
+                      "fill": "$muted-foreground",
+                      "content": "The shell owns navigation, page title, identity and this content boundary.",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "b0wZlt",
+      "x": 1520,
+      "y": 124,
+      "name": "Phone / Dashboard / Default",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "bzeCf",
+          "name": "Phone Top Bar",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$card",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "strokeAlignment": "inner",
+          "gap": "$space-2",
+          "padding": [
+            0,
+            "$space-3"
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Wd10X",
+              "name": "Open Navigation Button",
+              "width": 44,
+              "height": 44,
+              "cornerRadius": "$radius-md",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "sKlBW",
+                  "name": "Menu Icon",
+                  "width": 22,
+                  "height": 22,
+                  "icon": "menu",
+                  "library": "lucide",
+                  "fill": "$foreground"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "AjnAq",
+              "name": "Phone Page Title",
+              "fill": "$foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Dashboard",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "650"
+            },
+            {
+              "type": "frame",
+              "id": "NZhmt",
+              "name": "Phone Recruiter Affordance",
+              "height": 44,
+              "cornerRadius": "$radius-md",
+              "gap": "$space-2",
+              "padding": [
+                0,
+                "$space-2"
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "vLv0H",
+                  "name": "Phone Recruiter Icon",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "user-round",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "H9igt",
+                  "name": "Phone Recruiter Name",
+                  "fill": "$foreground",
+                  "content": "Maya Tan",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "i2zo5R",
+          "name": "Phone Content Region",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": "$space-5",
+          "padding": [
+            "$space-6",
+            "$space-4"
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "hjedr",
+              "name": "Phone Content Introduction",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": "$space-2",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jzY1C",
+                  "name": "Phone Content Heading",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "What needs attention today",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-heading",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "pu7Aa",
+                  "name": "Phone Content Description",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Screen content stacks in one column inside this region.",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-body",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "CBCqg",
+              "name": "Phone Screen Content Placeholder",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$card",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "layout": "vertical",
+              "gap": "$space-3",
+              "padding": "$space-4",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "xgr5C",
+                  "name": "Phone Placeholder Icon",
+                  "width": 28,
+                  "height": 28,
+                  "icon": "panels-top-left",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "rIOT9",
+                  "name": "Phone Placeholder Label",
+                  "fill": "$foreground",
+                  "content": "Dashboard content",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "A9NL3i",
+                  "name": "Phone Placeholder Note",
+                  "fill": "$muted-foreground",
+                  "content": "No horizontal page scroll",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "ua8fh",
+      "x": 1990,
+      "y": 124,
+      "name": "Phone / Navigation sheet open",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "j8eGH9",
+          "name": "Phone Top Bar",
+          "width": "fill_container",
+          "height": 64,
+          "fill": "$card",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "strokeAlignment": "inner",
+          "gap": "$space-2",
+          "padding": [
+            0,
+            "$space-3"
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "sz90e",
+              "name": "Open Navigation Button",
+              "width": 44,
+              "height": 44,
+              "cornerRadius": "$radius-md",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "A4RLO",
+                  "name": "Menu Icon",
+                  "width": 22,
+                  "height": 22,
+                  "icon": "menu",
+                  "library": "lucide",
+                  "fill": "$foreground"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "XAXpE",
+              "name": "Phone Page Title",
+              "fill": "$foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Dashboard",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "650"
+            },
+            {
+              "type": "frame",
+              "id": "oSl3W",
+              "name": "Phone Recruiter Affordance",
+              "height": 44,
+              "cornerRadius": "$radius-md",
+              "gap": "$space-2",
+              "padding": [
+                0,
+                "$space-2"
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "ZFn1m",
+                  "name": "Phone Recruiter Icon",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "user-round",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "hcOZt",
+                  "name": "Phone Recruiter Name",
+                  "fill": "$foreground",
+                  "content": "Maya Tan",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DpxTS",
+          "name": "Phone Content Region",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": "$space-5",
+          "padding": [
+            "$space-6",
+            "$space-4"
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "RUNuz",
+              "name": "Phone Content Introduction",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": "$space-2",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "PKtV0",
+                  "name": "Phone Content Heading",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "What needs attention today",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-heading",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "sIfVg",
+                  "name": "Phone Content Description",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Screen content stacks in one column inside this region.",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-body",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Nkik2",
+              "name": "Phone Screen Content Placeholder",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$card",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "layout": "vertical",
+              "gap": "$space-3",
+              "padding": "$space-4",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "yV2my",
+                  "name": "Phone Placeholder Icon",
+                  "width": 28,
+                  "height": 28,
+                  "icon": "panels-top-left",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "H20lE",
+                  "name": "Phone Placeholder Label",
+                  "fill": "$foreground",
+                  "content": "Dashboard content",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "ZB56V",
+                  "name": "Phone Placeholder Note",
+                  "fill": "$muted-foreground",
+                  "content": "No horizontal page scroll",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "vci2o",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 0,
+          "name": "Navigation Modal Layer",
+          "width": 390,
+          "height": 844,
+          "fill": "#0F172A66",
+          "children": [
+            {
+              "type": "frame",
+              "id": "jOF3X",
+              "name": "Navigation Sheet",
+              "width": 344,
+              "height": "fill_container",
+              "fill": "$card",
+              "stroke": "$border",
+              "strokeWidth": {
+                "right": 1
+              },
+              "strokeAlignment": "inner",
+              "layout": "vertical",
+              "gap": "$space-5",
+              "padding": "$space-4",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "i2eQF",
+                  "name": "Sheet Header",
+                  "width": "fill_container",
+                  "height": 48,
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "P4vIx7",
+                      "name": "Sheet Product Brand",
+                      "gap": "$space-2",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "uHtte",
+                          "name": "Sheet Product Mark",
+                          "width": 32,
+                          "height": 32,
+                          "fill": "$primary",
+                          "cornerRadius": "$radius-md",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "r5uWrb",
+                              "name": "Sheet Briefcase Icon",
+                              "width": 18,
+                              "height": 18,
+                              "icon": "briefcase-business",
+                              "library": "lucide",
+                              "fill": "$primary-foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Xsbxf",
+                          "name": "Sheet Product Name",
+                          "fill": "$foreground",
+                          "content": "URecruitment",
+                          "fontFamily": "$font-heading",
+                          "fontSize": "$text-heading",
+                          "fontWeight": "650"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "v1apST",
+                      "name": "Close Navigation Button",
+                      "width": 44,
+                      "height": 44,
+                      "cornerRadius": "$radius-md",
+                      "stroke": "$ring",
+                      "strokeWidth": 2,
+                      "strokeAlignment": "outer",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "LT8Rt",
+                          "name": "Close Icon",
+                          "width": 22,
+                          "height": 22,
+                          "icon": "x",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "hjFVa",
+                  "name": "Sheet Recruiter Name Affordance",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-md",
+                  "layout": "vertical",
+                  "gap": "$space-1",
+                  "padding": "$space-3",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "nzYbg",
+                      "name": "Sheet Recording Label",
+                      "fill": "$foreground",
+                      "content": "Recording as Maya Tan",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "c17EuS",
+                      "name": "Sheet Change Name Action",
+                      "fill": "$primary",
+                      "content": "Change recruiter name",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "amp5F",
+                  "name": "Sheet Primary Navigation",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": "$space-1",
+                  "children": [
+                    {
+                      "id": "yoqaa",
+                      "type": "ref",
+                      "ref": "wyO33",
+                      "name": "Sheet Dashboard navigation",
+                      "width": "fill_container",
+                      "descendants": {
+                        "t4uWt": {
+                          "icon": "layout-dashboard"
+                        },
+                        "fUE6N": {
+                          "content": "Dashboard"
+                        }
+                      }
+                    },
+                    {
+                      "id": "D9evg",
+                      "type": "ref",
+                      "ref": "HQ3LY",
+                      "name": "Sheet Jobs navigation",
+                      "width": "fill_container",
+                      "descendants": {
+                        "BFXss": {
+                          "icon": "briefcase-business"
+                        },
+                        "tJrt2": {
+                          "content": "Jobs"
+                        }
+                      }
+                    },
+                    {
+                      "id": "w7y7h",
+                      "type": "ref",
+                      "ref": "HQ3LY",
+                      "name": "Sheet Candidates navigation",
+                      "width": "fill_container",
+                      "descendants": {
+                        "BFXss": {
+                          "icon": "search"
+                        },
+                        "tJrt2": {
+                          "content": "Candidates"
+                        }
+                      }
+                    },
+                    {
+                      "id": "MLlH8",
+                      "type": "ref",
+                      "ref": "HQ3LY",
+                      "name": "Sheet Placements navigation",
+                      "width": "fill_container",
+                      "descendants": {
+                        "BFXss": {
+                          "icon": "badge-check"
+                        },
+                        "tJrt2": {
+                          "content": "Placements"
+                        }
+                      }
+                    },
+                    {
+                      "id": "Rcol6",
+                      "type": "ref",
+                      "ref": "HQ3LY",
+                      "name": "Sheet Settings navigation",
+                      "width": "fill_container",
+                      "descendants": {
+                        "BFXss": {
+                          "icon": "settings"
+                        },
+                        "tJrt2": {
+                          "content": "Settings"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "X9hso",
+                  "name": "Sheet Flexible Space",
+                  "width": "fill_container",
+                  "height": "fill_container"
+                },
+                {
+                  "type": "frame",
+                  "id": "Z6rytN",
+                  "name": "Sheet Prototype Notice",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-md",
+                  "layout": "vertical",
+                  "gap": "$space-1",
+                  "padding": "$space-3",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "axYPo",
+                      "name": "Sheet Prototype Label",
+                      "fill": "$foreground",
+                      "content": "MVP prototype",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "k0je1",
+                      "name": "Sheet Fictional Data Label",
+                      "fill": "$muted-foreground",
+                      "content": "Fictional data only",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "E1ARPY",
+      "x": 2460,
+      "y": 124,
+      "name": "Phone / Long title / Name unset",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$background",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "a1iVu",
+          "name": "Phone Top Bar",
+          "width": "fill_container",
+          "height": 88,
+          "fill": "$card",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "strokeAlignment": "inner",
+          "gap": "$space-2",
+          "padding": [
+            0,
+            "$space-3"
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "uYG2L",
+              "name": "Open Navigation Button",
+              "width": 44,
+              "height": 44,
+              "cornerRadius": "$radius-md",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "yIFyx",
+                  "name": "Menu Icon",
+                  "width": 22,
+                  "height": 22,
+                  "icon": "menu",
+                  "library": "lucide",
+                  "fill": "$foreground"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "F3HMW",
+              "name": "Phone Page Title",
+              "fill": "$foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "高级人才招聘主管职位 · Pipeline",
+              "fontFamily": "$font-heading",
+              "fontSize": 16,
+              "fontWeight": "650"
+            },
+            {
+              "type": "frame",
+              "id": "v7Y5O",
+              "name": "Phone Recruiter Affordance",
+              "height": 44,
+              "cornerRadius": "$radius-md",
+              "gap": "$space-2",
+              "padding": [
+                0,
+                "$space-2"
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "rpSll",
+                  "name": "Phone Recruiter Icon",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "user-round",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "x3pXXu",
+                  "name": "Phone Recruiter Name",
+                  "fill": "$primary",
+                  "content": "Add name",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NFNsH",
+          "name": "Phone Content Region",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": "$space-5",
+          "padding": [
+            "$space-6",
+            "$space-4"
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "nyVm6",
+              "name": "Phone Content Introduction",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": "$space-2",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Az61t",
+                  "name": "Phone Content Heading",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Long title and Chinese text remain readable",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-heading",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "eq1xB",
+                  "name": "Phone Content Description",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "The header reflows without cutting off navigation, identity or page content.",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-body",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "b16b8",
+              "name": "Phone Screen Content Placeholder",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$card",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "strokeAlignment": "inner",
+              "layout": "vertical",
+              "gap": "$space-3",
+              "padding": "$space-4",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "n0NR7K",
+                  "name": "Phone Placeholder Icon",
+                  "width": 28,
+                  "height": 28,
+                  "icon": "panels-top-left",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "jXihp",
+                  "name": "Phone Placeholder Label",
+                  "fill": "$foreground",
+                  "content": "Dashboard content",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "HVCZl",
+                  "name": "Phone Placeholder Note",
+                  "fill": "$muted-foreground",
+                  "content": "No horizontal page scroll",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "background": {
+      "type": "color",
+      "value": "#F8FAFC"
+    },
+    "foreground": {
+      "type": "color",
+      "value": "#0F172A"
+    },
+    "card": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "card-foreground": {
+      "type": "color",
+      "value": "#0F172A"
+    },
+    "primary": {
+      "type": "color",
+      "value": "#1D4ED8"
+    },
+    "primary-foreground": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "muted": {
+      "type": "color",
+      "value": "#F1F5F9"
+    },
+    "muted-foreground": {
+      "type": "color",
+      "value": "#475569"
+    },
+    "accent": {
+      "type": "color",
+      "value": "#DBEAFE"
+    },
+    "accent-foreground": {
+      "type": "color",
+      "value": "#1E3A8A"
+    },
+    "border": {
+      "type": "color",
+      "value": "#64748B"
+    },
+    "ring": {
+      "type": "color",
+      "value": "#2563EB"
+    },
+    "font-sans": {
+      "type": "string",
+      "value": "Geist"
+    },
+    "font-heading": {
+      "type": "string",
+      "value": "Geist"
+    },
+    "text-title": {
+      "type": "number",
+      "value": 24
+    },
+    "text-heading": {
+      "type": "number",
+      "value": 18
+    },
+    "text-body": {
+      "type": "number",
+      "value": 16
+    },
+    "text-label": {
+      "type": "number",
+      "value": 14
+    },
+    "text-caption": {
+      "type": "number",
+      "value": 12
+    },
+    "space-1": {
+      "type": "number",
+      "value": 4
+    },
+    "space-2": {
+      "type": "number",
+      "value": 8
+    },
+    "space-3": {
+      "type": "number",
+      "value": 12
+    },
+    "space-4": {
+      "type": "number",
+      "value": 16
+    },
+    "space-5": {
+      "type": "number",
+      "value": 20
+    },
+    "space-6": {
+      "type": "number",
+      "value": 24
+    },
+    "space-8": {
+      "type": "number",
+      "value": 32
+    },
+    "radius-sm": {
+      "type": "number",
+      "value": 6
+    },
+    "radius-md": {
+      "type": "number",
+      "value": 8
+    },
+    "radius-lg": {
+      "type": "number",
+      "value": 12
+    }
+  },
+  "fileToken": "e4cce91e-2129-4f2d-985c-d2df0131db88"
+}

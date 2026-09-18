@@ -5,14 +5,14 @@ description: >
   (it extends that skill with project rules). Use for every piece of development work: `/task <description | #issue>`, "create a task", "work on #42",
   "implement <feature>", "start the next task". Resolves or creates the GitHub issue, writes
   docs/tasks/<issue>-<slug>/spec.md and plan.md, delegates implementation to Cursor Grok 4.6 or
-  GPT-5.6 via cursor-agent with the repo's skill rules inlined, verifies (lint, typecheck, tests, build, e2e,
-  eval), runs a Claude review, then opens a PR and moves the Project 4 card to In Review.
-  No approval gate. Never merges.
+  GPT-5.6 via cursor-agent with the repo's skill rules inlined. After coding, skip review: verify
+  until lint, typecheck, tests and (when applicable) build, e2e, db and eval are green, then close
+  out docs, open a PR and move the Project 4 card to In Review. No approval gate. Never merges.
 ---
 
 # urec-orchestrator — URecruitment
 
-**Claude plans, verifies and reviews. Cursor Grok 4.6 or GPT-5.6 (via `cursor-agent`) writes the code.**
+**Claude plans and verifies. Cursor Grok 4.6 or GPT-5.6 (via `cursor-agent`) writes the code.** After implementation, **do not run `pr-review`**. Green verification is the gate; then close out docs.
 
 This skill **extends** the global `~/.claude/skills/orchestrator`.
 
@@ -71,7 +71,7 @@ cursor-agent status                                  # executor is authenticated
 | Input | Action |
 |---|---|
 | `#42` or an issue URL | `gh issue view 42 --json number,title,body,labels,milestone,state`. Read its parent story/epic too (see `github-workflow`). |
-| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run the Story once through Steps 2–10 on one branch: one spec and plan, Tasks in dependency order, one or more commits per Task, and one PR that closes every Task and the Story. Stack it on the predecessor Story's branch when that PR is still open. |
+| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run the Story once through Steps 2–9 on one branch: one spec and plan, Tasks in dependency order, one or more commits per Task, and one PR that closes every Task and the Story. Stack it on the predecessor Story's branch when that PR is still open. |
 | An **Epic** number | List its open Stories, choose the first unblocked Story in roadmap order, then apply the Story workflow above. |
 | Free text | Search for a duplicate (`gh issue list --search "<keywords>" --state all`). If none exists, create a **Task** issue using the task form fields, attach it to the best-matching Story (create the Story under the right Epic if none fits), add it to Project 4, set the milestone (default `MVP`), and record the choice under Assumptions. |
 
@@ -187,7 +187,7 @@ Check the diff against:
 
 Revert out-of-scope edits with `git restore <file>`, not by hand. Deleted or `.skip`ped tests count as a failure.
 
-## Step 7 — Verify and fix loop
+## Step 7 — Verify until green, then fix loop
 
 Run the verification set for what changed:
 
@@ -207,16 +207,12 @@ On failure, work through the fix loop (max rounds = `executor.maxFixRounds`, def
 4. If it's still red after the last round, **Claude fixes it directly**, and the plan's Outcome notes it.
 5. If Claude can't fix it either, stop and report (see Operating mode).
 
-## Step 8 — Claude review (hard gate)
+Verification is the hard gate. **Do not** run `pr-review`, a review subagent, or a separate
+`security-check` / `compliance-review` pass as part of `/task`. Those skills stay available for an
+explicit `/review` request. Do not close out docs, commit the wrap-up, or open a PR while any
+applicable command is red.
 
-Run the `pr-review` skill on `git diff origin/main...HEAD`. For `security-check` and `compliance-review` scope, run it on an **Opus or Fable** subagent. Every finding must quote the rule it applies.
-
-- **Blocking findings:** fix them via a Cursor executor or directly, then re-run Step 7.
-- **Non-blocking findings:** list them in the PR under "Follow-ups". Create issues only if they matter.
-
-Run `security-check` and `compliance-review` too whenever their scope is touched (see the Step 2 table).
-
-## Step 9 — Close out docs
+## Step 8 — Close out docs
 
 - `plan.md`: tick the steps. Fill in **Outcome**: what shipped, files changed, tests added or updated (or why none were needed), verification, deviations, fix rounds, the complete model-usage ledger, and follow-ups.
 - `spec.md`: tick the acceptance criteria that are proven. Name the test that proves each one.
@@ -224,12 +220,12 @@ Run `security-check` and `compliance-review` too whenever their scope is touched
 Build the model-usage ledger from evidence, not memory:
 
 - Read every `.orchestrator/<issue>-<slug>/*.log` header for the executor model used by each implementation and fix step.
-- Record planning/orchestration, design, direct-fix and review models separately when the runtime or subagent result exposes their exact identity.
+- Record planning/orchestration, design and direct-fix models separately when the runtime or subagent result exposes their exact identity.
 - Include escalations even if they produced no retained code.
 - If an exact model identity is unavailable, write `unknown (runtime did not expose it)`; never guess.
 - This ledger covers models used to perform the task. App model IDs exercised by AI evals belong in verification evidence, not in the agent model ledger.
 
-## Step 10 — Commit, push, PR
+## Step 9 — Commit, push, PR
 
 ```bash
 git add -A && git status --porcelain      # check nothing unexpected is staged
@@ -243,10 +239,17 @@ gh issue view <issue> --json state,milestone
 # If milestone is missing: gh issue edit <issue> --milestone MVP
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inProgress
 # Write the body: copy .github/pull_request_template.md to .orchestrator/<issue>-<slug>/pr-body.md
-# and fill every section (Closes #<issue>, spec/plan links, verification output, review findings).
+# and fill every section (Closes #<issue>, spec/plan links, verification output).
+# Review section: write "Skipped — verification is the close-out gate."
 PR_URL=$(gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#<issue>)" \
   --body-file .orchestrator/<issue>-<slug>/pr-body.md --assignee "@me")
+PR_NUM=$(gh pr view "$PR_URL" --json number --jq .number)
+# Milestone and labels on the PR itself, mirrored from the Task/Story issue(s)
+# it closes (never guessed — read them off the issue).
+gh pr edit "$PR_NUM" --milestone MVP   # or the issue's actual milestone if not MVP
+gh pr edit "$PR_NUM" --add-label <area:*-labels-from-the-issues>
 gh project item-add 4 --owner dczii --url "$PR_URL"
+.claude/skills/github-workflow/scripts/set-status.sh "$PR_NUM" inReview   # sets the PR's own card, not just the issue's
 # Confirm GitHub linked the PR in the issue's Development section. An empty
 # result means the body lacks a valid `Closes #<issue>` reference; fix the body.
 # GitHub links closing keywords only on PRs based on `main`: for a stacked PR
@@ -254,13 +257,22 @@ gh project item-add 4 --owner dczii --url "$PR_URL"
 #   gh pr view "$PR_URL" --json body --jq .body | grep -nE '^Closes #'
 gh pr view "$PR_URL" --json closingIssuesReferences \
   --jq '.closingIssuesReferences[] | select(.number == <issue>) | .url'
+# For every `Closes #<N>` line the query above does NOT return (always true for
+# a stacked base, sometimes true even on `main`), leave an explicit fallback
+# link so the connection is discoverable without relying on auto-close:
+#   gh pr comment "$PR_NUM" --body "Also implements #<N> — not auto-linked
+#   because this PR is stacked on <predecessor PR> (base \`<base-branch>\`,
+#   not \`main\`); tracking here until the rebase/retarget follow-up."
+# Then move every issue the PR closes — Task(s) and Story alike, not just the
+# one issue used in the loop variable — to inReview:
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
 - **Commits:** Conventional Commits. For a Story, at least one commit per Task, each ending in `(#<task>)`. Split further if a Task's diff is large: tests, implementation, docs.
 - **PR base:** use `main` for an independent Story or Task, or the immediate predecessor Story's branch for a stacked one. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
-- **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4. If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
-- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>` (for a Story PR, one line per Task plus the Story), and, for a PR based on `main`, `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title.
+- **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4, with its own Status set to the in-review status (`set-status.sh` accepts a PR number the same way it accepts an issue number). If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
+- **PR milestone and labels:** every PR gets the same milestone as the issue(s) it closes (`MVP` unless the issue carries `Real-data release` or `Later`) and is labelled with each closed issue's `area:*` label(s). Read these off the issues — never guess or leave the PR's milestone/labels empty.
+- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>` (for a Story PR, one line per Task plus the Story), and, for a PR based on `main`, `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title. After PR creation, every issue named in a `Closes #<N>` line — not only the loop variable's issue — must end up at the in-review status, and any `Closes #<N>` GitHub did not resolve into `closingIssuesReferences` (always the case for a stacked-branch base) must get an explicit PR comment naming the issue and why the auto-link didn't fire, so the connection survives without relying on GitHub's keyword resolution.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
 - **Then stop** for a Task or Story input. For an Epic input, continue with the next unblocked Story until every open Story has its own PR or a listed blocking condition is reached.
 - Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
@@ -281,7 +293,7 @@ The final response is mandatory after the PR is opened (or after reporting a blo
 - Every verification command with pass/fail status. Do not say tests passed without listing the command that was run.
 
 ### Models used
-- A role-by-role ledger: planning/orchestration, each executor step and fix round, escalations, design work, direct fixes and review.
+- A role-by-role ledger: planning/orchestration, each executor step and fix round, escalations, design work and direct fixes.
 - Give exact model IDs when known. Use `unknown (runtime did not expose it)` rather than inferring a model.
 
 ### Notes
@@ -293,6 +305,7 @@ The final response is mandatory after the PR is opened (or after reporting a blo
 - Executor prompts that say "follow the skills" without inlining the rules.
 - Letting an executor commit, push, add dependencies, or touch `docs/tasks`.
 - Trusting "all tests pass" without running them.
+- Running `pr-review` (or any review subagent) as part of `/task`. Review is only for `/review`.
 - Treating a **proposed** PRD item as decided without saying so in the spec.
 - Splitting a Story into one PR per Task when the user didn't ask for it.
 - A Story PR that is missing a `Closes #<task>` line, or that mixes two Tasks' changes in one commit.

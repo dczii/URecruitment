@@ -40,7 +40,7 @@ npm run eval        →  (n/a if no AI change; paste EN / ZH results otherwise)
 
 ## Review
 
-<!-- pr-review verdict + blocker/major findings and how they were resolved. -->
+<!-- Skipped for `/task` — verification is the close-out gate. Fill only if `/review` was run. -->
 
 ## Execution notes
 
