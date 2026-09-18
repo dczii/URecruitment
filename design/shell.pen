@@ -1339,6 +1339,4625 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "RclSO",
+      "x": 0,
+      "y": 1104,
+      "name": "Component / Delay status badge / On track",
+      "reusable": true,
+      "fill": "$status-on-track",
+      "cornerRadius": "$radius-md",
+      "gap": 6,
+      "padding": 8,
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "sCinx",
+          "name": "Status Icon",
+          "width": 16,
+          "height": 16,
+          "icon": "circle-check",
+          "library": "lucide",
+          "fill": "$status-on-track-foreground"
+        },
+        {
+          "type": "text",
+          "id": "KQNmZ",
+          "name": "Status Label",
+          "fill": "$status-on-track-foreground",
+          "content": "On track",
+          "fontFamily": "$font-sans",
+          "fontSize": "$text-caption",
+          "fontWeight": "600"
+        }
+      ]
+    },
+    {
+      "id": "hrYVQ",
+      "type": "ref",
+      "ref": "RclSO",
+      "name": "Component / Delay status badge / Due soon",
+      "fill": "$status-due-soon",
+      "descendants": {
+        "sCinx": {
+          "library": "lucide",
+          "icon": "clock",
+          "fill": "$status-due-soon-foreground"
+        },
+        "KQNmZ": {
+          "content": "Due soon",
+          "fill": "$status-due-soon-foreground"
+        }
+      }
+    },
+    {
+      "id": "Wc9Ra",
+      "type": "ref",
+      "ref": "RclSO",
+      "name": "Component / Delay status badge / Overdue",
+      "fill": "$status-overdue",
+      "descendants": {
+        "sCinx": {
+          "library": "lucide",
+          "icon": "triangle-alert",
+          "fill": "$status-overdue-foreground"
+        },
+        "KQNmZ": {
+          "content": "Overdue · 3 days",
+          "fill": "$status-overdue-foreground"
+        }
+      }
+    },
+    {
+      "id": "PCAPi",
+      "type": "ref",
+      "ref": "RclSO",
+      "name": "Component / Delay status badge / Ended (no status)",
+      "fill": "$status-ended",
+      "descendants": {
+        "sCinx": {
+          "library": "lucide",
+          "icon": "circle-slash",
+          "fill": "$status-ended-foreground"
+        },
+        "KQNmZ": {
+          "content": "No delay status",
+          "fill": "$status-ended-foreground"
+        }
+      }
+    },
+    {
+      "type": "frame",
+      "id": "D3Bjz",
+      "x": 0,
+      "y": 1176,
+      "name": "Component / AI suggestion tag",
+      "reusable": true,
+      "fill": "$ai-suggestion-bg",
+      "cornerRadius": "$radius-sm",
+      "stroke": "$ai-suggestion-border",
+      "strokeWidth": 1,
+      "gap": 6,
+      "padding": [
+        4,
+        8
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "iC664",
+          "name": "AI Icon",
+          "width": 14,
+          "height": 14,
+          "icon": "sparkles",
+          "library": "lucide",
+          "fill": "$ai-suggestion-foreground"
+        },
+        {
+          "type": "text",
+          "id": "eVCuk",
+          "name": "AI Label",
+          "fill": "$ai-suggestion-foreground",
+          "content": "AI suggestion",
+          "fontFamily": "$font-sans",
+          "fontSize": "$text-caption",
+          "fontWeight": "600"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "b6W3X",
+      "x": 0,
+      "y": 1240,
+      "name": "Component / Source quote",
+      "reusable": true,
+      "width": 360,
+      "fill": "$source-quote-bg",
+      "cornerRadius": "$radius-sm",
+      "stroke": "$border",
+      "strokeWidth": 1,
+      "layout": "vertical",
+      "gap": 4,
+      "padding": 10,
+      "children": [
+        {
+          "type": "frame",
+          "id": "X7sS0",
+          "name": "Source Quote Header",
+          "gap": 6,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "qg8Gy",
+              "name": "Quote Icon",
+              "width": 14,
+              "height": 14,
+              "icon": "quote",
+              "library": "lucide",
+              "fill": "$source-quote-foreground"
+            },
+            {
+              "type": "text",
+              "id": "OlB3J",
+              "name": "Source Quote Label",
+              "fill": "$source-quote-foreground",
+              "content": "From the candidate's CV",
+              "fontFamily": "$font-sans",
+              "fontSize": "$text-caption",
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "htJLN",
+          "name": "Source Quote Text",
+          "fill": "$source-quote-foreground",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "\"5 years leading full-stack teams shipping React and Node.js at scale.\"",
+          "fontFamily": "$font-sans",
+          "fontSize": "$text-caption",
+          "fontWeight": "normal",
+          "fontStyle": "italic"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "dQYR2",
+      "x": 2930,
+      "y": 0,
+      "name": "Desktop / Dashboard / Default",
+      "clip": true,
+      "width": 1440,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 24,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "EP5fT",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "What needs attention today",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "LaMFd",
+          "name": "Filters",
+          "width": "fill_container",
+          "gap": 12,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Dx2Gu",
+              "name": "Filter Client: All",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "B9nfQ",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Client: All",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "ApHrq",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hkpM0",
+              "name": "Filter Job: All",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "KoNdX",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Job: All",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "vbTAm",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vBo1b",
+              "name": "Filter Stage: All",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BXOrz",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Stage: All",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "G55GF",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Uk9nz",
+              "name": "Filter Owner: All",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gkQbM",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Owner: All",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "q72hVL",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Fh96d",
+          "name": "Overdue Section",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "text",
+              "id": "Mnzse",
+              "name": "Overdue Heading",
+              "fill": "$foreground",
+              "content": "Overdue · ordered by days over",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "G4o3B",
+              "name": "Overdue Table",
+              "width": "fill_container",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "TqdpZ",
+                  "name": "Row Wei Chen",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Sb6Ws",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FMXq5",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "Senior Backend Engineer · Acme Ltd",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FJnoH",
+                      "name": "Stage",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 140,
+                      "content": "Screening",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "B4NgP",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-overdue",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "triangle-alert",
+                          "fill": "$status-overdue-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Overdue · 6 days",
+                          "fill": "$status-overdue-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "t9Wlx",
+                      "name": "Waiting On",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Waiting on: Recruiter — schedule interview",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "p2oaIU",
+                  "name": "Row Li Na",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "y0sOjk",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Li Na",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HaOba",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "Data Analyst · Northstar",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "W2W4ag",
+                      "name": "Stage",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 140,
+                      "content": "Client review",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "FAZ8k",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-overdue",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "triangle-alert",
+                          "fill": "$status-overdue-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Overdue · 4 days",
+                          "fill": "$status-overdue-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "nC2cJ",
+                      "name": "Waiting On",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Waiting on: Client — awaiting feedback",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "oMDnG",
+                  "name": "Row Arjun Menon",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "r430oU",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Arjun Menon",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "u2HTQR",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "QA Lead · Harborline",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "odMU9",
+                      "name": "Stage",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 140,
+                      "content": "Interview",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "vsbQo",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-overdue",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "triangle-alert",
+                          "fill": "$status-overdue-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Overdue · 3 days",
+                          "fill": "$status-overdue-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "HvCf8",
+                      "name": "Waiting On",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Waiting on: Recruiter — send scorecard",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "T4bXS",
+          "name": "Due Soon Section",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "text",
+              "id": "A1tm9",
+              "name": "Due Soon Section Heading",
+              "fill": "$foreground",
+              "content": "Due soon · 80% of the stage limit used",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "TRZGF",
+              "name": "Due Soon Section Table",
+              "width": "fill_container",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "hlNqr",
+                  "name": "Row Priya Raman",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WddlE",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Priya Raman",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FxW72",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "Product Manager · Solstice",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "bhSVM",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Badge",
+                      "fill": "$status-due-soon",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "clock",
+                          "fill": "$status-due-soon-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Due soon",
+                          "fill": "$status-due-soon-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "rSdP1",
+                      "name": "Extra",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "5 of 6 working days used",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "O3wjz0",
+                  "name": "Row Tom Fischer",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sDoTI",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Tom Fischer",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wZm5D",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "DevOps Engineer · Harborline",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "aLHCg",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Badge",
+                      "fill": "$status-due-soon",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "clock",
+                          "fill": "$status-due-soon-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Due soon",
+                          "fill": "$status-due-soon-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "K5F45",
+                      "name": "Extra",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "4 of 5 working days used",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "cTwzw",
+          "name": "Guarantee Section",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "text",
+              "id": "gjwwv",
+              "name": "Guarantee Section Heading",
+              "fill": "$foreground",
+              "content": "Guarantee ending",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "Y2cfM",
+              "name": "Guarantee Section Table",
+              "width": "fill_container",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "u0s1q3",
+                  "name": "Row Grace Lim",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "K3D7O",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Grace Lim",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uyXZD",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "Placed · Financial Analyst · Northstar",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "Qts7X",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Badge",
+                      "fill": "$status-ended",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "circle-slash",
+                          "fill": "$status-ended-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Guarantee",
+                          "fill": "$status-ended-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "IvYvA",
+                      "name": "Extra",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Guarantee ends in 4 working days",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BZSXd",
+                  "name": "Row Hassan Ali",
+                  "width": "fill_container",
+                  "stroke": "$border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "gap": 16,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LnG6F",
+                      "name": "Candidate",
+                      "fill": "$foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 180,
+                      "content": "Hassan Ali",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hh3fj",
+                      "name": "Job",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": 320,
+                      "content": "Placed · Site Supervisor · Acme Ltd",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "rfHqA",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Badge",
+                      "fill": "$status-ended",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "circle-slash",
+                          "fill": "$status-ended-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Guarantee",
+                          "fill": "$status-ended-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "id": "lmUbY",
+                      "name": "Extra",
+                      "fill": "$muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Guarantee ends in 2 working days",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "gQi47",
+      "x": 2930,
+      "y": 800,
+      "name": "Desktop / Dashboard / States (empty, loading, error)",
+      "fill": "$background",
+      "gap": 16,
+      "padding": 24,
+      "children": [
+        {
+          "type": "frame",
+          "id": "Lx9wy",
+          "name": "Empty State",
+          "width": 360,
+          "fill": "$card",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 20,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "upyqk",
+              "name": "Empty Icon",
+              "width": 28,
+              "height": 28,
+              "icon": "circle-check",
+              "library": "lucide",
+              "fill": "$muted-foreground"
+            },
+            {
+              "type": "text",
+              "id": "Db0sY",
+              "name": "Empty Title",
+              "fill": "$foreground",
+              "content": "Empty",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-label",
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "tqASM",
+              "name": "Empty Message",
+              "fill": "$muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": 300,
+              "content": "No one is overdue, due soon or ending guarantee right now.",
+              "textAlign": "center",
+              "fontFamily": "$font-sans",
+              "fontSize": "$text-caption",
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "RRH6t",
+          "name": "Loading State",
+          "width": 360,
+          "fill": "$card",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 20,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "DoCBX",
+              "name": "Loading Icon",
+              "width": 28,
+              "height": 28,
+              "icon": "loader-circle",
+              "library": "lucide",
+              "fill": "$muted-foreground"
+            },
+            {
+              "type": "text",
+              "id": "w17ssm",
+              "name": "Loading Title",
+              "fill": "$foreground",
+              "content": "Loading",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-label",
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "wXI98",
+              "name": "Loading Message",
+              "fill": "$muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": 300,
+              "content": "Checking today's stage limits…",
+              "textAlign": "center",
+              "fontFamily": "$font-sans",
+              "fontSize": "$text-caption",
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "G2hlg3",
+          "name": "Error State",
+          "width": 360,
+          "fill": "$card",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 20,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "SqXp5",
+              "name": "Error Icon",
+              "width": 28,
+              "height": 28,
+              "icon": "triangle-alert",
+              "library": "lucide",
+              "fill": "$muted-foreground"
+            },
+            {
+              "type": "text",
+              "id": "QcMc4",
+              "name": "Error Title",
+              "fill": "$foreground",
+              "content": "Error",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-label",
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "uIyOb",
+              "name": "Error Message",
+              "fill": "$muted-foreground",
+              "textGrowth": "fixed-width",
+              "width": 300,
+              "content": "Couldn't load the dashboard. Try again.",
+              "textAlign": "center",
+              "fontFamily": "$font-sans",
+              "fontSize": "$text-caption",
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "qIBfT",
+      "x": 9085,
+      "y": 0,
+      "name": "Desktop / Jobs list / Default",
+      "width": 1440,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 20,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "smSdz",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "Browse jobs",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "X0N87X",
+          "name": "Jobs Table",
+          "width": "fill_container",
+          "fill": "$card",
+          "cornerRadius": "$radius-md",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "vcd9U",
+              "name": "Row Senior Backend Engineer",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "scTq1",
+                  "name": "Title",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 320,
+                  "content": "Senior Backend Engineer",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "NKGI0",
+                  "name": "Client",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 180,
+                  "content": "Acme Ltd",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "bHNeI",
+                  "name": "Status",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 100,
+                  "content": "Open",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "O8Og4r",
+                  "name": "Flags",
+                  "fill": "$status-due-soon",
+                  "cornerRadius": "$radius-sm",
+                  "gap": 4,
+                  "padding": [
+                    2,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "N9RlXz",
+                      "name": "Flag Icon",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "flag",
+                      "library": "lucide",
+                      "fill": "$status-due-soon-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "PF4sV",
+                      "name": "Flag Count",
+                      "fill": "$status-due-soon-foreground",
+                      "content": "3 open gap flags",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "vkt1I",
+                  "name": "Per Stage",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "12 candidates in pipeline",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "eIvgh",
+              "name": "Row Data Analyst",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "W70a3L",
+                  "name": "Title",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 320,
+                  "content": "Data Analyst",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "V2oNgm",
+                  "name": "Client",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 180,
+                  "content": "Northstar",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "U2lSHn",
+                  "name": "Status",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 100,
+                  "content": "Open",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "Wmtgf",
+                  "name": "Flags",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "gap": 4,
+                  "padding": [
+                    2,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "txf9e",
+                      "name": "Flag Icon",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "flag",
+                      "library": "lucide",
+                      "fill": "$muted-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "dXdXz",
+                      "name": "Flag Count",
+                      "fill": "$muted-foreground",
+                      "content": "0 open gap flags",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Qd19s",
+                  "name": "Per Stage",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "7 candidates in pipeline",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "O62oao",
+              "name": "Row QA Lead",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "h3Yv1X",
+                  "name": "Title",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 320,
+                  "content": "QA Lead",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "Ig4Lg",
+                  "name": "Client",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 180,
+                  "content": "Harborline",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "onyb5",
+                  "name": "Status",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 100,
+                  "content": "On hold",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "S5PUaN",
+                  "name": "Flags",
+                  "fill": "$status-due-soon",
+                  "cornerRadius": "$radius-sm",
+                  "gap": 4,
+                  "padding": [
+                    2,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Y8sKxY",
+                      "name": "Flag Icon",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "flag",
+                      "library": "lucide",
+                      "fill": "$status-due-soon-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "IlFCS",
+                      "name": "Flag Count",
+                      "fill": "$status-due-soon-foreground",
+                      "content": "1 open gap flags",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "aiFvU",
+                  "name": "Per Stage",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "4 candidates in pipeline",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "W3HZK6",
+              "name": "Row 产品经理 (Product Manager)",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ZqYFd",
+                  "name": "Title",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 320,
+                  "content": "产品经理 (Product Manager)",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "ReFYP",
+                  "name": "Client",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 180,
+                  "content": "Solstice",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "ydMGX",
+                  "name": "Status",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 100,
+                  "content": "Open",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "P2A5yS",
+                  "name": "Flags",
+                  "fill": "$status-due-soon",
+                  "cornerRadius": "$radius-sm",
+                  "gap": 4,
+                  "padding": [
+                    2,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "s4CIWb",
+                      "name": "Flag Icon",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "flag",
+                      "library": "lucide",
+                      "fill": "$status-due-soon-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "K6ZPC",
+                      "name": "Flag Count",
+                      "fill": "$status-due-soon-foreground",
+                      "content": "2 open gap flags",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "MgIIM",
+                  "name": "Per Stage",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "9 candidates in pipeline",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "R9RfUp",
+      "x": 9085,
+      "y": 351,
+      "name": "Desktop / Job detail / Default",
+      "width": 1440,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "xsw0S",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "Senior Backend Engineer · Acme Ltd",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "YayUF",
+          "name": "Open Flag Banner",
+          "width": "fill_container",
+          "fill": "$status-due-soon",
+          "cornerRadius": "$radius-md",
+          "gap": 8,
+          "padding": 12,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "IwFPj",
+              "name": "Banner Icon",
+              "width": 16,
+              "height": 16,
+              "icon": "flag",
+              "library": "lucide",
+              "fill": "$status-due-soon-foreground"
+            },
+            {
+              "type": "text",
+              "id": "GDzn5",
+              "name": "Banner Text",
+              "fill": "$status-due-soon-foreground",
+              "content": "3 open gap flags need a recruiter answer — matching is not blocked while they're open.",
+              "fontFamily": "$font-sans",
+              "fontSize": "$text-label",
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "BXAkM",
+          "name": "Detail Columns",
+          "width": "fill_container",
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "gZ2vQ",
+              "name": "Requirements Column",
+              "width": 460,
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "h5tjsM",
+                  "name": "Requirements Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Q8BLDl",
+                      "name": "Requirements Heading",
+                      "fill": "$foreground",
+                      "content": "Requirements",
+                      "fontFamily": "$font-heading",
+                      "fontSize": "$text-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hj4V2",
+                      "name": "Req 5+ years backend engineering",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "HajlQ",
+                          "name": "Kind",
+                          "fill": "$destructive",
+                          "textGrowth": "fixed-width",
+                          "width": 110,
+                          "content": "Must-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "G6YEHP",
+                          "name": "Value",
+                          "fill": "$foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "5+ years backend engineering",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rzvts",
+                      "name": "Req Node.js and PostgreSQL",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "e2TLqj",
+                          "name": "Kind",
+                          "fill": "$destructive",
+                          "textGrowth": "fixed-width",
+                          "width": 110,
+                          "content": "Must-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "DqwQx",
+                          "name": "Value",
+                          "fill": "$foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Node.js and PostgreSQL",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Lh3sW",
+                      "name": "Req AWS or GCP experience",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KhfEf",
+                          "name": "Kind",
+                          "fill": "$muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": 110,
+                          "content": "Nice-to-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "hojBJ",
+                          "name": "Value",
+                          "fill": "$foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "AWS or GCP experience",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "FXnTn",
+                  "name": "Gap Flag Checklist",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Y9huF",
+                      "name": "Gap Heading",
+                      "fill": "$foreground",
+                      "content": "Gap-flag checklist",
+                      "fontFamily": "$font-heading",
+                      "fontSize": "$text-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lCOK7",
+                      "name": "Gap Missing",
+                      "width": "fill_container",
+                      "fill": "$muted",
+                      "cornerRadius": "$radius-sm",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qmEsA",
+                          "name": "Gap Kind",
+                          "fill": "$foreground",
+                          "content": "Missing",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "o5PwO",
+                          "name": "Gap Question",
+                          "fill": "$muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "No salary range given — ask the client for a band.",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "pJ4ZA",
+                      "name": "Gap Uncertain",
+                      "width": "fill_container",
+                      "fill": "$muted",
+                      "cornerRadius": "$radius-sm",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "n97dT",
+                          "name": "Gap Kind",
+                          "fill": "$foreground",
+                          "content": "Uncertain",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ZV1hi",
+                          "name": "Gap Question",
+                          "fill": "$muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Contract length reads as 6 or 12 months — confirm which.",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "BWXM2",
+                      "name": "Gap Fair-employment",
+                      "width": "fill_container",
+                      "fill": "$muted",
+                      "cornerRadius": "$radius-sm",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nkQFM",
+                          "name": "Gap Kind",
+                          "fill": "$foreground",
+                          "content": "Fair-employment",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "W0oEq",
+                          "name": "Gap Question",
+                          "fill": "$muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Job asks for \"native English speaker\" — ask for the underlying skill instead.",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "E6aRq",
+              "name": "Ranked Matches Column",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "J87YC3",
+                  "name": "Matches Heading",
+                  "fill": "$foreground",
+                  "content": "Ranked matches",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-heading",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "ftFEr",
+                  "name": "Match Wei Chen",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "G0KKz",
+                      "name": "Match Header",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qn6W7",
+                          "name": "Candidate Name",
+                          "fill": "$foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Wei Chen",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "F7oaI",
+                          "name": "Score",
+                          "fill": "$primary",
+                          "content": "87 / 100",
+                          "fontFamily": "$font-mono",
+                          "fontSize": "$text-label",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "shqTJ",
+                      "type": "ref",
+                      "ref": "D3Bjz",
+                      "name": "AI Suggestion Tag"
+                    },
+                    {
+                      "type": "text",
+                      "id": "bwNKv",
+                      "name": "Model Version",
+                      "fill": "$muted-foreground",
+                      "content": "Scored by matcher v1.3 on 15 Sep 2026, 09:12 SGT",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "J4oDDU",
+                      "type": "ref",
+                      "ref": "b6W3X",
+                      "name": "Source Quote",
+                      "descendants": {
+                        "htJLN": {
+                          "content": "\"5 years leading full-stack teams shipping Node.js at scale.\""
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "R6gsB",
+                  "name": "Match Li Na",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ZJUL5",
+                      "name": "Match Header",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zu9Ds",
+                          "name": "Candidate Name",
+                          "fill": "$foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Li Na",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "tfeSr",
+                          "name": "Score",
+                          "fill": "$primary",
+                          "content": "74 / 100",
+                          "fontFamily": "$font-mono",
+                          "fontSize": "$text-label",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "TYhAJ",
+                      "type": "ref",
+                      "ref": "D3Bjz",
+                      "name": "AI Suggestion Tag"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZanAb",
+                      "name": "Model Version",
+                      "fill": "$muted-foreground",
+                      "content": "Scored by matcher v1.3 on 15 Sep 2026, 09:12 SGT",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "OROWe",
+                      "type": "ref",
+                      "ref": "b6W3X",
+                      "name": "Source Quote",
+                      "descendants": {
+                        "htJLN": {
+                          "content": "\"Built PostgreSQL data pipelines processing 2M rows/day.\""
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "hQM7k",
+          "name": "Embedded Pipeline Board",
+          "width": "fill_container",
+          "fill": "$card",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "ECrvF",
+              "name": "Pipeline Heading",
+              "fill": "$foreground",
+              "content": "Pipeline for this job",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "YFM6J",
+              "name": "Pipeline Columns",
+              "width": "fill_container",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mFn1O",
+                  "name": "Stage Sourced",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "eGlIa",
+                      "name": "Stage Label",
+                      "fill": "$foreground",
+                      "content": "Sourced",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VLXmN",
+                  "name": "Stage Screening",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "R3puv",
+                      "name": "Stage Label",
+                      "fill": "$foreground",
+                      "content": "Screening",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VSKy2",
+                  "name": "Stage Client review",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "jSFFe",
+                      "name": "Stage Label",
+                      "fill": "$foreground",
+                      "content": "Client review",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ojRIq",
+                  "name": "Stage Interview",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XM0Nf",
+                      "name": "Stage Label",
+                      "fill": "$foreground",
+                      "content": "Interview",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PK9lG",
+                  "name": "Stage Offer",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "P88vyH",
+                      "name": "Stage Label",
+                      "fill": "$foreground",
+                      "content": "Offer",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "VASgA",
+                  "name": "Stage Placed",
+                  "width": "fill_container",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "o9LX5",
+                      "name": "Stage Label",
+                      "fill": "$foreground",
+                      "content": "Placed",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "RywlM",
+      "x": 10605,
+      "y": 0,
+      "name": "Desktop / Job form / Default",
+      "width": 1440,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "XTxSZ",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "Create job — Senior Backend Engineer",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "CfSuj",
+          "name": "JD Upload Prefill Card",
+          "width": "fill_container",
+          "fill": "$ai-suggestion-bg",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$ai-suggestion-border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "x9LJi",
+              "name": "JD Header",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "KIcq8",
+                  "name": "Upload Icon",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "file-up",
+                  "library": "lucide",
+                  "fill": "$ai-suggestion-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "vW1nj",
+                  "name": "JD Header Text",
+                  "fill": "$ai-suggestion-foreground",
+                  "content": "Read from acme-backend-jd.pdf — confirm what was read before saving",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "id": "NnTIy",
+              "type": "ref",
+              "ref": "D3Bjz",
+              "name": "AI Suggestion Tag"
+            },
+            {
+              "type": "frame",
+              "id": "CsHid",
+              "name": "Confirm Row",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jCMDK",
+                  "name": "Confirm Button",
+                  "fill": "$primary",
+                  "cornerRadius": "$radius-md",
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "jlGHa",
+                      "name": "Confirm Label",
+                      "fill": "$primary-foreground",
+                      "content": "Confirm pre-filled values",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qYd7e",
+                  "name": "Edit Button",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "wtkNp",
+                      "name": "Edit Label",
+                      "fill": "$foreground",
+                      "content": "Edit before saving",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "T427iy",
+          "name": "Requirement Rows",
+          "width": "fill_container",
+          "fill": "$card",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "VSeT6",
+              "name": "Requirements Heading",
+              "fill": "$foreground",
+              "content": "Requirements",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "Reh6n",
+              "name": "Row 5+ years backend engineering",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "AvX5O",
+                  "name": "Field",
+                  "width": "fill_container",
+                  "fill": "$background",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$input",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kX6PH",
+                      "name": "Field Text",
+                      "fill": "$foreground",
+                      "content": "5+ years backend engineering",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "E8mwh",
+                  "name": "Kind Toggle",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Z7l6zp",
+                      "name": "Option Must-have",
+                      "fill": "$accent",
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "lTQJI",
+                          "name": "Option Label",
+                          "fill": "$accent-foreground",
+                          "content": "Must-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LztkF",
+                      "name": "Option Nice-to-have",
+                      "fill": "$card",
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "M2sRfR",
+                          "name": "Option Label",
+                          "fill": "$muted-foreground",
+                          "content": "Nice-to-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "J8JQp",
+              "name": "Row Node.js and PostgreSQL",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "C0QPQ",
+                  "name": "Field",
+                  "width": "fill_container",
+                  "fill": "$background",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$input",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bS5Dd",
+                      "name": "Field Text",
+                      "fill": "$foreground",
+                      "content": "Node.js and PostgreSQL",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "smOMr",
+                  "name": "Kind Toggle",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "wb9zd",
+                      "name": "Option Must-have",
+                      "fill": "$accent",
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "W1EQqi",
+                          "name": "Option Label",
+                          "fill": "$accent-foreground",
+                          "content": "Must-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aPhMA",
+                      "name": "Option Nice-to-have",
+                      "fill": "$card",
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "o0pIdK",
+                          "name": "Option Label",
+                          "fill": "$muted-foreground",
+                          "content": "Nice-to-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Td6VY",
+              "name": "Row AWS or GCP experience",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "B30JWg",
+                  "name": "Field",
+                  "width": "fill_container",
+                  "fill": "$background",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$input",
+                  "strokeWidth": 1,
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "AdJMj",
+                      "name": "Field Text",
+                      "fill": "$foreground",
+                      "content": "AWS or GCP experience",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "f6KA62",
+                  "name": "Kind Toggle",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "CggPQ",
+                      "name": "Option Must-have",
+                      "fill": "$card",
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "b57XT",
+                          "name": "Option Label",
+                          "fill": "$muted-foreground",
+                          "content": "Must-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Zb1oK",
+                      "name": "Option Nice-to-have",
+                      "fill": "$accent",
+                      "padding": [
+                        6,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ggu65",
+                          "name": "Option Label",
+                          "fill": "$accent-foreground",
+                          "content": "Nice-to-have",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "U2eAO",
+          "name": "Nationality Language Section",
+          "width": "fill_container",
+          "fill": "$card",
+          "cornerRadius": "$radius-lg",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "type": "text",
+              "id": "gE1is",
+              "name": "Nat Heading",
+              "fill": "$foreground",
+              "content": "Nationality and language",
+              "fontFamily": "$font-heading",
+              "fontSize": "$text-heading",
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "myu0P",
+              "name": "Toggle Row",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "KwIYu",
+                  "name": "Switch",
+                  "width": 36,
+                  "height": 20,
+                  "fill": "$primary",
+                  "cornerRadius": 10,
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "ijN9r",
+                      "name": "Knob",
+                      "fill": "$primary-foreground",
+                      "width": 16,
+                      "height": 16
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "gISFh",
+                  "name": "Toggle Label",
+                  "fill": "$foreground",
+                  "content": "Count nationality as a real requirement for this job",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "tPel3",
+              "name": "Reason Field",
+              "width": "fill_container",
+              "fill": "$background",
+              "cornerRadius": "$radius-md",
+              "stroke": "$destructive",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "P2Rk65",
+                  "name": "Reason Label Row",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "O68uce",
+                      "name": "Required Icon",
+                      "width": 12,
+                      "height": 12,
+                      "icon": "asterisk",
+                      "library": "lucide",
+                      "fill": "$destructive"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HYCRn",
+                      "name": "Reason Label",
+                      "fill": "$destructive",
+                      "content": "Required — write why nationality is a real requirement before it can count",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "J7SXDG",
+                  "name": "Reason Placeholder",
+                  "fill": "$muted-foreground",
+                  "content": "e.g. the role requires an existing Singapore work pass under a client-mandated headcount quota",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "EPgLY",
+                  "name": "Reason Blocking Note",
+                  "fill": "$destructive",
+                  "content": "Nationality will not count toward the score until this reason is filled in.",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal",
+                  "fontStyle": "italic"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "KXC14",
+          "name": "Validation Error State",
+          "width": "fill_container",
+          "fill": "$destructive",
+          "cornerRadius": "$radius-md",
+          "layout": "vertical",
+          "gap": 4,
+          "padding": 12,
+          "children": [
+            {
+              "type": "frame",
+              "id": "a6ELFH",
+              "name": "Error Row",
+              "gap": 6,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "dPn1w",
+                  "name": "Error Icon",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "circle-x",
+                  "library": "lucide",
+                  "fill": "$destructive-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "o111e",
+                  "name": "Error Text",
+                  "fill": "$destructive-foreground",
+                  "content": "2 requirement rows are missing a must-have/nice-to-have choice, and the nationality reason is empty.",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "HeMOy",
+      "x": 10605,
+      "y": 737,
+      "name": "Desktop / Candidate search / Default",
+      "width": 1440,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "x0sDT",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "Find candidates",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "mHyzQ",
+          "name": "Search Box",
+          "width": "fill_container",
+          "fill": "$card",
+          "cornerRadius": "$radius-md",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "gap": 8,
+          "padding": 12,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "Iypnc",
+              "name": "Search Icon",
+              "width": 16,
+              "height": 16,
+              "icon": "search",
+              "library": "lucide",
+              "fill": "$muted-foreground"
+            },
+            {
+              "type": "text",
+              "id": "g9e6wa",
+              "name": "Search Placeholder",
+              "fill": "$muted-foreground",
+              "content": "Plain-language search — e.g. \"ZH-speaking QA engineers in Singapore, 3+ years, CV updated this year\"",
+              "fontFamily": "$font-sans",
+              "fontSize": "$text-label",
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "C3AZ4B",
+          "name": "Filters",
+          "width": "fill_container",
+          "gap": 12,
+          "children": [
+            {
+              "type": "frame",
+              "id": "ig6ac",
+              "name": "Filter Skills",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GldUX",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Skills",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "j4vEmb",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "AyLxz",
+              "name": "Filter Years",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gwgLi",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Years",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "fcx6X",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "sQZCa",
+              "name": "Filter Location",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LwBej",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Location",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "pvHyO",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "TQjuV",
+              "name": "Filter Language",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fCVtc",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "Language",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "ybrrX",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ifmJF",
+              "name": "Filter CV date",
+              "fill": "$card",
+              "cornerRadius": "$radius-md",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                8,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "c8oKq",
+                  "name": "Filter Label",
+                  "fill": "$foreground",
+                  "content": "CV date",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "icon",
+                  "id": "d9GAi",
+                  "name": "Chevron",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "chevron-down",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "N44GW",
+          "name": "Results",
+          "width": "fill_container",
+          "fill": "$card",
+          "cornerRadius": "$radius-md",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "hC9xd",
+              "name": "Row Wei Chen",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "w2UQEj",
+                  "name": "Name",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 220,
+                  "content": "Wei Chen",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "Ac2Su",
+                  "name": "Meta",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 420,
+                  "content": "Senior Backend Engineer, 6 yrs · Singapore",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "UjPqg",
+                  "name": "Updated",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Updated 2 days ago",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oAtPV",
+              "name": "Row 李娜 (Li Na)",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jYhno",
+                  "name": "Name",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 220,
+                  "content": "李娜 (Li Na)",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "B0T4P",
+                  "name": "Meta",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 420,
+                  "content": "Data Analyst, 4 yrs · Singapore · ZH/EN",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "QEwVL",
+                  "name": "Updated",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Updated 1 week ago",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "jGW0J",
+              "name": "Row Arjun Menon",
+              "width": "fill_container",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 16,
+              "padding": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JGZjS",
+                  "name": "Name",
+                  "fill": "$foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 220,
+                  "content": "Arjun Menon",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "P9PPk",
+                  "name": "Meta",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 420,
+                  "content": "QA Lead, 5 yrs · Singapore",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "FpL6h",
+                  "name": "Updated",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Updated 3 weeks ago",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "gLrod",
+          "name": "Empty/Loading/Error States",
+          "width": "fill_container",
+          "gap": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "N4fYky",
+              "name": "Empty State",
+              "width": 340,
+              "fill": "$card",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "d9HTFe",
+                  "name": "Empty Icon",
+                  "width": 24,
+                  "height": 24,
+                  "icon": "search-x",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "uUblI",
+                  "name": "Empty Text",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 300,
+                  "content": "Empty — No candidates match these filters yet.",
+                  "textAlign": "center",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "qq4oU",
+              "name": "Loading State",
+              "width": 340,
+              "fill": "$card",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "UjgPg",
+                  "name": "Loading Icon",
+                  "width": 24,
+                  "height": 24,
+                  "icon": "loader-circle",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "S9EWyv",
+                  "name": "Loading Text",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 300,
+                  "content": "Loading — Searching the talent database…",
+                  "textAlign": "center",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FrV3o",
+              "name": "Error State",
+              "width": 340,
+              "fill": "$card",
+              "cornerRadius": "$radius-lg",
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 6,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "x8bClw",
+                  "name": "Error Icon",
+                  "width": 24,
+                  "height": 24,
+                  "icon": "triangle-alert",
+                  "library": "lucide",
+                  "fill": "$muted-foreground"
+                },
+                {
+                  "type": "text",
+                  "id": "Rjvho",
+                  "name": "Error Text",
+                  "fill": "$muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 300,
+                  "content": "Error — Search failed. Try again.",
+                  "textAlign": "center",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "r1oMvl",
+      "x": 10605,
+      "y": 1254,
+      "name": "Desktop / Candidate profile / Default",
+      "width": 1440,
+      "height": 500,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "UjKyw",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "李娜 (Li Na) — Data Analyst",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "bwv5I",
+          "name": "Profile Columns",
+          "width": "fill_container",
+          "height": 400,
+          "gap": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "ngnPq",
+              "name": "Parsed Fields Column",
+              "width": 820,
+              "height": 400,
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "NPgvP",
+                  "name": "Parsed Field Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I9V3aw",
+                      "name": "Field Heading",
+                      "fill": "$foreground",
+                      "content": "Total experience",
+                      "fontFamily": "$font-heading",
+                      "fontSize": "$text-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JEam1",
+                      "name": "Field Row",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mUSOv",
+                          "name": "Field Value",
+                          "fill": "$foreground",
+                          "content": "4 years",
+                          "fontFamily": "$font-mono",
+                          "fontSize": "$text-label",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "id": "AweE1",
+                          "type": "ref",
+                          "ref": "D3Bjz",
+                          "name": "AI Suggestion Tag"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "bj3y4",
+                      "type": "ref",
+                      "ref": "b6W3X",
+                      "name": "Source Quote",
+                      "descendants": {
+                        "htJLN": {
+                          "content": "\"2021年至今任职于Northstar担任数据分析师\" (data analyst at Northstar since 2021)"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wgWE8",
+                  "name": "Edited Field Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Y7VwF",
+                      "name": "Field Heading",
+                      "fill": "$foreground",
+                      "content": "Location (recruiter-edited)",
+                      "fontFamily": "$font-heading",
+                      "fontSize": "$text-heading",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sKgyE",
+                      "name": "Diff Row",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "c88rW",
+                          "name": "Parsed Value",
+                          "fill": "$muted-foreground",
+                          "content": "Shanghai",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "icon",
+                          "id": "OOHrJ",
+                          "name": "Arrow",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "arrow-right",
+                          "library": "lucide",
+                          "fill": "$muted-foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "d13FU",
+                          "name": "Edited Value",
+                          "fill": "$accent-foreground",
+                          "content": "Singapore",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uE9Sq",
+                          "name": "Edited Tag",
+                          "fill": "$accent",
+                          "cornerRadius": "$radius-sm",
+                          "padding": [
+                            2,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "zfZlv",
+                              "name": "Edited Label",
+                              "fill": "$accent-foreground",
+                              "content": "Edited by Maya Tan",
+                              "fontFamily": "$font-sans",
+                              "fontSize": "$text-caption",
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XRJyu",
+                  "name": "Typed Name Prompt (edit mode)",
+                  "width": "fill_container",
+                  "fill": "$ai-suggestion-bg",
+                  "cornerRadius": "$radius-lg",
+                  "stroke": "$ai-suggestion-border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "padding": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FYDSu",
+                      "name": "Prompt Heading",
+                      "fill": "$ai-suggestion-foreground",
+                      "content": "Recording as Maya Tan",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "GO2ij",
+                      "name": "Prompt Sub",
+                      "fill": "$ai-suggestion-foreground",
+                      "content": "Not you? Change the recorded name before saving this edit.",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "m9pWG6",
+              "name": "Stage History Column",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WRn64",
+                  "name": "History Heading",
+                  "fill": "$foreground",
+                  "content": "Stage history",
+                  "fontFamily": "$font-heading",
+                  "fontSize": "$text-heading",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "c3Jfp",
+                  "name": "History List",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-md",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "l9vtP",
+                      "name": "Hist 15 Sep 2026, 09:00 SGT",
+                      "width": "fill_container",
+                      "stroke": "$border",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 10,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "M4qQCd",
+                          "name": "Hist Event",
+                          "fill": "$foreground",
+                          "content": "Moved to Screening by Maya Tan",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "zIxQX",
+                          "name": "Hist Date",
+                          "fill": "$muted-foreground",
+                          "content": "15 Sep 2026, 09:00 SGT",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "C8NWk",
+                      "name": "Hist 10 Sep 2026, 14:30 SGT",
+                      "width": "fill_container",
+                      "stroke": "$border",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": 10,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "SZFgp",
+                          "name": "Hist Event",
+                          "fill": "$foreground",
+                          "content": "Sourced by Maya Tan",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-label",
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "D0bI38",
+                          "name": "Hist Date",
+                          "fill": "$muted-foreground",
+                          "content": "10 Sep 2026, 14:30 SGT",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "aUlKf",
+                  "name": "Original File Link",
+                  "fill": "$muted",
+                  "cornerRadius": "$radius-sm",
+                  "gap": 6,
+                  "padding": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "CooV3",
+                      "name": "File Icon",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "file-text",
+                      "library": "lucide",
+                      "fill": "$foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lhHTb",
+                      "name": "File Label",
+                      "fill": "$foreground",
+                      "content": "View original CV (signed link)",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-label",
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "yUxPG",
+      "x": 10605,
+      "y": 1814,
+      "name": "Desktop / Pipeline board / Default",
+      "width": 1800,
+      "fill": "$background",
+      "layout": "vertical",
+      "gap": 16,
+      "padding": 32,
+      "children": [
+        {
+          "type": "text",
+          "id": "vbs50",
+          "name": "Page Title",
+          "fill": "$foreground",
+          "content": "Pipeline — Senior Backend Engineer",
+          "fontFamily": "$font-heading",
+          "fontSize": "$text-title",
+          "fontWeight": "650"
+        },
+        {
+          "type": "frame",
+          "id": "auA59",
+          "name": "Stage Columns",
+          "width": "fill_container",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "WLVy1",
+              "name": "Column Sourced",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "q2PtPV",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Sourced",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "W6IxG",
+                  "name": "Empty Note",
+                  "fill": "$muted-foreground",
+                  "content": "No one here",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-caption",
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "KEfSV",
+              "name": "Column Screening",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BssFM",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Screening",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "c8LbWI",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "oy8Pm",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "LgRmN",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gjnLn",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "TtYbn",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "tBVSw",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "A8QYj",
+              "name": "Column Client review",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pzknX",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Client review",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "HXSvw",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "newGQ",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "na150",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-due-soon",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "clock",
+                          "fill": "$status-due-soon-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Due soon",
+                          "fill": "$status-due-soon-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GIFyf",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "vLMv6",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "w44gm",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JkP1f",
+              "name": "Column Interview",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VUd0n",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Interview",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "sd9Is",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lPDzz",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "JZTt1",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-overdue",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "triangle-alert",
+                          "fill": "$status-overdue-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "Overdue · 3 days",
+                          "fill": "$status-overdue-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RQnhb",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "tApAU",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FM0uG",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "o83I6",
+              "name": "Column Offer",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fYBqM",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Offer",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "HqEYQ",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zeNTp",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "VQ5zK",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jv3eK",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "RZwIR",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "LvVzW",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "XcbGT",
+              "name": "Column Placed",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Z3ixMj",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Placed",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "rOvSb",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "joGrP",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "DNC9u",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-ended",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "circle-slash",
+                          "fill": "$status-ended-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "No delay status",
+                          "fill": "$status-ended-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "HFGXo",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "EeeRJ",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "N2wPtL",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "SKMyx",
+              "name": "Column Not shortlisted",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "o6dOA",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Not shortlisted",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "Dy4mk",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "G0gmo",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "bsRx5",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-ended",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "circle-slash",
+                          "fill": "$status-ended-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "No delay status",
+                          "fill": "$status-ended-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Lz6gY",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "ISvpk",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Mn8XQ",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "blGFG",
+              "name": "Column Withdrawn",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qs7Y6",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Withdrawn",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "Rw2GD",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "r17or",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "x0XBpV",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-ended",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "circle-slash",
+                          "fill": "$status-ended-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "No delay status",
+                          "fill": "$status-ended-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nKplS",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "tv3bk",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Vya8U",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "O54iU1",
+              "name": "Column Not selected",
+              "width": 190,
+              "fill": "$muted",
+              "cornerRadius": "$radius-md",
+              "layout": "vertical",
+              "gap": 8,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fwlxt",
+                  "name": "Stage Label",
+                  "fill": "$foreground",
+                  "content": "Not selected",
+                  "fontFamily": "$font-sans",
+                  "fontSize": "$text-label",
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "FHfck",
+                  "name": "Candidate Card",
+                  "width": "fill_container",
+                  "fill": "$card",
+                  "cornerRadius": "$radius-sm",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "padding": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FBUBI",
+                      "name": "Candidate Name",
+                      "fill": "$foreground",
+                      "content": "Wei Chen",
+                      "fontFamily": "$font-sans",
+                      "fontSize": "$text-caption",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "e4jtP",
+                      "type": "ref",
+                      "ref": "RclSO",
+                      "name": "Delay Badge",
+                      "fill": "$status-ended",
+                      "descendants": {
+                        "sCinx": {
+                          "library": "lucide",
+                          "icon": "circle-slash",
+                          "fill": "$status-ended-foreground"
+                        },
+                        "KQNmZ": {
+                          "content": "No delay status",
+                          "fill": "$status-ended-foreground"
+                        }
+                      }
+                    },
+                    {
+                      "type": "frame",
+                      "id": "O7VEov",
+                      "name": "Move Button",
+                      "fill": "$card",
+                      "cornerRadius": "$radius-sm",
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "gap": 4,
+                      "padding": [
+                        4,
+                        8
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "knUMw",
+                          "name": "Move Icon",
+                          "width": 12,
+                          "height": 12,
+                          "icon": "move-right",
+                          "library": "lucide",
+                          "fill": "$foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mgub7",
+                          "name": "Move Label",
+                          "fill": "$foreground",
+                          "content": "Move…",
+                          "fontFamily": "$font-sans",
+                          "fontSize": "$text-caption",
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
@@ -1457,6 +6076,82 @@
     "radius-lg": {
       "type": "number",
       "value": 12
+    },
+    "secondary": {
+      "type": "color",
+      "value": "#E2E8F0"
+    },
+    "secondary-foreground": {
+      "type": "color",
+      "value": "#0F172A"
+    },
+    "destructive": {
+      "type": "color",
+      "value": "#B91C1C"
+    },
+    "destructive-foreground": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "input": {
+      "type": "color",
+      "value": "#64748B"
+    },
+    "status-on-track": {
+      "type": "color",
+      "value": "#DCFCE7"
+    },
+    "status-on-track-foreground": {
+      "type": "color",
+      "value": "#166534"
+    },
+    "status-due-soon": {
+      "type": "color",
+      "value": "#FEF3C7"
+    },
+    "status-due-soon-foreground": {
+      "type": "color",
+      "value": "#92400E"
+    },
+    "status-overdue": {
+      "type": "color",
+      "value": "#FEE2E2"
+    },
+    "status-overdue-foreground": {
+      "type": "color",
+      "value": "#991B1B"
+    },
+    "status-ended": {
+      "type": "color",
+      "value": "#E2E8F0"
+    },
+    "status-ended-foreground": {
+      "type": "color",
+      "value": "#334155"
+    },
+    "ai-suggestion-bg": {
+      "type": "color",
+      "value": "#EFF6FF"
+    },
+    "ai-suggestion-foreground": {
+      "type": "color",
+      "value": "#1E3A8A"
+    },
+    "ai-suggestion-border": {
+      "type": "color",
+      "value": "#1D4ED8"
+    },
+    "source-quote-bg": {
+      "type": "color",
+      "value": "#F8FAFC"
+    },
+    "source-quote-foreground": {
+      "type": "color",
+      "value": "#334155"
+    },
+    "font-mono": {
+      "type": "string",
+      "value": "Geist Mono"
     }
   },
   "fileToken": "e4cce91e-2129-4f2d-985c-d2df0131db88"

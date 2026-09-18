@@ -104,6 +104,31 @@ Tailwind token.
 | `shadow-sm` | `0 1px 2px rgb(15 23 42 / 0.08)` | `--shadow-sm` | `shadow-sm` | Subtle separation |
 | `shadow-md` | `0 8px 24px rgb(15 23 42 / 0.12)` | `--shadow-md` | `shadow-md` | Floating surfaces |
 
+## Shared patterns (added for Story #32, `design/shell.pen`)
+
+`design/tokens.md`'s `status-*`, `ai-suggestion-*` and `source-quote-*` colours were documented
+above but not yet registered as pen.dev variables until Story #32 (#100–#106) needed them; they are
+now defined via `SetVariables` in the live document and used by three reusable components:
+
+| Component | Node id | Used by |
+|---|---|---|
+| Delay status badge — On track | `RclSO` | Dashboard, Pipeline |
+| Delay status badge — Due soon | `hrYVQ` | Dashboard, Pipeline, Jobs list |
+| Delay status badge — Overdue | `Wc9Ra` | Dashboard, Pipeline |
+| Delay status badge — Ended (no status) | `PCAPi` | Pipeline, Placements |
+| AI suggestion tag | `D3Bjz` | Job detail, Job form, Candidate profile |
+| Source quote | `b6W3X` | Job detail, Candidate profile |
+
+Each delay badge instance pairs an icon (`circle-check`/`clock`/`triangle-alert`/`circle-slash`)
+with a status word and the matching `status-*` colour — colour is never the only cue, per design
+rule 2.
+
+**Environment note:** every screen frame for Story #32 lives inside `design/shell.pen` (see the
+consolidation note in `design/specs/job-form.md`) rather than in separate `design/screens/*.pen`
+files, because the pencil MCP session available for this Story resolved every `filePath` to the
+one live document backing the open `shell.pen` editor tab. Splitting into per-screen files is a
+follow-up for a human working directly in the pen.dev GUI.
+
 ## Verified contrast
 
 Ratios use WCAG relative luminance. Text pairings exceed 4.5:1; boundaries and focus indicators
