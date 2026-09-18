@@ -124,11 +124,12 @@ that `src/` never imports the Blob SDK is what keeps the running app from using 
 | Name | Purpose | Where | Secret | Introduced by |
 |---|---|---|---|---|
 | `SUPABASE_PUBLISHABLE_KEY` | The **local** stack's publishable key, used by the RLS lock-down test to prove it reads nothing | Local and the CI DB job (read from `supabase status`, not stored) | no (local stack only) | [#113](https://github.com/dczii/URecruitment/issues/113) |
-| `PLAYWRIGHT_BASE_URL` | Base URL for e2e runs: the local dev server by default, the preview URL in CI | Local (optional), the CI e2e job | no | [#85](https://github.com/dczii/URecruitment/issues/85), [#90](https://github.com/dczii/URecruitment/issues/90) (may rename) |
+| `PLAYWRIGHT_BASE_URL` | Base URL for e2e runs: the local dev server by default, the preview URL in CI (`deployment_status.target_url`) | Local (optional), the CI e2e job | no | [#85](https://github.com/dczii/URecruitment/issues/85), [#90](https://github.com/dczii/URecruitment/issues/90) |
+| `PLAYWRIGHT_BYPASS_SECRET` | The e2e job's copy of `VERCEL_AUTOMATION_BYPASS_SECRET`. `playwright.config.ts` sends it as the `x-vercel-protection-bypass` header, and only when `PLAYWRIGHT_BASE_URL` is also set | CI e2e job only (set from the Actions secret, never stored) | **yes** | [#90](https://github.com/dczii/URecruitment/issues/90) |
 | `SUPABASE_ACCESS_TOKEN` | Supabase CLI auth for pushing migrations | CI (migrate workflow) only | **yes** | the migrate workflow; **no task builds it yet** (follow-up). Until then, #177 applies migrations by hand |
 | `SUPABASE_DEV_PROJECT_REF`, `SUPABASE_PROD_PROJECT_REF` | Which remote project the migrate workflow targets | CI (migrate workflow) only | treat as secret | as above |
 | `SUPABASE_DEV_DB_PASSWORD`, `SUPABASE_PROD_DB_PASSWORD` | Database password for `supabase db push` | CI (migrate workflow) only | **yes** | as above |
-| `VERCEL_AUTOMATION_BYPASS_SECRET` | Lets the e2e job reach a protected preview. **Only if** preview protection is turned on | CI (e2e) only | **yes** | [#90](https://github.com/dczii/URecruitment/issues/90) (conditional) |
+| `VERCEL_AUTOMATION_BYPASS_SECRET` | Lets the e2e job reach a protected preview. **Required:** preview protection is on (checked 2026-09-18: a preview URL answers `302 → vercel.com/sso-api`). Until it is added as an Actions secret, `e2e.yml` skips with a `::notice::` | CI (e2e) only | **yes** | [#90](https://github.com/dczii/URecruitment/issues/90) |
 
 **Rules for CI secrets** (`ci-setup`): a job that needs a secret checks for it first. If the secret is
 missing (a fork, first setup), the job writes a `::notice::` and exits 0. It never echoes a secret.
