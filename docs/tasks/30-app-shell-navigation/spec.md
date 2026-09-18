@@ -9,7 +9,7 @@
 | Branch | `feat/30-app-shell-navigation` |
 | Base | `design/29-visual-language-tokens` (stacked on PR #201) |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -50,17 +50,17 @@ frame and builds an accessible shell that works at 1440 px and 390 px.
 
 ## Acceptance criteria
 
-- [ ] **AC1** (#96, #97) — Given the desktop app shell, when a recruiter inspects and follows the
+- [x] **AC1** (#96, #97) — Given the desktop app shell, when a recruiter inspects and follows the
   primary navigation, then Dashboard, Jobs, Candidates, Placements and Settings are visible and
   each destination is reachable in one click. _Proved by:_ `e2e/shell.spec.ts › AC1`.
-- [ ] **AC2** (#96, #97) — Given the shell at 390 px, when a recruiter opens the menu and navigates
+- [x] **AC2** (#96, #97) — Given the shell at 390 px, when a recruiter opens the menu and navigates
   to every top-level destination, then the sheet is usable, its trigger regains focus on close,
   nothing is cut off, and no page scrolls horizontally. _Proved by:_
   `e2e/shell.spec.ts › AC2`.
-- [ ] **AC3** (#97) — Given keyboard-only use, when a recruiter tabs from the start of a page, then
+- [x] **AC3** (#97) — Given keyboard-only use, when a recruiter tabs from the start of a page, then
   the skip link and every navigation target are reachable in reading order and focused targets have
   a visible token-based focus indicator. _Proved by:_ `e2e/shell.spec.ts › AC3`.
-- [ ] **AC4** (#96, #97) — Given either shell width, when the frame renders, then the current page
+- [x] **AC4** (#96, #97) — Given either shell width, when the frame renders, then the current page
   title, content region and visible recruiter-name affordance are present without implementing the
   name dialog. _Proved by:_ `e2e/shell.spec.ts › AC4` and pen.dev design review.
 
