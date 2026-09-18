@@ -1,5 +1,17 @@
+"use client";
+
+import { useId, useState, useTransition, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+
+import { saveFieldOverride } from "@/app/candidates/[id]/actions";
 import { AiSuggestion } from "@/components/patterns/AiSuggestion";
 import { SourceQuote } from "@/components/patterns/SourceQuote";
+import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
+import { Button } from "@/components/ui/button";
+import {
+  getStoredRecruiterName,
+  setStoredRecruiterName,
+} from "@/lib/recruiter-name";
 
 import { OriginalCvLink } from "./OriginalCvLink";
 
@@ -30,6 +42,8 @@ type StageEvent = {
   created_at: string;
 };
 
+type EditableFieldKey = (typeof SCALAR_FIELDS)[number]["key"];
+
 type CandidateProfileProps = {
   candidateId: string;
   data: {
@@ -41,13 +55,15 @@ type CandidateProfileProps = {
       location: unknown;
     } | null;
     profile: { effective: ProfileRecord; parsed: ProfileRecord } | null;
+    overriddenBy: string | null;
     skills: { skill: string; source_text: string }[];
     stageHistory: StageEvent[];
   };
 };
 
 export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
-  const { parseStatus, identity, profile, skills, stageHistory } = data;
+  const { parseStatus, identity, profile, skills, stageHistory, overriddenBy } =
+    data;
   const effective = asRecord(profile?.effective);
   const parsed = asRecord(profile?.parsed);
   const displayName =
@@ -88,17 +104,24 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
                 return null;
               }
               return (
-                <FieldCard
+                <EditableFieldCard
                   key={field.key}
+                  candidateId={candidateId}
+                  field={field.key}
                   label={field.label}
                   value={value}
                   parsedValue={stringValue(parsed[field.key])}
                   sourceText={stringValue(parsed[field.sourceKey])}
+                  overriddenBy={overriddenBy}
                 />
               );
             })}
 
-            <TotalYearsCard effective={effective} parsed={parsed} />
+            <TotalYearsCard
+              effective={effective}
+              parsed={parsed}
+              overriddenBy={overriddenBy}
+            />
 
             <EntrySection
               title="Work history"
@@ -107,6 +130,7 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
               parsedEntries={asObjectArray(parsed.work_history)}
               renderValue={formatWorkHistory}
               sourceTextOf={entrySourceText}
+              overriddenBy={overriddenBy}
             />
 
             <EntrySection
@@ -116,6 +140,7 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
               parsedEntries={asObjectArray(parsed.education)}
               renderValue={formatEducation}
               sourceTextOf={entrySourceText}
+              overriddenBy={overriddenBy}
             />
 
             <EntrySection
@@ -125,11 +150,13 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
               parsedEntries={asObjectArray(parsed.certifications)}
               renderValue={formatCertification}
               sourceTextOf={entrySourceText}
+              overriddenBy={overriddenBy}
             />
 
             <LanguagesCard
               languages={asStringArray(effective.languages_spoken)}
               parsedLanguages={asStringArray(parsed.languages_spoken)}
+              overriddenBy={overriddenBy}
             />
 
             {skills.length > 0 ? (
@@ -145,6 +172,7 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
                         value={skill.skill}
                         parsedValue={skill.skill}
                         sourceText={skill.source_text}
+                        overriddenBy={null}
                       />
                     </li>
                   ))}
@@ -167,9 +195,11 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
 function TotalYearsCard({
   effective,
   parsed,
+  overriddenBy,
 }: {
   effective: ProfileRecord;
   parsed: ProfileRecord;
+  overriddenBy: string | null;
 }) {
   const value = formatTotalYears(effective.total_years ?? parsed.total_years);
   if (!value) {
@@ -186,6 +216,7 @@ function TotalYearsCard({
       sourceText={
         workHistorySources.length > 0 ? workHistorySources.join(" · ") : null
       }
+      overriddenBy={overriddenBy}
     />
   );
 }
@@ -193,9 +224,11 @@ function TotalYearsCard({
 function LanguagesCard({
   languages,
   parsedLanguages,
+  overriddenBy,
 }: {
   languages: string[];
   parsedLanguages: string[];
+  overriddenBy: string | null;
 }) {
   if (languages.length === 0) {
     return null;
@@ -208,6 +241,7 @@ function LanguagesCard({
         parsedLanguages.length > 0 ? parsedLanguages.join(", ") : null
       }
       sourceText={null}
+      overriddenBy={overriddenBy}
     />
   );
 }
@@ -219,6 +253,7 @@ function EntrySection({
   parsedEntries,
   renderValue,
   sourceTextOf,
+  overriddenBy,
 }: {
   title: string;
   itemLabel: string;
@@ -226,6 +261,7 @@ function EntrySection({
   parsedEntries: ProfileRecord[];
   renderValue: (entry: ProfileRecord) => string | null;
   sourceTextOf: (entry: ProfileRecord) => string | null;
+  overriddenBy: string | null;
 }) {
   if (entries.length === 0) {
     return null;
@@ -247,6 +283,7 @@ function EntrySection({
                 value={value}
                 parsedValue={renderValue(parsedEntry)}
                 sourceText={sourceTextOf(parsedEntry) ?? sourceTextOf(entry)}
+                overriddenBy={overriddenBy}
               />
             </li>
           );
@@ -256,23 +293,193 @@ function EntrySection({
   );
 }
 
+function EditableFieldCard({
+  candidateId,
+  field,
+  label,
+  value,
+  parsedValue,
+  sourceText,
+  overriddenBy,
+}: {
+  candidateId: string;
+  field: EditableFieldKey;
+  label: string;
+  value: string;
+  parsedValue: string | null;
+  sourceText: string | null;
+  overriddenBy: string | null;
+}) {
+  const router = useRouter();
+  const inputId = useId();
+  const errorId = useId();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [error, setError] = useState<string | null>(null);
+  const [nameDialogOpen, setNameDialogOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function beginSave(typedName: string) {
+    startTransition(async () => {
+      const result = await saveFieldOverride(
+        candidateId,
+        field,
+        draft,
+        typedName,
+      );
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setError(null);
+      setEditing(false);
+      router.refresh();
+    });
+  }
+
+  function handleSave() {
+    setError(null);
+    const stored = getStoredRecruiterName();
+    if (stored === null) {
+      setNameDialogOpen(true);
+      return;
+    }
+    beginSave(stored);
+  }
+
+  function handleCancel() {
+    setDraft(value);
+    setError(null);
+    setEditing(false);
+  }
+
+  const dialog = (
+    <TypedNameDialog
+      open={nameDialogOpen}
+      onOpenChange={setNameDialogOpen}
+      onSubmit={(name) => {
+        setStoredRecruiterName(name);
+        setNameDialogOpen(false);
+        beginSave(name);
+      }}
+    />
+  );
+
+  if (editing) {
+    return (
+      <article className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4">
+        <h3 className="text-label text-muted-foreground">
+          <label htmlFor={inputId}>{label}</label>
+        </h3>
+        <form
+          className="flex min-w-0 flex-col gap-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSave();
+          }}
+        >
+          <input
+            id={inputId}
+            type="text"
+            name={field}
+            autoComplete="off"
+            value={draft}
+            disabled={pending}
+            aria-invalid={error != null}
+            aria-describedby={error ? errorId : undefined}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              if (error) {
+                setError(null);
+              }
+            }}
+            className="h-11 rounded-md border border-input bg-background px-3 text-body text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          />
+          {error ? (
+            <p
+              id={errorId}
+              role="status"
+              aria-live="polite"
+              className="text-caption text-destructive"
+            >
+              {error}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" disabled={pending} aria-busy={pending}>
+              Save
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={pending}
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+        {sourceText ? (
+          <SourceQuote text={sourceText} lang={sourceLang(sourceText)} />
+        ) : null}
+        {dialog}
+      </article>
+    );
+  }
+
+  return (
+    <>
+      <FieldCard
+        label={label}
+        value={value}
+        parsedValue={parsedValue}
+        sourceText={sourceText}
+        overriddenBy={overriddenBy}
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-label={`Edit ${label}`}
+            onClick={() => {
+              setDraft(value);
+              setError(null);
+              setEditing(true);
+            }}
+          >
+            Edit
+          </Button>
+        }
+      />
+      {dialog}
+    </>
+  );
+}
+
 function FieldCard({
   label,
   value,
   parsedValue,
   sourceText,
+  overriddenBy = null,
+  action = null,
 }: {
   label: string;
   value: string;
   parsedValue: string | null;
   sourceText: string | null;
+  overriddenBy?: string | null;
+  action?: ReactNode;
 }) {
   const edited = parsedValue !== null && parsedValue !== value;
   const valueLang = sourceLang(value);
 
   return (
     <article className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4">
-      <h3 className="text-label text-muted-foreground">{label}</h3>
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <h3 className="text-label text-muted-foreground">{label}</h3>
+        {action}
+      </div>
       {edited ? (
         <div className="flex min-w-0 flex-col gap-2">
           <p className="text-body whitespace-pre-line break-words">
@@ -285,7 +492,7 @@ function FieldCard({
             </span>
           </p>
           <p className="w-fit rounded-md bg-accent px-2 py-1 text-caption text-accent-foreground">
-            Edited
+            {overriddenBy ? `Edited by ${overriddenBy}` : "Edited"}
           </p>
         </div>
       ) : (
