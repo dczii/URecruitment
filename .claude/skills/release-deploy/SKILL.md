@@ -57,9 +57,15 @@ Add new variables to this table in the same PR that introduces them.
 
 ## Protection and cost controls
 
-- **Rate limiting** on `/api/ai/*`: a Vercel firewall rule, if the current plan offers it. Otherwise use the app-level limiter (see `security-check`), and record which one is in use in this file.
+- **Rate limiting** on `/api/ai/*`: **the Vercel firewall rule is the control in force** (checked by #93, 2026-09-18).
+  - Hobby offers **one** rate-limit rule per project: fixed window, 10 s–10 min, keyed by IP or JA4, 1,000,000 allowed requests included.
+  - The rule is committed as `infra/vercel/ai-rate-limit.rule.json`: 60 requests per 60 s per IP, default 429.
+  - A person applies it with `vercel firewall rules add --json …` then `vercel firewall publish` (runbook: `docs/plans/infrastructure.md` → *Rate limit and spend cap (#93)*). Agents never publish it unasked.
+  - #175 may add the app-level limiter as a second layer.
 - **Spend cap:** set the provider's monthly limit in its console **and** `AI_MONTHLY_SPEND_CAP` in the app.
-- **Preview exposure:** check whether deployment protection is available on the plan. If it isn't, previews stay on the dev project with fictional data.
+  - **Owner:** the dev lead (repository owner).
+  - The person running each recruiter session checks month-to-date spend the day before.
+- **Preview exposure:** Vercel Authentication protects previews (observed 2026-09-18; available on Hobby). Previews still use only the dev project with fictional data.
 
 ## Free-tier limits and runbook
 

@@ -10,10 +10,9 @@ This record maps each environment to its Supabase project and Vercel target, lis
 environment variable by name** (never by value), and sets out the response to every free-tier limit
 the PRD lists. It also covers the recovery plan that stands in for backups.
 
-Later tasks fill in the sections marked **→ filled by**. [#92](https://github.com/dczii/URecruitment/issues/92)
-records which variables are actually set where, and
-[#93](https://github.com/dczii/URecruitment/issues/93) records the rate limit and the spend-cap
-procedure. Add a variable to the inventory **in the same PR that introduces it** (`release-deploy`).
+[#92](https://github.com/dczii/URecruitment/issues/92) recorded
+[what is set where](#what-is-set-where-92), and [#93](https://github.com/dczii/URecruitment/issues/93)
+recorded the [rate limit and spend-cap procedure](#rate-limit-and-spend-cap-93) (both 2026-09-18). Add a variable to the inventory **in the same PR that introduces it** (`release-deploy`).
 
 **Agents never act on remote infrastructure.** No deploy, no settings change, no key rotation, and no
 migration or seed against a remote project unless the user asks in that session (`release-deploy`).
@@ -275,17 +274,134 @@ of the check in this section. **Changing a variable is a person's action**, per 
 director), and the paid plan is [OQ-2](../decisions/open-questions.md#oq-2--which-paid-plans-to-move-to).
 This record assumes neither answer.
 
-### → filled by #93: rate limit and spend cap
+### Rate limit and spend cap (#93)
 
-*[#93](https://github.com/dczii/URecruitment/issues/93) records here:*
+Recorded by [#93](https://github.com/dczii/URecruitment/issues/93) on **2026-09-18**. It implements
+[security baseline](../security/baseline.md) C5 (PRD *Security (suggested)* 5, **proposed**).
 
-- *the `/api/ai/*` prefix;*
-- *whether a firewall rate-limit rule exists on the plan, and its setting;*
-- *how the provider-side monthly spend cap is set, and **who** checks it;*
-- *what a rate-limited recruiter sees.*
+**The prefix.** Every AI route handler lives under `/api/ai/`: `AI_ROUTE_PREFIX` in
+`src/lib/ai-routes.ts`, with the contract in `src/app/api/ai/README.md`.
 
-*[#175](https://github.com/dczii/URecruitment/issues/175) adds which rate-limit control is in force
-and the value of `AI_MONTHLY_SPEND_CAP`'s default.*
+- `test/infra/ai-route-prefix.test.ts` fails if a route handler outside `src/app/api/ai/` imports AI
+  code, or if one sits at the bare `/api/ai`.
+- Server Actions never call a model for the browser. The only exception is `after()` background work
+  after a non-AI save, and the spend cap bounds it (`nextjs-app` rule 4).
+
+**What the plan offers.** Vercel Hobby includes WAF rate limiting, checked in Vercel's docs on
+2026-09-18:
+
+- **one** rate-limit rule per project (up to 3 custom rules in total);
+- a fixed window of 10 seconds to 10 minutes;
+- counted by IP or JA4 digest;
+- 1,000,000 allowed requests included.
+
+`vercel.json` cannot express a rate limit (its `mitigate` only denies or challenges), so the rule is
+committed as JSON and applied by a person. **The control in force is this firewall rule.**
+[#175](https://github.com/dczii/URecruitment/issues/175) may add the app-level limiter as a second
+layer, and it records the `AI_MONTHLY_SPEND_CAP` default.
+
+**The rule** (`infra/vercel/ai-rate-limit.rule.json`). `test/infra/ai-rate-limit-rule.test.ts` ties
+it to the prefix, to Hobby's limits and to this section.
+
+- **Match:** request path starts with `/api/ai/` (one condition).
+- **Limit:** **60 requests per 60 seconds**, per client IP, fixed window.
+- **Excess:** the default action, **HTTP 429**. There is no persistent block, so a shared office
+  network is never locked out beyond the current window.
+- **Why 60 a minute:**
+  - The whole office may share one public IP, so the count is per *network*.
+  - 60 a minute gives up to 20 recruiters about 3 AI calls a minute each, above normal use (a search
+    submit, a job save).
+  - It still caps one scripted client at about 3,600 calls an hour.
+  - **The rule bounds the speed of spending; the spend cap bounds the total.**
+- **Counters are per region.** Traffic that reaches several Vercel edge regions can exceed 60 in
+  total. That is acceptable, because the spend cap is the backstop.
+- **Status on 2026-09-18: committed, not yet published.** No AI route exists yet. The rule must be
+  published before the first `/api/ai/*` route reaches production.
+
+**Applying it (a person, with a current Vercel CLI).** The dev machine's CLI 37.x predates
+`vercel firewall`, and it must be logged into the account that owns `user-7407`.
+
+```bash
+vercel link --scope user-7407 --project u-recruitment
+vercel firewall rules add --json "$(cat infra/vercel/ai-rate-limit.rule.json)" --yes
+# the same rule in flag form, if --json is refused:
+vercel firewall rules add "Rate limit AI routes" \
+  --condition '{"type":"path","op":"pre","value":"/api/ai/"}' \
+  --action rate_limit --rate-limit-algo fixed_window \
+  --rate-limit-window 60 --rate-limit-requests 60 \
+  --rate-limit-keys ip --rate-limit-action rate_limit --yes
+vercel firewall diff                     # review the staged change
+vercel firewall publish --yes            # applies at once; no redeploy
+vercel firewall rules inspect "Rate limit AI routes" --json
+```
+
+- **If `inspect` shows a different shape** than the committed JSON, update the JSON to match in a PR,
+  so the repository keeps describing what is live.
+- **Dashboard alternative:** Project → Firewall → Configure → New Rule, with the same values.
+- **Changing the values** means editing the JSON (the test keeps this section in step), then
+  `vercel firewall rules edit "Rate limit AI routes" --json "$(cat infra/vercel/ai-rate-limit.rule.json)" --yes`
+  and `publish`.
+
+**Checking it rejects the excess** (story #28 S-AC2). The firewall runs before routing, so this needs
+no AI route and costs nothing:
+
+```bash
+for i in $(seq 1 70); do
+  curl -s -o /dev/null -w "%{http_code}\n" -X POST "https://<production host>/api/ai/rate-limit-probe"
+done | sort | uniq -c        # expect about 60 × 404, then 429 for the rest
+```
+
+Record the date and the counts here. Afterwards, check Project → Firewall → *Rate limit AI routes*
+traffic after each recruiter session. Repeated 429s during normal work mean the limit needs raising.
+
+**What a rate-limited recruiter sees.**
+
+- A request over the limit gets Vercel's **429**. It never reaches the function, so the body is not
+  our JSON.
+- Client code calls `aiFailureMessage(response.status)` from `src/lib/ai-routes.ts` **before**
+  parsing, and shows the result next to the action as a visible notice. It never fails silently.
+- The recruiter sees: *"Too many AI requests from your network just now. Wait a minute, then try
+  again. Your work hasn't been lost."*
+- Any other AI failure shows: *"The AI suggestion couldn't be produced. Try again in a moment. If it
+  keeps failing, carry on without it."*
+- The AI only suggests, so neither message blocks the recruiter's own work.
+
+**The monthly spend cap: the procedure.**
+
+- **Two caps.** The **provider-side** cap is set in the AI provider's console. The **app-side** cap is
+  `AI_MONTHLY_SPEND_CAP` (USD), which `runAi()` checks before every call
+  ([#175](https://github.com/dczii/URecruitment/issues/175)).
+- **Owner: the dev lead (repository owner).** The PRD says the dev team picks and runs the provider
+  (**decided**).
+- **When:** in the ADR-0004 PR that chooses the provider
+  ([DT-1](../decisions/open-questions.md#dt-1--the-ai-provider)), and before any `/api/ai/*` route
+  reaches production.
+
+**Setting it up (the owner):**
+
+1. **Set the provider's monthly limit.** Use a hard limit in the provider's billing console, at the
+   budget the agency director approves. The figure is not set here; it comes with the provider
+   choice. If the provider offers only alerts and no hard limit, say so in this section and in
+   ADR-0004. The app-side cap and the rate limit are then the only hard stops.
+2. **Set `AI_MONTHLY_SPEND_CAP`** in Vercel *Preview* and *Production* ([matrix](#what-is-set-where-92))
+   **at or below** the provider limit. The app then refuses with a clear message first, and the
+   provider limit only acts as the backstop.
+3. **Record here** the date, the provider, and whether its limit is hard or alert-only. Never record a
+   key or a billing URL with an account id.
+
+**Who checks it, and when:**
+
+| Check | Who | When |
+|---|---|---|
+| Month-to-date spend in the provider console against both caps | The person running each recruiter session (the role [#178](https://github.com/dczii/URecruitment/issues/178) names for the keep-alive check) | The day before each session |
+| Both caps still set, and the provider limit still ≥ `AI_MONTHLY_SPEND_CAP` | The dev lead | The first working day of each month (SGT) |
+| Remaining budget before an expensive run (a re-seed or a full eval) | Whoever runs it | Before starting ([what a rebuild costs](#what-a-rebuild-costs)) |
+| Firewall traffic for *Rate limit AI routes* | The dev lead | After each recruiter session |
+
+The app sends no alert, and there is no email, ever (`CLAUDE.md` rule 2). These are checks a person
+makes on the console and dashboard. When the app-side cap is reached, AI features stop for everyone
+until the month ends, **by design** ([R-07](../compliance/risk-register.md)). Recruiters see a clear
+message, and their non-AI work carries on.
 
 ## Free-tier limits and our responses
 
