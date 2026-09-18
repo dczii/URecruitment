@@ -15,7 +15,7 @@ test("AC1: home page renders without errors", async ({ page }) => {
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "URecruitment" }),
+    page.getByRole("heading", { name: "What needs attention today" }),
   ).toBeVisible();
 
   // Vercel Preview deployments inject a "Vercel Live" feedback toolbar that

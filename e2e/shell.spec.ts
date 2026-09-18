@@ -68,15 +68,17 @@ test("AC3: keyboard reaches skip link and navigation with visible focus", async 
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
+  await page.reload();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+
   if (testInfo.project.name === "phone") {
-    await page.keyboard.press("Shift+Tab");
     await expect(
       page.getByRole("button", { name: "Open navigation" }),
     ).toBeFocused();
     return;
   }
 
-  await page.keyboard.press("Shift+Tab");
   const dashboardLink = page.getByRole("link", {
     name: "Dashboard",
     exact: true,
