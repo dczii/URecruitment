@@ -192,7 +192,7 @@ reason recorded in the spec.
 | UI components | Tailwind + shadcn/ui, themed from pen.dev tokens | **proposed** | No hard-coded colours or fonts; tokens only |
 | Backend | Supabase Postgres, Storage, Edge Functions if needed | **decided** | No Edge Function is planned for the MVP |
 | Hosting | Vercel, functions pinned to `sin1` | **decided** | `vercel.json` sets `"regions": ["sin1"]` and no other region |
-| DB region | Supabase `ap-southeast-1` | **decided** | Both the dev and prod projects |
+| DB region | Supabase `ap-southeast-1` | **decided** | The one project Preview and Production share ([#193](https://github.com/dczii/URecruitment/issues/193)) |
 | Plans | Vercel Hobby, Supabase Free | **decided** | See the risk below — Hobby is non-commercial |
 | Backups | None; rebuild from the seed | **decided** | Migrations + seed **are** the recovery plan |
 | Email | None | **decided** | No mail library, no SMTP, no Resend. Ever |
