@@ -1,7 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { bypassStatePath } from "./e2e/bypass-state";
+
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL;
-const bypassSecret = process.env.PLAYWRIGHT_BYPASS_SECRET;
+const usesBypass = Boolean(previewUrl && process.env.PLAYWRIGHT_BYPASS_SECRET);
 
 export default defineConfig({
   testDir: "e2e",
@@ -9,19 +11,17 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
+  // Against a protected preview, global setup swaps the bypass secret for
+  // Vercel's cookie once, so tests never send the secret themselves.
+  globalSetup: usesBypass ? "./e2e/global-setup.ts" : undefined,
   use: {
     baseURL: previewUrl ?? "http://localhost:3000",
-    trace: "retain-on-failure",
-    // Bypass headers only when hitting a protected preview. The local
-    // `webServer` path has neither PLAYWRIGHT_BASE_URL nor this secret.
-    ...(previewUrl && bypassSecret
-      ? {
-          extraHTTPHeaders: {
-            "x-vercel-protection-bypass": bypassSecret,
-            "x-vercel-set-bypass-cookie": "true",
-          },
-        }
-      : {}),
+    // Traces record request headers and cookies, and CI uploads them to a
+    // public repo on failure. Against a protected preview they would carry the
+    // bypass cookie, so keep screenshots only there.
+    trace: usesBypass ? "off" : "retain-on-failure",
+    screenshot: usesBypass ? "only-on-failure" : "off",
+    storageState: usesBypass ? bypassStatePath() : undefined,
   },
   projects: [
     {
