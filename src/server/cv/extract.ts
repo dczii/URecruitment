@@ -30,11 +30,28 @@ export interface CvExtractionResult {
 
 const PDF_CONTENT_TYPE: CvContentType = "application/pdf";
 
-const PDFJS_ROOT = dirname(
-  createRequire(import.meta.url).resolve("pdfjs-dist/package.json"),
-);
-const CMAP_URL = `${join(PDFJS_ROOT, "cmaps")}/`;
-const STANDARD_FONT_DATA_URL = `${join(PDFJS_ROOT, "standard_fonts")}/`;
+// Resolved lazily (not at module scope): Next's build-time page-data
+// collection evaluates every module a route imports, and `import.meta.url`
+// is unreliable in that phase under the bundler — eagerly resolving here
+// broke `npm run build` for the first route to ever import this module
+// (`createRequire(import.meta.url).resolve(...)` throws "path argument
+// must be of type string"). Deferring to first real call sidesteps that
+// build-time evaluation entirely; runtime behavior is unchanged.
+let pdfjsAssetUrls: { cMapUrl: string; standardFontDataUrl: string } | null =
+  null;
+
+function getPdfjsAssetUrls(): { cMapUrl: string; standardFontDataUrl: string } {
+  if (pdfjsAssetUrls === null) {
+    const pdfjsRoot = dirname(
+      createRequire(import.meta.url).resolve("pdfjs-dist/package.json"),
+    );
+    pdfjsAssetUrls = {
+      cMapUrl: `${join(pdfjsRoot, "cmaps")}/`,
+      standardFontDataUrl: `${join(pdfjsRoot, "standard_fonts")}/`,
+    };
+  }
+  return pdfjsAssetUrls;
+}
 
 const EMPTY_UNUSABLE: CvExtractionResult = {
   text: "",
@@ -65,11 +82,12 @@ async function extractPdfText(bytes: Uint8Array): Promise<CvExtractionResult> {
     // v6 Node build already uses a fake (in-process) worker; copy `data`
     // because pdf.js may transfer/detach the ArrayBuffer. Local CMap and
     // standard-font paths keep glyph mapping on disk (no network).
+    const { cMapUrl, standardFontDataUrl } = getPdfjsAssetUrls();
     const loadingTask = getDocument({
       data: bytes.slice(),
-      cMapUrl: CMAP_URL,
+      cMapUrl,
       cMapPacked: true,
-      standardFontDataUrl: STANDARD_FONT_DATA_URL,
+      standardFontDataUrl,
       useSystemFonts: false,
       verbosity: VerbosityLevel.ERRORS,
     });
