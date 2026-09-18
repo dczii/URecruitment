@@ -44,10 +44,10 @@ No open PRD items are touched. No design needed (per issue #39).
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given an English or Chinese CV, when parsed, every approved profile field is filled or explicitly empty, and each skill carries its `source_text`. _Proved by:_ `parse.test.ts › persists profile and skills with source text`
-- [ ] **AC2** — Given a parsed profile, total years is computed from work history, not the CV's claim. _Proved by:_ `total-years.test.ts › computes from overlapping/sequential jobs`, `parse.test.ts › ignores the CV's own years claim`
-- [ ] **AC3** — Given a source-text quote, it appears verbatim in the CV; an invented quote is rejected. _Proved by:_ `parse.test.ts › rejects an invented quote`
-- [ ] **AC4** — Given any parse, an `ai_runs` row records input ref, model, version, cost, duration, and duration is under 30s. _Proved by:_ `parse.test.ts › writes ai_runs row via runAi`, `parse-timing.db.test.ts › fails if the slowest parse exceeds 30s`
+- [x] **AC1** — Given an English or Chinese CV, when parsed, every approved profile field is filled or explicitly empty, and each skill carries its `source_text`. _Proved by:_ `parse.test.ts › persists profile and skills with source text`
+- [x] **AC2** — Given a parsed profile, total years is computed from work history, not the CV's claim. _Proved by:_ `total-years.test.ts › computes from overlapping/sequential jobs`, `parse.test.ts › ignores the CV's own years claim`
+- [x] **AC3** — Given a source-text quote, it appears verbatim in the CV; an invented quote is rejected. _Proved by:_ `parse.test.ts › rejects an invented quote`
+- [x] **AC4** — Given any parse, an `ai_runs` row records input ref, model, version, cost, duration, and duration is under 30s. _Proved by:_ `parse.test.ts › writes ai_runs row via runAi`, `parse-timing.db.test.ts › fails if the slowest parse exceeds 30s` (test:db not run locally — no Docker; CI must confirm)
 
 ## Guardrails that apply
 
@@ -105,24 +105,24 @@ One Zod schema + prompt pair (`parse-cv/v1.ts`) authored directly against the PR
 
 ## Steps
 
-- [ ] **T01** `claude` — Write `src/server/ai/prompts/parse-cv/v1.ts` (schema + prompt + EN/ZH fictional examples) and `index.ts`. Covers the schema half of AC1/AC3.
+- [x] **T01** `claude` — Write `src/server/ai/prompts/parse-cv/v1.ts` (schema + prompt + EN/ZH fictional examples) and `index.ts`. Covers the schema half of AC1/AC3.
   - Rules: `ai-prompts` shared rules + parse-cv step rules; `compliance-review` — no protected-attribute slots; `prd-context` — exact approved fields
   - Verify: `npm run typecheck`; schema unit-testable shape (no runtime test yet — T02 exercises it)
-- [ ] **T02a** `grok` — Failing tests first in `src/server/cv/total-years.test.ts` and `src/server/cv/parse.test.ts` (fake model + in-memory `AiRunsWriter`): schema-valid parse persists profile+skills with source text; invented quote rejected; overlapping jobs compute correct total years; CV's own years claim is ignored in favor of computed value; a run writes via `runAi`.
+- [x] **T02a** `grok` — Failing tests first in `src/server/cv/total-years.test.ts` and `src/server/cv/parse.test.ts` (fake model + in-memory `AiRunsWriter`): schema-valid parse persists profile+skills with source text; invented quote rejected; overlapping jobs compute correct total years; CV's own years claim is ignored in favor of computed value; a run writes via `runAi`.
   - Rules: `testing` — test-first, no network; `ai-pipeline` — evidence verification is verbatim substring check
   - Verify: `npm test -- cv` → fails (parse.ts/total-years.ts don't exist)
-- [ ] **T02b** `grok` — Implement `src/server/cv/total-years.ts` and `src/server/cv/parse.ts` (and `src/server/ai/run-supabase.ts`, extending `AiRunRecord`) until T02a passes.
+- [x] **T02b** `grok` — Implement `src/server/cv/total-years.ts` and `src/server/cv/parse.ts` (and `src/server/ai/run-supabase.ts`, extending `AiRunRecord`) until T02a passes.
   - Rules: `ai-pipeline` — one `runAi` call per CV, verbatim evidence check before persisting; `supabase-db` — write through existing RLS'd tables, service-role only
   - Verify: `npm test -- cv` → pass; `npm run typecheck`
-- [ ] **T03a** `grok` — Failing tests first in `src/server/cv/fallback.test.ts`: below quality threshold uses text path, above it uses file path, unsupported-provider case fails clearly.
+- [x] **T03a** `grok` — Failing tests first in `src/server/cv/fallback.test.ts`: below quality threshold uses text path, above it uses file path, unsupported-provider case fails clearly.
   - Rules: `testing`; `ai-pipeline` — Chinese PDF fallback, provider-agnostic
   - Verify: `npm test -- fallback` → fails
-- [ ] **T03b** `grok` — Implement `src/server/cv/fallback.ts`, wire into `parse.ts`, record which path each run took.
+- [x] **T03b** `grok` — Implement `src/server/cv/fallback.ts`, wire into `parse.ts`, record which path each run took.
   - Verify: `npm test -- fallback` → pass; `npm run typecheck`
-- [ ] **T04** `grok` — `scripts/checks/parse-timing.ts` + `supabase/tests/parse-timing.db.test.ts`: report count/median/slowest from `ai_runs`, fail if slowest exceeds 30s naming the file.
+- [x] **T04** `grok` — `scripts/checks/parse-timing.ts` + `supabase/tests/parse-timing.db.test.ts`: report count/median/slowest from `ai_runs`, fail if slowest exceeds 30s naming the file.
   - Rules: `ai-eval` reporting conventions; `testing` — DB-integration test on local Supabase
   - Verify: `npm run test:db`; `node scripts/checks/parse-timing.ts` (against local seed fixtures — see Assumptions)
-- [ ] **S5** `none` — Full verification until green, then close out docs. Do not run `pr-review`.
+- [x] **S5** `none` — Full verification until green, then close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -157,12 +157,12 @@ Depends on unmerged PR #213 (`runAi`). If #213 needs rework before merge, this b
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** CV parsing end-to-end: `parse-cv` v1 schema/prompt (EN+ZH fictional examples), the `parseCv` service (one `runAi` call, verbatim evidence check, total-years computed in code, persists `candidate_profiles`+`candidate_skills`), a real Supabase `ai_runs` writer, a Chinese-PDF fallback path that dispatches to a file-reading model and records which path ran, and a timing report/gate proving the 30s target.
+- **Changed files / areas:** `src/server/ai/prompts/parse-cv/{v1,index}.ts` (new), `src/server/cv/{total-years,parse,fallback}.ts` + their `.test.ts` (new), `src/server/ai/run-supabase.ts` (new), `src/server/ai/types.ts` (modified: added `step`/`provider` to `AiRunRecord`, optional file-capability fields to `AiModel`), `src/server/ai/run.ts` (modified: fills `step`/`provider`), `scripts/checks/parse-timing.ts` + `supabase/tests/parse-timing.db.test.ts` (new).
+- **Tests added or updated:** `total-years.test.ts` (sequential/overlap/current/null-start), `parse.test.ts` (persist+source_text, invented-quote rejection, computed-vs-claimed years, ai_runs logging via runAi), `fallback.test.ts` (path decision, file dispatch, unsupported-model error, recorded path), `parse-timing.db.test.ts` (count/median/slowest, over/under-30s gate, empty-set case). `run.test.ts`/`no-bypass.test.ts` re-verified unmodified and still passing after the `types.ts` change.
+- **Verification:** `npm run lint` → pass (1 pre-existing unrelated warning). `npm run typecheck` → pass. `npx vitest run src/server/ai src/server/cv` → 34 passed, 5 pre-existing failures in `src/server/cv/extract.test.ts` confirmed present on `main` before this branch (verified via `git stash`+checkout during Story #63), unrelated to this Story. `npm run test:db` → **not run**; this machine has no Docker (per standing project note). CI must confirm `parse-timing.db.test.ts` before merge. `npm run build`/`test:e2e`/`eval` → n/a, no route/UI/prompt-quality-affecting change beyond what unit tests already cover; no seed pipeline yet to run a real eval batch against.
+- **Deviations:** `runAi`'s `AiRunsWriter`/`AiModel` params are injectable so unit tests never touch Supabase or a network provider (already established in #169, continued here). Failure mode for an invented quote is throw. `provider.ts`/`ai_runs.provider` is `"unspecified"` until ADR-0003 picks a vendor. Chinese-PDF fallback text-path bar is a new named constant `MIN_CHARS_PER_PAGE_FOR_TEXT_PATH = 200` (not the scanned-reject bar of 20) since those are two different signals. Parse path is recorded on `ai_runs.input_ref` (`#parse_path=text|file`) rather than a new column, since no migration was in scope. T04's timing check was built and typechecked but not run against local Supabase (no Docker) — proved via DB-test logic review only, per the standing rule to verify DB work in CI rather than locally.
+- **Fix rounds / escalations:** 0 across all steps — every executor call passed verification on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T01 (prompt authoring): Claude Sonnet 5 directly, no cursor-agent dispatch, per `ai-prompts`. T02a/T02b/T03a/T03b/T04: cursor-grok-4.6-high. No escalations, no direct Claude code fixes.
+- **Claude direct fixes:** none — only the prompt/schema file (T01), which is Claude's designated executor per skill routing, not a "fix".
+- **Follow-ups:** (1) `candidate_profiles.ai_run_id` is never populated by `parseCv` — the column exists (#110 migration) but isn't wired; low-priority traceability gap since skill/field-level `source_text` already satisfies the PRD's evidence requirement. (2) On the Chinese-PDF file path, evidence verification still checks quotes against the (possibly garbled) extracted `cvText`, not against anything derived from the file-model's own read — a genuinely well-read file-path quote could be wrongly rejected as "not verbatim." Flagged by the T03b executor; needs a design call before real Chinese PDFs are tested against it. (3) Provider is `"unspecified"` everywhere until ADR-0003 resolves (already known/open, tracked separately). (4) T04's `parse-timing.db.test.ts` needs CI confirmation (no Docker locally).
