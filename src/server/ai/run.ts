@@ -85,6 +85,11 @@ function runRecord(fields: {
     error: fields.error,
     cost_usd: fields.costUsd,
     duration_ms: fields.durationMs,
+    // Prompt id is the pipeline step (`parse-cv`, `match`, …).
+    step: fields.prompt.id,
+    // Provider is not chosen yet (ADR-0003). Record a stable placeholder so
+    // `public.ai_runs.provider` (NOT NULL) can be written.
+    provider: "unspecified",
   };
 }
 

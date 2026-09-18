@@ -46,6 +46,10 @@ export type AiRunRecord = {
   error: string | null;
   cost_usd: number;
   duration_ms: number;
+  /** Pipeline step (e.g. `parse-cv`). Not null on `public.ai_runs`. */
+  step: string;
+  /** Vendor id (e.g. `openai`). Not null on `public.ai_runs`. */
+  provider: string;
 };
 
 /** Injectable `ai_runs` writer. Unit tests pass an in-memory implementation. */
