@@ -30,7 +30,12 @@ The table list and invariants are in `prd-context` → `references/data-model.md
   - `timestamptz` everywhere; store UTC.
   - Enums as Postgres `enum` or a `check` constraint, documented in the migration.
   - Foreign keys use explicit `on delete` behaviour.
-- **Regenerate types** after every schema change: `npx supabase gen types typescript --local > src/server/db/types.ts`.
+- **Regenerate types** after every schema change: `npm run db:types`
+  (`supabase gen types typescript --local > src/lib/database.types.ts`).
+  The generated file lives in **`src/lib`**, not `src/server`: every module under `src/server`
+  must begin `import "server-only"` and a generated file cannot keep that marker across
+  regenerations. The types are pure type declarations with no runtime, so they erase at compile
+  time and cannot reach a client bundle. Fixed in #87.
 
 ## Security (hard rules)
 

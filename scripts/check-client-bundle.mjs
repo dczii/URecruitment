@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const TEXT_EXTENSIONS = new Set([
   ".js",
@@ -10,7 +11,24 @@ const TEXT_EXTENSIONS = new Set([
   ".map",
   ".txt",
   ".html",
+  // The RSC flight payload and the prerendered HTML. `server-only` stops a
+  // client component *importing* the db module; it does nothing about a Server
+  // Component reading the secret and passing it down as a prop, which is
+  // serialised into these. They live under .next/server/app, not .next/static.
+  ".rsc",
+  ".body",
+  ".meta",
 ]);
+
+/**
+ * Both halves of the client-reachable output. .next/static is the browser
+ * bundle; .next/server/app holds the RSC payload and prerendered HTML, which
+ * the browser also receives.
+ */
+const SCAN_DIRS = [
+  path.join(".next", "static"),
+  path.join(".next", "server", "app"),
+];
 
 const ENV_NAMES = [
   "SUPABASE_SECRET_KEY",
@@ -20,13 +38,26 @@ const ENV_NAMES = [
 ];
 
 const SECRET_SHAPES = [
-  // Require a secret-like suffix so regex *patterns* in client code
-  // (e.g. sentry-scrub's `sb_secret_\S+`) are not themselves treated as leaks.
-  { label: "sb_secret_…", regex: /sb_secret_[A-Za-z0-9]+/ },
-  { label: "sk-…", regex: /sk-[A-Za-z0-9_-]{10,}/ },
-  { label: "eyJ…", regex: /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/ },
-  { label: "vercel_blob_rw_…", regex: /vercel_blob_rw_[A-Za-z0-9_]+/ },
+  // Require a secret-like suffix so regex *patterns* in client code are not
+  // themselves treated as leaks: src/lib/sentry-scrub.ts ships the literal
+  // `sb_secret_\S+` into the browser bundle, and `\` is not in these classes.
+  // The classes include `-` and `_` so a base64url secret starting with either
+  // is still caught.
+  { label: "sb_secret_…", regex: /sb_secret_[A-Za-z0-9_-]{8,}/ },
+  // \b so a path fragment like `task-async-storage` does not read as `sk-…`.
+  { label: "sk-…", regex: /\bsk-[A-Za-z0-9_-]{10,}/ },
+  // A whole JWT, and also a lone first segment: a minifier can split a token
+  // across string concatenations, which defeats a three-part match.
+  { label: "eyJ…", regex: /eyJ[A-Za-z0-9_-]{20,}/ },
+  { label: "vercel_blob_rw_…", regex: /vercel_blob_rw_[A-Za-z0-9_-]{8,}/ },
 ];
+
+/**
+ * Next's file-trace manifests. They list node_modules paths so the deploy can
+ * bundle a function, and are never served to a browser, so a match in one is
+ * not a leak.
+ */
+const SKIP_SUFFIXES = [".nft.json"];
 
 function toPosix(relativePath) {
   return relativePath.split(path.sep).join("/");
@@ -68,6 +99,10 @@ export function findLeaksInDir(dir) {
     if (!st.isFile()) {
       continue;
     }
+    const lower = relativePath.toLowerCase();
+    if (SKIP_SUFFIXES.some((suffix) => lower.endsWith(suffix))) {
+      continue;
+    }
     const ext = path.extname(relativePath).toLowerCase();
     if (!TEXT_EXTENSIONS.has(ext)) {
       continue;
@@ -86,25 +121,41 @@ function isCli() {
   if (!entry) {
     return false;
   }
-  const modulePath = decodeURIComponent(new URL(import.meta.url).pathname);
-  return path.resolve(entry) === path.resolve(modulePath);
+  // fileURLToPath, not new URL(...).pathname: the latter mangles Windows paths.
+  return path.resolve(entry) === path.resolve(fileURLToPath(import.meta.url));
 }
 
 function main() {
-  const dir = process.argv[2]
-    ? path.resolve(process.argv[2])
-    : path.join(process.cwd(), ".next", "static");
+  const explicitDir = process.argv[2];
+  const dirs = explicitDir
+    ? [path.resolve(explicitDir)]
+    : SCAN_DIRS.map((dir) => path.join(process.cwd(), dir));
 
-  if (!existsSync(dir)) {
-    console.log(
-      `${dir} does not exist; skipping leak check (an unbuilt tree is not a leak).`,
+  const present = dirs.filter((dir) => existsSync(dir));
+
+  if (present.length === 0) {
+    if (explicitDir) {
+      console.log(`${dirs[0]} does not exist; nothing to scan.`);
+      process.exit(0);
+    }
+    // No explicit directory means this is the build gate. A missing build
+    // output is a broken gate, not a clean bill of health: if `distDir` or the
+    // output mode moves, silently exiting 0 would disable this check forever.
+    console.error(
+      `None of ${dirs.join(", ")} exist. Run \`next build\` first; a missing build output is not a pass.`,
     );
-    process.exit(0);
+    process.exit(1);
   }
 
-  const leaks = findLeaksInDir(dir);
+  const leaks = present.flatMap((dir) =>
+    findLeaksInDir(dir).map((leak) => ({
+      ...leak,
+      path: `${path.relative(process.cwd(), dir)}/${leak.path}`,
+    })),
+  );
+
   if (leaks.length === 0) {
-    console.log("no leaks");
+    console.log(`no leaks (scanned ${present.length} director${present.length === 1 ? "y" : "ies"})`);
     process.exit(0);
   }
 

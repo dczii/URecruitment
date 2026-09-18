@@ -16,8 +16,10 @@ Two tasks, in dependency order, one commit each.
    the browser three independent ways: the `server-only` marker (build-time), a unit test on the
    module's source, and a grep over the built client bundle wired into `npm run build`.
 
-The third proof matters because the first two can both be satisfied by a file that still leaks. Only
-reading the actual bundle proves the bundle is clean.
+The third proof matters because the first two can both be satisfied by a file that still leaks: the
+`server-only` marker stops a client component *importing* the module, but not a Server Component
+reading the secret and passing it down as a prop. That value lands in the RSC flight payload and the
+prerendered HTML, so the check reads `.next/server/app` as well as `.next/static`.
 
 **Rejected:**
 
@@ -52,22 +54,31 @@ reading the actual bundle proves the bundle is clean.
 |---|---|
 | `supabase/config.toml` | new — `supabase init` output, project id `urecruitment` |
 | `supabase/migrations/.gitkeep` | new — the folder E03 fills |
-| `supabase/tests/rls.db.test.ts` | new — the RLS lock-down harness (zero tables today) |
+| `supabase/tests/rls.db.test.ts` | new — the RLS lock-down harness against a live stack (zero tables today) |
+| `supabase/migration-lint.ts` | new — pure lint for migration SQL (added at review; see Outcome) |
+| `supabase/migration-lint.test.ts` | new — the lint's rules, tested against fixture SQL both ways |
+| `supabase/migrations.test.ts` | new — applies the lint to the committed migrations |
+| `supabase/.gitignore` | new — `supabase init` output |
 | `src/lib/database.types.ts` | new — committed empty-schema generator output (spec A2, A3) |
 | `src/lib/database.types.test.ts` | new — AC5: the file exports `Database` and typechecks |
 | `vitest.db.config.ts` | new — DB layer config, `passWithNoTests: true` |
-| `src/server/db.ts` | new — `import "server-only"`, typed, secret key, per-request singleton |
+| `src/server/db.ts` | new — `import "server-only"`, typed, secret key, process-level singleton |
 | `src/server/db.test.ts` | new — AC2/AC7/AC9, test-first |
-| `scripts/check-client-bundle.mjs` | new — AC8, greps `.next/static` |
+| `scripts/check-client-bundle.mjs` | new — AC8, greps `.next/static` **and** `.next/server/app` (the RSC payload and prerendered HTML) |
 | `scripts/check-client-bundle.test.ts` | new — AC8, proves the check catches a planted secret |
 | `package.json` | modify — add `db:types`, replace the `test:db` stub, run the bundle check after `build` |
-| `vitest.config.ts` | modify — exclude `supabase/tests/**` from the unit run |
+| `vitest.config.ts` | modify — run `supabase/*.test.ts` in the unit layer, exclude `supabase/tests/**` (the DB layer) |
 | `README.md` | new or modify — the DB section (#87) |
 
 ## Dependencies
 
-- **`@supabase/supabase-js`** — the only new runtime dependency. It is the client `supabase-db`
+- **`@supabase/supabase-js`** — the only new **runtime** dependency. It is the client `supabase-db`
   assumes throughout.
+- **`postgres`** (devDependency, added during review) — a direct Postgres connection for the RLS
+  harness's table discovery. `information_schema` is not exposed through PostgREST, and asking
+  PostgREST what the *publishable* key can see is self-defeating: a correctly revoked table
+  disappears from that view, so the harness would find nothing and pass vacuously. Test-only; it
+  never ships to Vercel.
 - **`supabase` CLI** — already installed on this machine (2.106.0, Homebrew). **Not** added to
   `package.json`: it is a developer tool, and adding it as a dependency would put a large binary in
   every install. The README names the version and how to install it. CI installs it itself (#91).
@@ -78,12 +89,12 @@ reading the actual bundle proves the bundle is clean.
 
 ## Steps
 
-- [ ] **S1** `claude` — `supabase init` and the folder skeleton.
+- [x] **S1** `claude` — `supabase init` and the folder skeleton.
   - Run `supabase init` (no Docker required), keep `supabase/config.toml`, add
     `supabase/migrations/.gitkeep`, and check `.gitignore` covers `supabase/.branches` and
     `supabase/.temp` (it already does).
   - Verify: `supabase/config.toml` exists; `git status` shows nothing unexpected.
-- [ ] **S2** `grok` — #87 test tooling and types.
+- [x] **S2** `grok` — #87 test tooling and types.
   - Rules: `testing` §Layers (DB tests are `src/**/*.db.test.ts` and `supabase/tests/*.db.test.ts`,
     command `npm run test:db`, local stack only, never a remote project); `supabase-db`
     §Migrations (regenerate types after every schema change) and §Security (the RLS lock-down test
@@ -91,16 +102,16 @@ reading the actual bundle proves the bundle is clean.
   - Files: `vitest.db.config.ts`, `src/lib/database.types.ts`, `src/lib/database.types.test.ts`,
     `supabase/tests/rls.db.test.ts`, `vitest.config.ts`, `package.json`, `README.md`.
   - Verify: `npm run typecheck`, `npm test`, `npm run test:db` (must exit 0 with zero tests).
-- [ ] **S3a** `grok` — #88 failing tests only (AC2, AC7, AC9).
+- [x] **S3a** `grok` — #88 failing tests only (AC2, AC7, AC9).
   - Write `src/server/db.test.ts` and `scripts/check-client-bundle.test.ts`. **No implementation.**
   - Verify: `npm test` → both fail on the missing modules, not on a syntax error. Checked by Claude.
-- [ ] **S3b** `grok` — #88 implementation until S3a is green.
+- [x] **S3b** `grok` — #88 implementation until S3a is green.
   - Rules: `nextjs-app` rule 1 and rule 7; `security-check` §Data access and §Secrets; `supabase-db`
     §Security ("the app connects with the secret key, from `src/server/db` only. The secret key
     bypasses RLS, which is exactly why it must never leave the server").
   - Files: `src/server/db.ts`, `scripts/check-client-bundle.mjs`, `package.json`.
   - Verify: `npm test`, `npm run typecheck`, `npm run build`, `node scripts/check-client-bundle.mjs`.
-- [ ] **S4** `none` — Claude verification and review.
+- [x] **S4** `none` — Claude verification and review.
   - Full gate, the **live client-import build probe**, then `pr-review` plus `security-check` and
     `compliance-review` on an Opus subagent.
 
@@ -149,4 +160,37 @@ npm audit --omit=dev
 
 ## Outcome
 
-*(filled in at Step 9)*
+- **Shipped:** `supabase init` (project `urecruitment`, Postgres 17), an empty `supabase/migrations/`,
+  `npm run db:types`, a committed empty-schema `src/lib/database.types.ts`, a real DB test layer, and
+  `src/server/db.ts` — the one server-only, typed, secret-key Supabase client — plus a client-bundle
+  leak check wired into `npm run build`.
+- **Tests:** 90 unit tests in 13 files (52 after #87, 64 after #88, 90 after the review fixes), plus
+  the DB layer which reports zero tests until E03 adds a table, plus 8 unchanged e2e tests.
+- **Verification (Claude, Node 22.12.0):** `lint`, `typecheck`, `npm test` 90 passed, `build` (with
+  the leak check), `test:db` exit 0 zero tests, `test:e2e` 8 passed, `npm audit --omit=dev` clean.
+  Live probes: a client component importing `@/server/db` fails the build; a secret planted in a real
+  `.next/static` chunk **and** in a real `.rsc` payload is caught and exits 1; a bad migration is
+  rejected by the lint.
+- **Deviations:**
+  1. `postgres` added as a devDependency (see Dependencies).
+  2. `supabase/migration-lint.ts`, `migration-lint.test.ts` and `migrations.test.ts` added beyond the
+     planned files, with `vitest.config.ts` adjusted so `supabase/*.test.ts` runs in the **unit**
+     layer while `supabase/tests/**` stays in the DB layer.
+  3. Generated types live in `src/lib/database.types.ts` (spec A2). The `supabase-db` skill said
+     `src/server/db/types.ts`; **the skill has been corrected in this PR** rather than left as a
+     follow-up, because the next task to read it would otherwise repeat the mistake.
+  4. `[auth]` disabled in `supabase/config.toml` alongside `[inbucket]` — the MVP has no sign-in.
+  5. Claude ran `npm run test:e2e`, not the executor (#25 spec A12).
+- **Fix rounds / escalations:** no executor fix rounds, no escalations. Claude made the review fixes
+  directly (`urec-orchestrator` Step 8 allows either), because they are surgical changes to the
+  security controls themselves.
+- **Models used:**
+  - Planning, prompts, inspection, verification, review fixes, PR: **Claude Opus 5** (`claude-opus-5`).
+  - S2, S3a, S3b: **`cursor-grok-4.6-high`** via `cursor-agent` (confirmed in each
+    `.orchestrator/26-supabase-client-wiring/S*.log` header).
+  - S1 (`supabase init`): Claude Opus 5.
+  - Review: a Claude subagent on the `opus` alias; the runtime does not expose the exact ID.
+- **Review findings:** see the PR body. Verdict was CHANGES REQUIRED with no blockers; all three
+  majors and the documentation findings are fixed here.
+- **Follow-ups:** #193 (Supabase region), #91 (CI runs the stack so AC1/AC3/AC4 are proved somewhere),
+  and `.env.example` may need `SUPABASE_DB_URL` if #91 sets it explicitly.

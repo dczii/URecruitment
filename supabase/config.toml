@@ -154,8 +154,11 @@ max_indexes = 5
 # Vector Buckets is available to Supabase Pro plan.
 # [storage.vector.buckets.documents-openai]
 
+# Disabled: the MVP has no sign-in (ADR-0001; `nextjs-app` §Don't: "Don't add
+# sign-in. Sign-in is an open question for the real-data release"). One fewer
+# container locally, and nothing can quietly start depending on it.
 [auth]
-enabled = true
+enabled = false
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
 site_url = "http://127.0.0.1:3000"
