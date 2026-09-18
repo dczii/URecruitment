@@ -37,12 +37,14 @@ vi.mock("../ai/run", async (importOriginal) => {
  *   { query: string; model: AiModel; runs: AiRunsWriter }
  *
  * RunSearchResult (discriminated on `status`)
- *   { status: "ok"; results: SearchResult[]; ignoredTerms: IgnoredTerm[] }
+ *   { status: "ok"; results: SearchResult[]; ignoredTerms: IgnoredTerm[];
+ *     filters: SearchCandidatesFilters }
  *     — schema-valid parse, then `searchCandidates`. `results` may be `[]`
  *       when nothing matched. That is a successful search, not a parse
  *       failure. `ignoredTerms` is always an array (empty when the model
  *       reported none). Copied from the parse's `ignored_terms` — never
- *       applied as filters.
+ *       applied as filters. `filters` is the parsed object that actually
+ *       narrowed SQL (T2 chips render these; T1 originally omitted them).
  *   | { status: "could_not_understand" }
  *     — `runAi` threw (schema-invalid output or provider error) after
  *       writing the failed `ai_runs` row. Must not throw to the caller.
@@ -269,6 +271,7 @@ describe("runSearch (AC1, AC2)", () => {
     expect(result).toEqual({
       status: "ok",
       ignoredTerms: VALID_SEARCH_OUTPUT.ignored_terms,
+      filters: VALID_SEARCH_OUTPUT.filters,
       results: [
         {
           candidateId: CANDIDATE_ID,
@@ -360,6 +363,7 @@ describe("runSearch (AC1, AC2)", () => {
       status: "ok",
       results: [],
       ignoredTerms: VALID_SEARCH_OUTPUT.ignored_terms,
+      filters: VALID_SEARCH_OUTPUT.filters,
     });
     expect(result).not.toEqual({ status: "could_not_understand" });
   });

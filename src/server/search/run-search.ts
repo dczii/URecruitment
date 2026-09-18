@@ -9,7 +9,11 @@ import {
 } from "../ai/prompts/search-query";
 import { runAi } from "../ai/run";
 import type { AiModel, AiRunsWriter } from "../ai/types";
-import { searchCandidates, type SearchCandidateRow } from "./query";
+import {
+  searchCandidates,
+  type SearchCandidateRow,
+  type SearchCandidatesFilters,
+} from "./query";
 
 export type RunSearchArgs = {
   query: string;
@@ -41,7 +45,13 @@ export type SearchResult = {
 };
 
 export type RunSearchResult =
-  | { status: "ok"; results: SearchResult[]; ignoredTerms: IgnoredTerm[] }
+  | {
+      status: "ok";
+      results: SearchResult[];
+      ignoredTerms: IgnoredTerm[];
+      /** Parsed filters that actually narrowed the SQL query (AC1). */
+      filters: SearchCandidatesFilters;
+    }
   | { status: "could_not_understand" };
 
 /**
@@ -88,6 +98,7 @@ export async function runSearch({
     status: "ok",
     results: rows.map(toSearchResult),
     ignoredTerms: parsed.ignored_terms,
+    filters: parsed.filters,
   };
 }
 
