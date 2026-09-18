@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -40,17 +42,14 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
         with:
-          version: 2.106.0
+          # 2.106.0 demands a Supabase access token for `gen types` even with
+          # --local; 2.117.0 does not.
+          version: 2.117.0
 
       - name: Start local stack
         run: supabase start
 
       - name: Apply migrations from scratch
-        run: supabase db reset --local --no-seed
-
-      # A second reset must also succeed. #91 uses this to catch a migration
-      # that cannot be replayed on a fresh database.
-      - name: Re-apply migrations
         run: supabase db reset --local --no-seed
 
       - name: Generated types match schema

@@ -12,8 +12,8 @@ set -euo pipefail
 COMMITTED="src/lib/database.types.ts"
 
 if ! supabase status >/dev/null 2>&1; then
-  # Without a stack, CLI 2.106.0 asks for SUPABASE_ACCESS_TOKEN rather than
-  # saying the stack is down, which reads as an auth problem. Say what it is.
+  # Without a stack, `gen types` fails with an error that does not say the
+  # stack is down (CLI 2.106.0 even asks for an access token). Say what it is.
   echo "db:types:check: no local Supabase stack is running. Start it with \`supabase start\` (needs Docker)." >&2
   exit 1
 fi
