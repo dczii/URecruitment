@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `feat/34-core-schema-rls` |
 | Created | 2026-09-18 |
-| Status | In progress |
+| Status | In review |
 
 ## Problem
 
@@ -52,21 +52,26 @@ every one of them locked down so that a portal with no sign-in still cannot leak
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given the migrations are applied to an empty database, when I list the tables, then
+- [x] **AC1** — Given the migrations are applied to an empty database, when I list the tables, then
   all sixteen tables this Story owns exist with the columns ADR-0002 D1 specifies (the seventeenth,
   `sg_public_holidays`, is #115's). _Proved by:_ `supabase/tests/rls.db.test.ts` (enumerates
-  `information_schema.tables`) — DB-integration, needs local Supabase (Docker); `supabase/migrations.test.ts`
-  proves every committed migration file is lock-down-compliant without Docker.
-- [ ] **AC2** — Given the publishable (anon) key, when it queries any table, then it returns no rows
-  and no error that reveals the schema. _Proved by:_ `supabase/tests/rls.db.test.ts › the anon key
-  reads zero rows from every table` — DB-integration, needs local Supabase.
-- [ ] **AC3** — Given a match score, when it is stored, then its key includes the candidate, the job
-  version and the model version. _Proved by:_ `supabase/tests/match_scores.db.test.ts › rejects a
-  duplicate (candidate, job_version, model_version)` — DB-integration, needs local Supabase.
-- [ ] **AC4** — Given a recruiter edit to a parsed field, when the CV is parsed again, then the edit
-  is stored separately and is not overwritten. _Proved by:_ `supabase/tests/candidate_profiles.db.test.ts
-  › parsed and overrides occupy separate columns; re-writing parsed leaves overrides untouched` —
-  DB-integration, needs local Supabase.
+  `information_schema.tables`, dynamic — no hard-coded list) — written test-first, typechecks;
+  running to green needs the CI database job (no Docker on this machine). `supabase/migrations.test.ts`
+  proves every committed migration file is lock-down-compliant **without** Docker, and is green now.
+- [x] **AC2** — Given the publishable (anon) key, when it queries any table, then it returns no rows
+  and no error that reveals the schema. _Proved by:_ `supabase/tests/rls.db.test.ts › AC2: anon key
+  reads zero rows from $table` — written test-first, typechecks; running to green needs the CI
+  database job.
+- [x] **AC3** — Given a match score, when it is stored, then its key includes the candidate, the job
+  version and the model version. _Proved by:_ the `match_scores_candidate_job_version_model_key`
+  unique constraint (migration `20260918000003_embeddings_scores.sql`) and
+  `supabase/tests/match_scores.db.test.ts › AC3: rejects a duplicate (candidate_id, job_version_id,
+  model_version)` — written test-first, typechecks; running to green needs the CI database job.
+- [x] **AC4** — Given a recruiter edit to a parsed field, when the CV is parsed again, then the edit
+  is stored separately and is not overwritten. _Proved by:_ the separate `parsed`/`overrides`
+  columns on `candidate_profiles` (migration `20260918000002_candidates.sql`) and
+  `supabase/tests/candidate_profiles.db.test.ts › AC4: re-writing parsed leaves overrides untouched`
+  — written test-first, typechecks; running to green needs the CI database job.
 
 ## Guardrails that apply
 
