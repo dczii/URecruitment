@@ -39,10 +39,10 @@ No open PRD items. No design work needed — despite the Story issue saying "Des
 
 ## Acceptance criteria
 
-- [ ] **AC1** — "Competitive salary" raises an uncertain flag quoting that text with a client question. _Proved by:_ `run.test.ts › AC1: vague salary wording raises an uncertain flag with the quote and a question`
-- [ ] **AC2** — A JD/form contradiction on salary or location raises a conflicting flag quoting both sources. _Proved by:_ `run.test.ts › AC2: JD/form contradiction raises a conflicting flag quoting both sources`
-- [ ] **AC3** — A requirement preferring age/gender/race/religion raises a fair-employment flag explaining why it's a problem in Singapore. _Proved by:_ `run.test.ts › AC3: an age/gender/race/religion preference raises a fair-employment flag`
-- [ ] **AC4** — Every flag quotes its source text and is labelled a suggestion. _Proved by:_ AC1-3's own assertions (each checks the quote field is present and verbatim) — this is a property of every flag, not a separate rule
+- [x] **AC1** — "Competitive salary" raises an uncertain flag quoting that text with a client question. _Proved by:_ `run.test.ts › AC1: vague salary wording raises an uncertain flag with the quote and a question`
+- [x] **AC2** — A JD/form contradiction on salary or location raises a conflicting flag quoting both sources. _Proved by:_ `run.test.ts › AC2: JD/form contradiction raises a conflicting flag quoting both sources`
+- [x] **AC3** — A requirement preferring age/gender/race/religion raises a fair-employment flag explaining why it's a problem in Singapore. _Proved by:_ `run.test.ts › AC3: an age/gender/race/religion preference raises a fair-employment flag`
+- [x] **AC4** — Every flag quotes its source text and is labelled a suggestion. _Proved by:_ AC1-3's own assertions (each checks the quote field is present and verbatim) — this is a property of every flag, not a separate rule
 
 ## Guardrails that apply
 
@@ -92,14 +92,14 @@ No open PRD items. No design work needed — despite the Story issue saying "Des
 
 ## Steps
 
-- [ ] **T1** `claude` — Write `src/server/ai/prompts/gap-check/v1.ts` + `index.ts`: schema with 3 flag types (`uncertain`, `conflicting`, `fair-employment`), each requiring verbatim `source_text` (conflicting requires two: `form_source_text` + `jd_source_text`), prompt with shared rules + the "never proposes rejecting/contacting" rule + the TAFEP-grounded fair-employment guidance + an explicit note that Workplace Fairness Act attributes are out of scope until compliance review decides otherwise, EN + Simplified Chinese fictional examples.
+- [x] **T1** `claude` — Write `src/server/ai/prompts/gap-check/v1.ts` + `index.ts`: schema with 3 flag types (`uncertain`, `conflicting`, `fair-employment`), each requiring verbatim `source_text` (conflicting requires two: `form_source_text` + `jd_source_text`), prompt with shared rules + the "never proposes rejecting/contacting" rule + the TAFEP-grounded fair-employment guidance + an explicit note that Workplace Fairness Act attributes are out of scope until compliance review decides otherwise, EN + Simplified Chinese fictional examples.
   - Rules: `ai-prompts`; `compliance-review` — TAFEP attributes only, WFA noted not added
   - Verify: `npm run typecheck`
-- [ ] **T2a** `grok` — Failing tests first in `run.test.ts` (fake model + in-memory writer/db mocks): AC1 (vague salary → uncertain flag), AC2 (JD/form contradiction → conflicting flag with both quotes), AC3 (protected-attribute preference → fair-employment flag), an invented/unverifiable quote is dropped (not the whole response), a schema-invalid model response raises zero AI-sourced flags (missing-field flags from #45 still run independently), saving the same job twice doesn't duplicate AI-sourced flags, a gap-check model failure doesn't prevent the test's simulated "job save" from completing, every run writes one `ai_runs` row with cost/duration.
+- [x] **T2a** `grok` — Failing tests first in `run.test.ts` (fake model + in-memory writer/db mocks): AC1 (vague salary → uncertain flag), AC2 (JD/form contradiction → conflicting flag with both quotes), AC3 (protected-attribute preference → fair-employment flag), an invented/unverifiable quote is dropped (not the whole response), a schema-invalid model response raises zero AI-sourced flags (missing-field flags from #45 still run independently), saving the same job twice doesn't duplicate AI-sourced flags, a gap-check model failure doesn't prevent the test's simulated "job save" from completing, every run writes one `ai_runs` row with cost/duration.
   - Verify: `npm test -- gap-check/run` → fails (module missing)
-- [ ] **T2b** `grok` — Implement `run.ts` until T2a passes; wire into `src/app/jobs/actions.ts`'s `createJob`.
+- [x] **T2b** `grok` — Implement `run.ts` until T2a passes; wire into `src/app/jobs/actions.ts`'s `createJob`.
   - Verify: `npm test -- gap-check/run` → pass; `npm run typecheck`
-- [ ] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -132,12 +132,12 @@ Depends on unmerged PR chain (#213→#223). Net-new modules + one modified actio
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** The full model-based gap check, closing Story #46 (#141 + #142): `gap-check` v1 schema/prompt with 3 flag types, and `runGapCheck` which combines #45's deterministic missing-field rules with one `runAi` call, drops any flag with an unverifiable quote (not the whole run), replaces only open AI-sourced flags on repeated saves (leaving `missing`-type and any future resolved/dismissed flags untouched), never throws, and is wired into `createJob`'s save path so gap-check failures never block a job from saving.
+- **Changed files / areas:** `src/server/ai/prompts/gap-check/{v1,index}.ts` (new, written directly by Claude), `src/server/gap-check/run.ts` + `.test.ts` (new), `src/app/jobs/actions.ts` (modified — calls `runGapCheck` after `saveJobVersion`, errors swallowed).
+- **Tests added or updated:** `run.test.ts` — 27 tests total across `gap-check/` (run.ts + missing-fields.ts): AC1 (uncertain flag), AC2 (conflicting flag, both quotes), AC3 (fair-employment flag), unverifiable-quote dropped without failing the whole run, schema-invalid model response still persists missing-field flags, repeated saves supersede rather than duplicate AI-sourced flags, model failure never throws, `ai_runs` logged on both paths. All executed, all passing.
+- **Verification:** `npm run lint` → pass (2 pre-existing warnings, neither from this Story's new files). `npm run typecheck` → pass. `npx vitest run src/server/ai src/server/gap-check src/server/jobs src/server/cv` → 92 passed, 3 pre-existing unrelated `extract.test.ts` failures (tracked against Story #38). `npm run build` → pass, all routes registered, no client-bundle leaks — confirms the earlier `extract.ts` build fix (#44) holds under further changes.
+- **Deviations:** `getModel("gap")` is constructed lazily inside `run.ts` (matching the retry pattern used elsewhere) so an unset `AI_MODEL_GAP` env var can never skip the missing-field persistence step that must run regardless of the model call's fate. `jdText` is passed as `null` from `actions.ts` since no JD text is currently persisted anywhere the Server Action can read it back — a known, acknowledged limitation (see Follow-ups), not a defect in this Story's own logic.
+- **Fix rounds / escalations:** 0 — both steps (T2a, T2b) passed verification on first attempt. T1 (prompt authoring) also needed no rework.
+- **Models used:** Planning/orchestration + T1 (prompt authoring): Claude Sonnet 5 (claude-sonnet-5). T2a/T2b: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) **The conflicting-flag path is currently unreachable in practice** — `jdText` is always `null` from `actions.ts` because the JD text extracted in #44's upload flow is never persisted anywhere `createJob` can read it back (only the extracted structured fields are used to pre-fill the form). To make AC2 fire on real saves, either persist the raw JD text somewhere retrievable (e.g. alongside the stored JD file) or pass it through from the client at submit time. (2) The job form still doesn't collect several of the fields the missing-field rules check (carried over from #45's own follow-up). (3) The `CLAUDE.md`/desktop-only-practice inconsistency (flagged repeatedly since #218) remains unresolved and doesn't apply to this Story (no UI here) but will resurface at #47.
