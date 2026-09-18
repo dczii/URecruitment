@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `feat/37-seed-list-download-classify` |
 | Created | 2026-09-18 |
-| Status | Planned <!-- Planned → In progress → In review --> |
+| Status | In review |
 
 ## Problem
 

@@ -71,6 +71,9 @@ creep on an Epic-level piece of work. `.doc` conversion extracts text with `word
   - Verify: `npm test -- classify` → pass; `npm run lint`; `npm run typecheck`
 - [x] **S4** `none` — Full verification (lint, typecheck, test, build) until green; record classifier accuracy on the fixture set in Outcome; close out docs. Do not run `pr-review`.
 
+All steps completed on the first pass — zero fix rounds, zero escalations, no direct Claude
+code fixes were needed.
+
 ## Test plan
 
 | AC | Test or manual evidence | Type / reason |
@@ -111,12 +114,81 @@ classification is heuristic in this PR).
 
 ## Outcome
 
-- **Shipped:** `scripts/seed/env.ts` (+ tests), `scripts/seed/fetch.ts` (+ tests), `scripts/seed/classify.ts` (+ tests), fictional classify fixtures. Tasks #117, #118, #119 of Story #37. Tasks #120–#123 remain open (blocked on #127/#139/#148/#158/#132).
-- **Changed files / areas:** see Files table above; filled in with the executor's actual file list once implementation completes.
-- **Tests added or updated:** see Test plan table.
-- **Verification:** filled in after running the commands above.
-- **Deviations:** filled in after execution.
-- **Fix rounds / escalations:** filled in after execution.
-- **Models used:** filled in from `.orchestrator/37-seed-list-download-classify/*.log` headers.
-- **Claude direct fixes:** filled in after execution.
-- **Follow-ups:** re-verify `.doc` conversion against a real store file once one appears; #120–#123 unblock once #127/#139/#148/#158/#132 land; classifier accuracy on the fixture set recorded here.
+- **Shipped:**
+  - #117 — `scripts/seed/env.ts`: `parseSeedEnv` (typed guard for `BLOB_READ_WRITE_TOKEN` /
+    `SEED_BLOB_BASE_URL`, missing/empty/`NEXT_PUBLIC_`-prefixed all rejected, no value ever
+    appears in the error), `assertBlobUrlInStore` (throws without leaking either URL), plus a
+    static-scan test proving `src/` never imports `@vercel/blob`.
+  - #118 — `scripts/seed/fetch.ts`: `listSampleFiles` (paginated `list()`, calls
+    `assertBlobUrlInStore` before returning a file), `downloadAndHash` (public-URL fetch, no
+    token, SHA-256, extension-based skip with a reason), `convertLegacyDoc` (`.doc` → `.txt`
+    via `word-extractor`, no-op otherwise), `buildRunReport` (counts by type/language + skipped
+    list).
+  - #119 — `scripts/seed/classify.ts`: `classifyDocument(text)` — EN/ZH keyword-and-structure
+    heuristic scorer, 0.6 confidence threshold, returns `unclassified` with a reason below it
+    (never a guess). 4/4 accuracy on the four purpose-built fixtures.
+  - #120–#123 intentionally NOT attempted — see spec.md Scope: they depend on the CV parser
+    (#127), JD extractor (#139), scoring service (#148), delay-status view (#158) and recruiter
+    overrides (#132), none of which exist in this repo yet. Confirmed by user decision during
+    intake (2026-09-18) to ship #117–#119 alone rather than block on that unbuilt work.
+- **Changed files / areas:**
+  - `scripts/seed/env.ts`, `scripts/seed/env.test.ts`, `scripts/seed/no-blob-in-src.test.ts`
+  - `scripts/seed/fetch.ts`, `scripts/seed/fetch.test.ts`
+  - `scripts/seed/classify.ts`, `scripts/seed/classify.test.ts`
+  - `test/fixtures/seed/{cv-en,cv-zh,jd-en,ambiguous}.txt`
+  - `package.json`, `package-lock.json` (+`@vercel/blob@^2.8.0`, `+word-extractor@^1.0.4`)
+- **Tests added or updated:**
+  - `scripts/seed/env.test.ts` (26 tests) — AC117.1, AC117.2
+  - `scripts/seed/no-blob-in-src.test.ts` (1 test) — AC117.3
+  - `scripts/seed/fetch.test.ts` (13 tests) — AC118.1–AC118.5
+  - `scripts/seed/classify.test.ts` (4 tests) — AC119.1–AC119.4
+- **Verification:**
+  - `npm run lint` → pass (1 pre-existing unrelated warning in `supabase/migration-lint.ts`)
+  - `npm run typecheck` → pass
+  - `npm test` → 209/211 passed; the 2 failures are in `src/server/db.test.ts`, unmodified by
+    this PR and identical to `main` — they fail locally because this machine runs Node 20.19.4
+    while the repo requires Node 22.x (`@supabase/realtime-js` needs a native WebSocket only
+    available on 22+). Confirmed pre-existing and environment-only, not caused by this change.
+  - `npm run build` → pass; `check-client-bundle.mjs` reports "no leaks (scanned 2 directories)"
+  - `npm run test:e2e` → n/a, no screen changed
+  - `npm run test:db` → n/a, no migration/DB change
+  - `npm run eval` → n/a, no model call (classification is heuristic in this PR)
+  - Manual: `git diff origin/main...HEAD | grep -iE "secret|token|..."` → only variable names
+    and fictional test literals (`test-blob-read-token`, `sk-test-DO-NOT-PRINT-blob-token`), no
+    real secret or `*.public.blob.vercel-storage.com` URL. `git ls-files | grep -E '(^|/)\.env'`
+    → no match beyond `.env.example`.
+- **Deviations:**
+  - Skip-by-extension only in #118, not magic bytes (`security-check`'s magic-byte rule targets
+    the JD-**upload** endpoint, not the dev-only seed script reading from a controlled store;
+    the task's "Done when" only asks for type + reason, which this satisfies).
+  - `.doc` conversion (#118) is implemented against a synthetic fixture only — the real store
+    held zero `.doc` files as of 17 Sep 2026 (see `prd-context` sample-data.md), so this path
+    is unverified against a real legacy file. Flagged as a follow-up.
+  - **Unrelated incident, not part of this PR's changes:** while diagnosing the (pre-existing)
+    `db.test.ts` failure against `main`, a `git stash pop` was run to compare trees and
+    unexpectedly applied a pre-existing, unrelated stash entry (in-progress edits across
+    several `.claude/skills/*`, `AGENTS.md`, `CLAUDE.md`, `design/shell.pen` and `docs/**` —
+    appears to be someone else's work removing phone-width/mobile scope from several skills).
+    It was immediately restashed (`git stash push`, message: "restored: pre-existing stash
+    unrelated to #37, unintentionally popped by orchestrator") before anything from it was
+    committed or touched further. It was never part of this branch's history. Flagged to the
+    user so they can recover it (`git stash list` / `git stash pop`) — it was not inspected or
+    acted upon beyond restoring it.
+- **Fix rounds / escalations:** none — every step passed verification on the first pass.
+- **Models used:** planning/orchestration by Claude (this session); all six implementation
+  steps (S1a, S1b, S2b, S2c, S3a, S3b) ran on `cursor-grok-4.6-high` per
+  `.orchestrator/37-seed-list-download-classify/*.log` headers. No escalation model or GPT
+  step was needed. S1c (`no-blob-in-src.test.ts`) and dependency installation (S2a) were
+  written/run directly by Claude rather than delegated, since they were small, mechanical,
+  single-file changes not worth a cursor-agent round.
+- **Claude direct fixes:** none needed. Claude wrote `scripts/seed/no-blob-in-src.test.ts`
+  (S1c) directly rather than via cursor-agent, as a scope/efficiency call, not a fix.
+- **Follow-ups:**
+  - Re-verify `.doc` → text conversion against a real `.doc` file once one appears in the
+    sample-data store (none existed there as of 17 Sep 2026).
+  - #120 (upload/parse/embed/load jobs/gap check/score), #121 (back-date pipeline entries),
+    #122 (idempotency + `--reset`), #123 (seed run report) remain open, blocked on #127, #139,
+    #148, #158, #132 respectively. Re-run `/task 37` once those land.
+  - No `npm run seed` entry point yet — added once #120 gives it something to upload/parse.
+  - The pre-existing, unrelated stashed changes noted above under Deviations are still on the
+    stash and were not reviewed or acted on; the user should recover them when convenient.
