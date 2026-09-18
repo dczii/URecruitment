@@ -41,7 +41,7 @@ project ([below](#one-supabase-project-for-preview-and-production)).
 | **Deploys when** | Always | Every push to a PR branch | Merge to `main` |
 | **Schema comes from** | `supabase/migrations/`, applied by `supabase db reset` | The shared project, so `supabase/migrations/` **as merged to `main`** and pushed | `supabase/migrations/`, pushed by the migrate workflow **after manual approval** |
 | **Data** | Fictional, from `npm run seed` | Fictional, the same rows Production shows | Fictional, seeded into the one project (MVP) |
-| **Who can reach it** | The developer | **Anyone with the URL**, unless the plan offers deployment protection ([#92](https://github.com/dczii/URecruitment/issues/92) checks) | **Anyone with the URL** (no sign-in, accepted for fictional data only) |
+| **Who can reach it** | The developer | People signed in to the Vercel team. Vercel Authentication is on for previews, which Hobby offers ([#92](https://github.com/dczii/URecruitment/issues/92), 2026-09-18). CI gets in with the automation bypass secret | **Anyone with the URL** (no sign-in, accepted for fictional data only) |
 
 **Known limitation: previews and schema changes.** A PR that adds a migration is validated on an
 **ephemeral** local Supabase in CI ([#91](https://github.com/dczii/URecruitment/issues/91)). Its Vercel
@@ -213,11 +213,67 @@ URL.
 `VERCEL_ENV`, `VERCEL_URL` and `VERCEL_REGION` are provided by Vercel. The app may read `VERCEL_ENV` to
 tell Preview from Production, and must not rely on anything else about them.
 
-### → filled by #92: what is set where
+### What is set where (#92)
 
-*[#92](https://github.com/dczii/URecruitment/issues/92) records here, by name, which variables it set
-in each Vercel environment, whether preview deployment protection is available on the plan, and the
-date.*
+Recorded by [#92](https://github.com/dczii/URecruitment/issues/92) on **2026-09-18**.
+
+**What the Vercel project does today.** An agent observed this without credentials, from GitHub's
+deployment records and response headers:
+
+- **A preview per PR push, production from `main`.** The Git integration is connected. `vercel[bot]`
+  creates a GitHub *Preview* deployment for each pushed PR commit (for example, every commit of
+  [#196](https://github.com/dczii/URecruitment/pull/196)). It creates a *Production* deployment for
+  each merge to `main` (`1903a4d`).
+- **Functions run in `sin1`.** `vercel.json` pins `"regions": ["sin1"]`
+  (`test/infra/vercel-config.test.ts` keeps it that way). The production alias answers with
+  `x-vercel-id: sin1::sin1::…`: a Singapore edge, then a function run in `sin1`.
+- **Preview deployment protection is on, and Hobby offers it.** An unauthenticated request to a
+  preview URL answers `302` to `vercel.com/sso-api` (Vercel Authentication). Production is public, as
+  the MVP accepts for fictional data. The e2e job reaches previews through
+  `VERCEL_AUTOMATION_BYPASS_SECRET`, which is set as an Actions secret (2026-09-18). **Its first run
+  was rejected** ([run](https://github.com/dczii/URecruitment/actions/runs/35296758183): *"Vercel
+  bypass was rejected (HTTP 200, ended on vercel.com)"*). Check that the Actions secret's value matches
+  Vercel → Deployment Protection → Protection Bypass for Automation.
+- **Not observed:** which variables are actually set. The Vercel CLI on the dev machine is logged into
+  an account that can't see the project (`release-deploy`), and agents don't change or read Vercel
+  settings unasked. A person confirms the matrix below with the commands after it.
+
+**The matrix.** ✓ = must be set in that Vercel environment. — = must **not** be set there. Every name
+in `.env.example` has a row, and `test/infra/vercel-config.test.ts` fails if one is added without a
+row here. Values are never written anywhere in the repository.
+
+| Name | Development | Preview | Production | Needed from | Note |
+|---|---|---|---|---|---|
+| `SUPABASE_URL` | — | ✓ (the one project) | ✓ (the one project) | The first page that reads data (E03 onwards) | Not in *Development*, so `vercel env pull` never points a laptop at a remote project |
+| `SUPABASE_SECRET_KEY` | — | ✓ (the one project) | ✓ (the one project) | As above | **Secret**, and **Sensitive** in Vercel. Never `NEXT_PUBLIC_` |
+| `AI_MODEL_PARSE`, `AI_MODEL_MATCH`, `AI_MODEL_GAP`, `AI_MODEL_SEARCH`, `AI_MODEL_JD`, `AI_EMBED_MODEL` | ✓ | ✓ | ✓ | [DT-1](../decisions/open-questions.md#dt-1--the-ai-provider) is decided and [#169](https://github.com/dczii/URecruitment/issues/169) ships | Model ids aren't secret. Leave them unset until a provider is chosen; the env schema treats them as optional |
+| *Provider API key(s)* | ✓ | ✓ | ✓ | As above | Named after the provider. Added to `.env.example` and this row in the ADR-0004 PR |
+| `AI_MONTHLY_SPEND_CAP` | ✓ | ✓ | ✓ | **Before any `/api/ai/*` route is deployed** ([#175](https://github.com/dczii/URecruitment/issues/175)) | USD. Should stay at or below the provider-side cap ([rate limit and spend cap](#rate-limit-and-spend-cap-93)) |
+| `MUST_HAVE_CAP` | ✓ | ✓ | ✓ | [#148](https://github.com/dczii/URecruitment/issues/148) | Defaults to 50 (**proposed**) if a person forgets it, so a missing value degrades safely |
+| `SENTRY_DSN` | ✓ | ✓ | ✓ | Now ([#86](https://github.com/dczii/URecruitment/issues/86)) | A DSN is not a secret. Optional in a developer's own `.env.local` |
+| `NEXT_PUBLIC_SENTRY_DSN` | ✓ | ✓ | ✓ | Now | Public by design (bundled into the client) |
+| `BLOB_READ_WRITE_TOKEN` | auto | auto | auto | Added by Vercel when the sample-data store is connected | App runtime never reads it ([#117](https://github.com/dczii/URecruitment/issues/117)'s check) |
+| `SEED_BLOB_BASE_URL` | optional | — | — | [#117](https://github.com/dczii/URecruitment/issues/117) | Only so `vercel env pull` keeps it locally. **Never committed** |
+| `PLAYWRIGHT_BASE_URL` | — | — | — | n/a | Local and CI only. The e2e job sets it from the deployment URL |
+
+**Confirming it (a person, read-only):**
+
+```bash
+vercel login                                                 # as the account that owns user-7407
+vercel link --scope user-7407 --project u-recruitment        # creates .vercel/ (gitignored)
+vercel env ls development
+vercel env ls preview
+vercel env ls production
+```
+
+Compare the names listed with the matrix. `vercel env ls` shows names and environments, not
+values. Don't paste its output into an issue if it shows anything other than names. Record the date
+of the check in this section. **Changing a variable is a person's action**, per `release-deploy`.
+
+**Vercel Hobby and commercial use** is still open:
+[RC-3](../decisions/open-questions.md#rc-3--vercel-hobby-and-commercial-use) (owner: the agency
+director), and the paid plan is [OQ-2](../decisions/open-questions.md#oq-2--which-paid-plans-to-move-to).
+This record assumes neither answer.
 
 ### → filled by #93: rate limit and spend cap
 

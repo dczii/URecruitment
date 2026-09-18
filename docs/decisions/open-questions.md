@@ -216,12 +216,12 @@ ambiguous or silent **and** an MVP task needs a clear answer. Each one has a `ne
 | Source | PRD *Free-tier limits and risks*, row *"Vercel Hobby is for non-commercial, personal use only"*: effect *"Using it for agency work breaks Vercel's terms"*; suggested response *"Move to Vercel Pro before recruiters use the portal for real work"*. PRD *Technical architecture* → *Plans for the MVP*: Vercel Hobby and Supabase Free (**decided**) |
 | The question | Where exactly is the line? Does inviting recruiters to MVP feedback sessions on **fictional** data count as "agency work" under Vercel's terms, or does the move to Pro wait for real work on real data (OQ-2)? |
 | Status | **Open** |
-| Owner slot | — *(unassigned; it is a spend and terms decision)* |
+| Owner slot | **Agency director**. Named by [#92](https://github.com/dczii/URecruitment/issues/92) on 2026-09-18, because it is a spend and terms decision and the director is the persona of story [#28](https://github.com/dczii/URecruitment/issues/28). Naming the owner does not answer the question. Not yet asked |
 | Decided when | Before recruiters are invited to the MVP |
 | MVP position | Hobby, as the PRD decided. `release-deploy` says the move to Pro is *"an open decision; raise it, don't do it"* |
 | Blocked tasks | None in the build |
 | Checked by | The release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179)) restates this row's status before recruiters are invited. Its scope already says so, and it does not need the answer to finish |
-| Deciding issue | [#92](https://github.com/dczii/URecruitment/issues/92) E01-S04-T01 *Configure the Vercel project, regions and per-environment variables* records the question as open and links here. **It does not decide it**; its scope excludes choosing a plan |
+| Deciding issue | [#92](https://github.com/dczii/URecruitment/issues/92) E01-S04-T01 *Configure the Vercel project, regions and per-environment variables* records the question as open in the [infrastructure plan](../plans/infrastructure.md#what-is-set-where-92) (2026-09-18) and links here. **It does not decide it**; its scope excludes choosing a plan |
 | What unblocks it | An owner, and the terms read for the MVP's actual use. If the answer is "Pro now", this row feeds OQ-2 |
 | Related | [ADR-0001](adr-0001-architecture.md) says the MVP on fictional data *"is fine"* on Hobby, and the PRD release plan runs the feedback sessions on Hobby: *"Runs on Vercel Hobby and Supabase Free. Ends with recruiter feedback sessions and a go/no-go decision"*. Neither is a reading of Vercel's terms, so this row keeps the question open. If the answer is "Pro now", a new ADR supersedes that part of ADR-0001 in the same PR |
 
