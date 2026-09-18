@@ -11,6 +11,12 @@ import {
 import { runAi } from "../ai/run";
 import type { AiModel, AiRunsWriter } from "../ai/types";
 import { getDb } from "../db";
+import type { CvExtractionQuality } from "./extract";
+import {
+  decideParsePath,
+  executeParsePath,
+  type ParsePath,
+} from "./fallback";
 import { computeTotalYears } from "./total-years";
 
 const EVIDENCE_NOT_VERBATIM =
@@ -22,6 +28,10 @@ export type ParseCvArgs = {
   cvText: string;
   model: AiModel;
   runs: AiRunsWriter;
+  /** Extraction quality from `extractCvText`. When omitted, the text path is used. */
+  quality?: CvExtractionQuality;
+  /** Original file bytes. Required when `quality` selects the file path. */
+  fileBytes?: Uint8Array;
 };
 
 export type ParsedCandidateProfile = ParseCvOutput & {
@@ -39,7 +49,11 @@ export async function parseCv({
   cvText,
   model,
   runs,
+  quality,
+  fileBytes,
 }: ParseCvArgs): Promise<ParsedCandidateProfile> {
+  const parsePath: ParsePath =
+    quality === undefined ? "text" : decideParsePath(quality);
   const output = await runAi({
     prompt: {
       id: PARSE_CV_PROMPT_ID,
@@ -47,8 +61,8 @@ export async function parseCv({
       text: buildParseCvInput(cvText),
     },
     schema: parseCvOutputSchema,
-    inputRef: `cv_files:${cvFileId}`,
-    model,
+    inputRef: parsePathInputRef(cvFileId, parsePath),
+    model: modelForParsePath({ parsePath, quality, cvText, fileBytes, model }),
     runs,
   });
 
@@ -65,6 +79,47 @@ export async function parseCv({
   await persistSkills(candidateId, output.skills);
 
   return parsed;
+}
+
+/** Record which parse path ran so it is visible on the `ai_runs` row. */
+function parsePathInputRef(cvFileId: string, parsePath: ParsePath): string {
+  return `cv_files:${cvFileId}#parse_path=${parsePath}`;
+}
+
+/**
+ * Text path keeps the original model so `runAi` still sends the prompt.
+ * File path dispatches through `executeParsePath` inside `generateObject` so
+ * the PDF bytes are sent, duration is measured, and the row is still written
+ * by `runAi`.
+ */
+function modelForParsePath(args: {
+  parsePath: ParsePath;
+  quality: CvExtractionQuality | undefined;
+  cvText: string;
+  fileBytes: Uint8Array | undefined;
+  model: AiModel;
+}): AiModel {
+  if (args.parsePath !== "file") {
+    return args.model;
+  }
+  if (args.quality === undefined || args.fileBytes === undefined) {
+    throw new Error("File parse path requires file bytes");
+  }
+  const quality = args.quality;
+  const fileBytes = args.fileBytes;
+  return {
+    modelId: args.model.modelId,
+    modelVersion: args.model.modelVersion,
+    async generateObject() {
+      const result = await executeParsePath({
+        quality,
+        cvText: args.cvText,
+        fileBytes,
+        model: args.model,
+      });
+      return { object: result.object, costUsd: result.costUsd };
+    },
+  };
 }
 
 function hasUnverifiableQuote(output: ParseCvOutput, cvText: string): boolean {

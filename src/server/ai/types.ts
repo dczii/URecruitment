@@ -21,6 +21,14 @@ export type AiModel = {
   readonly modelId: string;
   readonly modelVersion: string;
   generateObject(promptText: string): Promise<AiModelGenerateResult>;
+  /**
+   * Optional file-input capability for the Chinese PDF fallback.
+   * Text-only models (including `createFakeModel`) omit these fields.
+   */
+  readonly supportsFileInput?: boolean;
+  generateObjectFromFile?(
+    fileBytes: Uint8Array,
+  ): Promise<AiModelGenerateResult>;
 };
 
 /** Options the test-facing `createFakeModel` factory accepts. */
