@@ -12,7 +12,7 @@ label() {
 
 label "type:epic"          "5319e7" "Epic: one capability, contains stories"
 label "type:story"         "1d76db" "Story: recruiter-facing outcome, contains tasks"
-label "type:task"          "0e8a16" "Task: one PR-sized unit of work"
+label "type:task"          "0e8a16" "Task: one commit-sized unit of work inside its Story's PR"
 
 label "area:foundation"    "c5def5" "Scaffold, env, tooling"
 label "area:design-system" "c5def5" "pen.dev tokens, shadcn theme, shared components"
