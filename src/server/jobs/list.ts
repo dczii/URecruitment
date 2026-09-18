@@ -46,6 +46,7 @@ export type JobDetail = {
   niceToHaves: JobRequirement[];
   openFlagCount: number;
   openFlags: OpenGapFlag[];
+  isRescoring: boolean;
 };
 
 /**
@@ -150,8 +151,9 @@ export async function listJobs(): Promise<JobListItem[]> {
 
 /**
  * One job for the detail screen: current version's requirements, the
- * version's created date, the open gap-flag count (never a blocker), and
- * the open flag rows themselves (flat — the checklist groups by type).
+ * version's created date, the open gap-flag count (never a blocker), the
+ * open flag rows themselves (flat — the checklist groups by type), and
+ * whether a re-score run is in progress for the current version.
  */
 export async function getJobDetail(
   jobId: string,
@@ -176,21 +178,37 @@ export async function getJobDetail(
   }
 
   let openFlags: OpenGapFlag[] = [];
+  let isRescoring = false;
   if (version) {
-    const { data, error: flagError } = await db
-      .from("gap_flags")
-      .select("id, flag_type, reason, suggested_question")
-      .eq("job_version_id", version.id)
-      .eq("resolution_state", "open");
+    const [flagsResult, rescoreResult] = await Promise.all([
+      db
+        .from("gap_flags")
+        .select("id, flag_type, reason, suggested_question")
+        .eq("job_version_id", version.id)
+        .eq("resolution_state", "open"),
+      db
+        .from("rescore_runs")
+        .select("id")
+        .eq("job_version_id", version.id)
+        .in("status", ["pending", "running"])
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
-    if (flagError) {
+    if (flagsResult.error) {
       throw new Error(
-        `Failed to load open gap flags for job ${jobId}: ${flagError.message}`,
+        `Failed to load open gap flags for job ${jobId}: ${flagsResult.error.message}`,
       );
     }
-    openFlags = (data ?? [])
+    if (rescoreResult.error) {
+      throw new Error(
+        `Failed to load re-score status for job ${jobId}: ${rescoreResult.error.message}`,
+      );
+    }
+    openFlags = (flagsResult.data ?? [])
       .map(toOpenGapFlag)
       .filter((flag): flag is OpenGapFlag => flag !== null);
+    isRescoring = rescoreResult.data != null;
   }
 
   return {
@@ -204,6 +222,7 @@ export async function getJobDetail(
     niceToHaves: requirementTexts(version?.nice_to_haves, "nice_to_have"),
     openFlagCount: openFlags.length,
     openFlags,
+    isRescoring,
   };
 }
 

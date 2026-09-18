@@ -97,7 +97,11 @@ export default async function JobDetailPage({
       <PlaceholderSection
         headingId="ranked-matches-heading"
         title="Ranked matches"
-        note="Coming in a later phase."
+        note={
+          job.isRescoring
+            ? "Recalculating scores — check back shortly. Matching is not blocked while this runs."
+            : "Coming in a later phase."
+        }
       />
 
       <PlaceholderSection
