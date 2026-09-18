@@ -40,9 +40,9 @@ No open PRD items. Design is a change to the existing job-form screen (`design/s
 
 ## Acceptance criteria
 
-- [ ] **AC1** — An uploaded PDF/Word JD has its fields read into the job form. _Proved by:_ `extract.test.ts › extracts fields matching the job form schema`
-- [ ] **AC2** — Every AI-filled field is labelled as a suggestion and shows its source text. _Proved by:_ `jd-upload.spec.ts › AC2: pre-filled fields show AiSuggestion and source text` (written; not executed — see #43's established local-environment note)
-- [ ] **AC3** — The saved job holds the recruiter's confirmed values, not the AI's raw proposal. _Proved by:_ `extract.test.ts › recruiter-edited values win over the AI's proposal on save` (this is really proven by the existing `JobForm`/`createJob` flow from #43 — pre-fill only ever seeds component state the recruiter can still edit before submit; a test confirms the pre-fill path never bypasses `createJob`'s own validation/save)
+- [x] **AC1** — An uploaded PDF/Word JD has its fields read into the job form. _Proved by:_ `extract.test.ts › extracts fields matching the job form schema`
+- [x] **AC2** — Every AI-filled field is labelled as a suggestion and shows its source text. _Proved by:_ `jd-upload.spec.ts › AC2: pre-filled fields show AiSuggestion and source text` (written; not executed — see #43's established local-environment note)
+- [x] **AC3** — The saved job holds the recruiter's confirmed values, not the AI's raw proposal. _Proved by:_ `extract.test.ts › recruiter-edited values win over the AI's proposal on save` (this is really proven by the existing `JobForm`/`createJob` flow from #43 — pre-fill only ever seeds component state the recruiter can still edit before submit; a test confirms the pre-fill path never bypasses `createJob`'s own validation/save)
 
 ## Guardrails that apply
 
@@ -94,17 +94,17 @@ No open PRD items. Design is a change to the existing job-form screen (`design/s
 
 ## Steps
 
-- [ ] **T1** `claude` — Write `src/server/ai/prompts/extract-jd/v1.ts` + `index.ts`: schema matching the job form's fields (title, requirements with text + `proposed_marking` + `source_text`, `requires_nationality`/`nationality_reason`/`requires_language`/`language_reason` proposals with evidence), prompt with the shared rules + the "proposals only, recruiter confirms" rule, EN + Simplified Chinese fictional examples.
+- [x] **T1** `claude` — Write `src/server/ai/prompts/extract-jd/v1.ts` + `index.ts`: schema matching the job form's fields (title, requirements with text + `proposed_marking` + `source_text`, `requires_nationality`/`nationality_reason`/`requires_language`/`language_reason` proposals with evidence), prompt with the shared rules + the "proposals only, recruiter confirms" rule, EN + Simplified Chinese fictional examples.
   - Rules: `ai-prompts` shared rules + versioning; `compliance-review` — no protected-attribute slots beyond what the job form itself allows (nationality/language proposals still require evidence, mirroring the human-entered reason rule's spirit even though the AI's "reason" is only a suggestion the recruiter must still confirm/rewrite)
   - Verify: `npm run typecheck`
-- [ ] **T2a** `grok` — Failing tests first in `extract.test.ts`: schema-invalid extraction does not return pre-fillable data; an unsupported file type is rejected with a reason; extraction writes an `ai_runs` row; a fixture test confirms the pre-fill path never bypasses `createJob`'s own validation (AC3's explicit test).
+- [x] **T2a** `grok` — Failing tests first in `extract.test.ts`: schema-invalid extraction does not return pre-fillable data; an unsupported file type is rejected with a reason; extraction writes an `ai_runs` row; a fixture test confirms the pre-fill path never bypasses `createJob`'s own validation (AC3's explicit test).
   - Verify: `npm test -- jobs/extract` → fails (module missing)
-- [ ] **T2b** `grok` — Implement `extract.ts` + `route.ts` until T2a passes.
+- [x] **T2b** `grok` — Implement `extract.ts` + `route.ts` until T2a passes.
   - Verify: `npm test -- jobs/extract` → pass; `npm run typecheck`
-- [ ] **T3** `grok` — Extend `JobForm.tsx` with the upload step + pre-fill (AiSuggestion/SourceQuote on every AI-filled field, "Confirm pre-filled values"/"Edit before saving"). Add `e2e/jd-upload.spec.ts` (desktop only).
+- [x] **T3** `grok` — Extend `JobForm.tsx` with the upload step + pre-fill (AiSuggestion/SourceQuote on every AI-filled field, "Confirm pre-filled values"/"Edit before saving"). Add `e2e/jd-upload.spec.ts` (desktop only).
   - Rules: `ui-build` — reuse `AiSuggestion`/`SourceQuote` exactly; design spec's exact two-action pattern
   - Verify: `npm run lint`; `npm run typecheck`; `npx playwright test e2e/jd-upload.spec.ts --project=desktop --list`
-- [ ] **S4** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S4** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -137,12 +137,12 @@ Depends on unmerged PR chain (#213→#221). Net-new modules + one modified compo
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** JD upload → extraction → pre-fill, closing Story #44 in full: `extract-jd` v1 schema/prompt (mirrors `parse-cv`), a schema-validated `runAi`-backed extraction service that only ever returns pre-fill data (never writes `jobs`/`job_versions`), a private-bucket upload route, and a `JobForm.tsx` upload step with `AiSuggestion`/`SourceQuote` on every AI-filled field and two explicit recruiter actions before anything reaches editable form state.
+- **Changed files / areas:** `src/server/ai/prompts/extract-jd/{v1,index}.ts` (new, written directly by Claude), `src/server/jobs/extract.ts` + `.test.ts` (new), `src/app/api/ai/extract-jd/route.ts` (new), `src/components/features/jobs/JobForm.tsx` (modified — upload step), `e2e/jd-upload.spec.ts` (new). **Also fixed** a pre-existing bug in `src/server/cv/extract.ts` (Story #38, already merged) — see Deviations.
+- **Tests added or updated:** `extract.test.ts` (5 tests: schema-valid pre-fill data with no `jobs`/`job_versions` writes, schema-invalid rejection, `ai_runs` logging via `runAi`, AC3's structural recruiter-edit-wins guarantee, unsupported file type rejected before any model call) — executed, all passing. `jd-upload.spec.ts` (2 tests: AC2 labelling/source text, AC3 marking override) — written, registered via `--list` alongside the existing `job-form.spec.ts`/`jobs.spec.ts` (6 total across the three specs), **not executed** — same no-Supabase-credentials/no-seed-data constraint as every Epic 5/6 screen so far.
+- **Verification:** `npm run lint` → pass (1 pre-existing unrelated warning). `npm run typecheck` → pass. `npx vitest run src/server/jobs src/server/ai src/server/cv` → 65 passed, 3 pre-existing unrelated `extract.test.ts` failures (tracked against Story #38, unchanged by this Story's build fix — confirmed same 3 failures before and after). `npm run build` → **initially failed**, fixed in this Story (see Deviations), now passes; all three new/changed routes (`/api/ai/extract-jd`, `/jobs`, `/jobs/[id]`, `/jobs/new`) registered, no client-bundle leaks. `npm run test:e2e` → not run (no Supabase env/seed locally).
+- **Deviations:** (1) Client-side Zod validation of the `extract-jd` output shape is duplicated in `JobForm.tsx` (a client component) rather than importing the server-only prompt module — a real, acknowledged drift risk if the schema changes later without updating both copies; flagged as a follow-up. (2) "Confirm pre-filled values" and "Edit before saving" both seed the same form state; "Edit" additionally focuses the title field. (3) **Fixed a pre-existing build-blocking bug**: `src/server/cv/extract.ts` (Story #38) resolved `pdfjs-dist`'s asset paths eagerly at module scope via `createRequire(import.meta.url)`, which is unreliable during Next's build-time page-data collection. This route (`/api/ai/extract-jd`) is the first one ever to import that module into the app's route graph, which is why the bug was dormant until now. Fixed by deferring the resolution to first real call (lazy, memoized) — runtime behavior is unchanged, confirmed by the same 3 pre-existing `extract.test.ts` failures persisting identically before and after the fix (i.e. the fix didn't change extraction behavior, only build-time evaluation timing).
+- **Fix rounds / escalations:** 0 within the executor pipeline (T1/T2a/T2b/T3 all passed on first attempt). 1 direct Claude fix (the `extract.ts` build bug, found and fixed by Claude during final verification, outside the executor loop).
+- **Models used:** Planning/orchestration + T1 (prompt authoring) + the `extract.ts` build fix: Claude Sonnet 5 (claude-sonnet-5). T2a/T2b/T3: cursor-grok-4.6-high. No escalations.
+- **Claude direct fixes:** `src/server/cv/extract.ts` — lazy pdfjs-dist path resolution (see Deviations #3). This is a genuine bug fix to already-merged code, not part of this Story's own scope, done because it blocked a required verification command (`npm run build`).
+- **Follow-ups:** (1) `jd-upload.spec.ts`/`job-form.spec.ts`/`jobs.spec.ts` (6 tests) need CI or local Supabase + seed data to actually execute. (2) The duplicated client-side Zod schema in `JobForm.tsx` should be reconciled with `extract-jd`'s server-only schema — consider a shared non-server-only type/schema file if this pattern recurs. (3) The `src/server/cv/extract.ts` fix should be verified again once CI runs a real `npm run test:e2e` against a seeded environment, to confirm no runtime regression in actual PDF parsing (only build-time behavior was changed; unit tests already confirm no change to parsing results). (4) The `CLAUDE.md`/desktop-only-practice inconsistency (flagged in #218, reiterated in #221) still applies here and remains unresolved.
