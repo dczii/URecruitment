@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `feat/27-ci-pr-checks`, stacked on `feat/26-supabase-client-wiring` ([PR #194](https://github.com/dczii/URecruitment/pull/194)) |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -38,13 +38,14 @@ A guard that runs only on a developer's laptop is a guard that will eventually n
   `npm ci` with the npm cache; lint → typecheck → unit tests → build; `permissions: contents: read`;
   a concurrency group that cancels superseded runs; a job summary. No secret.
 - **#91 — `.github/workflows/db.yml`:** path-filtered on `supabase/**` and `src/server/db*`; starts
-  an ephemeral local Supabase; applies every migration from scratch; **applies them a second time**
-  to catch a non-idempotent migration; exports the stack's values and runs `npm run test:db`; and
-  checks the **committed generated types match the schema**, which is the half of #87 that no machine
-  has yet proved.
-- **#90 — `.github/workflows/e2e.yml`:** `deployment_status`; both Playwright projects against
-  `deployment_status.target_url`; the report uploaded as an artifact on failure only; skips with a
-  `::notice::` when there is no preview **or no bypass secret**.
+  an ephemeral local Supabase; applies every migration from scratch (`supabase db reset`); exports
+  the stack's values and runs `npm run test:db`; and checks the **committed generated types match
+  the schema**, which is the half of #87 that no machine had yet proved.
+- **#90 — `.github/workflows/e2e.yml`:** `deployment_status` on **Preview** deployments only; both
+  Playwright projects against `deployment_status.target_url`; the report uploaded as an artifact on
+  failure only; skips with a `::notice::` when there is no preview **or no bypass secret**. A
+  Playwright global setup (`e2e/global-setup.ts`) swaps the bypass secret for Vercel's cookie so no
+  test sends the secret.
 
 **Out of scope**
 
@@ -58,26 +59,39 @@ A guard that runs only on a developer's laptop is a guard that will eventually n
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given a pull request, when CI runs, then lint, typecheck, unit tests and build all
-  report status on the PR. _Proved by:_ the actual run on this PR, linked in the verification log.
-- [ ] **AC2** — Given a pull request that changes a migration, when CI runs, then the migrations are
-  applied to an ephemeral local Supabase and the DB integration tests run. _Proved by:_ the `db.yml`
-  run on this PR, which touches `supabase/**`. **This is the first time the local stack has run
-  anywhere** (Assumption A2), so it is also the first real proof of #26's AC1, AC3 and AC4.
+- [x] **AC1** — Given a pull request, when CI runs, then lint, typecheck, unit tests and build all
+  report status on the PR. _Proved by:_ `checks` green on #196 at `f1c3e83`
+  ([run 35295639869](https://github.com/dczii/URecruitment/actions/runs/35295639869)), about 1 minute, with no `.env.local` and no secrets.
+- [x] **AC2** — Given a pull request that changes a migration, when CI runs, then the migrations are
+  applied to an ephemeral local Supabase and the DB integration tests run. _Proved by:_ `db` green on
+  #196 at `f1c3e83` ([run 35295639848](https://github.com/dczii/URecruitment/actions/runs/35295639848)). This was the first time the local stack ran
+  anywhere (A2), and it surfaced four real defects that are fixed on this branch (A10–A12). With no
+  tables yet the RLS harness registers zero tests, so its teeth are proved by the AC5 probe instead.
 - [ ] **AC3** — Given a Vercel preview is ready, when the Playwright job runs, then it tests the
   preview URL at both desktop and phone width. _Proved by:_ the `e2e.yml` run. **It will skip on this
   PR** because previews are SSO-protected and no bypass secret exists (Assumption A3); the skip is
   itself AC4's evidence, and the job is proved end to end once the user adds the secret.
-- [ ] **AC4** — Given a workflow needs a secret, when it runs on a fork or without that secret, then
-  the job is skipped with a clear message rather than failing. _Proved by:_ the `e2e.yml` run on this
-  PR reporting `::notice::` and exiting 0.
-- [ ] **AC5** (#91) — A deliberately broken migration fails the job. _Proved by:_ a scratch commit
-  pushed to a throwaway branch, the failing run linked, and the commit removed. Recorded in the
-  verification log.
-- [ ] **AC6** (#91) — CI proves the committed `src/lib/database.types.ts` matches the schema.
-  _Proved by:_ the `db.yml` step running `npm run db:types` and `git diff --exit-code`.
-- [ ] **AC7** (#89) — The workflow needs no repository secret and uses least-privilege permissions.
-  _Proved by:_ `permissions: contents: read` in the file, no `secrets.` reference, and the green run.
+- [x] **AC4** — Given a workflow needs a secret, when it runs on a fork or without that secret, then
+  the job is skipped with a clear message rather than failing. _Proved by:_ every `e2e` run on #196
+  before the secret existed, e.g. [run 35294013637](https://github.com/dczii/URecruitment/actions/runs/35294013637): `##[notice]e2e skipped:
+  VERCEL_AUTOMATION_BYPASS_SECRET is not set…`, job green. All three gate paths (no URL, no secret,
+  ready) were also run locally against the extracted step script.
+- [x] **AC5** (#91) — A deliberately broken migration fails the job. _Proved by:_ throwaway draft
+  PR #197 (closed, branch deleted):
+  - a table with no RLS and no revoke → `db` red: the RLS harness fails with *"anon holds SELECT on
+    public.probe_unprotected"* and the types check fails on drift
+    ([run 35295876235](https://github.com/dczii/URecruitment/actions/runs/35295876235)); `checks` red on the migration lint's `missing-rls` and
+    `missing-revoke` ([run 35295876232](https://github.com/dczii/URecruitment/actions/runs/35295876232));
+  - invalid SQL → `db` red at `supabase start`: *syntax error at or near "tabel"*
+    ([run 35296140031](https://github.com/dczii/URecruitment/actions/runs/35296140031)).
+- [x] **AC6** (#91) — CI proves the committed `src/lib/database.types.ts` matches the schema.
+  _Proved by:_ the `db` step `npm run db:types:check` (`scripts/db-types.sh --check`: generates to a
+  temp file, fails on an empty file, `diff -u` against the committed file). It failed on the
+  hand-written #87 copy, then passed once the generated file was committed
+  ([run 35295639848](https://github.com/dczii/URecruitment/actions/runs/35295639848)).
+- [x] **AC7** (#89) — The workflow needs no repository secret and uses least-privilege permissions.
+  _Proved by:_ `permissions: contents: read` and no `secrets.` reference in `pr-checks.yml`,
+  `persist-credentials: false` on checkout, and the green run with an empty repository secret list.
 
 ## Guardrails that apply
 
@@ -118,7 +132,7 @@ None. Three workflow files and one `package.json` script (`db:types:check`).
   is where they are finally exercised: the `supabase start` round trip, the generated-types check,
   and the RLS harness against a real database. If any of them is wrong, this PR is where it surfaces
   — which is the point, and why #91 is sequenced before #90 rather than after.
-- **A3 — `e2e.yml` will skip on this PR, and that is the expected result.** Vercel Authentication is
+- **A3 — `e2e.yml` skips on this PR, and that is the expected result.** Vercel Authentication is
   **on** for previews (verified: a preview URL answers `302 → vercel.com/sso-api`), so Playwright
   would hit a login page rather than the app. `VERCEL_AUTOMATION_BYPASS_SECRET` is the documented way
   through, and the repository has **no** Actions secrets set today. The job therefore checks for the
@@ -135,8 +149,39 @@ None. Three workflow files and one `package.json` script (`db:types:check`).
   use major tags. The only third-party action needed is the Supabase CLI setup in `db.yml`.
 - **A7 — Branch protection is recommended, not applied.** `ci-setup`: *"Agents don't change repo
   settings."* The PR lists the checks worth marking required once they are green on `main`.
-- **A8 — `db.yml` applies migrations twice** to catch a non-idempotent migration, which #91 asks for.
-  With zero migrations today that is trivially satisfied; it starts meaning something in E03.
+- **A8 — Migrations are proved replayable from scratch, not idempotent.** #91 asks for a check that
+  the set "applies cleanly twice in a row *where the project requires idempotency*". The project
+  doesn't: `supabase-db` requires migrations to be *"re-runnable on a fresh database, and `supabase
+  db reset` must succeed"*. A second `db reset` recreates the database, so it only replays what the
+  first proved, and it was dropped after review. #91's "not reversible" can't be checked either,
+  because Supabase migrations have no down step.
+- **A9 — No traces against the preview (deviation from #90).** #90 asks for traces and the HTML
+  report as failure artifacts. Traces record request headers and cookies, and artifacts on a public
+  repository can be downloaded by anyone, so against a protected preview they would carry the bypass
+  credential. `security-check` treats any secret exposure as blocking, so there the job keeps
+  screenshots and the report. Traces are still on for local runs.
+- **A10 — Supabase CLI 2.117.0 in CI.** 2.106.0 (the first pin, and the Homebrew version on the
+  development machine) asks for a Supabase access token on `gen types` even with `--local`, which
+  failed the first `db.yml` run. 2.117.0 doesn't. Developers running `npm run db:types` locally need
+  2.117.0 or later too.
+
+- **A11 — The DB job runs the local auth container.** `config.toml` disables `[auth]` (no sign-in
+  in the MVP), and `supabase status` only prints the publishable key while GoTrue is running, so the
+  RLS harness could never get the key #26 said to export. `db.yml` sets `SUPABASE_AUTH_ENABLED=true`
+  for its own job only. `config.toml` is unchanged, the app never runs in that job, and the
+  `anon`/`authenticated` roles under test exist either way. The harness's setup hint says the same
+  for local runs.
+- **A12 — Defects from #26 fixed here** (all found by the first real `db.yml` run, all inside this
+  story's CI scope):
+  - the committed `database.types.ts` was hand-written and differed from generator output;
+  - `npm run db:types` wrote raw CLI output without the header `database.types.test.ts` requires, so
+    regenerating would have broken `npm test`, and a failed generation truncated the file;
+  - the harness's env instructions could not work with auth disabled (A11).
+  One script, `scripts/db-types.sh`, now builds the file the same way for `db:types` and
+  `db:types:check`.
+- **A1 update — the orchestrator now says one PR per story.** At the user's request (2026-09-18),
+  [PR #195](https://github.com/dczii/URecruitment/pull/195) changes `urec-orchestrator` to match
+  this PR's shape, so A1 is no longer a deviation once #195 merges.
 
 ## Open questions
 
