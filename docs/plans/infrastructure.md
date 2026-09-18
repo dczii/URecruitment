@@ -400,8 +400,8 @@ traffic after each recruiter session. Repeated 429s during normal work mean the 
    budget the agency director approves. The figure is not set here; it comes with the provider
    choice. If the provider offers only alerts and no hard limit, say so in this section and in
    ADR-0004. The app-side cap and the rate limit are then the only hard stops.
-2. **Set `AI_MONTHLY_SPEND_CAP`** in Vercel *Preview* and *Production* ([matrix](#what-is-set-where-92))
-   **at or below** the provider limit. The app then refuses with a clear message first, and the
+2. **Set `AI_MONTHLY_SPEND_CAP`** in every Vercel environment the [matrix](#what-is-set-where-92)
+   marks ✓, **at or below** the provider limit. The app then refuses with a clear message first, and the
    provider limit only acts as the backstop.
 3. **Record here** the date, the provider, and whether its limit is hard or alert-only. Never record a
    key or a billing URL with an account id.
