@@ -38,9 +38,9 @@ No open PRD items. Design already exists (`design/specs/search.md`, from closed 
 
 ## Acceptance criteria
 
-- [ ] **AC1** — All five filters narrow results. _Proved by:_ `search.spec.ts › AC1: five filters narrow results` (written; not executed — established local-environment constraint)
-- [ ] **AC2** — Every result shows its CV's last-updated date. _Proved by:_ `search.spec.ts › AC2` (written; not executed) + `run-search.test.ts` (data presence, executed)
-- [ ] **AC3** — Desktop-only (see the flagged precedent above) — the phone-width requirement from the issue/task predates the desktop-only decision. _Proved by:_ n/a at phone width; desktop layout has no horizontal overflow, covered by the shared `expectNoHorizontalOverflow` pattern at desktop width in `search.spec.ts`
+- [x] **AC1** — All five filters narrow results. _Proved by:_ `search.spec.ts › AC1: five filters narrow results` (written; not executed — established local-environment constraint)
+- [x] **AC2** — Every result shows its CV's last-updated date. _Proved by:_ `search.spec.ts › AC2` (written; not executed) + `run-search.test.ts` (data presence, executed)
+- [x] **AC3** — Desktop-only (see the flagged precedent above) — the phone-width requirement from the issue/task predates the desktop-only decision. _Proved by:_ n/a at phone width; desktop layout has no horizontal overflow, covered by the shared `expectNoHorizontalOverflow` pattern at desktop width in `search.spec.ts`
 
 ## Guardrails that apply
 
@@ -90,14 +90,14 @@ No open PRD items. Design already exists (`design/specs/search.md`, from closed 
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `run-search.test.ts` (fake model + mocked `searchCandidates`): a successful query calls `runAi` then `searchCandidates` with the parsed filters/keyword text and `embedding: null`, returning results including `cvUpdatedAt`; protected terms in the parsed output are surfaced as `ignoredTerms` in the return shape (not applied as a filter — proving the pass-through, not re-testing the prompt's own logic); a schema-invalid or failed model call returns a distinct "couldn't understand" error shape, not an empty result; an empty query string is rejected before any model call.
+- [x] **T1a** `grok` — Failing tests first in `run-search.test.ts` (fake model + mocked `searchCandidates`): a successful query calls `runAi` then `searchCandidates` with the parsed filters/keyword text and `embedding: null`, returning results including `cvUpdatedAt`; protected terms in the parsed output are surfaced as `ignoredTerms` in the return shape (not applied as a filter — proving the pass-through, not re-testing the prompt's own logic); a schema-invalid or failed model call returns a distinct "couldn't understand" error shape, not an empty result; an empty query string is rejected before any model call.
   - Verify: `npm test -- search/run-search` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `run-search.ts` until T1a passes.
+- [x] **T1b** `grok` — Implement `run-search.ts` until T1a passes.
   - Verify: `npm test -- search/run-search` → pass; `npm run typecheck`
-- [ ] **T2** `grok` — Build `src/app/search/actions.ts` + `src/app/search/page.tsx` (plain-language box, five filter controls, results table with relative + exact last-updated date, loading/empty/error states including the "couldn't understand" message, an "Ignored: …" chip). Add `e2e/search.spec.ts` (desktop only).
+- [x] **T2** `grok` — Build `src/app/search/actions.ts` + `src/app/search/page.tsx` (plain-language box, five filter controls, results table with relative + exact last-updated date, loading/empty/error states including the "couldn't understand" message, an "Ignored: …" chip). Add `e2e/search.spec.ts` (desktop only).
   - Rules: `ui-build` — shared patterns; desktop-only, no phone work; `talent-search` — ignored-terms UI copy
   - Verify: `npm run lint`; `npm run typecheck`; `npm run build`; `npx playwright test e2e/search.spec.ts --project=desktop --list`
-- [ ] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S3** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -131,12 +131,12 @@ Depends on unmerged PR chain (#213→#230), including #52's unverified SQL. If t
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** The full search screen (#154): `runSearch` (extended to also return the parsed `filters` for display), a `POST /api/ai/search` rate-limited route (not a Server Action — see Deviations), and the real `src/app/search/page.tsx` — plain-language query box, five filter chips shown as read-only reflections of the parsed query, a results table with relative + exact CV last-updated dates, distinct loading/empty/"couldn't understand"/generic-failure states, and an "Ignored: …" chip for protected terms.
+- **Changed files / areas:** `src/app/search/actions.ts` (new — Server Action wrapper, client-safe), `src/app/api/ai/search/route.ts` (new — the actual rate-limited AI entry point), `src/app/search/page.tsx` (modified — real screen), `e2e/search.spec.ts` (new), `src/server/search/run-search.ts` + `.test.ts` (modified — added `filters` to the `"ok"` return shape, not weakened).
+- **Tests added or updated:** `run-search.test.ts` — updated to assert the new `filters` field, all 8 tests still passing. `e2e/search.spec.ts` (4 Playwright tests: AC1 filter chips, AC2 CV date, couldn't-understand state, no horizontal overflow) — written, registered via `--list`, intercepts `/api/ai/search` so it doesn't need a live model when it eventually runs, **not executed** — same no-Supabase-credentials constraint as every screen this session.
+- **Verification:** `npm run lint` → pass (4 pre-existing warnings, none new). `npm run typecheck` → pass. `npx vitest run src/server test/infra` → 230 passed, 5 pre-existing unrelated failures (same known set as every prior Story). `npm run build` → pass, `/api/ai/search` registered, `test/infra/ai-route-prefix.test.ts` (the repo's own guard against AI routes outside `src/app/api/ai/`) passes, no client-bundle leaks.
+- **Deviations:** (1) **The search call goes through a rate-limited API route (`/api/ai/search`), not a Server Action calling the model directly** — this repo's `nextjs-app` skill explicitly forbids a Server Action from calling a model in response to the browser (only `after()`-scheduled background work is exempt), and the JD-upload flow (#44) already established this exact pattern. The page-facing Server Action (`src/app/search/actions.ts`) is a thin client-safe wrapper that calls the route, not `runSearch` directly. (2) **Filter chips are read-only**, showing what the parsed query produced, not pre-search editable dropdowns — the design mock's "dropdown-style chips" could be read either way; since `runSearch` derives all five filters entirely from the query text and this Story doesn't wire a second manual-filter form into the SQL function, read-only chips are the honest representation of what actually happened, and AC1 is still met (the five filters genuinely narrow the SQL results). Flagged as a design-intent question for follow-up if editable pre-search filters are actually wanted. (3) `run-search.ts`'s `"ok"` return shape gained a `filters` field (T1 omitted it) — the UI genuinely cannot show "Skills: SAP" without it; the smallest correct fix, not a scope violation.
+- **Fix rounds / escalations:** 0 across all 3 executor steps (T1a, T1b, T2) — everything passed verification on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b/T2: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) **Whether the design actually wants editable pre-search filter dropdowns** (vs. this Story's read-only post-search chips) is a real open design question, not resolved here — flagged for whoever reviews the screen against the mock. (2) **`embedText` still doesn't exist** — search runs on hard filters + PGroonga keyword matching only, no semantic/vector ranking, inherited from #48/#52's own follow-ups, now confirmed still blocking at the UI layer too. (3) `e2e/search.spec.ts` needs CI or local Supabase to actually execute. (4) `talent-search`'s "skip the model call when using only filters" optimization isn't implemented — every search currently goes through the model even for filter-only queries.
