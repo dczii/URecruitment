@@ -24,6 +24,13 @@ concurrency:
 jobs:
   db:
     runs-on: ubuntu-latest
+    env:
+      # config.toml disables [auth] (no sign-in in the MVP). `supabase status`
+      # only prints the publishable key while the auth container runs, and the
+      # RLS harness needs that key to query as `anon`. Run it here only; the
+      # app never runs in this job, and the anon/authenticated roles under
+      # test exist either way.
+      SUPABASE_AUTH_ENABLED: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,10 +66,7 @@ jobs:
           # Map `supabase status -o env` onto the names the RLS harness reads.
           # Parsed rather than eval'd, and values are never printed (the dump
           # includes JWT material). On a miss, print the variable names only.
-          # `[auth]` is disabled in config.toml (no sign-in in the MVP), so the
-          # CLI omits the keys. They derive from the JWT secret either way;
-          # enabling auth for this one read reveals them without starting GoTrue.
-          status_env="$(SUPABASE_AUTH_ENABLED=true supabase status -o env)" || {
+          status_env="$(supabase status -o env)" || {
             echo "db.yml: \`supabase status -o env\` exited non-zero" >&2
             exit 1
           }
