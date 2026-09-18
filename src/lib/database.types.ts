@@ -259,11 +259,13 @@ export type Database = {
       }
       cv_files: {
         Row: {
+          attempt_count: number
           candidate_id: string | null
           created_at: string
           doc_kind: string
           id: string
           language: string | null
+          last_attempted_at: string | null
           parse_error: string | null
           parse_status: string
           source: string
@@ -272,11 +274,13 @@ export type Database = {
           storage_path: string
         }
         Insert: {
+          attempt_count?: number
           candidate_id?: string | null
           created_at?: string
           doc_kind: string
           id?: string
           language?: string | null
+          last_attempted_at?: string | null
           parse_error?: string | null
           parse_status?: string
           source?: string
@@ -285,11 +289,13 @@ export type Database = {
           storage_path: string
         }
         Update: {
+          attempt_count?: number
           candidate_id?: string | null
           created_at?: string
           doc_kind?: string
           id?: string
           language?: string | null
+          last_attempted_at?: string | null
           parse_error?: string | null
           parse_status?: string
           source?: string
