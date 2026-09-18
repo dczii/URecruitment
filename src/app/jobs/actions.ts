@@ -5,7 +5,15 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { isValidRecruiterName } from "@/lib/recruiter-name";
+import { getModel } from "@/server/ai/provider";
+import { createSupabaseAiRunsWriter } from "@/server/ai/run-supabase";
+import type { AiModel } from "@/server/ai/types";
 import { getDb } from "@/server/db";
+import {
+  type GapCheckFields,
+  type MustHave,
+} from "@/server/gap-check/missing-fields";
+import { runGapCheck } from "@/server/gap-check/run";
 import { jobVersionInputSchema } from "@/server/jobs/schema";
 import { saveJobVersion } from "@/server/jobs/versions";
 
@@ -171,6 +179,7 @@ export async function createJob(input: unknown): Promise<CreateJobResult> {
   }
 
   let jobId: string;
+  let jobVersionId: string;
   try {
     const { data: job, error } = await getDb()
       .from("jobs")
@@ -187,12 +196,94 @@ export async function createJob(input: unknown): Promise<CreateJobResult> {
     }
 
     jobId = job.id;
-    await saveJobVersion(jobId, versionParsed.data);
+    const version = await saveJobVersion(jobId, versionParsed.data);
+    jobVersionId = version.id;
   } catch {
     return { ok: false, error: SAVE_FAILED };
+  }
+
+  try {
+    await runGapCheck({
+      jobVersionId,
+      fields: toGapCheckFields(versionParsed.data.fields),
+      mustHaves: toMustHaves(versionParsed.data.must_haves),
+      formText: buildGapCheckFormText(parsed.data),
+      jdText: null,
+      model: gapCheckModel(),
+      runs: createSupabaseAiRunsWriter(),
+    });
+  } catch {
+    // The job save must succeed even when the gap check fails entirely.
   }
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${jobId}`);
   redirect(`/jobs/${jobId}`);
+}
+
+function toGapCheckFields(fields: Record<string, unknown>): GapCheckFields {
+  return {
+    salary_range: optionalString(fields.salary_range),
+    location: optionalString(fields.location),
+    work_arrangement: optionalString(fields.work_arrangement),
+    employment_type: optionalString(fields.employment_type),
+    headcount: optionalNumber(fields.headcount),
+    start_date: optionalString(fields.start_date),
+    interview_steps: optionalString(fields.interview_steps),
+  };
+}
+
+function toMustHaves(
+  rows: Array<{ text: string; marking: "must_have" | "nice_to_have" }>,
+): MustHave[] {
+  return rows
+    .filter((row) => row.marking === "must_have")
+    .map((row) => ({ text: row.text, marking: "must_have" as const }));
+}
+
+function buildGapCheckFormText(
+  data: z.infer<typeof createJobFormSchema>,
+): string {
+  const lines = [`Title: ${data.title.trim()}`];
+  const requirements = data.requirements
+    .map((row) => row.text.trim())
+    .filter((text) => text.length > 0);
+  if (requirements.length > 0) {
+    lines.push(`Requirements: ${requirements.join("; ")}`);
+  }
+  const nationalityReason = data.nationality_reason?.trim();
+  if (data.requires_nationality && nationalityReason) {
+    lines.push(`Nationality: ${nationalityReason}`);
+  }
+  const languageReason = data.language_reason?.trim();
+  if (data.requires_language && languageReason) {
+    lines.push(`Language: ${languageReason}`);
+  }
+  return lines.join("\n");
+}
+
+function optionalString(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function optionalNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Defer `getModel("gap")` until a method is invoked so a missing
+ * `AI_MODEL_GAP` (provider not chosen yet) cannot skip missing-field flags.
+ */
+function gapCheckModel(): AiModel {
+  return {
+    get modelId() {
+      return getModel("gap").modelId;
+    },
+    get modelVersion() {
+      return getModel("gap").modelVersion;
+    },
+    generateObject(promptText: string) {
+      return getModel("gap").generateObject(promptText);
+    },
+  };
 }
