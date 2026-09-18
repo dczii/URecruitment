@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   aiRouteViolations,
-  collectRouteFiles,
+  collectSourceFiles,
   type SourceFile,
 } from "./ai-route-guard";
 
@@ -128,12 +128,141 @@ describe("AI route prefix guard (AC5)", () => {
   });
 
   it("AC5: every route handler in src/app keeps AI code under /api/ai/", async () => {
-    const files = collectRouteFiles(repoRoot);
+    const files = collectSourceFiles(repoRoot);
     const paths = files.map((entry) => entry.path);
     expect(paths).toContain("src/app/api/sentry-test/route.ts");
     expect(aiRouteViolations(files)).toEqual([]);
 
     const { AI_ROUTE_PREFIX } = await import("@/lib/ai-routes");
     expect("src/app" + AI_ROUTE_PREFIX).toBe("src/app/api/ai/");
+  });
+
+  it("AC5: a handler outside /api/ai/ that imports a service which imports AI is a violation", () => {
+    const violations = aiRouteViolations([
+      file(
+        "src/app/api/search/route.ts",
+        'import { search } from "@/server/services/search";\n',
+      ),
+      file(
+        "src/server/services/search.ts",
+        'import { runAi } from "@/server/ai/run";\n',
+      ),
+    ]);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("src/app/api/search/route.ts");
+    expect(violations[0]).toContain("@/server/services/search");
+  });
+
+  it("AC5: two-hop relative imports that reach AI outside the prefix are a violation", () => {
+    const violations = aiRouteViolations([
+      file(
+        "src/app/api/x/route.ts",
+        'import { a } from "../../../server/services/a";\n',
+      ),
+      file("src/server/services/a.ts", 'import { b } from "./b";\n'),
+      file("src/server/services/b.ts", 'import { generateObject } from "ai";\n'),
+    ]);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("src/app/api/x/route.ts");
+  });
+
+  it("AC5: index.ts resolution of a service that imports AI outside the prefix is a violation", () => {
+    const violations = aiRouteViolations([
+      file(
+        "src/app/api/match/route.ts",
+        'import { match } from "@/server/services/match";\n',
+      ),
+      file(
+        "src/server/services/match/index.ts",
+        'import { openai } from "@ai-sdk/openai";\n',
+      ),
+    ]);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("src/app/api/match/route.ts");
+  });
+
+  it("AC5: the same transitive AI chain under /api/ai/ is allowed", () => {
+    expect(
+      aiRouteViolations([
+        file(
+          "src/app/api/ai/search/route.ts",
+          'import { search } from "@/server/services/search";\n',
+        ),
+        file(
+          "src/server/services/search.ts",
+          'import { runAi } from "@/server/ai/run";\n',
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  it("AC5: a cycle with no AI imported by a route outside the prefix is allowed", () => {
+    expect(
+      aiRouteViolations([
+        file(
+          "src/app/api/cycle/route.ts",
+          'import { a } from "@/server/services/a";\n',
+        ),
+        file("src/server/services/a.ts", 'import { b } from "./b";\n'),
+        file("src/server/services/b.ts", 'import { a } from "./a";\n'),
+      ]),
+    ).toEqual([]);
+  });
+
+  it("AC5: a non-AI service chain outside the prefix is allowed", () => {
+    expect(
+      aiRouteViolations([
+        file(
+          "src/app/api/jobs/route.ts",
+          'import { listJobs } from "@/server/services/jobs";\n',
+        ),
+        file(
+          "src/server/services/jobs.ts",
+          'import { db } from "@/server/db";\n',
+        ),
+        file("src/server/db.ts", "export const db = {};\n"),
+      ]),
+    ).toEqual([]);
+  });
+
+  it("AC5: a route group under /api/ai/ is a violation", () => {
+    const violations = aiRouteViolations([
+      file("src/app/api/ai/(x)/route.ts", "export function GET() { return null; }\n"),
+    ]);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("src/app/api/ai/(x)/route.ts");
+  });
+
+  it("AC5: an optional catch-all at /api/ai is a violation", () => {
+    const violations = aiRouteViolations([
+      file(
+        "src/app/api/ai/[[...slug]]/route.ts",
+        "export function GET() { return null; }\n",
+      ),
+    ]);
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain("src/app/api/ai/[[...slug]]/route.ts");
+  });
+
+  it("AC5: a required catch-all under /api/ai/ is allowed", () => {
+    expect(
+      aiRouteViolations([
+        file(
+          "src/app/api/ai/[...slug]/route.ts",
+          "export function GET() { return null; }\n",
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  it("AC5: a dynamic segment under /api/ai/ is allowed", () => {
+    expect(
+      aiRouteViolations([
+        file(
+          "src/app/api/ai/search/[id]/route.ts",
+          "export function GET() { return null; }\n",
+        ),
+      ]),
+    ).toEqual([]);
   });
 });

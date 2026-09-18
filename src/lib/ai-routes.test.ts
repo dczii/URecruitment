@@ -7,12 +7,12 @@ import {
   isAiRoutePath,
 } from "./ai-routes";
 
-describe("ai-routes (AC6)", () => {
-  it("AC6: AI_ROUTE_PREFIX is /api/ai/", () => {
+describe("ai-routes (AC4, AC6)", () => {
+  it("AC4: AI_ROUTE_PREFIX is /api/ai/", () => {
     expect(AI_ROUTE_PREFIX).toBe("/api/ai/");
   });
 
-  it("AC6: isAiRoutePath is true only for paths under the trailing-slash prefix", () => {
+  it("AC4: isAiRoutePath is true only for paths under the trailing-slash prefix", () => {
     expect(isAiRoutePath("/api/ai/search")).toBe(true);
     expect(isAiRoutePath("/api/ai/jobs/123/gap-check")).toBe(true);
 
