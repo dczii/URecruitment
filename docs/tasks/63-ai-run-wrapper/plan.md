@@ -39,9 +39,9 @@ No open PRD items are touched by this task.
 
 ## Acceptance criteria
 
-- [ ] **AC1** — Given any AI call, when it completes or fails, then a row in `ai_runs` records input ref, model + version, prompt version, output, cost and duration. _Proved by:_ `run.test.ts › writes ai_runs row on success` and `› writes ai_runs row on provider error`
-- [ ] **AC2** — Given an AI output, when it is stored, then it was schema-validated first. _Proved by:_ `run.test.ts › rejects schema-invalid output and still logs a failed run`
-- [ ] **AC3** — Given a new AI call added outside `runAi`, when tests run, then it is caught. _Proved by:_ `run.test.ts › fails if a model call bypasses runAi`
+- [x] **AC1** — Given any AI call, when it completes or fails, then a row in `ai_runs` records input ref, model + version, prompt version, output, cost and duration. _Proved by:_ `run.test.ts › writes ai_runs row on success` and `› writes ai_runs row on provider error`
+- [x] **AC2** — Given an AI output, when it is stored, then it was schema-validated first. _Proved by:_ `run.test.ts › rejects schema-invalid output and still logs a failed run`
+- [x] **AC3** — Given a new AI call added outside `runAi`, when tests run, then it is caught. _Proved by:_ `no-bypass.test.ts › fails if a model call bypasses runAi`
 
 ## Guardrails that apply
 
@@ -86,13 +86,13 @@ One thin wrapper function around the Vercel AI SDK's `generateObject`-style call
 
 ## Steps
 
-- [ ] **S1a** `grok` — Write failing tests in `src/server/ai/run.test.ts` using a fake model: valid call writes a complete `ai_runs` row; schema-invalid response is rejected and still writes a failed run; provider error writes a failed run with its reason; cost and duration are always recorded. Also write `src/server/ai/no-bypass.test.ts` asserting no file under `src/server/**` other than `src/server/ai/**` imports the AI SDK directly.
+- [x] **S1a** `grok` — Write failing tests in `src/server/ai/run.test.ts` using a fake model: valid call writes a complete `ai_runs` row; schema-invalid response is rejected and still writes a failed run; provider error writes a failed run with its reason; cost and duration are always recorded. Also write `src/server/ai/no-bypass.test.ts` asserting no file under `src/server/**` other than `src/server/ai/**` imports the AI SDK directly.
   - Rules: `testing` — test-first for logic, no network in unit tests; `ai-pipeline` — ai_runs must record input ref/model/version/prompt version/cost/duration on success and failure
-  - Verify: `npm test -- ai` → fails because `run.ts`/`fake-model.ts` don't exist yet
-- [ ] **S1b** `grok` — Implement `src/server/ai/run.ts`, `src/server/ai/fake-model.ts`, `src/server/ai/provider.ts` until S1a passes.
+  - Verify: `npm test -- ai` → failed as expected (missing modules)
+- [x] **S1b** `grok` — Implement `src/server/ai/run.ts`, `src/server/ai/fake-model.ts`, `src/server/ai/provider.ts` until S1a passes.
   - Rules: `ai-pipeline` — provider-agnostic via Vercel AI SDK, schema-validate with Zod before returning, log failures too; `security-check` — server-only, no secret key exposed to client bundle
-  - Verify: `npm test -- ai` → pass; `npm run typecheck`
-- [ ] **S2** `none` — Full verification until green, then close out docs. Do not run `pr-review`.
+  - Verify: `npm test -- ai` → pass (43/43); `npm run typecheck` → pass
+- [x] **S2** `none` — Full verification until green, then close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -124,12 +124,12 @@ Low risk: net-new server module, no existing caller to break. Rollback is deleti
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** `runAi` — the shared, provider-agnostic AI call wrapper with Zod validation and `ai_runs` logging on success and failure, plus a static bypass guard. This unblocks CV parsing (#126/#127), JD extraction (#138), gap-check (#141), embeddings (#145), matching (#146) and search-query parsing (#152).
+- **Changed files / areas:** `src/server/ai/run.ts`, `src/server/ai/fake-model.ts`, `src/server/ai/provider.ts`, `src/server/ai/types.ts`, `src/server/ai/run.test.ts`, `src/server/ai/no-bypass.test.ts`.
+- **Tests added or updated:** `run.test.ts` (success logging, schema-invalid rejection + failed row, provider error + failed row, cost/duration always recorded), `no-bypass.test.ts` (static guard against AI SDK imports outside `src/server/ai/**`).
+- **Verification:** `npm test -- ai` → 43/43 pass. `npm run lint` → 0 errors (1 pre-existing unrelated warning in `supabase/migration-lint.ts`). `npm run typecheck` → pass. Full `npm test` shows 5 pre-existing failures in `src/server/cv/extract.test.ts`, confirmed present on `main` before this branch — unrelated to this task, not introduced by it.
+- **Deviations:** `runAi` takes an injectable `runs: AiRunsWriter` and `model: AiModel` (not just `{prompt, schema, inputRef, model}`) so unit tests never touch Supabase or a network provider — required to satisfy "no network in unit tests". Failure mode is throw-after-logging, one of two options the plan allowed. Vercel AI SDK (`ai` package) is not yet in `package.json`; per ADR-0003 (#73) no provider is chosen, so `provider.ts` is a stub with the one-file swap point reserved for when a provider is picked — it imports no vendor SDK.
+- **Fix rounds / escalations:** 0 — both steps passed on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). Executor S1a: cursor-grok-4.6-high. Executor S1b: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** Choosing an AI provider (still open per ADR-0003) will require implementing the real call inside `provider.ts` only — no other file should need to change. The pre-existing `src/server/cv/extract.test.ts` failures (missing/mismatched `avgCharsPerPage` on scanned-file detection) are unrelated to this task and should be tracked separately against Story #38.
