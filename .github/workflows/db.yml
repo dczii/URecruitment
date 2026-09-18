@@ -1,0 +1,125 @@
+# Migration + RLS checks against an ephemeral local Supabase stack.
+# This job never reaches a remote project: no `supabase link`, no
+# `supabase db push`, and no `--project-id` / `--linked`.
+name: DB
+
+on:
+  pull_request:
+    paths:
+      - supabase/**
+      - src/server/db*
+      - src/server/db/**
+      - src/lib/database.types.ts
+      - scripts/db-types.sh
+      - vitest.db.config.ts
+      - .github/workflows/db.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+    env:
+      # config.toml disables [auth] (no sign-in in the MVP). `supabase status`
+      # only prints the publishable key while the auth container runs, and the
+      # RLS harness needs that key to query as `anon`. Run it here only; the
+      # app never runs in this job, and the anon/authenticated roles under
+      # test exist either way.
+      SUPABASE_AUTH_ENABLED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
+        with:
+          # 2.106.0 demands a Supabase access token for `gen types` even with
+          # --local; 2.117.0 does not.
+          version: 2.117.0
+
+      - name: Start local stack
+        run: supabase start
+
+      - name: Apply migrations from scratch
+        id: reset
+        run: supabase db reset --local --no-seed
+
+      - name: DB integration tests
+        run: |
+          set -euo pipefail
+          # Map `supabase status -o env` onto the names the RLS harness reads.
+          # Parsed rather than eval'd, and values are never printed (the dump
+          # includes JWT material). On a miss, print the variable names only.
+          status_env="$(supabase status -o env)" || {
+            echo "db.yml: \`supabase status -o env\` exited non-zero" >&2
+            exit 1
+          }
+          value() {
+            printf '%s\n' "$status_env" | sed -n -E "s/^(export )?$1=\"?([^\"]*)\"?\$/\2/p" | head -n 1
+          }
+          export SUPABASE_URL="$(value API_URL)"
+          export SUPABASE_DB_URL="$(value DB_URL)"
+          export SUPABASE_PUBLISHABLE_KEY="$(value PUBLISHABLE_KEY)"
+          if [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            export SUPABASE_PUBLISHABLE_KEY="$(value ANON_KEY)"
+          fi
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_DB_URL" ] || [ -z "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "db.yml: supabase status did not provide API_URL, DB_URL and a publishable/anon key" >&2
+            echo "Lines: $(printf '%s\n' "$status_env" | wc -l). Names seen:" >&2
+            printf '%s\n' "$status_env" | grep -oE '^(export )?[A-Za-z_][A-Za-z0-9_]*=' >&2 || echo "(none)" >&2
+            exit 1
+          fi
+          npm run test:db
+
+      # Runs even when the DB tests fail, so one push reports both signals.
+      - name: Generated types match schema
+        if: ${{ !cancelled() && steps.reset.outcome == 'success' }}
+        env:
+          DB_TYPES_GENERATED_OUT: ${{ runner.temp }}/database.types.ts
+        run: npm run db:types:check
+
+      # Schema-only output, no data or secrets. Lets a machine without Docker
+      # fix drift by committing this file.
+      - name: Upload generated types
+        if: ${{ failure() && steps.reset.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: ${{ runner.temp }}/database.types.ts
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Stop local stack
+        if: ${{ always() }}
+        run: supabase stop
+
+      - name: Job summary
+        if: ${{ always() }}
+        run: |
+          {
+            echo "## DB checks"
+            echo
+            echo "Migrations applied:"
+            echo
+            if [ -d supabase/migrations ] && [ -n "$(ls -A supabase/migrations 2>/dev/null)" ]; then
+              ls -1 supabase/migrations | sed 's/^/- /'
+            else
+              echo "- (none yet)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
