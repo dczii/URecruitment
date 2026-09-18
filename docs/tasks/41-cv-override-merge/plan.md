@@ -38,11 +38,11 @@ No open PRD items. No design work in this task (that's #133, deferred).
 
 Story #41's own AC1–3 require the edit UI (#133, blocked). This task proves #132's own Done-when list:
 
-- [ ] **T132-AC1** — An override survives a re-parse. _Proved by:_ `overrides.test.ts › override survives a re-parse`
-- [ ] **T132-AC2** — A re-parse updates an un-overridden field. _Proved by:_ `overrides.test.ts › re-parse updates an un-overridden field`
-- [ ] **T132-AC3** — Clearing an override falls back to the parsed value. _Proved by:_ `overrides.test.ts › clearing an override falls back to the parsed value`
-- [ ] **T132-AC4** — The merge never loses the original parsed value (it's still readable even when overridden). _Proved by:_ `overrides.test.ts › merge retains the original parsed value alongside an override`
-- [ ] **T132-AC5** — Every override records the typed recruiter name and the time. _Proved by:_ `overrides.test.ts › records typed name and timestamp on an override`
+- [x] **T132-AC1** — An override survives a re-parse. _Proved by:_ `overrides.test.ts › override survives a re-parse`
+- [x] **T132-AC2** — A re-parse updates an un-overridden field. _Proved by:_ `overrides.test.ts › re-parse updates an un-overridden field`
+- [x] **T132-AC3** — Clearing an override falls back to the parsed value. _Proved by:_ `overrides.test.ts › clearing an override falls back to the parsed value`
+- [x] **T132-AC4** — The merge never loses the original parsed value (it's still readable even when overridden). _Proved by:_ `overrides.test.ts › merge retains the original parsed value alongside an override`
+- [x] **T132-AC5** — Every override records the typed recruiter name and the time. _Proved by:_ `overrides.test.ts › records typed name and timestamp on an override`
 
 ## Guardrails that apply
 
@@ -85,13 +85,13 @@ Story #41's own AC1–3 require the edit UI (#133, blocked). This task proves #1
 
 ## Steps
 
-- [ ] **T1a** `grok` — Failing tests first in `overrides.test.ts`: override survives re-parse; re-parse updates an un-overridden field; clearing an override falls back to parsed; merge retains the original parsed value; override records typed name + timestamp.
+- [x] **T1a** `grok` — Failing tests first in `overrides.test.ts`: override survives re-parse; re-parse updates an un-overridden field; clearing an override falls back to parsed; merge retains the original parsed value; override records typed name + timestamp.
   - Rules: `testing` — test-first, mock `../db`; `compliance-review` — typed name required on every override
   - Verify: `npm test -- overrides` → fails (module missing)
-- [ ] **T1b** `grok` — Implement `overrides.ts` (`mergeProfile`, `setOverride`, `clearOverride`) until T1a passes.
+- [x] **T1b** `grok` — Implement `overrides.ts` (`mergeProfile`, `setOverride`, `clearOverride`) until T1a passes.
   - Rules: `supabase-db` — server-only, existing columns, no new migration unless proven necessary
   - Verify: `npm test -- overrides` → pass; `npm run typecheck`
-- [ ] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
+- [x] **S2** `none` — Full verification, close out docs. Do not run `pr-review`.
 
 ## Test plan
 
@@ -121,12 +121,12 @@ Depends on unmerged PR chain (#213/#214/#216). Net-new module; rollback is delet
 
 ## Outcome
 
-- **Shipped:**
-- **Changed files / areas:**
-- **Tests added or updated:**
-- **Verification:**
-- **Deviations:**
-- **Fix rounds / escalations:**
-- **Models used:**
-- **Claude direct fixes:**
-- **Follow-ups:**
+- **Shipped:** #132 only — `mergeProfile` (recruiter override always wins, original parsed value stays visible), `setOverride`/`clearOverride` with typed-name + timestamp audit. **#133 (edit UI) was not built** — it stays blocked on #134 (Story #42's base profile screen, not yet built). Story #41's issue and #133 stay open.
+- **Changed files / areas:** `src/server/cv/overrides.ts` + `.test.ts` (new). No migration needed — existing `candidate_profiles.overrides`/`overridden_by`/`overridden_at` columns (#110) were sufficient.
+- **Tests added or updated:** `overrides.test.ts` — override survives a re-parse, re-parse updates an un-overridden field, clearing an override falls back to parsed, the merge retains the original parsed value, and an override records typed name + timestamp.
+- **Verification:** `npm run lint` → pass (1 pre-existing unrelated warning). `npm run typecheck` → pass. `npx vitest run src/server/ai src/server/cv` → 43 passed, 3 pre-existing unrelated `extract.test.ts` failures (already tracked against Story #38).
+- **Deviations:** none.
+- **Fix rounds / escalations:** 0 — both steps passed on first attempt.
+- **Models used:** Planning/orchestration: Claude Sonnet 5 (claude-sonnet-5). T1a/T1b: cursor-grok-4.6-high. No escalations, no direct Claude fixes.
+- **Claude direct fixes:** none.
+- **Follow-ups:** (1) **#133 remains blocked** — build it once Story #42 ships #134 (base candidate-profile screen). (2) Story #41's GitHub issue stays open; this PR closes #132 only.
