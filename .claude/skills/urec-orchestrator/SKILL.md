@@ -39,16 +39,18 @@ Run straight through from intake to an open PR. **Don't** stop to ask "shall I p
 
 Record every other judgment call under **Assumptions** in `spec.md`, then keep going.
 
-## Story workflow: one Task, one PR
+## Story workflow: one Story, one PR
 
-A Story is a tracking container, never an implementation unit:
+A Story is the unit of delivery. Its Tasks are the units of work inside it:
 
-- When creating a Story, decompose its implementation into Task sub-issues before writing code. Each Task must be independently reviewable and must run through Steps 2–10 with its own spec, plan, branch, commits and PR containing `Closes #<task>`.
-- When the input is a Story, process every open Task sub-issue in dependency order. Do not combine multiple Tasks into one branch or PR, and do not open an implementation PR that closes the Story itself.
-- A Task is not considered delivered merely because its commits appear in another Task's diff. Every Task must have its own open PR.
-- Task PRs may be **stacked** when waiting for an earlier Task to merge would block progress. Branch the dependent Task from its immediate predecessor and set that predecessor's branch as the PR base. State the stack order and dependency in every affected PR body.
-- A stacked PR still closes only its own Task. After its predecessor merges, rebase or merge `main` into the branch as appropriate, retarget the PR to `main`, and verify that its diff contains only that Task.
-- Never merge the stack. Human reviewers merge from the bottom of the stack upward. The Story is complete only after all Task PRs are merged and all Task sub-issues are closed.
+- When creating a Story, decompose it into Task sub-issues before writing code, so every Task keeps its own "Done when" items and board card.
+- When the input is a Story, run the **whole Story on one branch with one PR**: one `docs/tasks/<story>-<slug>/` spec and plan, every open Task sub-issue processed in dependency order through Steps 4–7, and **at least one commit per Task** whose subject ends in `(#<task>)`. Never mix two Tasks' changes in one commit.
+- The spec maps each Task's "Done when" items to acceptance criteria, so a reviewer can check the Story Task by Task.
+- The PR closes every Task and the Story: one `Closes #<task>` line per Task, then `Closes #<story>`.
+- Stories may be **stacked** when the next Story depends on one whose PR is still open. Branch from the predecessor Story's branch and set it as the PR base. State `Stacked on:` and `Merge order:` in every affected PR body.
+- After the predecessor merges, rebase onto `main`, retarget the PR to `main`, and check that its diff contains only this Story.
+- A single-Task input (`#42`) still gets its own PR. Split a Story into several PRs only when the user asks for it.
+- Never merge the stack. Humans merge from the bottom up. The Story is complete once its PR merges and every Task sub-issue is closed.
 
 ## Step 0 — Preflight
 
@@ -69,11 +71,11 @@ cursor-agent status                                  # executor is authenticated
 | Input | Action |
 |---|---|
 | `#42` or an issue URL | `gh issue view 42 --json number,title,body,labels,milestone,state`. Read its parent story/epic too (see `github-workflow`). |
-| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run each Task through its own Steps 2–10 and open one PR per Task. Process in dependency order; use stacked PRs for dependent Tasks when useful. |
+| A **Story** number | List all open Task sub-issues and their dependencies. If it has no tasks, decompose it first (`github-workflow` → create sub-issues). Run the Story once through Steps 2–10 on one branch: one spec and plan, Tasks in dependency order, one or more commits per Task, and one PR that closes every Task and the Story. Stack it on the predecessor Story's branch when that PR is still open. |
 | An **Epic** number | List its open Stories, choose the first unblocked Story in roadmap order, then apply the Story workflow above. |
 | Free text | Search for a duplicate (`gh issue list --search "<keywords>" --state all`). If none exists, create a **Task** issue using the task form fields, attach it to the best-matching Story (create the Story under the right Epic if none fits), add it to Project 4, set the milestone (default `MVP`), and record the choice under Assumptions. |
 
-Before implementation, ensure the Task issue is open and has a milestone. Reopen a closed Task if work is resuming. Set a missing milestone to `MVP`; preserve an explicit `Real-data release` or `Later` milestone rather than silently overwriting it. Step 3 moves the issue to the configured in-development project status (`inProgress`).
+Before implementation, ensure the Task issue is open and has a milestone. For a Story, check the Story and every Task sub-issue. Reopen a closed Task if work is resuming. Set a missing milestone to `MVP`; preserve an explicit `Real-data release` or `Later` milestone rather than silently overwriting it. Step 3 moves the issue to the configured in-development project status (`inProgress`).
 
 **Slug:** kebab-case, at most 5 words, taken from the issue title (`cv-parser-schema`). **Type:** `feat | fix | chore | docs | test | refactor | design | ci`.
 
@@ -108,8 +110,8 @@ Skill discovery is mandatory for every task; do not rely on the list remembered 
 
 Choose the branch base:
 
-- Independent Task: `main`.
-- Stacked Task: the immediate predecessor Task's branch. Its predecessor PR must already be open.
+- Independent Story or Task: `main`.
+- Stacked Story: the immediate predecessor Story's branch. Its PR must already be open.
 
 ```bash
 git switch <base-branch> && git pull --ff-only
@@ -235,6 +237,7 @@ git commit -m "<type>(<area>): <summary> (#<issue>)"
 git push -u origin HEAD
 # The Task must be open, have a milestone (default MVP), and already be in the
 # configured in-development status (`inProgress`) before creating its PR.
+# For a Story PR, repeat this for the Story and every Task sub-issue.
 gh issue view <issue> --json state,milestone
 # If closed: gh issue reopen <issue>
 # If milestone is missing: gh issue edit <issue> --milestone MVP
@@ -246,17 +249,20 @@ PR_URL=$(gh pr create --base <base-branch> --title "<type>(<area>): <summary> (#
 gh project item-add 4 --owner dczii --url "$PR_URL"
 # Confirm GitHub linked the PR in the issue's Development section. An empty
 # result means the body lacks a valid `Closes #<issue>` reference; fix the body.
+# GitHub links closing keywords only on PRs based on `main`: for a stacked PR
+# the result is always empty, so check the lines instead with
+#   gh pr view "$PR_URL" --json body --jq .body | grep -nE '^Closes #'
 gh pr view "$PR_URL" --json closingIssuesReferences \
   --jq '.closingIssuesReferences[] | select(.number == <issue>) | .url'
 .claude/skills/github-workflow/scripts/set-status.sh <issue> inReview
 ```
 
-- **Commits:** Conventional Commits. Split the commits logically if the diff is large: tests, implementation, docs.
-- **PR base:** use `main` for an independent Task or the immediate predecessor branch for a stacked Task. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
+- **Commits:** Conventional Commits. For a Story, at least one commit per Task, each ending in `(#<task>)`. Split further if a Task's diff is large: tests, implementation, docs.
+- **PR base:** use `main` for an independent Story or Task, or the immediate predecessor Story's branch for a stacked one. For a stack, add `Stacked on: <predecessor PR link>` and `Merge order: <ordered PR links>` to the PR body.
 - **PR ownership and project:** assign every new PR to `@me` and add the PR itself to user-owned Project 4. If the token lacks `project` scope, skip only the project-item command and report the required scope refresh as described in Step 0.
-- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>`, and `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title.
+- **Issue readiness and linkage:** immediately before PR creation, the Task issue must be open, have a milestone (`MVP` when none was set), and be in the configured in-development status. The PR body must contain `Closes #<issue>` (for a Story PR, one line per Task plus the Story), and, for a PR based on `main`, `closingIssuesReferences` must confirm that GitHub shows the PR in the issue's Development section. Do not substitute a plain issue URL or rely only on `(#<issue>)` in the title.
 - **Attribution:** end the commit message and PR body with the lines required by the session's attribution rules.
-- **Then stop for a single-Task input.** For a Story or Epic input, continue with the next Task until every open Task has its own PR or a listed blocking condition is reached.
+- **Then stop** for a Task or Story input. For an Epic input, continue with the next unblocked Story until every open Story has its own PR or a listed blocking condition is reached.
 - Don't merge, enable auto-merge or close the issue. `Closes #N` closes each Task when a human merges.
 
 ## Final report (to the user)
@@ -288,6 +294,6 @@ The final response is mandatory after the PR is opened (or after reporting a blo
 - Letting an executor commit, push, add dependencies, or touch `docs/tasks`.
 - Trusting "all tests pass" without running them.
 - Treating a **proposed** PRD item as decided without saying so in the spec.
-- Combining multiple Task issues in one PR, or leaving a Task without its own PR because its commits are present in a stacked diff.
-- Opening an implementation PR for a Story instead of one PR per Task.
+- Splitting a Story into one PR per Task when the user didn't ask for it.
+- A Story PR that is missing a `Closes #<task>` line, or that mixes two Tasks' changes in one commit.
 - Merging, or moving a card to Done.
