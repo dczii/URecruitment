@@ -7,7 +7,7 @@
 | Milestone | MVP |
 | Branch | `design/32-mvp-screen-designs` |
 | Created | 2026-09-18 |
-| Status | In progress |
+| Status | In review |
 
 ## Problem
 
@@ -165,6 +165,22 @@ None — design-only Story.
    verification is pen.dev validation plus manual inspection of the spec mirrors (see plan.md).
 5. Task order follows dependency order; all of #100–#106 depend only on #98, which is closed, so
    they are processed in issue-number order (#100 → #106).
+
+6. **File consolidation.** The pencil MCP session for this Story resolved every `filePath` passed
+   to `mcp__pencil__execute` (`design/screens/dashboard.pen`, `.../jobs.pen`, etc.) to the same
+   single live document backing the already-open `design/shell.pen` editor tab, rather than
+   separate files. All 9 desktop frames plus the 3 new shared pattern components (delay status
+   badge, AI suggestion tag, source quote) live as top-level nodes inside `design/shell.pen`. No
+   design content was lost; splitting into per-screen `.pen` files (`ui-design`'s proposed, not
+   mandated, layout) is a follow-up for a human working in the pen.dev GUI. See `plan.md`'s
+   Outcome for detail.
+7. Disk persistence of the pen.dev session's work required an explicit save in the pen.dev desktop
+   app partway through this task; the design work was verified live in-session before that save,
+   and confirmed on disk afterward via `design/shell.pen`'s mtime and file size.
+8. `TakeScreenshot` (a pencil MCP diagnostic, not a repo test) returned a blank image for 4 of the
+   9 frames despite `Get`-confirmed correct node structure and bounds; treated as a tool-side
+   rendering artifact rather than a design defect (documented per-frame in the affected spec
+   mirrors, with a follow-up to visually confirm in the pen.dev GUI).
 
 ## Open questions
 
