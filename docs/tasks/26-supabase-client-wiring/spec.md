@@ -8,7 +8,7 @@
 | Milestone | MVP |
 | Branch | `feat/26-supabase-client-wiring`, stacked on `feat/25-app-scaffold-foundation` ([PR #191](https://github.com/dczii/URecruitment/pull/191)) |
 | Created | 2026-09-18 |
-| Status | In progress <!-- Planned → In progress → In review --> |
+| Status | In review <!-- Planned → In progress → In review --> |
 
 ## Problem
 
@@ -44,8 +44,9 @@ client-side import of the database client would hand the entire database to anyo
   - a `README.md` section: start the stack, apply migrations, regenerate types, run the DB tests.
 - **#88:**
   - `src/server/db.ts` — `import "server-only"`, typed from `Database`, holding the **secret key**;
-  - failing tests first, then passing: the module is server-only, it is a per-request singleton, and
-    it never reads a `NEXT_PUBLIC_*` variable;
+  - failing tests first, then passing: the module is server-only, it is a process-level singleton
+    (one client per serverless instance, safe only because it carries no per-request state), and it
+    never reads a `NEXT_PUBLIC_*` variable;
   - `scripts/check-client-bundle.mjs`, which greps the built client bundle for the server env var
     **names** and any secret-shaped value, wired into `npm run build`;
   - a DB integration test file proving the **RLS lock-down** shape, which reports zero tests until
@@ -68,30 +69,36 @@ Story ACs (#26):
   local stack comes up and generated database types are written to `src/lib/database.types.ts`.
   _Proved by:_ the committed types file plus `npm run typecheck`; **the stack itself cannot run on
   this machine** (Assumption A3) so the round trip is proved in CI by #91.
-- [ ] **AC2** — Given any client component, when it imports the Supabase client, then the build fails.
+- [x] **AC2** — Given any client component, when it imports the Supabase client, then the build fails.
   _Proved by:_ `src/server/db.test.ts › "AC2: the db module is server-only"` plus a **live build
   probe** recorded in the verification log.
 - [ ] **AC3** — Given the publishable key, when it is used against any table, then it reads nothing,
-  because RLS is on with no public policies. _Proved by:_ `supabase/tests/rls.db.test.ts`, which
-  enumerates every table in `public` and asserts each reads zero rows. **It reports zero tables today
-  and becomes meaningful the moment E03 adds one** (Assumption A5).
+  because RLS is on with no public policies. _Proved by:_ two tests that cover different moments.
+  `supabase/migrations.test.ts` needs no Docker and runs on every pull request: it lints the migration
+  SQL and rejects any `create table` without both `enable row level security` and
+  `revoke all … from anon, authenticated`, any `create policy` that reaches `anon`, `authenticated` or
+  the PUBLIC default, any later `disable row level security`, and any view without `security_invoker`.
+  `supabase/tests/rls.db.test.ts` proves it against a live stack, asserting
+  `has_table_privilege` is false for **both** roles and that the publishable key reads nothing over
+  HTTP. **Neither asserts anything today, because no table exists** (Assumption A5); the lint's rules
+  are themselves tested against fixture SQL in `supabase/migration-lint.test.ts`.
 
 Task done-when:
 
 - [ ] **AC4** (#87) — The local stack starts and `supabase migration list` runs clean on an empty
   migrations folder. _Proved by:_ `supabase/config.toml` committed and `supabase --version`
   recorded; the stack is a CI step (#91).
-- [ ] **AC5** (#87) — Type generation produces a committed `database.types.ts` that typechecks.
+- [x] **AC5** (#87) — Type generation produces a committed `database.types.ts` that typechecks.
   _Proved by:_ `npm run typecheck` and `src/lib/database.types.test.ts`.
-- [ ] **AC6** (#87) — `npm run test:db` runs and reports **zero tests rather than failing**.
+- [x] **AC6** (#87) — `npm run test:db` runs and reports **zero tests rather than failing**.
   _Proved by:_ the command's exit code in the verification log.
-- [ ] **AC7** (#88) — Failing-then-passing tests prove a client component cannot import the server
+- [x] **AC7** (#88) — Failing-then-passing tests prove a client component cannot import the server
   client. _Proved by:_ `src/server/db.test.ts` plus the build probe.
-- [ ] **AC8** (#88) — A check over the production bundle finds no Supabase secret and is wired into
+- [x] **AC8** (#88) — A check over the production bundle finds no Supabase secret and is wired into
   `npm run build`. _Proved by:_ `scripts/check-client-bundle.mjs`, its unit test
   `scripts/check-client-bundle.test.ts` (which feeds it a bundle that *does* contain a secret and
   asserts it exits non-zero), and `npm run build` running it.
-- [ ] **AC9** (#88) — The client is typed against the generated database types. _Proved by:_
+- [x] **AC9** (#88) — The client is typed against the generated database types. _Proved by:_
   `npm run typecheck` and an assertion in `src/server/db.test.ts`.
 
 ## Guardrails that apply
@@ -100,7 +107,7 @@ Task done-when:
 - [x] **No email sent** — no mail library.
 - [x] **Server-only data access; the secret key never reaches the browser** — `src/server/db.ts` is
   `server-only` and reads `serverEnv()`; the bundle check is a second, independent proof.
-- [x] **RLS everywhere with no public policies** — no table exists yet, so there is nothing to
+- [ ] **RLS everywhere with no public policies** — not yet applicable: no table exists yet, so there is nothing to
   enable RLS *on*. The lock-down **test harness** ships here so that E03 cannot add a table without
   it. Recorded honestly rather than ticked as done.
 - [ ] AI output — no AI.
@@ -145,12 +152,22 @@ None. This story adds no route, screen or component.
 - **A4 — `npm run test:db` uses `passWithNoTests`.** #87's done-when asks for "zero tests rather than
   failing", which is exactly that flag. It is scoped to the DB config only; the unit config keeps
   `passWithNoTests: false` so an empty unit run still fails loudly.
-- **A5 — The RLS lock-down test enumerates tables at run time.** It queries
-  `information_schema.tables` for `public`, then asserts each one reads zero rows with the
-  **publishable** key. Today that is an empty list, so it proves nothing yet — deliberately, because
-  `supabase-db` requires the check "for each new table" and a harness that already exists is much
-  harder to skip than one E03 has to remember to write. The test fails loudly if the publishable key
-  is absent rather than passing vacuously.
+- **A5 — The lock-down guarantee is split in two, and neither asserts anything until E03.** That is
+  deliberate: `supabase-db` requires the check "for each new table", and a harness that already exists
+  is much harder to skip than one E03 has to remember to write.
+  - `supabase/migrations.test.ts` + `supabase/migration-lint.ts` are a **unit** test. They read the
+    migration SQL, need no Docker, and therefore run on every pull request — which is where the
+    mistake is cheapest to catch. The lint's own rules are exercised against fixture SQL in
+    `supabase/migration-lint.test.ts`, covering both directions: valid lock-down is accepted (quoted
+    schema, either role order, a `grant` to a non-locked role, one revoke covering several tables)
+    and real escapes are rejected (a policy with no `to` clause, which defaults to PUBLIC;
+    `disable row level security`; `unlogged`/`foreign`/`temporary` tables).
+  - `supabase/tests/rls.db.test.ts` proves it against a live stack.
+  **The DB harness skips on stack *reachability*, never on which env vars are set.** An earlier
+  version keyed off env vars, so `supabase start && npm run test:db` without exporting them reported
+  "no tests" and exited 0 even with unprotected tables on the running stack. It now always attempts
+  the local connection: a refused connection means no stack (zero tests, exit 0, satisfying AC6),
+  any other error fails loudly, and a non-local host is refused outright.
 - **A6 — The bundle check greps for variable *names* and secret *shapes*, not for the live value.**
   A build has no secret set in this repo, so grepping for the real value would pass vacuously. The
   check looks for `SUPABASE_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_JWT_SECRET`,
