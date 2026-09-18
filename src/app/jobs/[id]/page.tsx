@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
@@ -47,20 +48,28 @@ export default async function JobDetailPage({
 
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-6">
-      <header className="flex min-w-0 flex-col gap-2">
-        <h1
-          className="font-heading text-title font-semibold break-words"
-          lang={titleLang}
+      <header className="flex min-w-0 flex-wrap items-baseline justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-2">
+          <h1
+            className="font-heading text-title font-semibold break-words"
+            lang={titleLang}
+          >
+            {job.title}
+          </h1>
+          <p
+            className="text-body text-muted-foreground break-words"
+            lang={clientLang}
+          >
+            {job.clientName}
+          </p>
+          <p className="text-caption text-muted-foreground">{versionCaption}</p>
+        </div>
+        <Link
+          href={`/search?jobId=${job.id}`}
+          className="text-label font-semibold text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {job.title}
-        </h1>
-        <p
-          className="text-body text-muted-foreground break-words"
-          lang={clientLang}
-        >
-          {job.clientName}
-        </p>
-        <p className="text-caption text-muted-foreground">{versionCaption}</p>
+          Search for more candidates
+        </Link>
       </header>
 
       {job.openFlagCount > 0 ? (
