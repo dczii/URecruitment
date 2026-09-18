@@ -2,8 +2,8 @@
 # Preview protection is on, so this job needs VERCEL_AUTOMATION_BYPASS_SECRET.
 # When the secret is missing (forks, first setup), skip with a notice and exit 0.
 # Production deployments are out of scope (#90) and never trigger the job.
-# GitHub reads `deployment_status` workflows from the default branch only, so
-# this file takes effect once it is on `main`.
+# The workflow file is read from the deployed commit, so a PR's own preview
+# runs the PR's version of this file.
 name: e2e
 
 on:
@@ -54,6 +54,8 @@ jobs:
       - name: Checkout
         if: ${{ steps.gate.outputs.ready == 'true' }}
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node
         if: ${{ steps.gate.outputs.ready == 'true' }}
@@ -86,6 +88,7 @@ jobs:
             playwright-report/
             test-results/
           if-no-files-found: ignore
+          retention-days: 3
 
       - name: Job summary
         if: ${{ always() && steps.gate.outputs.ready == 'true' }}

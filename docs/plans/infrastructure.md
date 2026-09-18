@@ -136,6 +136,16 @@ missing (a fork, first setup), the job writes a `::notice::` and exits 0. It nev
 Only the migrate and eval workflows reach remote Supabase projects. The e2e job reaches the preview
 URL.
 
+**The e2e bypass secret has two extra guards** ([#90](https://github.com/dczii/URecruitment/issues/90)):
+
+- `deployment_status` runs use the workflow file and code **at the deployed commit**, with repository
+  secrets. If Vercel ever built a fork's pull request, that fork's own `e2e.yml` would run with
+  `VERCEL_AUTOMATION_BYPASS_SECRET`. Vercel's **Git Fork Protection must stay on**. It is what keeps
+  fork code from getting a deployment, and so the secret.
+- Playwright never sends the secret from a test. `e2e/global-setup.ts` swaps it for Vercel's bypass
+  cookie once, on one request to the preview host, and traces are off against the preview. Traces
+  record headers and cookies, and CI uploads failure artifacts to this public repository.
+
 ### Set by the platform (not ours)
 
 `VERCEL_ENV`, `VERCEL_URL` and `VERCEL_REGION` are provided by Vercel. The app may read `VERCEL_ENV` to
