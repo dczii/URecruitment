@@ -24,7 +24,7 @@ import postgres from "postgres";
  */
 
 const LOCAL_STACK_REQUIRED =
-  "Start the local stack with `supabase start`, then export SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY from `supabase status`. DB tests never run against a remote project.";
+  "Start the local stack with `supabase start`, then export SUPABASE_URL (API_URL) and SUPABASE_PUBLISHABLE_KEY (PUBLISHABLE_KEY) from `SUPABASE_AUTH_ENABLED=true supabase status -o env` — auth is disabled in config.toml, so plain `supabase status` omits the keys. DB tests never run against a remote project.";
 
 /** The local stack's default Postgres port, from supabase/config.toml [db]. */
 const DEFAULT_DB_URL = "postgresql://postgres:postgres@127.0.0.1:54322/postgres";

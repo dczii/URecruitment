@@ -59,7 +59,10 @@ jobs:
           # Map `supabase status -o env` onto the names the RLS harness reads.
           # Parsed rather than eval'd, and values are never printed (the dump
           # includes JWT material). On a miss, print the variable names only.
-          status_env="$(supabase status -o env)" || {
+          # `[auth]` is disabled in config.toml (no sign-in in the MVP), so the
+          # CLI omits the keys. They derive from the JWT secret either way;
+          # enabling auth for this one read reveals them without starting GoTrue.
+          status_env="$(SUPABASE_AUTH_ENABLED=true supabase status -o env)" || {
             echo "db.yml: \`supabase status -o env\` exited non-zero" >&2
             exit 1
           }
