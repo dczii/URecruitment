@@ -17,8 +17,21 @@ describe("generated database types (AC5)", () => {
   it("AC5: Database is usable as a generic", () => {
     type AsClient<T extends Database> = T["public"];
     expectTypeOf<AsClient<Database>>().toHaveProperty("Tables");
-    expectTypeOf<Database["public"]["Tables"]>().toEqualTypeOf<{
-      [_ in never]: never;
-    }>();
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("clients");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("jobs");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("job_versions");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("gap_flags");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("candidates");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("cv_files");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("candidate_profiles");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("candidate_skills");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("embeddings");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("match_scores");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("pipeline_entries");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("stage_events");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("stage_limits");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("placements");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("settings_log");
+    expectTypeOf<Database["public"]["Tables"]>().toHaveProperty("ai_runs");
   });
 });
