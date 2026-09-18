@@ -352,6 +352,8 @@ export type Database = {
           reason: string
           resolution_note: string | null
           resolution_state: string
+          resolved_at: string | null
+          resolved_by: string | null
           suggested_question: string | null
         }
         Insert: {
@@ -362,6 +364,8 @@ export type Database = {
           reason: string
           resolution_note?: string | null
           resolution_state?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           suggested_question?: string | null
         }
         Update: {
@@ -372,6 +376,8 @@ export type Database = {
           reason?: string
           resolution_note?: string | null
           resolution_state?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
           suggested_question?: string | null
         }
         Relationships: [
