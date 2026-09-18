@@ -167,6 +167,149 @@ export type Database = {
           created_at?: string
         }
       }
+      candidates: {
+        Row: {
+          id: string
+          full_name: string
+          email: string | null
+          phone: string | null
+          consent_status: string | null
+          consent_date: string | null
+          consent_method: string | null
+          last_activity_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          full_name: string
+          email?: string | null
+          phone?: string | null
+          consent_status?: string | null
+          consent_date?: string | null
+          consent_method?: string | null
+          last_activity_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          email?: string | null
+          phone?: string | null
+          consent_status?: string | null
+          consent_date?: string | null
+          consent_method?: string | null
+          last_activity_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      cv_files: {
+        Row: {
+          id: string
+          candidate_id: string | null
+          source: string
+          source_ref: string | null
+          source_hash: string | null
+          storage_path: string
+          doc_kind: string
+          language: string | null
+          parse_status: string
+          parse_error: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id?: string | null
+          source?: string
+          source_ref?: string | null
+          source_hash?: string | null
+          storage_path: string
+          doc_kind: string
+          language?: string | null
+          parse_status?: string
+          parse_error?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string | null
+          source?: string
+          source_ref?: string | null
+          source_hash?: string | null
+          storage_path?: string
+          doc_kind?: string
+          language?: string | null
+          parse_status?: string
+          parse_error?: string | null
+          created_at?: string
+        }
+      }
+      candidate_profiles: {
+        Row: {
+          id: string
+          candidate_id: string
+          cv_file_id: string | null
+          parsed: Json
+          overrides: Json
+          overridden_by: string | null
+          overridden_at: string | null
+          ai_run_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          cv_file_id?: string | null
+          parsed?: Json
+          overrides?: Json
+          overridden_by?: string | null
+          overridden_at?: string | null
+          ai_run_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          cv_file_id?: string | null
+          parsed?: Json
+          overrides?: Json
+          overridden_by?: string | null
+          overridden_at?: string | null
+          ai_run_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      candidate_skills: {
+        Row: {
+          id: string
+          candidate_id: string
+          skill: string
+          source_text: string
+          ai_run_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_id: string
+          skill: string
+          source_text: string
+          ai_run_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_id?: string
+          skill?: string
+          source_text?: string
+          ai_run_id?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
