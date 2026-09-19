@@ -626,6 +626,7 @@ export type Database = {
           guarantee_period_days: number
           id: string
           pipeline_entry_id: string
+          recruiter_name: string
           start_date: string
         }
         Insert: {
@@ -634,6 +635,7 @@ export type Database = {
           guarantee_period_days?: number
           id?: string
           pipeline_entry_id: string
+          recruiter_name: string
           start_date: string
         }
         Update: {
@@ -642,15 +644,23 @@ export type Database = {
           guarantee_period_days?: number
           id?: string
           pipeline_entry_id?: string
+          recruiter_name?: string
           start_date?: string
         }
         Relationships: [
           {
             foreignKeyName: "placements_pipeline_entry_id_fkey"
             columns: ["pipeline_entry_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "pipeline_entries"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "placements_pipeline_entry_id_fkey"
+            columns: ["pipeline_entry_id"]
+            isOneToOne: true
+            referencedRelation: "pipeline_status"
+            referencedColumns: ["pipeline_entry_id"]
           },
         ]
       }
@@ -770,6 +780,13 @@ export type Database = {
             referencedRelation: "pipeline_entries"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stage_events_pipeline_entry_id_fkey"
+            columns: ["pipeline_entry_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_status"
+            referencedColumns: ["pipeline_entry_id"]
+          },
         ]
       }
       stage_limits: {
@@ -822,6 +839,81 @@ export type Database = {
       }
     }
     Views: {
+      pipeline_status: {
+        Row: {
+          candidate_id: string | null
+          days_over: number | null
+          job_id: string | null
+          limit_days: number | null
+          pipeline_entry_id: string | null
+          stage: string | null
+          status: string | null
+          waiting_on: string | null
+          working_days_used: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_entries_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_entries_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "searchable_candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_entries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      placements_guarantee_flag: {
+        Row: {
+          flag: string | null
+          guarantee_end_date: string | null
+          pipeline_entry_id: string | null
+          placement_id: string | null
+          start_date: string | null
+        }
+        Insert: {
+          flag?: never
+          guarantee_end_date?: string | null
+          pipeline_entry_id?: string | null
+          placement_id?: string | null
+          start_date?: string | null
+        }
+        Update: {
+          flag?: never
+          guarantee_end_date?: string | null
+          pipeline_entry_id?: string | null
+          placement_id?: string | null
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "placements_pipeline_entry_id_fkey"
+            columns: ["pipeline_entry_id"]
+            isOneToOne: true
+            referencedRelation: "pipeline_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "placements_pipeline_entry_id_fkey"
+            columns: ["pipeline_entry_id"]
+            isOneToOne: true
+            referencedRelation: "pipeline_status"
+            referencedColumns: ["pipeline_entry_id"]
+          },
+        ]
+      }
       searchable_candidates: {
         Row: {
           consent_date: string | null
@@ -1293,31 +1385,22 @@ export type Database = {
       pgroonga_wal_truncate:
         | { Args: never; Returns: number }
         | { Args: { indexname: unknown }; Returns: number }
+      resolve_stage_limit: {
+        Args: { p_client_id: string; p_job_id: string; p_stage: string }
+        Returns: number
+      }
       search_candidates: {
-        Args: {
-          embedding: string
-          filters: Json
-          job_version_id?: string
-          keyword: string
-          lim?: number
-          off?: number
-        }
+        Args: { filters: Json; keyword: string; lim?: number; off?: number }
         Returns: {
           candidate_id: string
           cv_updated_at: string
           full_name: string
-          fused_score: number
           headline: string
           highlight: string
           keyword_score: number
           languages: string[]
           location: string
-          match_score: number
-          matched: Json
-          missing: Json
           total_years: number
-          uncertain: Json
-          vector_score: number
         }[]
       }
       sg_add_working_days: {
