@@ -13,6 +13,8 @@ import {
 
 import { createJob } from "@/app/jobs/actions";
 import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { FieldLabel, Input, Select } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 type ClientOption = {
@@ -31,9 +33,6 @@ type RequirementRow = {
 type JobFormProps = {
   clients: ClientOption[];
 };
-
-const inputClassName =
-  "w-full rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
 export function JobForm({ clients }: JobFormProps) {
   const formId = useId();
@@ -115,16 +114,8 @@ export function JobForm({ clients }: JobFormProps) {
         onSubmit={handleSubmit}
         noValidate
       >
-        <section
-          aria-labelledby={`${formId}-details-heading`}
-          className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4"
-        >
-          <h2
-            id={`${formId}-details-heading`}
-            className="font-heading text-heading font-semibold"
-          >
-            Job details
-          </h2>
+        <Card as="section" aria-labelledby={`${formId}-details-heading`}>
+          <CardTitle id={`${formId}-details-heading`}>Job details</CardTitle>
           <Field
             id={`${formId}-title`}
             label="Job title"
@@ -142,19 +133,13 @@ export function JobForm({ clients }: JobFormProps) {
             onChange={setOwnerName}
           />
           <div className="flex min-w-0 flex-col gap-2">
-            <label
-              htmlFor={`${formId}-client`}
-              className="text-label font-semibold"
-            >
-              Client
-            </label>
-            <select
+            <FieldLabel htmlFor={`${formId}-client`}>Client</FieldLabel>
+            <Select
               id={`${formId}-client`}
               name="client_id"
               value={clientId}
               disabled={pending || clients.length === 0}
               onChange={(event) => setClientId(event.target.value)}
-              className={inputClassName}
             >
               <option value="">
                 {clients.length === 0
@@ -166,20 +151,12 @@ export function JobForm({ clients }: JobFormProps) {
                   {client.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
-        </section>
+        </Card>
 
-        <section
-          aria-labelledby={`${formId}-requirements-heading`}
-          className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-4"
-        >
-          <h2
-            id={`${formId}-requirements-heading`}
-            className="font-heading text-heading font-semibold"
-          >
-            Requirements
-          </h2>
+        <Card as="section" aria-labelledby={`${formId}-requirements-heading`} className="gap-3">
+          <CardTitle id={`${formId}-requirements-heading`}>Requirements</CardTitle>
           {requirements.map((row, index) => (
             <RequirementRowFields
               key={row.id}
@@ -202,18 +179,12 @@ export function JobForm({ clients }: JobFormProps) {
               Add requirement
             </Button>
           </div>
-        </section>
+        </Card>
 
-        <section
-          aria-labelledby={`${formId}-protected-heading`}
-          className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-4"
-        >
-          <h2
-            id={`${formId}-protected-heading`}
-            className="font-heading text-heading font-semibold"
-          >
+        <Card as="section" aria-labelledby={`${formId}-protected-heading`} className="gap-3">
+          <CardTitle id={`${formId}-protected-heading`}>
             Nationality and language
-          </h2>
+          </CardTitle>
           <AttributeRequirement
             attribute="nationality"
             checked={requiresNationality}
@@ -230,20 +201,25 @@ export function JobForm({ clients }: JobFormProps) {
             onCheckedChange={setRequiresLanguage}
             onReasonChange={setLanguageReason}
           />
-        </section>
+        </Card>
 
         {banner ? (
           <div
             role="alert"
-            className="flex items-center gap-1.5 rounded-md bg-destructive p-3 text-destructive-foreground"
+            className="flex items-center gap-2 rounded-md border-l-4 border-destructive bg-destructive/10 p-3 text-destructive"
           >
             <CircleX className="size-4 shrink-0" aria-hidden="true" />
             <p className="text-label font-semibold">{banner}</p>
           </div>
         ) : null}
 
-        <div>
-          <Button type="submit" disabled={pending} aria-busy={pending}>
+        <div className="flex">
+          <Button
+            type="submit"
+            disabled={pending}
+            aria-busy={pending}
+            className="w-full sm:w-auto"
+          >
             Save job
           </Button>
         </div>
@@ -271,10 +247,8 @@ function Field({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <label htmlFor={id} className="text-label font-semibold">
-        {label}
-      </label>
-      <input
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Input
         id={id}
         ref={inputRef}
         type="text"
@@ -283,7 +257,6 @@ function Field({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClassName}
       />
     </div>
   );
@@ -313,19 +286,19 @@ function RequirementRowFields({
 
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-3">
-      <input
+      <Input
         id={inputId}
         type="text"
         value={row.text}
         disabled={disabled}
         aria-label={`Requirement ${number}`}
         onChange={(event) => onChange(row.id, { text: event.target.value })}
-        className={cn(inputClassName, "min-w-0 flex-1")}
+        className="min-w-0 flex-1 basis-full sm:basis-auto"
       />
       <div
         role="group"
         aria-label={markingLabel}
-        className="inline-flex overflow-hidden rounded-md border border-border"
+        className="inline-flex gap-0.5 rounded-md bg-muted p-0.5"
       >
         <MarkingOption
           label="Must-have"
@@ -382,11 +355,11 @@ function MarkingOption({
       aria-pressed={selected}
       onClick={onSelect}
       className={cn(
-        "px-2.5 py-1.5 text-caption font-semibold outline-none",
+        "rounded-sm px-3 py-1.5 text-caption font-semibold outline-none transition-colors",
         "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
         selected
-          ? "bg-accent text-accent-foreground"
-          : "bg-card text-muted-foreground",
+          ? "bg-card text-accent-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {label}
@@ -432,16 +405,20 @@ function AttributeRequirement({
           disabled={disabled}
           onClick={() => onCheckedChange(!checked)}
           className={cn(
-            "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 outline-none",
+            "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border p-0.5 outline-none transition-colors",
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            checked ? "bg-primary" : "bg-muted",
+            checked
+              ? "border-primary bg-primary"
+              : "border-input bg-secondary",
           )}
         >
           <span
             aria-hidden="true"
             className={cn(
-              "size-4 rounded-full bg-primary-foreground transition-transform",
-              checked ? "translate-x-4" : "translate-x-0",
+              "size-4 rounded-full shadow-sm transition-transform",
+              checked
+                ? "translate-x-5 bg-primary-foreground"
+                : "translate-x-0 bg-card",
             )}
           />
         </button>
@@ -483,7 +460,7 @@ function AttributeRequirement({
             aria-required="true"
             aria-describedby={noteId}
             onChange={(event) => onReasonChange(event.target.value)}
-            className="min-h-16 w-full resize-y rounded-md border-0 bg-transparent text-caption text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            className="min-h-16 w-full resize-y rounded-sm border-0 bg-transparent text-caption text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <p id={noteId} className="text-caption text-destructive italic">
             {capitalized} will not be treated as a requirement until this reason is
