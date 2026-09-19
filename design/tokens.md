@@ -4,6 +4,11 @@
 contract. Token values are deliberately neutral and semantic because URecruitment has no approved
 brand identity yet.
 
+> **Divergence, 2026-09-20.** The values below were reset by the `ui-modernisation` pass
+> (`analysis/03-ui-modernisation-spec.md`) and now match `src/app/globals.css`, not
+> `design/tokens.pen`. The pen document is the stale side until someone reconciles it. Token
+> names, CSS variables and Tailwind mappings are unchanged.
+
 ## Conventions
 
 - Components use the Tailwind utility name, never the raw value.
@@ -18,38 +23,38 @@ brand identity yet.
 
 | Token | Light | Dark | CSS variable | Tailwind token | Intended use |
 |---|---:|---:|---|---|---|
-| `background` | `#F8FAFC` | `#0F172A` | `--background` | `bg-background` | App canvas |
-| `foreground` | `#0F172A` | `#F8FAFC` | `--foreground` | `text-foreground` | Primary text |
+| `background` | `#F9FAFB` | `#0B0F19` | `--background` | `bg-background` | App canvas |
+| `foreground` | `#111827` | `#F3F4F6` | `--foreground` | `text-foreground` | Primary text |
 | `card` | `#FFFFFF` | `#111827` | `--card` | `bg-card` | Raised content surface |
-| `card-foreground` | `#0F172A` | `#F8FAFC` | `--card-foreground` | `text-card-foreground` | Text on cards |
+| `card-foreground` | `#111827` | `#F3F4F6` | `--card-foreground` | `text-card-foreground` | Text on cards |
 | `popover` | `#FFFFFF` | `#111827` | `--popover` | `bg-popover` | Floating surface |
-| `popover-foreground` | `#0F172A` | `#F8FAFC` | `--popover-foreground` | `text-popover-foreground` | Text on floating surfaces |
-| `primary` | `#1D4ED8` | `#60A5FA` | `--primary` | `bg-primary` | Primary action and active navigation |
-| `primary-foreground` | `#FFFFFF` | `#0F172A` | `--primary-foreground` | `text-primary-foreground` | Text on primary |
-| `secondary` | `#E2E8F0` | `#1E293B` | `--secondary` | `bg-secondary` | Secondary controls |
-| `secondary-foreground` | `#0F172A` | `#F8FAFC` | `--secondary-foreground` | `text-secondary-foreground` | Text on secondary |
-| `muted` | `#F1F5F9` | `#1E293B` | `--muted` | `bg-muted` | Quiet sections and disabled surfaces |
-| `muted-foreground` | `#475569` | `#CBD5E1` | `--muted-foreground` | `text-muted-foreground` | Supporting text |
-| `accent` | `#DBEAFE` | `#1E3A5F` | `--accent` | `bg-accent` | Selected and highlighted rows |
-| `accent-foreground` | `#1E3A8A` | `#DBEAFE` | `--accent-foreground` | `text-accent-foreground` | Text on accent |
-| `destructive` | `#B91C1C` | `#F87171` | `--destructive` | `bg-destructive` | Destructive action or error |
-| `destructive-foreground` | `#FFFFFF` | `#450A0A` | `--destructive-foreground` | `text-destructive-foreground` | Text on destructive |
-| `border` | `#64748B` | `#94A3B8` | `--border` | `border-border` | Meaningful control and region boundaries |
-| `input` | `#64748B` | `#94A3B8` | `--input` | `border-input` | Input boundary |
-| `ring` | `#2563EB` | `#60A5FA` | `--ring` | `ring-ring` | Visible keyboard focus |
+| `popover-foreground` | `#111827` | `#F3F4F6` | `--popover-foreground` | `text-popover-foreground` | Text on floating surfaces |
+| `primary` | `#4338CA` | `#818CF8` | `--primary` | `bg-primary` | Primary action and active navigation |
+| `primary-foreground` | `#FFFFFF` | `#1E1B4B` | `--primary-foreground` | `text-primary-foreground` | Text on primary |
+| `secondary` | `#E5E7EB` | `#1F2937` | `--secondary` | `bg-secondary` | Secondary controls |
+| `secondary-foreground` | `#111827` | `#F3F4F6` | `--secondary-foreground` | `text-secondary-foreground` | Text on secondary |
+| `muted` | `#F3F4F6` | `#1F2937` | `--muted` | `bg-muted` | Quiet sections and disabled surfaces |
+| `muted-foreground` | `#4B5563` | `#A1A1AA` | `--muted-foreground` | `text-muted-foreground` | Supporting text |
+| `accent` | `#E0E7FF` | `#312E81` | `--accent` | `bg-accent` | Selected and highlighted rows |
+| `accent-foreground` | `#3730A3` | `#E0E7FF` | `--accent-foreground` | `text-accent-foreground` | Text on accent |
+| `destructive` | `#BE123C` | `#FB7185` | `--destructive` | `bg-destructive` | Destructive action or error |
+| `destructive-foreground` | `#FFFFFF` | `#4C0519` | `--destructive-foreground` | `text-destructive-foreground` | Text on destructive |
+| `border` | `#6B7280` | `#71717A` | `--border` | `border-border` | Meaningful control and region boundaries |
+| `input` | `#6B7280` | `#71717A` | `--input` | `border-input` | Input boundary |
+| `ring` | `#4F46E5` | `#818CF8` | `--ring` | `ring-ring` | Visible keyboard focus |
 
 ## Delay status
 
 | Token | Light | Dark | CSS variable | Tailwind token | Required non-colour cue |
 |---|---:|---:|---|---|---|
-| `status-on-track` | `#DCFCE7` | `#052E16` | `--status-on-track` | `bg-status-on-track` | Circle-check icon + “On track” |
-| `status-on-track-foreground` | `#166534` | `#86EFAC` | `--status-on-track-foreground` | `text-status-on-track-foreground` | Status text and icon |
+| `status-on-track` | `#D1FAE5` | `#022C22` | `--status-on-track` | `bg-status-on-track` | Circle-check icon + “On track” |
+| `status-on-track-foreground` | `#065F46` | `#6EE7B7` | `--status-on-track-foreground` | `text-status-on-track-foreground` | Status text and icon |
 | `status-due-soon` | `#FEF3C7` | `#451A03` | `--status-due-soon` | `bg-status-due-soon` | Clock icon + “Due soon” |
 | `status-due-soon-foreground` | `#92400E` | `#FDE68A` | `--status-due-soon-foreground` | `text-status-due-soon-foreground` | Status text and icon |
-| `status-overdue` | `#FEE2E2` | `#450A0A` | `--status-overdue` | `bg-status-overdue` | Triangle-alert icon + “Overdue · N days” |
-| `status-overdue-foreground` | `#991B1B` | `#FCA5A5` | `--status-overdue-foreground` | `text-status-overdue-foreground` | Status text and icon |
-| `status-ended` | `#E2E8F0` | `#1E293B` | `--status-ended` | `bg-status-ended` | End-state word; no delay badge |
-| `status-ended-foreground` | `#334155` | `#CBD5E1` | `--status-ended-foreground` | `text-status-ended-foreground` | End-state text |
+| `status-overdue` | `#FFE4E6` | `#4C0519` | `--status-overdue` | `bg-status-overdue` | Triangle-alert icon + “Overdue · N days” |
+| `status-overdue-foreground` | `#9F1239` | `#FDA4AF` | `--status-overdue-foreground` | `text-status-overdue-foreground` | Status text and icon |
+| `status-ended` | `#E5E7EB` | `#1F2937` | `--status-ended` | `bg-status-ended` | End-state word; no delay badge |
+| `status-ended-foreground` | `#374151` | `#D1D5DB` | `--status-ended-foreground` | `text-status-ended-foreground` | End-state text |
 
 ## Typography
 
@@ -62,11 +67,11 @@ monospace**.
 | `font-sans` | `Geist, "Noto Sans SC", system-ui, sans-serif` | `--font-sans` | `font-sans` | UI and prose |
 | `font-heading` | `Geist, "Noto Sans SC", system-ui, sans-serif` | `--font-heading` | `font-heading` | Headings |
 | `font-mono` | `"Geist Mono", ui-monospace, monospace` | `--font-mono` | `font-mono` | Technical identifiers |
-| `text-display` | `2.25rem / 2.5rem / 700` | `--text-display` | `text-display` | Rare page-level display |
-| `text-title` | `1.5rem / 2rem / 650` | `--text-title` | `text-title` | Page title |
-| `text-heading` | `1.125rem / 1.75rem / 600` | `--text-heading` | `text-heading` | Section heading |
+| `text-display` | `2.5rem / 2.75rem / 700` | `--text-display` | `text-display` | Rare page-level display |
+| `text-title` | `1.75rem / 2.25rem / 700` | `--text-title` | `text-title` | Page title |
+| `text-heading` | `1.0625rem / 1.5rem / 600` | `--text-heading` | `text-heading` | Section heading |
 | `text-body` | `1rem / 1.5rem / 400` | `--text-body` | `text-body` | Default body |
-| `text-label` | `0.875rem / 1.25rem / 600` | `--text-label` | `text-label` | Labels and controls |
+| `text-label` | `0.875rem / 1.25rem / 500` | `--text-label` | `text-label` | Labels and controls |
 | `text-caption` | `0.75rem / 1rem / 500` | `--text-caption` | `text-caption` | Supporting metadata |
 | `numeric-tabular` | `tabular-nums` | `--numeric-tabular` | `tabular-nums` | Scores and day counts |
 
@@ -94,10 +99,10 @@ Tailwind token.
 | Token | Value | CSS variable | Tailwind token | Usage |
 |---|---:|---|---|---|
 | `radius-sm` | `0.375rem` | `--radius-sm` | `rounded-sm` | Compact controls |
-| `radius-md` | `0.5rem` | `--radius-md` | `rounded-md` | Inputs and buttons |
-| `radius-lg` | `0.75rem` | `--radius-lg` | `rounded-lg` | Cards and dialogs |
-| `shadow-sm` | `0 1px 2px rgb(15 23 42 / 0.08)` | `--shadow-sm` | `shadow-sm` | Subtle separation |
-| `shadow-md` | `0 8px 24px rgb(15 23 42 / 0.12)` | `--shadow-md` | `shadow-md` | Floating surfaces |
+| `radius-md` | `0.625rem` | `--radius-md` | `rounded-md` | Inputs and buttons |
+| `radius-lg` | `1rem` | `--radius-lg` | `rounded-lg` | Cards and dialogs |
+| `shadow-sm` | `0 1px 2px rgb(17 24 39 / 0.05), 0 1px 3px rgb(17 24 39 / 0.06)` | `--shadow-sm` | `shadow-sm` | Subtle separation |
+| `shadow-md` | `0 12px 32px -12px rgb(17 24 39 / 0.22)` | `--shadow-md` | `shadow-md` | Floating surfaces |
 
 ## Shared patterns (added for Story #32, `design/shell.pen`)
 
@@ -129,35 +134,35 @@ exceed 3:1.
 
 | Foreground / indicator | Surface | Ratio | Requirement |
 |---|---|---:|---:|
-| `foreground` | `background` | 17.06:1 | 4.5:1 |
-| `card-foreground` | `card` | 17.85:1 | 4.5:1 |
-| `muted-foreground` | `muted` | 6.92:1 | 4.5:1 |
-| `primary-foreground` | `primary` | 6.70:1 | 4.5:1 |
-| `secondary-foreground` | `secondary` | 14.48:1 | 4.5:1 |
-| `accent-foreground` | `accent` | 8.49:1 | 4.5:1 |
-| `destructive-foreground` | `destructive` | 6.47:1 | 4.5:1 |
-| `border` | `card` | 4.76:1 | 3:1 |
-| `ring` | `background` | 4.94:1 | 3:1 |
-| `status-on-track-foreground` | `status-on-track` | 6.49:1 | 4.5:1 |
+| `foreground` | `background` | 16.98:1 | 4.5:1 |
+| `card-foreground` | `card` | 17.74:1 | 4.5:1 |
+| `muted-foreground` | `muted` | 6.87:1 | 4.5:1 |
+| `primary-foreground` | `primary` | 7.90:1 | 4.5:1 |
+| `secondary-foreground` | `secondary` | 14.33:1 | 4.5:1 |
+| `accent-foreground` | `accent` | 8.06:1 | 4.5:1 |
+| `destructive-foreground` | `destructive` | 6.29:1 | 4.5:1 |
+| `border` | `card` | 4.83:1 | 3:1 |
+| `ring` | `background` | 6.02:1 | 3:1 |
+| `status-on-track-foreground` | `status-on-track` | 6.78:1 | 4.5:1 |
 | `status-due-soon-foreground` | `status-due-soon` | 6.37:1 | 4.5:1 |
-| `status-overdue-foreground` | `status-overdue` | 6.80:1 | 4.5:1 |
-| `status-ended-foreground` | `status-ended` | 8.40:1 | 4.5:1 |
+| `status-overdue-foreground` | `status-overdue` | 6.68:1 | 4.5:1 |
+| `status-ended-foreground` | `status-ended` | 8.33:1 | 4.5:1 |
 
 Dark-theme pairings are also mapped and checked, although separate dark-mode screen design remains
 out of scope:
 
 | Foreground / indicator | Surface | Ratio | Requirement |
 |---|---|---:|---:|
-| `foreground` | `background` | 17.06:1 | 4.5:1 |
-| `card-foreground` | `card` | 16.96:1 | 4.5:1 |
-| `muted-foreground` | `muted` | 9.85:1 | 4.5:1 |
-| `primary-foreground` | `primary` | 7.02:1 | 4.5:1 |
-| `secondary-foreground` | `secondary` | 13.98:1 | 4.5:1 |
-| `accent-foreground` | `accent` | 9.43:1 | 4.5:1 |
-| `destructive-foreground` | `destructive` | 5.84:1 | 4.5:1 |
-| `border` | `card` | 6.92:1 | 3:1 |
-| `ring` | `background` | 7.02:1 | 3:1 |
-| `status-on-track-foreground` | `status-on-track` | 10.62:1 | 4.5:1 |
+| `foreground` | `background` | 17.40:1 | 4.5:1 |
+| `card-foreground` | `card` | 16.12:1 | 4.5:1 |
+| `muted-foreground` | `muted` | 5.73:1 | 4.5:1 |
+| `primary-foreground` | `primary` | 5.36:1 | 4.5:1 |
+| `secondary-foreground` | `secondary` | 13.34:1 | 4.5:1 |
+| `accent-foreground` | `accent` | 9.27:1 | 4.5:1 |
+| `destructive-foreground` | `destructive` | 5.81:1 | 4.5:1 |
+| `border` | `card` | 3.67:1 | 3:1 |
+| `ring` | `background` | 6.42:1 | 3:1 |
+| `status-on-track-foreground` | `status-on-track` | 9.94:1 | 4.5:1 |
 | `status-due-soon-foreground` | `status-due-soon` | 12.03:1 | 4.5:1 |
-| `status-overdue-foreground` | `status-overdue` | 8.51:1 | 4.5:1 |
-| `status-ended-foreground` | `status-ended` | 9.85:1 | 4.5:1 |
+| `status-overdue-foreground` | `status-overdue` | 8.27:1 | 4.5:1 |
+| `status-ended-foreground` | `status-ended` | 9.96:1 | 4.5:1 |
