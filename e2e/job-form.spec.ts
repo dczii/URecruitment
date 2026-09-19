@@ -45,7 +45,8 @@ test("refused save: unmarked requirements and empty nationality reason show the 
 
   await page.getByRole("button", { name: "Save job" }).click();
 
-  const banner = page.getByRole("alert");
+  // Scoped to main: Next renders a permanent role="alert" route announcer outside it.
+  const banner = page.locator("main#main-content").getByRole("alert");
   await expect(banner).toBeVisible();
   await expect(banner).toHaveText(
     "2 requirement rows are missing a must-have/nice-to-have choice, and the nationality reason is empty.",
@@ -96,5 +97,7 @@ test("accepted save: a complete job redirects to the new job page", async ({
   await expect(page).toHaveURL(
     /\/jobs\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
   );
-  await expect(page.getByRole("alert")).toHaveCount(0);
+  await expect(
+    page.locator("main#main-content").getByRole("alert"),
+  ).toHaveCount(0);
 });
