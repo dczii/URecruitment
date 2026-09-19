@@ -60,22 +60,18 @@ describe("server env (AC2, AC9)", () => {
     const badUrl = "definitely not a url";
     const secret = "sk-test-DO-NOT-PRINT-123";
     const badDsn = "also-bad";
-    const badCap = "-5";
     const error = expectThrownEnvError(() =>
       parseServerEnv({
         SUPABASE_URL: badUrl,
         SUPABASE_SECRET_KEY: secret,
         SENTRY_DSN: badDsn,
-        AI_MONTHLY_SPEND_CAP: badCap,
       }),
     );
     expect(error.message).not.toContain(badUrl);
     expect(error.message).not.toContain(secret);
     expect(error.message).not.toContain(badDsn);
-    expect(error.message).not.toContain(badCap);
     expect(error.message).toContain("SUPABASE_URL");
     expect(error.message).toContain("SENTRY_DSN");
-    expect(error.message).toContain("AI_MONTHLY_SPEND_CAP");
   });
 
   it("AC2: valid input parses, optional values default or stay undefined", () => {
@@ -83,15 +79,7 @@ describe("server env (AC2, AC9)", () => {
       SUPABASE_URL: VALID_URL,
       SUPABASE_SECRET_KEY: VALID_SECRET,
     });
-    expect(requiredOnly.MUST_HAVE_CAP).toBe(50);
-    expect(requiredOnly.AI_MODEL_PARSE).toBeUndefined();
-
-    const withSpendCap = parseServerEnv({
-      SUPABASE_URL: VALID_URL,
-      SUPABASE_SECRET_KEY: VALID_SECRET,
-      AI_MONTHLY_SPEND_CAP: "25",
-    });
-    expect(withSpendCap.AI_MONTHLY_SPEND_CAP).toBe(25);
+    expect(requiredOnly.SENTRY_DSN).toBeUndefined();
   });
 
   it("AC2: an empty string counts as missing for a required variable", () => {
@@ -104,31 +92,6 @@ describe("server env (AC2, AC9)", () => {
     expect(error.variables).toContain("SUPABASE_URL");
     expect(error.message).toContain("SUPABASE_URL (missing)");
     expect(error.message).not.toContain(VALID_SECRET);
-  });
-
-  it("AC2: MUST_HAVE_CAP outside 0–100 is rejected", () => {
-    const tooHigh = expectThrownEnvError(() =>
-      parseServerEnv({
-        SUPABASE_URL: VALID_URL,
-        SUPABASE_SECRET_KEY: VALID_SECRET,
-        MUST_HAVE_CAP: "101",
-      }),
-    );
-    expect(tooHigh.variables).toContain("MUST_HAVE_CAP");
-    expect(tooHigh.message).toContain("MUST_HAVE_CAP");
-    expect(tooHigh.message).toContain("invalid");
-    expect(tooHigh.message).not.toContain("101");
-
-    const tooLow = expectThrownEnvError(() =>
-      parseServerEnv({
-        SUPABASE_URL: VALID_URL,
-        SUPABASE_SECRET_KEY: VALID_SECRET,
-        MUST_HAVE_CAP: "-1",
-      }),
-    );
-    expect(tooLow.variables).toContain("MUST_HAVE_CAP");
-    expect(tooLow.message).toContain("invalid");
-    expect(tooLow.message).not.toContain("-1");
   });
 
   it("AC9: the server env module is server-only", () => {

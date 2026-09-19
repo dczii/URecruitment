@@ -49,8 +49,7 @@ failed to load:
 
 - Delay status badge (word/icon + colour, never colour alone) — `design/tokens.pen` `RclSO` /
   `hrYVQ` / `Wc9Ra` / `PCAPi`.
-- No AI output appears on the dashboard directly (delay status is derived, not AI-suggested), so
-  the `AiSuggestion`/`SourceQuote` patterns are not used here — they appear on Jobs/Candidate.
+- Delay status is derived, not suggested. There is no product-AI chrome on this screen.
 
 ## Tokens
 

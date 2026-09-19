@@ -116,4 +116,4 @@ Task #97 may add static placeholders only to prove routing:
 - Settings — `Adjust portal rules`
 
 Each page has one `h1`, one plain sentence noting that its owning Story supplies the content, and no
-fake data, action, status, AI result or data fetching.
+fake data, action, status, or data fetching.

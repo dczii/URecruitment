@@ -32,11 +32,6 @@
   --color-status-overdue-foreground: var(--status-overdue-foreground);
   --color-status-ended: var(--status-ended);
   --color-status-ended-foreground: var(--status-ended-foreground);
-  --color-ai-suggestion-bg: var(--ai-suggestion-bg);
-  --color-ai-suggestion-foreground: var(--ai-suggestion-foreground);
-  --color-ai-suggestion-border: var(--ai-suggestion-border);
-  --color-source-quote-bg: var(--source-quote-bg);
-  --color-source-quote-foreground: var(--source-quote-foreground);
 
   --font-sans:
     var(--font-geist-sans), var(--font-noto-sans-sc), system-ui, sans-serif;
@@ -135,11 +130,6 @@
   --status-overdue-foreground: #991b1b;
   --status-ended: #e2e8f0;
   --status-ended-foreground: #334155;
-  --ai-suggestion-bg: #eff6ff;
-  --ai-suggestion-foreground: #1e3a8a;
-  --ai-suggestion-border: #1d4ed8;
-  --source-quote-bg: #f8fafc;
-  --source-quote-foreground: #334155;
 }
 
 .dark {
@@ -170,11 +160,6 @@
   --status-overdue-foreground: #fca5a5;
   --status-ended: #1e293b;
   --status-ended-foreground: #cbd5e1;
-  --ai-suggestion-bg: #172554;
-  --ai-suggestion-foreground: #bfdbfe;
-  --ai-suggestion-border: #60a5fa;
-  --source-quote-bg: #111827;
-  --source-quote-foreground: #cbd5e1;
 }
 
 @layer base {

@@ -2,16 +2,22 @@
 
 import { z } from "zod";
 
-import { getModel } from "@/server/ai/provider";
-import { createSupabaseAiRunsWriter } from "@/server/ai/run-supabase";
 import {
-  runSearch,
-  type IgnoredTerm,
-  type SearchResult,
-} from "@/server/search/run-search";
-import type { SearchCandidatesFilters } from "@/server/search/query";
+  searchCandidates,
+  type SearchCandidateRow,
+  type SearchCandidatesFilters,
+} from "@/server/search/query";
 
 const querySchema = z.string();
+
+const filtersSchema = z.object({
+  skills: z.array(z.string()).optional(),
+  minYears: z.number().nullable().optional(),
+  maxYears: z.number().nullable().optional(),
+  locations: z.array(z.string()).optional(),
+  languages: z.array(z.string()).optional(),
+  cvUpdatedAfter: z.string().nullable().optional(),
+});
 
 export type SearchHit = {
   candidateId: string;
@@ -36,65 +42,71 @@ export type SearchActionResult =
   | {
       status: "ok";
       results: SearchHit[];
-      ignoredTerms: IgnoredTerm[];
       filters: SearchFilters;
     }
-  | { status: "could_not_understand" }
   | { status: "error"; message: string };
 
-/**
- * Parse a plain-language query and search. The browser must not call this
- * Server Action directly — that POSTs to `/search` and skips the Vercel
- * firewall. `POST /api/ai/search` is the page's entry point.
- */
-export async function search(query: string): Promise<SearchActionResult> {
-  const parsed = querySchema.safeParse(query);
-  const trimmed = parsed.success ? parsed.data.trim() : "";
-  if (trimmed === "") {
-    return { status: "error", message: "Enter a search query." };
+export async function search(
+  query: string,
+  filtersInput: unknown = {},
+): Promise<SearchActionResult> {
+  const parsedQuery = querySchema.safeParse(query);
+  const trimmed = parsedQuery.success ? parsedQuery.data.trim() : "";
+  const parsedFilters = filtersSchema.safeParse(filtersInput);
+  if (!parsedFilters.success) {
+    return { status: "error", message: "Search failed. Try again." };
   }
 
-  try {
-    const result = await runSearch({
-      query: trimmed,
-      model: getModel("search"),
-      runs: createSupabaseAiRunsWriter(),
-    });
+  const filters = toSearchFilters(parsedFilters.data);
 
-    if (result.status === "could_not_understand") {
-      return result;
-    }
+  try {
+    const rows = await searchCandidates({
+      filters: toSqlFilters(filters),
+      keyword: trimmed.length > 0 ? trimmed : null,
+    });
 
     return {
       status: "ok",
-      results: result.results.map(toSearchHit),
-      ignoredTerms: result.ignoredTerms,
-      filters: toClientFilters(result.filters),
+      results: rows.map(toSearchHit),
+      filters,
     };
   } catch {
     return { status: "error", message: "Search failed. Try again." };
   }
 }
 
-function toSearchHit(row: SearchResult): SearchHit {
+function toSearchFilters(
+  data: z.infer<typeof filtersSchema>,
+): SearchFilters {
   return {
-    candidateId: row.candidateId,
-    fullName: row.fullName,
-    headline: row.headline,
-    totalYears: row.totalYears,
-    location: row.location,
-    languages: row.languages,
-    cvUpdatedAt: row.cvUpdatedAt,
+    skills: data.skills ?? [],
+    minYears: data.minYears ?? null,
+    maxYears: data.maxYears ?? null,
+    locations: data.locations ?? [],
+    languages: data.languages ?? [],
+    cvUpdatedAfter: data.cvUpdatedAfter ?? null,
   };
 }
 
-function toClientFilters(filters: SearchCandidatesFilters): SearchFilters {
+function toSqlFilters(filters: SearchFilters): SearchCandidatesFilters {
   return {
     skills: filters.skills,
-    minYears: filters.min_years,
-    maxYears: filters.max_years,
+    min_years: filters.minYears,
+    max_years: filters.maxYears,
     locations: filters.locations,
     languages: filters.languages,
-    cvUpdatedAfter: filters.cv_updated_after,
+    cv_updated_after: filters.cvUpdatedAfter,
+  };
+}
+
+function toSearchHit(row: SearchCandidateRow): SearchHit {
+  return {
+    candidateId: row.candidate_id,
+    fullName: row.full_name,
+    headline: row.headline,
+    totalYears: row.total_years,
+    location: row.location,
+    languages: row.languages,
+    cvUpdatedAt: row.cv_updated_at,
   };
 }

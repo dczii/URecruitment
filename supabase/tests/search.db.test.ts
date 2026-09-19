@@ -2,10 +2,9 @@ import { afterAll, afterEach, describe, expect, it } from "vitest";
 import postgres from "postgres";
 
 /**
- * Hybrid search (#153 / Story #52) — DB integration.
+ * Keyword + filter search — DB integration.
  *
  * Proves hard-filter exclusion, a Simplified Chinese PGroonga keyword hit,
- * deterministic reciprocal-rank-fusion order, job-version match-score ranking,
  * and the PRD 3-second budget (AC3) on the fixture set.
  *
  * Fixture writes use a direct Postgres connection (local `postgres` role, the
@@ -50,12 +49,6 @@ type SearchRow = {
   languages: string[] | null;
   cv_updated_at: Date | string | null;
   keyword_score: number | string | null;
-  vector_score: number | string | null;
-  fused_score: number | string | null;
-  match_score: number | null;
-  matched: unknown;
-  missing: unknown;
-  uncertain: unknown;
   highlight: string | null;
 };
 
@@ -70,10 +63,6 @@ type Fixture = {
 };
 
 let fixture: Fixture = {};
-
-const QUERY_VECTOR = "[1,0,0,0,0,0,0,0]";
-const CURRENT_MODEL = "matcher-v2";
-const OLD_MODEL = "matcher-v1";
 
 function isConnectionError(error: unknown): boolean {
   const code = (error as { code?: string }).code;
@@ -138,7 +127,6 @@ type ProfileSeed = {
 async function insertCandidate(
   fullName: string,
   profile: ProfileSeed,
-  vector: string,
 ): Promise<string> {
   const [candidate] = await sql<{ id: string }[]>`
     insert into public.candidates (full_name)
@@ -188,18 +176,6 @@ async function insertCandidate(
     }
   }
 
-  await sql`
-    insert into public.embeddings (
-      owner_type, owner_id, embedding, embedding_model
-    )
-    values (
-      'candidate_profile',
-      ${candidate.id},
-      ${vector}::vector,
-      'test-embed-v1'
-    )
-  `;
-
   return candidate.id;
 }
 
@@ -221,7 +197,6 @@ async function seedFixture(): Promise<{
       languages: ["English", "Mandarin"],
       updatedAt: "2026-01-15T00:00:00.000Z",
     },
-    "[0,1,0,0,0,0,0,0]",
   );
   fixture.priyaId = priyaId;
   const chenId = await insertCandidate(
@@ -235,7 +210,6 @@ async function seedFixture(): Promise<{
       languages: ["普通话"],
       updatedAt: "2026-09-01T00:00:00.000Z",
     },
-    "[1,0,0,0,0,0,0,0]",
   );
   fixture.chenId = chenId;
   const samId = await insertCandidate(
@@ -249,7 +223,6 @@ async function seedFixture(): Promise<{
       languages: ["English"],
       updatedAt: "2026-03-01T00:00:00.000Z",
     },
-    "[0.7,0.7,0,0,0,0,0,0]",
   );
   fixture.samId = samId;
   const wangId = await insertCandidate(
@@ -263,7 +236,6 @@ async function seedFixture(): Promise<{
       languages: ["普通话"],
       updatedAt: "2026-08-01T00:00:00.000Z",
     },
-    "[0,0,1,0,0,0,0,0]",
   );
   fixture.wangId = wangId;
 
@@ -285,51 +257,6 @@ async function seedFixture(): Promise<{
     returning id
   `;
   fixture.jobVersionId = jobVersion.id;
-
-  // Older model: Priya would win if we ranked by any-model max score.
-  await sql`
-    insert into public.match_scores (
-      candidate_id, job_version_id, model_version, score, created_at
-    )
-    values
-      (${priyaId}, ${jobVersion.id}, ${OLD_MODEL}, 99, '2026-01-01T00:00:00.000Z'),
-      (${chenId}, ${jobVersion.id}, ${OLD_MODEL}, 10, '2026-01-01T00:00:00.000Z')
-  `;
-
-  const chenMatched = [
-    {
-      requirement_id: "java",
-      source_text: "Java",
-      note: "Java listed on the CV",
-    },
-  ];
-  await sql`
-    insert into public.match_scores (
-      candidate_id, job_version_id, model_version, score,
-      matched, missing, uncertain, created_at
-    )
-    values
-      (
-        ${chenId}, ${jobVersion.id}, ${CURRENT_MODEL}, 90,
-        ${sql.json(chenMatched)}, '[]'::jsonb, '[]'::jsonb,
-        '2026-09-01T00:00:00.000Z'
-      ),
-      (
-        ${samId}, ${jobVersion.id}, ${CURRENT_MODEL}, 70,
-        '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
-        '2026-09-01T00:00:00.000Z'
-      ),
-      (
-        ${priyaId}, ${jobVersion.id}, ${CURRENT_MODEL}, 40,
-        '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
-        '2026-09-01T00:00:00.000Z'
-      ),
-      (
-        ${wangId}, ${jobVersion.id}, ${CURRENT_MODEL}, 20,
-        '[]'::jsonb, '[]'::jsonb, '[]'::jsonb,
-        '2026-09-01T00:00:00.000Z'
-      )
-  `;
 
   fixture = {
     priyaId,
@@ -362,23 +289,17 @@ type SearchFilters = {
 async function search(args: {
   filters?: SearchFilters;
   keyword?: string;
-  embedding?: string | null;
-  jobVersionId?: string | null;
   lim?: number;
   off?: number;
 }): Promise<SearchRow[]> {
   const filters = args.filters ?? {};
   const keyword = args.keyword ?? "";
-  const embedding = args.embedding ?? null;
-  const jobVersionId = args.jobVersionId ?? null;
   const lim = args.lim ?? 50;
   const off = args.off ?? 0;
   return sql<SearchRow[]>`
     select * from public.search_candidates(
       ${sql.json(filters)}::jsonb,
       ${keyword},
-      ${embedding}::vector,
-      ${jobVersionId}::uuid,
       ${lim}::integer,
       ${off}::integer
     )
@@ -401,7 +322,7 @@ describe("search_candidates lock-down and visibility hook", () => {
       where n.nspname = 'public'
         and p.proname = 'search_candidates'
     `;
-    expect(fn, "search_candidates must exist after the hybrid migration").toBeTruthy();
+    expect(fn, "search_candidates must exist after the keyword search migration").toBeTruthy();
     if (!fn) {
       throw new Error("search_candidates is not installed");
     }
@@ -442,14 +363,14 @@ describe("search_candidates lock-down and visibility hook", () => {
   it("search_candidates selects from searchable_candidates, not candidates directly", async () => {
     const [def] = await sql<{ definition: string }[]>`
       select pg_get_functiondef(
-        'public.search_candidates(jsonb, text, vector, uuid, integer, integer)'::regprocedure
+        'public.search_candidates(jsonb, text, integer, integer)'::regprocedure
       ) as definition
     `;
     expect(def?.definition).toMatch(/searchable_candidates/);
   });
 });
 
-describe("search_candidates filters, keyword, fusion, job ranking, timing", () => {
+describe("search_candidates filters, keyword, timing", () => {
   it("skills filter excludes candidates who lack the normalised skill", async () => {
     const { priyaId, chenId, samId, wangId } = await seedFixture();
     const rows = await search({ filters: { skills: ["SAP"] } });
@@ -524,58 +445,11 @@ describe("search_candidates filters, keyword, fusion, job ranking, timing", () =
     expect(Number(hit?.keyword_score)).toBeGreaterThan(0);
   });
 
-  it("fusion order is deterministic across repeated runs", async () => {
-    const { priyaId, chenId } = await seedFixture();
-    const first = await search({
-      keyword: "accountant",
-      embedding: QUERY_VECTOR,
-    });
-    const second = await search({
-      keyword: "accountant",
-      embedding: QUERY_VECTOR,
-    });
-
-    expect(idsOf(second)).toEqual(idsOf(first));
-    // Keyword hits Priya only; vector ranks Chen first. RRF_K=60 puts Priya
-    // (keyword rank 1 + a vector rank) above Chen (vector rank 1 only).
-    expect(first[0]?.candidate_id).toBe(priyaId);
-    expect(first[1]?.candidate_id).toBe(chenId);
-  });
-
-  it("passing job_version_id ranks by current-model match_scores, not fusion or a stale model", async () => {
-    const { priyaId, chenId, samId, wangId, jobVersionId } =
-      await seedFixture();
-
-    const fused = await search({
-      keyword: "accountant",
-      embedding: QUERY_VECTOR,
-    });
-    expect(fused[0]?.candidate_id).toBe(priyaId);
-
-    const ranked = await search({
-      keyword: "accountant",
-      embedding: QUERY_VECTOR,
-      jobVersionId,
-    });
-    expect(idsOf(ranked)).toEqual([chenId, samId, priyaId, wangId]);
-    expect(ranked[0]?.match_score).toBe(90);
-    expect(ranked[0]?.matched).toEqual([
-      {
-        requirement_id: "java",
-        source_text: "Java",
-        note: "Java listed on the CV",
-      },
-    ]);
-    // Stale matcher-v1 scored Priya at 99 — that must not win.
-    expect(ranked[0]?.candidate_id).not.toBe(priyaId);
-  });
-
   it("AC3: search over the fixture set completes well under 3000ms", async () => {
     await seedFixture();
     const started = performance.now();
     const rows = await search({
       keyword: "accountant",
-      embedding: QUERY_VECTOR,
     });
     const elapsed = performance.now() - started;
     expect(rows.length).toBeGreaterThan(0);

@@ -8,10 +8,8 @@ vi.mock("../db", () => ({ getDb: vi.fn() }));
 
 const QUERY_SOURCE_PATH = join(process.cwd(), "src/server/search/query.ts");
 
-/** Fictional candidate ids — never a real person. */
 const CANDIDATE_LOW = "00000000-0000-0000-0000-000000000501";
 const CANDIDATE_HIGH = "00000000-0000-0000-0000-000000000502";
-const JOB_VERSION_ID = "00000000-0000-0000-0000-000000000601";
 
 const FILTERS = {
   skills: ["SAP"],
@@ -23,7 +21,6 @@ const FILTERS = {
 };
 
 const KEYWORD = "accountant SAP";
-const EMBEDDING = [0.11, 0.22, 0.33, 0.44, 0.55, 0.66, 0.77, 0.88];
 
 function firstNonEmptyLine(source: string): string {
   for (const line of source.split("\n")) {
@@ -46,12 +43,6 @@ function searchRow(
     languages: ["English", "Mandarin"],
     cv_updated_at: "2026-08-01T00:00:00.000Z",
     keyword_score: 1,
-    vector_score: 0.5,
-    fused_score: 0.03,
-    match_score: null,
-    matched: null,
-    missing: null,
-    uncertain: null,
     highlight: "<span>accountant</span>",
     ...overrides,
   };
@@ -71,43 +62,36 @@ beforeEach(() => {
 });
 
 describe("searchCandidates", () => {
-  it("AC1: calls search_candidates with snake_case args mapped from filters, keyword, and embedding", async () => {
+  it("calls search_candidates with filters and keyword", async () => {
     const rows = [searchRow({ candidate_id: CANDIDATE_HIGH })];
     const { rpc } = mockRpc({ data: rows, error: null });
 
     await searchCandidates({
       filters: FILTERS,
       keyword: KEYWORD,
-      embedding: EMBEDDING,
-      jobVersionId: JOB_VERSION_ID,
       limit: 10,
       offset: 20,
     });
 
     expect(getDb).toHaveBeenCalledTimes(1);
-    expect(rpc).toHaveBeenCalledTimes(1);
     expect(rpc).toHaveBeenCalledWith("search_candidates", {
       filters: FILTERS,
       keyword: KEYWORD,
-      embedding: EMBEDDING,
-      job_version_id: JOB_VERSION_ID,
       lim: 10,
       off: 20,
     });
   });
 
   it("returns the SQL rows as-is: no client-side re-filter or re-sort", async () => {
-    // SQL already ranked. These arrive with the lower fused_score first so a
-    // client-side re-sort by score would swap them.
     const rows = [
       searchRow({
         candidate_id: CANDIDATE_LOW,
-        fused_score: 0.01,
+        keyword_score: 0.01,
         full_name: "Alex Tan",
       }),
       searchRow({
         candidate_id: CANDIDATE_HIGH,
-        fused_score: 0.99,
+        keyword_score: 0.99,
         full_name: "Jordan Lim",
       }),
     ];
@@ -116,7 +100,6 @@ describe("searchCandidates", () => {
     const result = await searchCandidates({
       filters: FILTERS,
       keyword: KEYWORD,
-      embedding: EMBEDDING,
     });
 
     expect(result).toBe(rows);
@@ -126,20 +109,17 @@ describe("searchCandidates", () => {
     ]);
   });
 
-  it("defaults job_version_id to null, lim to 50, and off to 0", async () => {
+  it("defaults lim to 50 and off to 0", async () => {
     const { rpc } = mockRpc({ data: [], error: null });
 
     await searchCandidates({
       filters: FILTERS,
       keyword: null,
-      embedding: null,
     });
 
     expect(rpc).toHaveBeenCalledWith("search_candidates", {
       filters: FILTERS,
       keyword: null,
-      embedding: null,
-      job_version_id: null,
       lim: 50,
       off: 0,
     });
@@ -148,20 +128,12 @@ describe("searchCandidates", () => {
   it("surfaces a DB error, doesn't swallow it", async () => {
     mockRpc({ data: null, error: { message: "boom" } });
 
-    let thrown: unknown;
-    try {
-      await searchCandidates({
+    await expect(
+      searchCandidates({
         filters: FILTERS,
         keyword: KEYWORD,
-        embedding: EMBEDDING,
-      });
-    } catch (error) {
-      thrown = error;
-    }
-
-    expect(thrown).toBeInstanceOf(Error);
-    const message = thrown instanceof Error ? thrown.message : "";
-    expect(message).toContain("boom");
+      }),
+    ).rejects.toThrow(/boom/);
   });
 
   it('starts with import "server-only"', () => {

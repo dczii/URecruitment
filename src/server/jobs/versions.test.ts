@@ -9,8 +9,7 @@ vi.mock("../db", () => ({ getDb: vi.fn() }));
  * No-change save (decided in T2a): calling `saveJobVersion` again with
  * identical input still creates a new `job_versions` row. There is no
  * dedup/diff against the current version — every save is a new immutable
- * snapshot. That is the simplest, most predictable behaviour, and it keeps
- * match scores and gap flags keyed to the version they were computed
+ * snapshot. Gap flags stay keyed to the version they were computed
  * against even when the recruiter hits save without changing anything.
  *
  * T2a contract — implement these signatures in `src/server/jobs/versions.ts`.

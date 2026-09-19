@@ -79,24 +79,15 @@ async function seedStoredRecruiterName(page: Page, name = "Maya Tan") {
   );
 }
 
-test("AC1: shows every parsed field with source text available", async ({
+test("AC1: shows identity fields without AI suggestion labels", async ({
   page,
 }) => {
   await gotoCandidate(page);
 
-  await expect(page.getByText("AI suggestion").first()).toBeVisible();
-
-  const showSource = page.getByRole("button", { name: "Show source text" });
-  const sourceCount = await showSource.count();
-  expect(sourceCount).toBeGreaterThan(0);
-
-  for (let index = 0; index < sourceCount; index += 1) {
-    await page.getByRole("button", { name: "Show source text" }).first().click();
-  }
-
+  await expect(page.getByText("AI suggestion")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Hide source text" }),
-  ).toHaveCount(sourceCount);
+    page.getByRole("button", { name: "Show source text" }),
+  ).toHaveCount(0);
 });
 
 test("AC2: original CV opens through a signed link", async ({ page }) => {
@@ -178,14 +169,6 @@ test("AC1: edits a field and it persists", async ({ page }) => {
   await expect(card.getByText(editedValue, { exact: true })).toBeVisible();
   await expect(card.getByText(originalValue, { exact: true })).toBeVisible();
   await expect(card.getByText("Edited by Maya Tan")).toBeVisible();
-
-  const showSource = card.getByRole("button", { name: "Show source text" });
-  if ((await showSource.count()) > 0) {
-    await showSource.click();
-    await expect(
-      card.getByRole("button", { name: "Hide source text" }),
-    ).toBeVisible();
-  }
 });
 
 test("AC2: name prompt appears once per device", async ({ page }) => {

@@ -38,7 +38,7 @@ brand identity yet.
 | `input` | `#64748B` | `#94A3B8` | `--input` | `border-input` | Input boundary |
 | `ring` | `#2563EB` | `#60A5FA` | `--ring` | `ring-ring` | Visible keyboard focus |
 
-## Delay status and AI roles
+## Delay status
 
 | Token | Light | Dark | CSS variable | Tailwind token | Required non-colour cue |
 |---|---:|---:|---|---|---|
@@ -50,11 +50,6 @@ brand identity yet.
 | `status-overdue-foreground` | `#991B1B` | `#FCA5A5` | `--status-overdue-foreground` | `text-status-overdue-foreground` | Status text and icon |
 | `status-ended` | `#E2E8F0` | `#1E293B` | `--status-ended` | `bg-status-ended` | End-state word; no delay badge |
 | `status-ended-foreground` | `#334155` | `#CBD5E1` | `--status-ended-foreground` | `text-status-ended-foreground` | End-state text |
-| `ai-suggestion-bg` | `#EFF6FF` | `#172554` | `--ai-suggestion-bg` | `bg-ai-suggestion-bg` | AI suggestion group background |
-| `ai-suggestion-foreground` | `#1E3A8A` | `#BFDBFE` | `--ai-suggestion-foreground` | `text-ai-suggestion-foreground` | Visible “AI suggestion” label |
-| `ai-suggestion-border` | `#1D4ED8` | `#60A5FA` | `--ai-suggestion-border` | `border-ai-suggestion-border` | AI suggestion group boundary |
-| `source-quote-bg` | `#F8FAFC` | `#111827` | `--source-quote-bg` | `bg-source-quote-bg` | Source excerpt background |
-| `source-quote-foreground` | `#334155` | `#CBD5E1` | `--source-quote-foreground` | `text-source-quote-foreground` | Source excerpt text |
 
 ## Typography
 
@@ -106,7 +101,7 @@ Tailwind token.
 
 ## Shared patterns (added for Story #32, `design/shell.pen`)
 
-`design/tokens.md`'s `status-*`, `ai-suggestion-*` and `source-quote-*` colours were documented
+`design/tokens.md`'s `status-*` colours were documented
 above but not yet registered as pen.dev variables until Story #32 (#100–#106) needed them; they are
 now defined via `SetVariables` in the live document and used by three reusable components:
 
@@ -116,8 +111,6 @@ now defined via `SetVariables` in the live document and used by three reusable c
 | Delay status badge — Due soon | `hrYVQ` | Dashboard, Pipeline, Jobs list |
 | Delay status badge — Overdue | `Wc9Ra` | Dashboard, Pipeline |
 | Delay status badge — Ended (no status) | `PCAPi` | Pipeline, Placements |
-| AI suggestion tag | `D3Bjz` | Job detail, Job form, Candidate profile |
-| Source quote | `b6W3X` | Job detail, Candidate profile |
 
 Each delay badge instance pairs an icon (`circle-check`/`clock`/`triangle-alert`/`circle-slash`)
 with a status word and the matching `status-*` colour — colour is never the only cue, per design
@@ -149,9 +142,6 @@ exceed 3:1.
 | `status-due-soon-foreground` | `status-due-soon` | 6.37:1 | 4.5:1 |
 | `status-overdue-foreground` | `status-overdue` | 6.80:1 | 4.5:1 |
 | `status-ended-foreground` | `status-ended` | 8.40:1 | 4.5:1 |
-| `ai-suggestion-foreground` | `ai-suggestion-bg` | 9.52:1 | 4.5:1 |
-| `ai-suggestion-border` | `ai-suggestion-bg` | 6.16:1 | 3:1 |
-| `source-quote-foreground` | `source-quote-bg` | 9.90:1 | 4.5:1 |
 
 Dark-theme pairings are also mapped and checked, although separate dark-mode screen design remains
 out of scope:
@@ -171,6 +161,3 @@ out of scope:
 | `status-due-soon-foreground` | `status-due-soon` | 12.03:1 | 4.5:1 |
 | `status-overdue-foreground` | `status-overdue` | 8.51:1 | 4.5:1 |
 | `status-ended-foreground` | `status-ended` | 9.85:1 | 4.5:1 |
-| `ai-suggestion-foreground` | `ai-suggestion-bg` | 10.34:1 | 4.5:1 |
-| `ai-suggestion-border` | `ai-suggestion-bg` | 5.78:1 | 3:1 |
-| `source-quote-foreground` | `source-quote-bg` | 11.95:1 | 4.5:1 |

@@ -31,7 +31,6 @@ describe("public env (AC2, AC9, AC10)", () => {
       ["OPENAI_API_KEY", true],
       ["NEXT_PUBLIC_SENTRY_DSN", false],
       ["MUST_HAVE_CAP", false],
-      ["AI_MODEL_PARSE", false],
       ["KEYBOARD_LAYOUT", false],
       // Added by the 2026-09-18 security review: the first guard missed all of
       // these, which are the likeliest names for a leaked secret.

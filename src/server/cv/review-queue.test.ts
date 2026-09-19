@@ -3,17 +3,12 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { getDb } from "../db";
 import { extractCvText } from "./extract";
-import { parseCv } from "./parse";
 import { listFailedCvFiles, retryParse } from "./review-queue";
 
 vi.mock("../db", () => ({ getDb: vi.fn() }));
 
 vi.mock("./extract", () => ({
   extractCvText: vi.fn(),
-}));
-
-vi.mock("./parse", () => ({
-  parseCv: vi.fn(),
 }));
 
 const REVIEW_QUEUE_SOURCE_PATH = join(
@@ -287,12 +282,10 @@ describe("cv review queue (T130-AC1, T130-AC2, T130-AC3, T130-AC4)", () => {
   it("T130-AC2: a successful retry clears the file from the queue", async () => {
     const { store } = seedQueuedError();
     vi.mocked(extractCvText).mockResolvedValue(SUCCESSFUL_EXTRACTION);
-    vi.mocked(parseCv).mockResolvedValue({} as never);
 
     await retryParse(ERROR_CV_ID);
 
     expect(extractCvText).toHaveBeenCalled();
-    expect(parseCv).toHaveBeenCalled();
 
     const row = store.find((item) => item.id === ERROR_CV_ID);
     expect(row?.parse_status).toBe("parsed");
@@ -307,8 +300,7 @@ describe("cv review queue (T130-AC1, T130-AC2, T130-AC3, T130-AC4)", () => {
     const { store } = seedQueuedError({ attempt_count: initialAttempts });
     vi.useFakeTimers();
     vi.setSystemTime(new Date(RETRY_AT));
-    vi.mocked(extractCvText).mockResolvedValue(SUCCESSFUL_EXTRACTION);
-    vi.mocked(parseCv).mockRejectedValue(new Error(RETRY_ERROR));
+    vi.mocked(extractCvText).mockRejectedValue(new Error(RETRY_ERROR));
 
     try {
       await retryParse(ERROR_CV_ID);

@@ -183,7 +183,7 @@ describe("design token source", () => {
 
     for (const heading of [
       "## Colour",
-      "## Delay status and AI roles",
+      "## Delay status",
       "## Typography",
       "## Spacing",
       "## Radius and shadow",
@@ -198,7 +198,6 @@ describe("design token source", () => {
         "status-on-track",
         "status-due-soon",
         "status-overdue",
-        "ai-suggestion-bg",
         "font-sans",
         "text-body",
         "space-4",
@@ -220,7 +219,6 @@ describe("theme contract (AC4)", () => {
         "background",
         "destructive-foreground",
         "status-on-track",
-        "ai-suggestion-bg",
         "font-sans",
         "text-display",
         "numeric-tabular",
@@ -229,7 +227,7 @@ describe("theme contract (AC4)", () => {
         "shadow-sm",
       ]),
     );
-    expect(tokens).toHaveLength(58);
+    expect(tokens).toHaveLength(53);
 
     const themeInline = extractBlock(globalsCss, "@theme\\s+inline");
     const rootBlock = extractBlock(globalsCss, ":root");
