@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <>
       <a
         href="#main-content"
-        className="sr-only fixed top-2 left-2 z-100 rounded-md bg-card px-3 py-2 text-label font-semibold text-primary outline-none focus:not-sr-only focus-visible:not-sr-only focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="sr-only fixed top-2 left-2 z-100 rounded-md bg-card px-3 py-2 text-label font-semibold text-primary shadow-md outline-none focus:not-sr-only focus-visible:not-sr-only focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Skip to content
       </a>
@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <main
             id="main-content"
             tabIndex={-1}
-            className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 outline-none lg:p-8"
+            className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 outline-none lg:px-10 lg:py-8"
           >
             {children}
           </main>

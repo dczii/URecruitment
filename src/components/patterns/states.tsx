@@ -19,12 +19,17 @@ type ErrorStateProps = {
 };
 
 const centeredStackClassName =
-  "flex flex-col items-center justify-center gap-4 px-4 py-8 text-center";
+  "flex flex-col items-center justify-center gap-4 px-4 py-10 text-center";
+
+const iconDiscClassName =
+  "flex size-12 items-center justify-center rounded-full bg-muted";
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
     <div className={centeredStackClassName}>
-      <Inbox className="size-8 text-muted-foreground" aria-hidden="true" />
+      <span className={iconDiscClassName} aria-hidden="true">
+        <Inbox className="size-6 text-muted-foreground" />
+      </span>
       <StateCopy title={title} description={description} />
       {action}
     </div>
@@ -38,7 +43,9 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div role="alert" className={centeredStackClassName}>
-      <TriangleAlert className="size-8 text-destructive" aria-hidden="true" />
+      <span className={iconDiscClassName} aria-hidden="true">
+        <TriangleAlert className="size-6 text-destructive" />
+      </span>
       <StateCopy title={title} description={description} />
       {onRetry ? (
         <Button type="button" onClick={onRetry}>
