@@ -5,6 +5,10 @@
 # database (CLAUDE.md hard rule 6/9) as soon as someone clicks "Run
 # workflow", with no separate review step. It must never run on every push
 # or PR the way pr-checks.yml does.
+#
+# The seed script (scripts/seed/index.ts) has no AI dependency since #243
+# dropped the product AI pipeline: it only needs Supabase access and the
+# sample-data Blob store. No AI_MODEL_*/AI_EMBED_MODEL secret is read here.
 name: Seed sample data
 
 on:
@@ -28,22 +32,12 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           SEED_BLOB_BASE_URL: ${{ secrets.SEED_BLOB_BASE_URL }}
-          AI_MODEL_PARSE: ${{ secrets.AI_MODEL_PARSE }}
-          AI_MODEL_MATCH: ${{ secrets.AI_MODEL_MATCH }}
-          AI_MODEL_GAP: ${{ secrets.AI_MODEL_GAP }}
-          AI_MODEL_JD: ${{ secrets.AI_MODEL_JD }}
-          AI_EMBED_MODEL: ${{ secrets.AI_EMBED_MODEL }}
         run: |
           missing=()
           [ -z "$SUPABASE_URL" ] && missing+=("SUPABASE_URL")
           [ -z "$SUPABASE_SECRET_KEY" ] && missing+=("SUPABASE_SECRET_KEY")
           [ -z "$BLOB_READ_WRITE_TOKEN" ] && missing+=("BLOB_READ_WRITE_TOKEN")
           [ -z "$SEED_BLOB_BASE_URL" ] && missing+=("SEED_BLOB_BASE_URL")
-          [ -z "$AI_MODEL_PARSE" ] && missing+=("AI_MODEL_PARSE")
-          [ -z "$AI_MODEL_MATCH" ] && missing+=("AI_MODEL_MATCH")
-          [ -z "$AI_MODEL_GAP" ] && missing+=("AI_MODEL_GAP")
-          [ -z "$AI_MODEL_JD" ] && missing+=("AI_MODEL_JD")
-          [ -z "$AI_EMBED_MODEL" ] && missing+=("AI_EMBED_MODEL")
 
           if [ ${#missing[@]} -gt 0 ]; then
             joined=$(IFS=, ; echo "${missing[*]}")
@@ -52,8 +46,6 @@ jobs:
               echo "## Seed skipped"
               echo
               echo "Missing repository secret(s): \`$joined\`."
-              echo
-              echo "The AI provider is not chosen yet (ADR-0003) — the \`AI_MODEL_*\`/\`AI_EMBED_MODEL\` secrets stay unset, and this job stays a no-op, until a provider is picked and configured."
             } >> "$GITHUB_STEP_SUMMARY"
             echo "ready=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -84,13 +76,6 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           SEED_BLOB_BASE_URL: ${{ secrets.SEED_BLOB_BASE_URL }}
-          AI_MODEL_PARSE: ${{ secrets.AI_MODEL_PARSE }}
-          AI_MODEL_MATCH: ${{ secrets.AI_MODEL_MATCH }}
-          AI_MODEL_GAP: ${{ secrets.AI_MODEL_GAP }}
-          AI_MODEL_JD: ${{ secrets.AI_MODEL_JD }}
-          AI_MODEL_SEARCH: ${{ secrets.AI_MODEL_SEARCH }}
-          AI_EMBED_MODEL: ${{ secrets.AI_EMBED_MODEL }}
-          AI_MONTHLY_SPEND_CAP: ${{ secrets.AI_MONTHLY_SPEND_CAP }}
         run: npm run seed
 
       - name: Job summary
