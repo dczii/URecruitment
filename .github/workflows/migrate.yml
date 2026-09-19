@@ -1,0 +1,97 @@
+# Pushes pending migrations to the one Supabase project Preview and
+# Production share (docs/plans/infrastructure.md#one-supabase-project-for-preview-and-production).
+# Runs on merge to main behind a required-approval GitHub Environment
+# ("production" — configure its required reviewers in repo settings; that
+# review gate is a repo setting, not something this file can enforce), and
+# can also be run by hand to work through the backlog that built up before
+# this workflow existed (#238). #91 scoped remote migrations out of db.yml;
+# this is that follow-up.
+name: Migrate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - supabase/migrations/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check secrets
+        id: gate
+        env:
+          ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          if [ -z "$ACCESS_TOKEN" ] || [ -z "$PROJECT_REF" ] || [ -z "$DB_PASSWORD" ]; then
+            echo "::notice::migrate skipped: SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF and SUPABASE_DB_PASSWORD must all be set as repository secrets."
+            {
+              echo "## Migrate skipped"
+              echo
+              echo "One or more of \`SUPABASE_ACCESS_TOKEN\`, \`SUPABASE_PROJECT_REF\`, \`SUPABASE_DB_PASSWORD\` is not set."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Supabase CLI
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        uses: supabase/setup-cli@46f7f98c7f948ad727d22c1e67fab04c223a0520 # v3.0.0
+        with:
+          version: 2.117.0
+
+      - name: Link project
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+
+      - name: List pending migrations
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase migration list --linked
+
+      - name: Push migrations
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push --linked
+
+      - name: Job summary
+        if: ${{ always() && steps.gate.outputs.ready == 'true' }}
+        run: |
+          {
+            echo "## Migrate"
+            echo
+            echo "Pushed \`supabase/migrations/**\` to the shared Supabase project."
+            echo
+            echo "Migrations in this checkout:"
+            echo
+            if [ -d supabase/migrations ] && [ -n "$(ls -A supabase/migrations 2>/dev/null)" ]; then
+              ls -1 supabase/migrations | sed 's/^/- /'
+            else
+              echo "- (none yet)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
