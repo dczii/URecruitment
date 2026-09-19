@@ -2,8 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { TriangleAlert } from "lucide-react";
+
 import { FlagChecklist } from "@/components/features/gap-check/FlagChecklist";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
 import { getJobDetail, type JobRequirement } from "@/server/jobs/list";
 
 export const dynamic = "force-dynamic";
@@ -59,31 +63,24 @@ export default async function JobDetailPage({
         </div>
         <Link
           href={`/search?jobId=${job.id}`}
-          className="text-label font-semibold text-primary underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          className={buttonVariants({ variant: "outline" })}
         >
           Search for more candidates
         </Link>
       </header>
 
       {job.openFlagCount > 0 ? (
-        <p className="rounded-md bg-status-due-soon px-3 py-3 text-label text-status-due-soon-foreground">
+        <p className="flex items-center gap-2 rounded-md border-l-4 border-status-due-soon-foreground bg-status-due-soon px-3 py-3 text-label text-status-due-soon-foreground">
+          <TriangleAlert className="size-4 shrink-0" aria-hidden="true" />
           {job.openFlagCount === 1
             ? "1 open gap flag needs a recruiter answer."
             : `${job.openFlagCount} open gap flags need a recruiter answer.`}
         </p>
       ) : null}
 
-      <div className="grid min-w-0 gap-6 lg:grid-cols-2">
-        <section
-          aria-labelledby="requirements-heading"
-          className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4"
-        >
-          <h2
-            id="requirements-heading"
-            className="font-heading text-heading font-semibold"
-          >
-            Requirements
-          </h2>
+      <div className="grid min-w-0 items-start gap-6 lg:grid-cols-2">
+        <Card as="section" aria-labelledby="requirements-heading" className="gap-3">
+          <CardTitle id="requirements-heading">Requirements</CardTitle>
           {requirements.length === 0 ? (
             <p className="text-body text-muted-foreground">
               No requirements on this version.
@@ -98,7 +95,7 @@ export default async function JobDetailPage({
               ))}
             </ul>
           )}
-        </section>
+        </Card>
 
         <FlagChecklist jobId={job.id} flags={job.openFlags} />
       </div>
@@ -117,17 +114,10 @@ function RequirementRow({ requirement }: { requirement: JobRequirement }) {
   const lang = CJK_CHAR.test(requirement.text) ? "zh-Hans" : undefined;
 
   return (
-    <li className="flex min-w-0 flex-wrap items-start gap-3 border-b border-border py-3 last:border-b-0 last:pb-0 first:pt-0">
-      <span
-        className={cn(
-          "inline-flex shrink-0 items-center rounded-sm px-2 py-1 text-caption font-semibold",
-          isMustHave
-            ? "bg-destructive text-destructive-foreground"
-            : "bg-muted text-muted-foreground",
-        )}
-      >
+    <li className="flex min-w-0 flex-wrap items-start gap-3 border-b border-border/20 py-3 last:border-b-0 last:pb-0 first:pt-0">
+      <Badge tone={isMustHave ? "accent" : "outline"}>
         {isMustHave ? "Must-have" : "Nice-to-have"}
-      </span>
+      </Badge>
       <span className="min-w-0 flex-1 text-label break-words" lang={lang}>
         {requirement.text}
       </span>
@@ -145,18 +135,14 @@ function PlaceholderSection({
   note: string;
 }) {
   return (
-    <section
+    <Card
+      as="section"
       aria-labelledby={headingId}
-      className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-4"
+      className="gap-2 border-dashed bg-muted/40 shadow-none"
     >
-      <h2
-        id={headingId}
-        className="font-heading text-heading font-semibold"
-      >
-        {title}
-      </h2>
+      <CardTitle id={headingId}>{title}</CardTitle>
       <p className="text-body text-muted-foreground">{note}</p>
-    </section>
+    </Card>
   );
 }
 
