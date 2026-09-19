@@ -63,7 +63,7 @@ test("AC2: banner shows open flag count", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
   await expect(
     page.getByText(
-      /\d+ open gap flags? needs? a recruiter answer — matching is not blocked/,
+      /\d+ open gap flags? needs? a recruiter answer/,
     ),
   ).toBeVisible();
 });

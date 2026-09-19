@@ -4,8 +4,6 @@ import { useId, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { closeGapFlag } from "@/app/jobs/[id]/gap-flag-actions";
-import { AiSuggestion } from "@/components/patterns/AiSuggestion";
-import { SourceQuote } from "@/components/patterns/SourceQuote";
 import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -208,8 +206,6 @@ function FlagRow({
   const noteRef = useRef<HTMLTextAreaElement>(null);
   const [draftAction, setDraftAction] = useState<ResolutionState | null>(null);
   const [note, setNote] = useState("");
-  const isModelDerived = flag.flagType !== "missing";
-  const quotes = isModelDerived ? sourceQuotes(flag) : [];
   const reasonLang = sourceLang(flag.reason);
   const questionLang = flag.suggestedQuestion
     ? sourceLang(flag.suggestedQuestion)
@@ -242,19 +238,7 @@ function FlagRow({
 
   return (
     <li className="flex min-w-0 flex-col gap-3 border-b border-border py-3 last:border-b-0 last:pb-0 first:pt-0">
-      {isModelDerived ? (
-        <AiSuggestion variant="value">{reasonBody}</AiSuggestion>
-      ) : (
-        reasonBody
-      )}
-      {quotes.map((quote) => (
-        <SourceQuote
-          key={`${flag.id}-${quote.label ?? "source"}-${quote.text}`}
-          text={quote.text}
-          lang={sourceLang(quote.text)}
-          label={quote.label}
-        />
-      ))}
+      {reasonBody}
       {flag.suggestedQuestion ? (
         <p
           className="text-label break-words"
@@ -359,36 +343,6 @@ function groupFlags(
     }
   }
   return groups;
-}
-
-function sourceQuotes(
-  flag: FlagChecklistItem,
-): { text: string; label?: string }[] {
-  const quotes = quotedEvidence(flag.reason);
-  if (quotes.length === 0) {
-    return [];
-  }
-  if (flag.flagType === "conflicting" && quotes.length >= 2) {
-    return [
-      { text: quotes[0] ?? "", label: "Show form source text" },
-      { text: quotes[1] ?? "", label: "Show JD source text" },
-    ].filter((quote) => quote.text.length > 0);
-  }
-  return quotes.map((text) => ({ text }));
-}
-
-function quotedEvidence(reason: string): string[] {
-  const quotes: string[] = [];
-  const pattern = /"([^"]+)"/g;
-  let match = pattern.exec(reason);
-  while (match) {
-    const text = match[1]?.trim();
-    if (text) {
-      quotes.push(text);
-    }
-    match = pattern.exec(reason);
-  }
-  return quotes;
 }
 
 function sourceLang(text: string): "en" | "zh-Hans" {

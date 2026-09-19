@@ -9,18 +9,14 @@ note in `design/specs/job-form.md` — all screens live in `design/shell.pen`, o
 
 ## Purpose
 
-Plain-language search over the internal talent database, narrowed by the PRD's five filters.
+Keyword and filter search over the internal talent database.
 
 ## Layout
 
 - Page title "Find candidates".
-- **Search box** (`mHyzQ`): a single plain-language input with placeholder text demonstrating the
-  intended query style, mixing a filter-like phrase with a natural request — "ZH-speaking QA
-  engineers in Singapore, 3+ years, CV updated this year" — showing the hybrid keyword + semantic
-  framing from `talent-search` without exposing separate keyword/semantic boxes to the recruiter.
-- **All five PRD filters** (`C3AZ4B`): Skills, Years, Location, Language, CV date — each a
-  dropdown-style chip. Nothing about the layout precludes adding a source on/off switch later (the
-  PRD's future external-source requirement).
+- **Search box** (`mHyzQ`): a keyword input. Placeholder: "Skills, titles, employers".
+- **Filters** (`C3AZ4B`): Skills, Years, Location, Language, CV date — recruiter-set fields that
+  narrow the SQL query together with the keyword.
 - **Results table** (`N44GW`): candidate name (one ZH name, 李娜 (Li Na), proves Noto Sans SC),
   role/experience/location summary, and a **last-updated date** per result.
 - **Empty / loading / error states** (`gLrod`): "No candidates match these filters yet." / "Searching

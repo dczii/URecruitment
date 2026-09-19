@@ -2,22 +2,16 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { z } from "zod";
 
-import { AiSuggestion } from "@/components/patterns/AiSuggestion";
+import { search, type SearchFilters, type SearchHit } from "@/app/search/actions";
 import {
   EmptyState,
   ErrorState,
   SkeletonRows,
 } from "@/components/patterns/states";
 import { Button } from "@/components/ui/button";
-import { AI_FAILED_MESSAGE, aiFailureMessage } from "@/lib/ai-routes";
-import { cn } from "@/lib/utils";
 
 const CJK_CHAR = /[\u3400-\u9FFF\uF900-\uFAFF]/;
-
-const PLACEHOLDER =
-  "ZH-speaking QA engineers in Singapore, 3+ years, CV updated this year";
 
 const sgtDateFormatter = new Intl.DateTimeFormat("en-SG", {
   day: "numeric",
@@ -30,116 +24,47 @@ const relativeTimeFormatter = new Intl.RelativeTimeFormat("en-SG", {
   numeric: "always",
 });
 
-const ignoredTermSchema = z.object({
-  term: z.string(),
-  reason: z.string(),
-});
-
-const searchFiltersSchema = z.object({
-  skills: z.array(z.string()),
-  minYears: z.number().nullable(),
-  maxYears: z.number().nullable(),
-  locations: z.array(z.string()),
-  languages: z.array(z.string()),
-  cvUpdatedAfter: z.string().nullable(),
-});
-
-const searchHitSchema = z.object({
-  candidateId: z.string(),
-  fullName: z.string(),
-  headline: z.string().nullable(),
-  totalYears: z.number(),
-  location: z.string().nullable(),
-  languages: z.array(z.string()),
-  cvUpdatedAt: z.string().nullable(),
-});
-
-const searchResponseSchema = z.discriminatedUnion("status", [
-  z.object({
-    status: z.literal("ok"),
-    results: z.array(searchHitSchema),
-    ignoredTerms: z.array(ignoredTermSchema),
-    filters: searchFiltersSchema,
-  }),
-  z.object({ status: z.literal("could_not_understand") }),
-  z.object({ status: z.literal("error"), message: z.string() }),
-]);
-
-type SearchResponse = z.infer<typeof searchResponseSchema>;
-type SearchFilters = z.infer<typeof searchFiltersSchema>;
-type SearchHit = z.infer<typeof searchHitSchema>;
-type IgnoredTerm = z.infer<typeof ignoredTermSchema>;
-
 type ViewState =
   | { kind: "idle" }
   | { kind: "loading" }
-  | { kind: "ok"; results: SearchHit[]; filters: SearchFilters; ignoredTerms: IgnoredTerm[] }
-  | { kind: "could_not_understand" }
+  | { kind: "ok"; results: SearchHit[]; filters: SearchFilters }
   | { kind: "error"; message: string };
 
-const EMPTY_FILTERS: SearchFilters = {
-  skills: [],
-  minYears: null,
-  maxYears: null,
-  locations: [],
-  languages: [],
-  cvUpdatedAfter: null,
-};
-
 const inputClassName =
-  "min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
+  "min-w-0 w-full rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
 export function SearchScreen() {
   const [query, setQuery] = useState("");
+  const [skills, setSkills] = useState("");
+  const [minYears, setMinYears] = useState("");
+  const [maxYears, setMaxYears] = useState("");
+  const [locations, setLocations] = useState("");
+  const [languages, setLanguages] = useState("");
+  const [cvUpdatedAfter, setCvUpdatedAfter] = useState("");
   const [view, setView] = useState<ViewState>({ kind: "idle" });
 
-  const displayedFilters =
-    view.kind === "ok" ? view.filters : EMPTY_FILTERS;
-  const ignoredTerms = view.kind === "ok" ? view.ignoredTerms : [];
-  const languageApplied = displayedFilters.languages.length > 0;
+  const formFilters: SearchFilters = {
+    skills: parseCommaList(skills),
+    minYears: parseOptionalNumber(minYears),
+    maxYears: parseOptionalNumber(maxYears),
+    locations: parseCommaList(locations),
+    languages: parseCommaList(languages),
+    cvUpdatedAfter: cvUpdatedAfter.trim() === "" ? null : cvUpdatedAfter,
+  };
 
-  async function runQuery(nextQuery: string) {
-    const trimmed = nextQuery.trim();
-    if (trimmed === "") {
-      setView({ kind: "error", message: "Enter a search query." });
-      return;
-    }
-
+  async function runQuery() {
     setView({ kind: "loading" });
     try {
-      const response = await fetch("/api/ai/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: trimmed }),
-      });
-
-      const statusMessage = aiFailureMessage(response.status);
-      if (statusMessage) {
+      const result = await search(query, formFilters);
+      if (result.status === "ok") {
         setView({
-          kind: "error",
-          message:
-            response.status === 429
-              ? statusMessage
-              : "Search failed. Try again.",
+          kind: "ok",
+          results: result.results,
+          filters: result.filters,
         });
         return;
       }
-
-      let json: unknown;
-      try {
-        json = await response.json();
-      } catch {
-        setView({ kind: "error", message: "Search failed. Try again." });
-        return;
-      }
-
-      const parsed = searchResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        setView({ kind: "error", message: AI_FAILED_MESSAGE });
-        return;
-      }
-
-      setView(toViewState(parsed.data));
+      setView({ kind: "error", message: result.message });
     } catch {
       setView({ kind: "error", message: "Search failed. Try again." });
     }
@@ -147,11 +72,7 @@ export function SearchScreen() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void runQuery(query);
-  }
-
-  function retry() {
-    void runQuery(query);
+    void runQuery();
   }
 
   return (
@@ -168,111 +89,121 @@ export function SearchScreen() {
         onSubmit={handleSubmit}
         className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4"
       >
-        <div className="flex min-w-0 flex-row items-end gap-3">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <label htmlFor="candidate-search" className="text-label text-foreground">
-              Search candidates
-            </label>
-            <input
-              id="candidate-search"
-              name="query"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={PLACEHOLDER}
-              disabled={view.kind === "loading"}
-              autoComplete="off"
-              className={inputClassName}
-            />
-          </div>
+        <div className="flex min-w-0 flex-col gap-2">
+          <label htmlFor="candidate-search" className="text-label text-foreground">
+            Keyword
+          </label>
+          <input
+            id="candidate-search"
+            name="query"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Skills, titles, employers"
+            disabled={view.kind === "loading"}
+            autoComplete="off"
+            className={inputClassName}
+          />
+        </div>
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <FilterInput
+            id="search-skills"
+            label="Skills"
+            value={skills}
+            disabled={view.kind === "loading"}
+            onChange={setSkills}
+          />
+          <FilterInput
+            id="search-min-years"
+            label="Minimum years"
+            type="number"
+            value={minYears}
+            disabled={view.kind === "loading"}
+            onChange={setMinYears}
+          />
+          <FilterInput
+            id="search-max-years"
+            label="Maximum years"
+            type="number"
+            value={maxYears}
+            disabled={view.kind === "loading"}
+            onChange={setMaxYears}
+          />
+          <FilterInput
+            id="search-locations"
+            label="Location"
+            value={locations}
+            disabled={view.kind === "loading"}
+            onChange={setLocations}
+          />
+          <FilterInput
+            id="search-languages"
+            label="Language"
+            value={languages}
+            disabled={view.kind === "loading"}
+            onChange={setLanguages}
+          />
+          <FilterInput
+            id="search-cv-date"
+            label="CV updated after"
+            type="date"
+            value={cvUpdatedAfter}
+            disabled={view.kind === "loading"}
+            onChange={setCvUpdatedAfter}
+          />
+        </div>
+        <div>
           <Button type="submit" disabled={view.kind === "loading"}>
             Search
           </Button>
         </div>
-
-        <FilterChips
-          filters={displayedFilters}
-          parsed={view.kind === "ok"}
-        />
-
-        {languageApplied ? (
+        {formFilters.languages.length > 0 ? (
           <p className="text-caption text-muted-foreground">
             Language is in this search because you asked for it. On a job it
             counts only when you mark it as a real requirement and write why.
           </p>
         ) : null}
-
-        {ignoredTerms.length > 0 ? (
-          <p
-            role="status"
-            className="inline-flex max-w-full flex-wrap rounded-md border border-border bg-muted px-3 py-2 text-caption text-muted-foreground"
-          >
-            <span className="font-semibold text-foreground">Ignored: </span>
-            {formatIgnoredTerms(ignoredTerms)}
-          </p>
-        ) : null}
       </form>
 
       <div aria-live="polite" aria-busy={view.kind === "loading"}>
-        <SearchOutcome view={view} onRetry={retry} />
+        <SearchOutcome view={view} onRetry={() => void runQuery()} />
       </div>
     </section>
   );
 }
 
-function FilterChips({
-  filters,
-  parsed,
+function FilterInput({
+  id,
+  label,
+  value,
+  type = "text",
+  disabled,
+  onChange,
 }: {
-  filters: SearchFilters;
-  parsed: boolean;
+  id: string;
+  label: string;
+  value: string;
+  type?: "text" | "number" | "date";
+  disabled: boolean;
+  onChange: (value: string) => void;
 }) {
-  const chips = [
-    { label: "Skills", value: joinList(filters.skills) },
-    { label: "Years", value: formatYears(filters.minYears, filters.maxYears) },
-    { label: "Location", value: joinList(filters.locations) },
-    { label: "Language", value: joinList(filters.languages) },
-    {
-      label: "CV date",
-      value: filters.cvUpdatedAfter
-        ? `since ${formatSgtDate(filters.cvUpdatedAfter)}`
-        : null,
-    },
-  ];
-
-  const list = (
-    <ul
-      aria-label="Search filters"
-      className="flex min-w-0 flex-wrap gap-2"
-    >
-      {chips.map((chip) => (
-        <li
-          key={chip.label}
-          className={cn(
-            "inline-flex max-w-full items-center rounded-md border border-border bg-secondary px-3 py-1 text-caption text-secondary-foreground",
-            chip.value ? "font-semibold" : "text-muted-foreground",
-          )}
-        >
-          {chip.value ? `${chip.label}: ${chip.value}` : chip.label}
-        </li>
-      ))}
-    </ul>
-  );
-
-  if (!parsed) {
-    return list;
-  }
-
   return (
-    <AiSuggestion variant="value">
-      <div className="flex min-w-0 flex-col gap-2">
-        <p className="text-caption text-muted-foreground">
-          Filters read from your search. They narrowed this result set; they
-          are not editable on this screen.
-        </p>
-        {list}
-      </div>
-    </AiSuggestion>
+    <div className="flex min-w-0 flex-col gap-2">
+      <label htmlFor={id} className="text-label font-semibold">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={id}
+        type={type}
+        value={value}
+        disabled={disabled}
+        autoComplete="off"
+        min={type === "number" ? "0" : undefined}
+        onChange={(event) => onChange(event.target.value)}
+        className={inputClassName}
+      />
+    </div>
   );
 }
 
@@ -294,18 +225,6 @@ function SearchOutcome({
           Searching the talent database…
         </p>
         <SkeletonRows count={4} />
-      </div>
-    );
-  }
-
-  if (view.kind === "could_not_understand") {
-    return (
-      <div className="rounded-lg border border-border bg-card">
-        <ErrorState
-          title="Couldn't understand that search"
-          description="Try rephrasing. Mention skills, years, location, language, or how recently the CV was updated."
-          onRetry={onRetry}
-        />
       </div>
     );
   }
@@ -408,59 +327,31 @@ function CvUpdatedDate({ iso }: { iso: string | null }) {
   );
 }
 
-function toViewState(result: SearchResponse): ViewState {
-  if (result.status === "ok") {
-    return {
-      kind: "ok",
-      results: result.results,
-      filters: result.filters,
-      ignoredTerms: result.ignoredTerms,
-    };
-  }
-  if (result.status === "could_not_understand") {
-    return { kind: "could_not_understand" };
-  }
-  return { kind: "error", message: result.message };
-}
-
 function roleSummary(hit: SearchHit): string {
   const parts: string[] = [];
   if (hit.headline && hit.headline.trim().length > 0) {
     parts.push(hit.headline.trim());
   }
-  parts.push(formatExperience(hit.totalYears));
+  parts.push(hit.totalYears === 1 ? "1 year" : `${hit.totalYears} years`);
   if (hit.location && hit.location.trim().length > 0) {
     parts.push(hit.location.trim());
   }
   return parts.join(" · ");
 }
 
-function formatExperience(years: number): string {
-  return years === 1 ? "1 year" : `${years} years`;
+function parseCommaList(value: string): string[] {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 }
 
-function joinList(values: string[]): string | null {
-  const filled = values.map((value) => value.trim()).filter((value) => value.length > 0);
-  return filled.length > 0 ? filled.join(", ") : null;
-}
-
-function formatYears(min: number | null, max: number | null): string | null {
-  if (min != null && max != null) {
-    return `${min}–${max}`;
+function parseOptionalNumber(value: string): number | null {
+  if (value.trim() === "") {
+    return null;
   }
-  if (min != null) {
-    return `${min}+`;
-  }
-  if (max != null) {
-    return `under ${max}`;
-  }
-  return null;
-}
-
-function formatIgnoredTerms(terms: IgnoredTerm[]): string {
-  return terms
-    .map((term) => `${term.term} — ${term.reason}`)
-    .join("; ");
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function formatSgtDate(iso: string): string {

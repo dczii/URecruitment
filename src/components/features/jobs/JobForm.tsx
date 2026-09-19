@@ -1,6 +1,6 @@
 "use client";
 
-import { Asterisk, CircleX, Plus, Trash2, Upload } from "lucide-react";
+import { Asterisk, CircleX, Plus, Trash2 } from "lucide-react";
 import {
   useId,
   useMemo,
@@ -10,16 +10,9 @@ import {
   type FormEvent,
   type Ref,
 } from "react";
-import { z } from "zod";
 
 import { createJob } from "@/app/jobs/actions";
-import { AiSuggestion } from "@/components/patterns/AiSuggestion";
-import { SourceQuote } from "@/components/patterns/SourceQuote";
 import { Button } from "@/components/ui/button";
-import {
-  AI_FAILED_MESSAGE,
-  aiFailureMessage,
-} from "@/lib/ai-routes";
 import { cn } from "@/lib/utils";
 
 type ClientOption = {
@@ -38,43 +31,6 @@ type RequirementRow = {
 type JobFormProps = {
   clients: ClientOption[];
 };
-
-/**
- * Client copy of extract-jd's output schema. The prompt module is
- * `server-only`; this validates the route JSON at the browser boundary so a
- * malformed 200 never seeds the form.
- */
-const extractJdClientSchema = z.object({
-  title: z.string().nullable(),
-  title_source_text: z.string().nullable(),
-  requirements: z.array(
-    z.object({
-      text: z.string(),
-      proposed_marking: z.enum(["must_have", "nice_to_have"]).nullable(),
-      source_text: z.string(),
-    }),
-  ),
-  requires_nationality: z.boolean(),
-  nationality_reason_proposal: z.string().nullable(),
-  nationality_source_text: z.string().nullable(),
-  requires_language: z.boolean(),
-  language_reason_proposal: z.string().nullable(),
-  language_source_text: z.string().nullable(),
-  prompt_injection_detected: z.boolean(),
-  prompt_injection_note: z.string().nullable(),
-});
-
-type ExtractJdPrefill = z.infer<typeof extractJdClientSchema>;
-
-type ExtractionReview = {
-  filename: string;
-  prefill: ExtractJdPrefill;
-};
-
-const CJK_CHAR = /[\u3400-\u9FFF\uF900-\uFAFF]/;
-const JD_FILENAME = /\.(pdf|docx)$/i;
-const UNSUPPORTED_JD_FILE =
-  "This file type is not supported. Upload a PDF or DOCX job description.";
 
 const inputClassName =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
@@ -96,18 +52,10 @@ export function JobForm({ clients }: JobFormProps) {
   const [requiresLanguage, setRequiresLanguage] = useState(false);
   const [languageReason, setLanguageReason] = useState("");
 
-  const [jdFile, setJdFile] = useState<File | null>(null);
-  const [extracting, setExtracting] = useState(false);
-  const [extractError, setExtractError] = useState<string | null>(null);
-  const [extraction, setExtraction] = useState<ExtractionReview | null>(null);
-  const [prefillApplied, setPrefillApplied] = useState(false);
-
   const heading = useMemo(() => {
     const trimmed = title.trim();
     return trimmed ? `Create job — ${trimmed}` : "Create job";
   }, [title]);
-
-  const busy = pending || extracting;
 
   function updateRequirement(
     id: string,
@@ -129,98 +77,6 @@ export function JobForm({ clients }: JobFormProps) {
     setRequirements((rows) =>
       rows.length === 1 ? rows : rows.filter((row) => row.id !== id),
     );
-  }
-
-  function seedFormFromPrefill(prefill: ExtractJdPrefill) {
-    if (prefill.title != null && prefill.title.trim().length > 0) {
-      setTitle(prefill.title);
-    }
-    if (prefill.requirements.length > 0) {
-      setRequirements(
-        prefill.requirements.map((row) => ({
-          id: crypto.randomUUID(),
-          text: row.text,
-          marking: row.proposed_marking,
-        })),
-      );
-    }
-    setRequiresNationality(prefill.requires_nationality);
-    setNationalityReason(prefill.nationality_reason_proposal ?? "");
-    setRequiresLanguage(prefill.requires_language);
-    setLanguageReason(prefill.language_reason_proposal ?? "");
-  }
-
-  /**
-   * Both actions seed the same existing form state. Confirm leaves the
-   * recruiter on the form to finish owner/client and save. Edit does the
-   * same seed and focuses the title field so they are immediately in the
-   * normal edit flow. Neither writes a job — Save job is unchanged from #43.
-   */
-  function applyPrefill(focusTitle: boolean) {
-    if (!extraction) {
-      return;
-    }
-    seedFormFromPrefill(extraction.prefill);
-    setPrefillApplied(true);
-    if (focusTitle) {
-      requestAnimationFrame(() => {
-        titleInputRef.current?.focus();
-      });
-    }
-  }
-
-  async function handleUpload() {
-    if (!jdFile) {
-      setExtractError("Choose a PDF or DOCX job description first.");
-      return;
-    }
-
-    setExtractError(null);
-    setExtraction(null);
-    setPrefillApplied(false);
-
-    if (!JD_FILENAME.test(jdFile.name)) {
-      setExtractError(UNSUPPORTED_JD_FILE);
-      return;
-    }
-
-    setExtracting(true);
-    try {
-      const body = new FormData();
-      body.append("file", jdFile);
-      const response = await fetch("/api/ai/extract-jd", {
-        method: "POST",
-        body,
-      });
-
-      const statusMessage = aiFailureMessage(response.status);
-      if (statusMessage) {
-        setExtractError(
-          await recruiterExtractError(response, statusMessage),
-        );
-        return;
-      }
-
-      let json: unknown;
-      try {
-        json = await response.json();
-      } catch {
-        setExtractError(AI_FAILED_MESSAGE);
-        return;
-      }
-
-      const parsed = extractJdClientSchema.safeParse(json);
-      if (!parsed.success) {
-        setExtractError(AI_FAILED_MESSAGE);
-        return;
-      }
-
-      setExtraction({ filename: jdFile.name, prefill: parsed.data });
-    } catch {
-      setExtractError(AI_FAILED_MESSAGE);
-    } finally {
-      setExtracting(false);
-    }
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -249,80 +105,10 @@ export function JobForm({ clients }: JobFormProps) {
   }
 
   return (
-    <section className="flex min-w-0 flex-1 flex-col gap-4">
+    <section className="flex min-w-0 flex-col gap-4">
       <h1 className="font-heading text-title font-semibold break-words">
         {heading}
       </h1>
-
-      <section
-        aria-labelledby={`${formId}-upload-heading`}
-        className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4"
-      >
-        <h2
-          id={`${formId}-upload-heading`}
-          className="font-heading text-heading font-semibold"
-        >
-          Job description
-        </h2>
-        <div className="flex min-w-0 flex-wrap items-end gap-3">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <label
-              htmlFor={`${formId}-jd-file`}
-              className="text-label font-semibold"
-            >
-              Job description file
-            </label>
-            <input
-              id={`${formId}-jd-file`}
-              type="file"
-              name="jd_file"
-              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              disabled={busy}
-              onChange={(event) => {
-                setJdFile(event.target.files?.[0] ?? null);
-                setExtractError(null);
-              }}
-              className={inputClassName}
-            />
-          </div>
-          <Button
-            type="button"
-            disabled={busy || !jdFile}
-            aria-busy={extracting}
-            onClick={() => {
-              void handleUpload();
-            }}
-          >
-            <Upload />
-            Upload job description
-          </Button>
-        </div>
-        {extracting ? (
-          <p aria-live="polite" className="text-caption text-muted-foreground">
-            Reading job description…
-          </p>
-        ) : null}
-        {extractError ? (
-          <div
-            role="alert"
-            className="flex items-center gap-1.5 rounded-md bg-destructive p-3 text-destructive-foreground"
-          >
-            <CircleX className="size-4 shrink-0" aria-hidden="true" />
-            <p className="text-label font-semibold">{extractError}</p>
-          </div>
-        ) : null}
-      </section>
-
-      {extraction ? (
-        <PrefillCard
-          filename={extraction.filename}
-          prefill={extraction.prefill}
-          applied={prefillApplied}
-          disabled={busy}
-          onConfirm={() => applyPrefill(false)}
-          onEdit={() => applyPrefill(true)}
-        />
-      ) : null}
 
       <form
         className="flex min-w-0 flex-col gap-4"
@@ -463,144 +249,6 @@ export function JobForm({ clients }: JobFormProps) {
         </div>
       </form>
     </section>
-  );
-}
-
-function PrefillCard({
-  filename,
-  prefill,
-  applied,
-  disabled,
-  onConfirm,
-  onEdit,
-}: {
-  filename: string;
-  prefill: ExtractJdPrefill;
-  applied: boolean;
-  disabled: boolean;
-  onConfirm: () => void;
-  onEdit: () => void;
-}) {
-  return (
-    <section
-      aria-labelledby="jd-prefill-heading"
-      aria-live="polite"
-      className="flex min-w-0 flex-col gap-4 rounded-lg border border-ai-suggestion-border bg-ai-suggestion-bg p-4"
-    >
-      <div className="flex min-w-0 flex-col gap-1">
-        <h2
-          id="jd-prefill-heading"
-          className="font-heading text-heading font-semibold"
-        >
-          Review AI suggestions
-        </h2>
-        <p className="text-label text-muted-foreground">
-          Read from {filename}
-        </p>
-      </div>
-
-      {prefill.title ? (
-        <PrefillProposal
-          label="Job title"
-          value={prefill.title}
-          sourceText={prefill.title_source_text}
-        />
-      ) : null}
-
-      {prefill.requirements.map((row, index) => (
-        <PrefillProposal
-          key={`${row.text}-${index}`}
-          label={`Requirement ${index + 1}`}
-          value={requirementProposalValue(row)}
-          sourceText={row.source_text}
-        />
-      ))}
-
-      {showAttributeProposal(
-        prefill.requires_nationality,
-        prefill.nationality_reason_proposal,
-        prefill.nationality_source_text,
-      ) ? (
-        <PrefillProposal
-          label="Nationality"
-          value={attributeProposalValue(
-            prefill.requires_nationality,
-            prefill.nationality_reason_proposal,
-          )}
-          sourceText={prefill.nationality_source_text}
-        />
-      ) : null}
-
-      {showAttributeProposal(
-        prefill.requires_language,
-        prefill.language_reason_proposal,
-        prefill.language_source_text,
-      ) ? (
-        <PrefillProposal
-          label="Language"
-          value={attributeProposalValue(
-            prefill.requires_language,
-            prefill.language_reason_proposal,
-          )}
-          sourceText={prefill.language_source_text}
-        />
-      ) : null}
-
-      {applied ? (
-        <p className="text-caption text-muted-foreground">
-          These suggestions are now in the form below. You can still change
-          any field before saving.
-        </p>
-      ) : (
-        <div className="flex min-w-0 flex-wrap gap-2">
-          <Button type="button" disabled={disabled} onClick={onConfirm}>
-            Confirm pre-filled values
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={disabled}
-            onClick={onEdit}
-          >
-            Edit before saving
-          </Button>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function PrefillProposal({
-  label,
-  value,
-  sourceText,
-}: {
-  label: string;
-  value: string;
-  sourceText: string | null;
-}) {
-  const valueLang = sourceLang(value);
-  const quoteLang = sourceText ? sourceLang(sourceText) : "en";
-
-  return (
-    <div
-      role="group"
-      aria-label={label}
-      className="flex min-w-0 flex-col gap-2"
-    >
-      <h3 className="text-label font-semibold">{label}</h3>
-      <AiSuggestion variant="value">
-        <p
-          className="text-label break-words"
-          lang={valueLang === "zh-Hans" ? "zh-Hans" : undefined}
-        >
-          {value}
-        </p>
-      </AiSuggestion>
-      {sourceText ? (
-        <SourceQuote text={sourceText} lang={quoteLang} />
-      ) : null}
-    </div>
   );
 }
 
@@ -838,7 +486,7 @@ function AttributeRequirement({
             className="min-h-16 w-full resize-y rounded-md border-0 bg-transparent text-caption text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <p id={noteId} className="text-caption text-destructive italic">
-            {capitalized} will not count toward the score until this reason is
+            {capitalized} will not be treated as a requirement until this reason is
             filled in.
           </p>
         </div>
@@ -847,64 +495,3 @@ function AttributeRequirement({
   );
 }
 
-function sourceLang(text: string): "en" | "zh-Hans" {
-  return CJK_CHAR.test(text) ? "zh-Hans" : "en";
-}
-
-function markingLabel(marking: RequirementMarking | null): string {
-  if (marking === "must_have") {
-    return "Must-have";
-  }
-  if (marking === "nice_to_have") {
-    return "Nice-to-have";
-  }
-  return "No marking proposed";
-}
-
-function requirementProposalValue(row: ExtractJdPrefill["requirements"][number]) {
-  return `${row.text} · ${markingLabel(row.proposed_marking)}`;
-}
-
-function showAttributeProposal(
-  required: boolean,
-  reason: string | null,
-  sourceText: string | null,
-): boolean {
-  return required || Boolean(reason) || Boolean(sourceText);
-}
-
-function attributeProposalValue(
-  required: boolean,
-  reason: string | null,
-): string {
-  if (!required) {
-    return "Not proposed as a real requirement";
-  }
-  return reason && reason.trim().length > 0
-    ? reason
-    : "Proposed as a real requirement";
-}
-
-async function recruiterExtractError(
-  response: Response,
-  fallback: string,
-): Promise<string> {
-  if (response.status === 429) {
-    return fallback;
-  }
-  try {
-    const json: unknown = await response.json();
-    if (
-      json !== null &&
-      typeof json === "object" &&
-      "error" in json &&
-      typeof json.error === "string" &&
-      json.error.trim().length > 0
-    ) {
-      return json.error;
-    }
-  } catch {
-    // Firewall/HTML body — keep the generic status message.
-  }
-  return fallback;
-}

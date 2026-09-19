@@ -2,22 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { after } from "next/server";
 import { z } from "zod";
 
 import { isValidRecruiterName } from "@/lib/recruiter-name";
-import { getModel } from "@/server/ai/provider";
-import { createSupabaseAiRunsWriter } from "@/server/ai/run-supabase";
-import type { AiModel } from "@/server/ai/types";
 import { getDb } from "@/server/db";
 import {
+  checkMissingFields,
+  persistMissingFieldFlags,
   type GapCheckFields,
   type MustHave,
 } from "@/server/gap-check/missing-fields";
-import { runGapCheck } from "@/server/gap-check/run";
 import { jobVersionInputSchema } from "@/server/jobs/schema";
 import { saveJobVersion } from "@/server/jobs/versions";
-import { startRescoreRun } from "@/server/matching/rescore";
 
 const SAVE_FAILED = "The job could not be saved.";
 const OWNER_NAME_MAX = 80;
@@ -205,26 +201,16 @@ export async function createJob(input: unknown): Promise<CreateJobResult> {
   }
 
   try {
-    await runGapCheck({
+    await persistMissingFieldFlags(
       jobVersionId,
-      fields: toGapCheckFields(versionParsed.data.fields),
-      mustHaves: toMustHaves(versionParsed.data.must_haves),
-      formText: buildGapCheckFormText(parsed.data),
-      jdText: null,
-      model: gapCheckModel(),
-      runs: createSupabaseAiRunsWriter(),
-    });
+      checkMissingFields({
+        fields: toGapCheckFields(versionParsed.data.fields),
+        must_haves: toMustHaves(versionParsed.data.must_haves),
+      }),
+    );
   } catch {
-    // The job save must succeed even when the gap check fails entirely.
+    // The job save must succeed even when missing-field flags fail to persist.
   }
-
-  after(() =>
-    startRescoreRun({
-      jobVersionId,
-      model: getModel("match"),
-      runs: createSupabaseAiRunsWriter(),
-    }),
-  );
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${jobId}`);
@@ -251,49 +237,10 @@ function toMustHaves(
     .map((row) => ({ text: row.text, marking: "must_have" as const }));
 }
 
-function buildGapCheckFormText(
-  data: z.infer<typeof createJobFormSchema>,
-): string {
-  const lines = [`Title: ${data.title.trim()}`];
-  const requirements = data.requirements
-    .map((row) => row.text.trim())
-    .filter((text) => text.length > 0);
-  if (requirements.length > 0) {
-    lines.push(`Requirements: ${requirements.join("; ")}`);
-  }
-  const nationalityReason = data.nationality_reason?.trim();
-  if (data.requires_nationality && nationalityReason) {
-    lines.push(`Nationality: ${nationalityReason}`);
-  }
-  const languageReason = data.language_reason?.trim();
-  if (data.requires_language && languageReason) {
-    lines.push(`Language: ${languageReason}`);
-  }
-  return lines.join("\n");
-}
-
 function optionalString(value: unknown): string | null {
   return typeof value === "string" ? value : null;
 }
 
 function optionalNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
-/**
- * Defer `getModel("gap")` until a method is invoked so a missing
- * `AI_MODEL_GAP` (provider not chosen yet) cannot skip missing-field flags.
- */
-function gapCheckModel(): AiModel {
-  return {
-    get modelId() {
-      return getModel("gap").modelId;
-    },
-    get modelVersion() {
-      return getModel("gap").modelVersion;
-    },
-    generateObject(promptText: string) {
-      return getModel("gap").generateObject(promptText);
-    },
-  };
 }

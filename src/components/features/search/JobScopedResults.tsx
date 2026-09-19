@@ -1,10 +1,7 @@
 import Link from "next/link";
 
-import { AiSuggestion } from "@/components/patterns/AiSuggestion";
-import { SourceQuote } from "@/components/patterns/SourceQuote";
 import { EmptyState } from "@/components/patterns/states";
 import { Button } from "@/components/ui/button";
-import type { Json } from "@/lib/database.types";
 import type {
   JobScopedResult,
   JobScopedResults as JobScopedResultsData,
@@ -22,12 +19,6 @@ export type JobScopedFilterValues = {
   locations: string[];
   languages: string[];
   cvUpdatedAfter: string | null;
-};
-
-type JobScopedSkillEvidence = {
-  requirement_id: string;
-  source_text: string;
-  note: string;
 };
 
 type JobScopedResultsProps = {
@@ -51,8 +42,7 @@ export function JobScopedResults({
       <header className="flex min-w-0 flex-col gap-2">
         <h1 className="font-heading text-title font-semibold">Find candidates</h1>
         <p className="text-body text-muted-foreground">
-          Ranked by this job&apos;s stored match score — filters only, no new
-          scoring.{" "}
+          Filter the talent database for this job.{" "}
           <Link
             href={`/jobs/${jobId}`}
             lang={titleLang === "zh-Hans" ? "zh-Hans" : undefined}
@@ -125,7 +115,7 @@ export function JobScopedResults({
 
       {data.status === "not_ready" ? (
         <p className="text-body text-muted-foreground">
-          This job has no saved version yet, so there is nothing to rank by.
+          This job has no saved version yet, so there is nothing to browse.
         </p>
       ) : (
         <ResultsList results={data.results} />
@@ -152,7 +142,7 @@ function ResultsList({ results }: { results: JobScopedResult[] }) {
         id="job-scoped-results-heading"
         className="font-heading text-heading font-semibold"
       >
-        Ranked matches
+        Candidates
       </h2>
       <ul className="flex min-w-0 flex-col">
         {results.map((result) => (
@@ -166,78 +156,35 @@ function ResultsList({ results }: { results: JobScopedResult[] }) {
 function ResultCard({ result }: { result: JobScopedResult }) {
   const headingId = `job-scoped-${result.candidateId}`;
   const nameLang = sourceLang(result.fullName);
-  const matched = asSkillEvidenceList(result.matched);
-  const missing = asSkillEvidenceList(result.missing);
-  const uncertain = asSkillEvidenceList(result.uncertain);
+  const summary = roleSummary(result);
+  const summaryLang = sourceLang(summary);
 
   return (
     <li className="border-b border-border py-3 last:border-b-0 last:pb-0 first:pt-0">
       <article
         aria-labelledby={headingId}
-        className="flex min-w-0 flex-col gap-3"
+        className="flex min-w-0 flex-col gap-1"
       >
         <h3
           id={headingId}
           className="min-w-0 text-label font-semibold text-foreground break-words"
           lang={nameLang === "zh-Hans" ? "zh-Hans" : undefined}
         >
-          {result.fullName}
+          <Link
+            href={`/candidates/${result.candidateId}`}
+            className="text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {result.fullName}
+          </Link>
         </h3>
-        {result.matchStatus === "scored" ? (
-          <AiSuggestion variant="value">
-            <span className="font-mono tabular-nums">Match {result.score}</span>
-          </AiSuggestion>
-        ) : (
-          <p className="text-caption">Not yet scored</p>
-        )}
-        <SkillGroup heading="Matched" items={matched} />
-        <SkillGroup heading="Missing" items={missing} />
-        <SkillGroup heading="Uncertain" items={uncertain} />
+        <p
+          className="text-body text-muted-foreground break-words"
+          lang={summaryLang === "zh-Hans" ? "zh-Hans" : undefined}
+        >
+          {summary}
+        </p>
       </article>
     </li>
-  );
-}
-
-function SkillGroup({
-  heading,
-  items,
-}: {
-  heading: string;
-  items: JobScopedSkillEvidence[];
-}) {
-  if (items.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className="flex min-w-0 flex-col gap-2">
-      <h4 className="text-label font-semibold text-foreground">{heading}</h4>
-      <ul className="flex min-w-0 flex-col gap-2">
-        {items.map((item, index) => (
-          <li
-            key={`${item.requirement_id}-${index}`}
-            className="flex min-w-0 flex-col gap-1"
-          >
-            {item.note ? (
-              <p
-                className="text-body break-words"
-                lang={
-                  sourceLang(item.note) === "zh-Hans" ? "zh-Hans" : undefined
-                }
-              >
-                {item.note}
-              </p>
-            ) : null}
-            {item.source_text ? (
-              <SourceQuote
-                text={item.source_text}
-                lang={sourceLang(item.source_text)}
-              />
-            ) : null}
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
 
@@ -274,39 +221,18 @@ function FilterField({
   );
 }
 
-function asSkillEvidenceList(value: Json | null): JobScopedSkillEvidence[] {
-  if (!Array.isArray(value)) {
-    return [];
+function roleSummary(result: JobScopedResult): string {
+  const parts: string[] = [];
+  if (result.headline && result.headline.trim().length > 0) {
+    parts.push(result.headline.trim());
   }
-  const entries: JobScopedSkillEvidence[] = [];
-  for (const item of value) {
-    const parsed = asSkillEvidence(item);
-    if (parsed) {
-      entries.push(parsed);
-    }
+  parts.push(
+    result.totalYears === 1 ? "1 year" : `${result.totalYears} years`,
+  );
+  if (result.location && result.location.trim().length > 0) {
+    parts.push(result.location.trim());
   }
-  return entries;
-}
-
-function asSkillEvidence(value: Json): JobScopedSkillEvidence | null {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-  const requirementId = value.requirement_id;
-  const sourceText = value.source_text;
-  const note = value.note;
-  if (
-    typeof requirementId !== "string" ||
-    typeof sourceText !== "string" ||
-    typeof note !== "string"
-  ) {
-    return null;
-  }
-  return {
-    requirement_id: requirementId,
-    source_text: sourceText,
-    note,
-  };
+  return parts.join(" · ");
 }
 
 function sourceLang(text: string): "en" | "zh-Hans" {

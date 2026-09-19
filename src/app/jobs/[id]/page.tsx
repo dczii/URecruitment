@@ -3,11 +3,8 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { FlagChecklist } from "@/components/features/gap-check/FlagChecklist";
-import { RankedMatches } from "@/components/features/matching/RankedMatches";
 import { cn } from "@/lib/utils";
-import { getModel } from "@/server/ai/provider";
 import { getJobDetail, type JobRequirement } from "@/server/jobs/list";
-import { getRankedMatches } from "@/server/matching/matches";
 
 export const dynamic = "force-dynamic";
 
@@ -41,10 +38,6 @@ export default async function JobDetailPage({
     job.versionCreatedAt == null
       ? "No version saved yet."
       : `Showing the version saved on ${formatSgtDate(job.versionCreatedAt)}`;
-  const rankedMatches = await getRankedMatches({
-    jobId: job.id,
-    currentModelVersion: currentMatchModelVersion(),
-  });
 
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-6">
@@ -75,8 +68,8 @@ export default async function JobDetailPage({
       {job.openFlagCount > 0 ? (
         <p className="rounded-md bg-status-due-soon px-3 py-3 text-label text-status-due-soon-foreground">
           {job.openFlagCount === 1
-            ? "1 open gap flag needs a recruiter answer — matching is not blocked while it's open."
-            : `${job.openFlagCount} open gap flags need a recruiter answer — matching is not blocked while they're open.`}
+            ? "1 open gap flag needs a recruiter answer."
+            : `${job.openFlagCount} open gap flags need a recruiter answer.`}
         </p>
       ) : null}
 
@@ -109,12 +102,6 @@ export default async function JobDetailPage({
 
         <FlagChecklist jobId={job.id} flags={job.openFlags} />
       </div>
-
-      <RankedMatches
-        jobId={job.id}
-        data={rankedMatches}
-        isRescoring={job.isRescoring}
-      />
 
       <PlaceholderSection
         headingId="pipeline-board-heading"
@@ -175,17 +162,4 @@ function PlaceholderSection({
 
 function formatSgtDate(iso: string): string {
   return sgtDateFormatter.format(new Date(iso)).replace("Sept", "Sep");
-}
-
-/**
- * Same resolver as the job-save rescore path: `getModel("match").modelVersion`
- * is the env model id. Unset until a provider is chosen — do not crash the
- * page; an empty version classifies every stored row as stale.
- */
-function currentMatchModelVersion(): string {
-  try {
-    return getModel("match").modelVersion;
-  } catch {
-    return "";
-  }
 }

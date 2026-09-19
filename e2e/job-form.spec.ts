@@ -39,7 +39,7 @@ test("refused save: unmarked requirements and empty nationality reason show the 
     .click();
   await expect(
     page.getByText(
-      "Nationality will not count toward the score until this reason is filled in.",
+      "Nationality will not be treated as a requirement until this reason is filled in.",
     ),
   ).toBeVisible();
 

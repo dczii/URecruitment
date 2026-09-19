@@ -10,27 +10,10 @@ import {
 export { EnvError };
 
 const httpOrHttpsUrl = z.url({ protocol: /^https?$/ });
-const optionalModelId = z.string().min(1).optional();
 
 const serverEnvSchema = z.object({
   SUPABASE_URL: httpOrHttpsUrl,
   SUPABASE_SECRET_KEY: z.string().min(1),
-  AI_MODEL_PARSE: optionalModelId,
-  AI_MODEL_MATCH: optionalModelId,
-  AI_MODEL_GAP: optionalModelId,
-  AI_MODEL_SEARCH: optionalModelId,
-  AI_MODEL_JD: optionalModelId,
-  AI_EMBED_MODEL: optionalModelId,
-  AI_MONTHLY_SPEND_CAP: z
-    .string()
-    .transform((value) => Number(value))
-    .pipe(z.number().positive())
-    .optional(),
-  MUST_HAVE_CAP: z
-    .string()
-    .transform((value) => Number(value))
-    .pipe(z.number().int().min(0).max(100))
-    .default(50),
   SENTRY_DSN: httpOrHttpsUrl.optional(),
 });
 

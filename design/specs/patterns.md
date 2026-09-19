@@ -11,9 +11,8 @@ Story: #31 · Design task: #98 · Build task: #99
 
 ## Purpose
 
-Five components carry the PRD's AI-suggestion, source-evidence, delay-status and recruiter-identity
-rules so every later screen inherits them instead of reinventing them: `AiSuggestion`, `SourceQuote`,
-`DelayStatusBadge`, `TypedNameDialog`, and the shared `EmptyState` / `ErrorState` / loading skeleton.
+Shared delay-status, recruiter-identity, and empty/error/loading patterns. Product AI labels
+(`AiSuggestion`, `SourceQuote`) were removed.
 
 ## Tokens used
 
@@ -22,72 +21,7 @@ sizes. Chinese text uses the `font-sans` stack, which already includes Noto Sans
 
 ---
 
-## 1. `AiSuggestion`
-
-Wraps any AI-derived value (a parsed field, a match score, a gap flag) with a visible "AI suggestion"
-label. When the value is a score, it also shows the model version and date.
-
-### Props
-
-| Prop | Type | Required | Notes |
-|---|---|---|---|
-| `children` | `ReactNode` | yes | The value being labelled (text, a score, a flag chip) |
-| `variant` | `"value" \| "score"` | yes | Discriminates the two frames below |
-| `modelVersion` | `string` | required when `variant === "score"` | e.g. `"matching-v1.3"` |
-| `generatedAt` | `Date \| string` | required when `variant === "score"` | Shown via the shared SGT formatter |
-
-The `score` variant is typed as a discriminated union so that passing a score-shaped value without
-`modelVersion`/`generatedAt` **fails typecheck**, not just a runtime check.
-
-### States / frames
-
-- **`value` variant** — a quiet `ai-suggestion-bg`/`ai-suggestion-border` chip wrapping the value,
-  with a small "AI suggestion" label (`ai-suggestion-foreground`) to its left, an icon
-  (Lucide `sparkles`, `16px`) preceding the label.
-- **`score` variant** — same chip, plus a caption line below the value: `"matching-v1.3 · 18 Sep 2026"`
-  in `text-caption`/`muted-foreground`, using the shared SGT date formatter.
-- **Desktop (1440):** inline chip, label and value on one line, caption wraps under the value if the
-  container is narrow.
-- **Phone (390):** chip stacks label above value when the container is under ~240px; caption always
-  on its own line.
-
-### Copy
-
-- Label text is always exactly **"AI suggestion"**.
-- Never render copy that implies a decision (no "Recommended", "Approved", "Rejected by AI").
-
----
-
-## 2. `SourceQuote`
-
-Shows the exact CV/JD text an `AiSuggestion` value came from, collapsed by default.
-
-### Props
-
-| Prop | Type | Required | Notes |
-|---|---|---|---|
-| `text` | `string` | yes | The verbatim source excerpt |
-| `lang` | `"en" \| "zh-Hans"` | yes | Sets the rendered `lang` attribute when `"zh-Hans"` |
-| `label` | `string` | no | Defaults to `"Show source text"` |
-
-### States / frames
-
-- **Collapsed** — a `text-caption` disclosure button reading `"Show source text"` with a Lucide
-  `chevron-down` icon, inside a `source-quote-bg` container only once expanded (collapsed state shows
-  just the trigger, no box, to avoid implying content is missing).
-- **Expanded** — the trigger becomes `"Hide source text"` with `chevron-up`; the excerpt renders in a
-  `source-quote-bg`/`source-quote-foreground` blockquote-style box, `radius-md`, `space-3` padding.
-- **English** — no `lang` attribute override (inherits document `lang="en"`).
-- **Chinese** — the excerpt wrapper carries `lang="zh-Hans"`.
-- **Long content** — truncated to **4 lines** with a CSS `line-clamp-4` utility (never `text.slice()`)
-  until expanded further via a `"Show more"` control if content still overflows after the first
-  expand; the truncation must not cut a CJK character mid-glyph, which `line-clamp` guarantees since
-  it clips at the line box, not the character.
-- **Desktop / Phone** — identical structure; the box is full-width of its container at both widths.
-
----
-
-## 3. `DelayStatusBadge`
+## 1. `DelayStatusBadge`
 
 Shows a pipeline stage's delay status as an icon **and** a word, paired with colour — never colour
 alone.
@@ -118,7 +52,7 @@ alone.
 
 ---
 
-## 4. `TypedNameDialog`
+## 2. `TypedNameDialog`
 
 Asks a recruiter to type their name before their first change on a device, and remembers it via
 `src/lib/recruiter-name.ts` (a thin `localStorage` wrapper under a single versioned key,
@@ -161,7 +95,7 @@ Asks a recruiter to type their name before their first change on a device, and r
 
 ---
 
-## 5. `EmptyState`, `ErrorState`, loading skeletons
+## 3. `EmptyState`, `ErrorState`, loading skeletons
 
 Shared, screen-agnostic states so no screen invents its own.
 

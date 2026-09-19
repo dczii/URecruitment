@@ -4,8 +4,6 @@ import { useId, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 import { saveFieldOverride } from "@/app/candidates/[id]/actions";
-import { AiSuggestion } from "@/components/patterns/AiSuggestion";
-import { SourceQuote } from "@/components/patterns/SourceQuote";
 import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,10 +25,10 @@ const sgtDateTimeFormatter = new Intl.DateTimeFormat("en-SG", {
 });
 
 const SCALAR_FIELDS = [
-  { key: "name", sourceKey: "name_source_text", label: "Name" },
-  { key: "email", sourceKey: "email_source_text", label: "Email" },
-  { key: "phone", sourceKey: "phone_source_text", label: "Phone" },
-  { key: "location", sourceKey: "location_source_text", label: "Location" },
+  { key: "name", label: "Name" },
+  { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
+  { key: "location", label: "Location" },
 ] as const;
 
 type ProfileRecord = Record<string, unknown>;
@@ -93,7 +91,7 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
 
       {parseStatus === "not_yet_parsed" ? (
         <p className="text-body text-muted-foreground">
-          This candidate has not been parsed yet.
+          This candidate profile has not been filled in yet.
         </p>
       ) : (
         <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)]">
@@ -111,7 +109,6 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
                   label={field.label}
                   value={value}
                   parsedValue={stringValue(parsed[field.key])}
-                  sourceText={stringValue(parsed[field.sourceKey])}
                   overriddenBy={overriddenBy}
                 />
               );
@@ -129,7 +126,6 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
               entries={asObjectArray(effective.work_history)}
               parsedEntries={asObjectArray(parsed.work_history)}
               renderValue={formatWorkHistory}
-              sourceTextOf={entrySourceText}
               overriddenBy={overriddenBy}
             />
 
@@ -139,7 +135,6 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
               entries={asObjectArray(effective.education)}
               parsedEntries={asObjectArray(parsed.education)}
               renderValue={formatEducation}
-              sourceTextOf={entrySourceText}
               overriddenBy={overriddenBy}
             />
 
@@ -149,7 +144,6 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
               entries={asObjectArray(effective.certifications)}
               parsedEntries={asObjectArray(parsed.certifications)}
               renderValue={formatCertification}
-              sourceTextOf={entrySourceText}
               overriddenBy={overriddenBy}
             />
 
@@ -171,7 +165,6 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
                         label="Skill"
                         value={skill.skill}
                         parsedValue={skill.skill}
-                        sourceText={skill.source_text}
                         overriddenBy={null}
                       />
                     </li>
@@ -205,17 +198,11 @@ function TotalYearsCard({
   if (!value) {
     return null;
   }
-  const workHistorySources = asObjectArray(parsed.work_history)
-    .map(entrySourceText)
-    .filter((text): text is string => text !== null);
   return (
     <FieldCard
       label="Total experience"
       value={value}
       parsedValue={formatTotalYears(parsed.total_years)}
-      sourceText={
-        workHistorySources.length > 0 ? workHistorySources.join(" · ") : null
-      }
       overriddenBy={overriddenBy}
     />
   );
@@ -240,7 +227,6 @@ function LanguagesCard({
       parsedValue={
         parsedLanguages.length > 0 ? parsedLanguages.join(", ") : null
       }
-      sourceText={null}
       overriddenBy={overriddenBy}
     />
   );
@@ -252,7 +238,6 @@ function EntrySection({
   entries,
   parsedEntries,
   renderValue,
-  sourceTextOf,
   overriddenBy,
 }: {
   title: string;
@@ -260,7 +245,6 @@ function EntrySection({
   entries: ProfileRecord[];
   parsedEntries: ProfileRecord[];
   renderValue: (entry: ProfileRecord) => string | null;
-  sourceTextOf: (entry: ProfileRecord) => string | null;
   overriddenBy: string | null;
 }) {
   if (entries.length === 0) {
@@ -282,7 +266,6 @@ function EntrySection({
                 label={itemLabel}
                 value={value}
                 parsedValue={renderValue(parsedEntry)}
-                sourceText={sourceTextOf(parsedEntry) ?? sourceTextOf(entry)}
                 overriddenBy={overriddenBy}
               />
             </li>
@@ -299,7 +282,6 @@ function EditableFieldCard({
   label,
   value,
   parsedValue,
-  sourceText,
   overriddenBy,
 }: {
   candidateId: string;
@@ -307,7 +289,6 @@ function EditableFieldCard({
   label: string;
   value: string;
   parsedValue: string | null;
-  sourceText: string | null;
   overriddenBy: string | null;
 }) {
   const router = useRouter();
@@ -419,9 +400,6 @@ function EditableFieldCard({
             </Button>
           </div>
         </form>
-        {sourceText ? (
-          <SourceQuote text={sourceText} lang={sourceLang(sourceText)} />
-        ) : null}
         {dialog}
       </article>
     );
@@ -433,7 +411,6 @@ function EditableFieldCard({
         label={label}
         value={value}
         parsedValue={parsedValue}
-        sourceText={sourceText}
         overriddenBy={overriddenBy}
         action={
           <Button
@@ -460,14 +437,12 @@ function FieldCard({
   label,
   value,
   parsedValue,
-  sourceText,
   overriddenBy = null,
   action = null,
 }: {
   label: string;
   value: string;
   parsedValue: string | null;
-  sourceText: string | null;
   overriddenBy?: string | null;
   action?: ReactNode;
 }) {
@@ -496,18 +471,13 @@ function FieldCard({
           </p>
         </div>
       ) : (
-        <AiSuggestion variant="value">
-          <p
-            className="text-body whitespace-pre-line break-words"
-            lang={valueLang === "zh-Hans" ? "zh-Hans" : undefined}
-          >
-            {value}
-          </p>
-        </AiSuggestion>
+        <p
+          className="text-body whitespace-pre-line break-words"
+          lang={valueLang === "zh-Hans" ? "zh-Hans" : undefined}
+        >
+          {value}
+        </p>
       )}
-      {sourceText ? (
-        <SourceQuote text={sourceText} lang={sourceLang(sourceText)} />
-      ) : null}
     </article>
   );
 }
@@ -594,10 +564,6 @@ function asStringArray(value: unknown): string[] {
   return value.filter(
     (item): item is string => typeof item === "string" && item.trim().length > 0,
   );
-}
-
-function entrySourceText(entry: ProfileRecord): string | null {
-  return stringValue(entry.source_text);
 }
 
 function formatWorkHistory(entry: ProfileRecord): string | null {

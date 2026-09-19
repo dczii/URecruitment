@@ -1,12 +1,8 @@
 import "server-only";
 
 import type { Database } from "@/lib/database.types";
-import { getModel } from "../ai/provider";
-import { createSupabaseAiRunsWriter } from "../ai/run-supabase";
-import type { AiModel } from "../ai/types";
 import { getDb } from "../db";
 import { extractCvText, type CvContentType } from "./extract";
-import { parseCv } from "./parse";
 
 const CV_FILES_BUCKET = "cv-files";
 const PDF_CONTENT_TYPE: CvContentType = "application/pdf";
@@ -44,19 +40,15 @@ export async function retryParse(cvFileId: string): Promise<void> {
       contentTypeFromSourceRef(file.source_ref),
     );
 
-    if (!file.candidate_id) {
-      throw new Error(`CV file ${cvFileId} has no candidate_id`);
+    if (extracted.quality.isLikelyScanned) {
+      throw new Error(
+        "This file looks scanned or photographed. Text could not be extracted.",
+      );
     }
 
-    await parseCv({
-      candidateId: file.candidate_id,
-      cvFileId: file.id,
-      cvText: extracted.text,
-      model: modelForRetry(),
-      runs: createSupabaseAiRunsWriter(),
-      quality: extracted.quality,
-      fileBytes,
-    });
+    if (extracted.text.trim().length === 0) {
+      throw new Error("This file produced no usable text.");
+    }
 
     await updateCvFile(cvFileId, {
       parse_status: "parsed",
@@ -130,37 +122,4 @@ function contentTypeFromSourceRef(sourceRef: string | null): CvContentType {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-/**
- * `parseCv` is mocked in unit tests, which never touch AI env. Defer
- * `getModel("parse")` until a method is actually invoked so those tests
- * don't need `AI_MODEL_PARSE` / Supabase env.
- */
-function modelForRetry(): AiModel {
-  return {
-    get modelId() {
-      return getModel("parse").modelId;
-    },
-    get modelVersion() {
-      return getModel("parse").modelVersion;
-    },
-    generateObject(promptText: string) {
-      return getModel("parse").generateObject(promptText);
-    },
-    get supportsFileInput() {
-      return getModel("parse").supportsFileInput;
-    },
-    generateObjectFromFile(fileBytes: Uint8Array) {
-      const model = getModel("parse");
-      if (typeof model.generateObjectFromFile !== "function") {
-        return Promise.reject(
-          new Error(
-            "File parse path is unavailable: this model does not support file input",
-          ),
-        );
-      }
-      return model.generateObjectFromFile(fileBytes);
-    },
-  };
 }

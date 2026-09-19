@@ -70,7 +70,7 @@ describe("vercel config (AC1, AC2)", () => {
 
   it("AC2: .env.example holds names only", () => {
     const rows = envExampleNamesAndValues();
-    expect(rows.length).toBeGreaterThanOrEqual(10);
+    expect(rows.length).toBeGreaterThanOrEqual(7);
     for (const row of rows) {
       expect(row.value, `${row.name} must have an empty value in .env.example`).toBe(
         "",

@@ -8,16 +8,15 @@ the consolidation note in `design/specs/job-form.md`.
 
 ## Purpose
 
-Checking one candidate: what the AI parsed and where it came from, what a recruiter has since
-edited, the original file, and the stage history.
+Checking one candidate: recruiter-entered fields, later edits, the original file, and the stage
+history.
 
 ## Layout
 
 - Page title: candidate name (李娜 / Li Na — proves Noto Sans SC) + role.
 - Two columns:
-  - **Parsed field card** (`NPgvP`): a parsed value (e.g. "4 years" total experience) shown with
-    the shared **AI suggestion tag** (`D3Bjz`) and the shared **Source quote** component (`b6W3X`)
-    quoting the exact CV text (a Simplified Chinese excerpt in the mock) the field came from.
+  - **Field card** (`NPgvP`): a stored value (e.g. "4 years" total experience) on a card. Recruiters
+    type and edit these fields; there is no AI suggestion tag or source-quote chrome.
   - **Edited field card** (`wgWE8`): shows a recruiter override as a visible diff — the parsed
     value struck through, an arrow, the edited value, and an "Edited by Maya Tan" tag (`accent`
     surface) — so an edited field is never confused with an untouched parsed one.
@@ -30,7 +29,6 @@ edited, the original file, and the stage history.
 
 ## Patterns reused (AC2, AC7)
 
-- `AiSuggestion` tag + `SourceQuote` on every parsed field.
 - Typed-name prompt (shared with `shell.pen`'s recruiter-name affordance and the Pipeline move
   prompt) appears specifically in edit mode, not just once per device.
 
@@ -46,5 +44,5 @@ Job form frames earlier in the same session). Recommend a quick visual pass once
 ## Tokens
 
 `background`, `card`, `border`, `foreground`, `muted-foreground`, `accent(-foreground)`,
-`ai-suggestion-*`, `source-quote-*`, `font-sans`, `font-heading`, `font-mono`, `text-title`,
+`font-sans`, `font-heading`, `font-mono`, `text-title`,
 `text-heading`, `text-label`, `text-caption`, `radius-md`, `radius-lg`, `radius-sm`.
