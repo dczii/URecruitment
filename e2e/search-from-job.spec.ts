@@ -24,7 +24,7 @@ async function createJob(page: Page, title: string) {
   skipWithoutSeededClient(await countClientOptions(page));
   await page.getByLabel("Client").selectOption({ index: 1 });
 
-  await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
+  await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page
     .getByRole("group", { name: "Marking for requirement 1" })
     .getByRole("button", { name: "Must-have" })

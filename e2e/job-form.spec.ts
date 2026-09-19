@@ -28,9 +28,9 @@ test("refused save: unmarked requirements and empty nationality reason show the 
   skipWithoutSeededClient(await countClientOptions(page));
   await page.getByLabel("Client").selectOption({ index: 1 });
 
-  await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
+  await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page.getByRole("button", { name: "Add requirement" }).click();
-  await page.getByLabel("Requirement 2").fill("Node.js and PostgreSQL");
+  await page.getByLabel("Requirement 2", { exact: true }).fill("Node.js and PostgreSQL");
 
   await page
     .getByRole("switch", {
@@ -65,14 +65,14 @@ test("accepted save: a complete job redirects to the new job page", async ({
   skipWithoutSeededClient(await countClientOptions(page));
   await page.getByLabel("Client").selectOption({ index: 1 });
 
-  await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
+  await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page
     .getByRole("group", { name: "Marking for requirement 1" })
     .getByRole("button", { name: "Must-have" })
     .click();
 
   await page.getByRole("button", { name: "Add requirement" }).click();
-  await page.getByLabel("Requirement 2").fill("AWS or GCP experience");
+  await page.getByLabel("Requirement 2", { exact: true }).fill("AWS or GCP experience");
   await page
     .getByRole("group", { name: "Marking for requirement 2" })
     .getByRole("button", { name: "Nice-to-have" })
