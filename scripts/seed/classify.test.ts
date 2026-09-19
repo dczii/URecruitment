@@ -43,4 +43,20 @@ describe("classifyDocument (AC119.1–AC119.4)", () => {
     expect(result.reason.trim().length).toBeGreaterThan(0);
     expect(result.confidence).toBeLessThan(CONFIDENT_THRESHOLD);
   });
+
+  it("classifies a CV as cv even when its section headers are letter-spaced, as some PDF templates extract them", () => {
+    const letterSpaced = [
+      "Jordan Rivera-Test",
+      "jordan.rivera@example.com · +65 8000 1234",
+      "W O R K E X P E R I E N C E",
+      "2020–2026 Fictional Corp — Engineer",
+      "2017–2020 Imaginary Labs — Junior Engineer",
+      "E D U C A T I O N",
+      "2013–2017 Fictional University — B.Eng",
+    ].join("\n");
+
+    const result = classifyDocument(letterSpaced);
+    expect(result.kind).toBe("cv");
+    expect(result.confidence).toBeGreaterThanOrEqual(CONFIDENT_THRESHOLD);
+  });
 });

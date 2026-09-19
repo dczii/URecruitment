@@ -72,6 +72,11 @@ function textFromPdfItems(items: readonly object[]): string {
   for (const item of items) {
     if ("str" in item && typeof item.str === "string") {
       out += item.str;
+      // pdf.js sets hasEOL on the last item of a visual line; without it,
+      // every line on a page is glued into one string with no separator.
+      if ("hasEOL" in item && item.hasEOL) {
+        out += "\n";
+      }
     }
   }
   return out;

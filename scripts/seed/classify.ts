@@ -102,6 +102,26 @@ function matchesAny(value: string, patterns: readonly RegExp[]): boolean {
   return patterns.some((pattern) => pattern.test(value));
 }
 
+/**
+ * Some CV templates render section headers letter-spaced (e.g. "W O R K
+ * E X P E R I E N C E"), which a real PDF extractor reproduces as literal
+ * spaces between every character. Stripping all whitespace from both the
+ * line and the pattern's `\s+` joins collapses "work experience" and
+ * "w o r k   e x p e r i e n c e" to the same string, so either form still
+ * matches the full-line header patterns below.
+ */
+function matchesHeaderLine(line: string, patterns: readonly RegExp[]): boolean {
+  if (matchesAny(line, patterns)) {
+    return true;
+  }
+  const collapsed = line.replace(/\s+/g, "");
+  return patterns.some((pattern) =>
+    new RegExp(pattern.source.replace(/\\s\+/g, ""), pattern.flags).test(
+      collapsed,
+    ),
+  );
+}
+
 function headerLines(text: string): string[] {
   return text.split(/\r?\n/).map((line) =>
     line
@@ -122,15 +142,15 @@ function scoreCv(text: string): MarkerScore {
   const markers: string[] = [];
   let score = 0;
 
-  if (headers.some((line) => matchesAny(line, CV_EXPERIENCE_HEADERS))) {
+  if (headers.some((line) => matchesHeaderLine(line, CV_EXPERIENCE_HEADERS))) {
     score += CV_WEIGHTS.experienceHeader;
     markers.push("experience section header");
   }
-  if (headers.some((line) => matchesAny(line, CV_EDUCATION_HEADERS))) {
+  if (headers.some((line) => matchesHeaderLine(line, CV_EDUCATION_HEADERS))) {
     score += CV_WEIGHTS.educationHeader;
     markers.push("education section header");
   }
-  if (headers.some((line) => matchesAny(line, CV_OBJECTIVE_HEADERS))) {
+  if (headers.some((line) => matchesHeaderLine(line, CV_OBJECTIVE_HEADERS))) {
     score += CV_WEIGHTS.objectiveHeader;
     markers.push("objective/summary section header");
   }
@@ -162,11 +182,11 @@ function scoreJobDescription(text: string): MarkerScore {
   const markers: string[] = [];
   let score = 0;
 
-  if (headers.some((line) => matchesAny(line, JD_RESPONSIBILITY_HEADERS))) {
+  if (headers.some((line) => matchesHeaderLine(line, JD_RESPONSIBILITY_HEADERS))) {
     score += JD_WEIGHTS.responsibilitiesHeader;
     markers.push("responsibilities section header");
   }
-  if (headers.some((line) => matchesAny(line, JD_REQUIREMENT_HEADERS))) {
+  if (headers.some((line) => matchesHeaderLine(line, JD_REQUIREMENT_HEADERS))) {
     score += JD_WEIGHTS.requirementsHeader;
     markers.push("requirements section header");
   }

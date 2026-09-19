@@ -171,6 +171,28 @@ function buildChineseTextPdf(snippet: string): Uint8Array {
   ]);
 }
 
+/** Two-line PDF: each line is its own `Tj`, `Td`-shifted down a full line height. */
+function buildTwoLineTextPdf(firstLine: string, secondLine: string): Uint8Array {
+  const content = [
+    "BT",
+    "/F1 12 Tf",
+    "72 720 Td",
+    `(${pdfEscape(firstLine)}) Tj`,
+    "0 -14 Td",
+    `(${pdfEscape(secondLine)}) Tj`,
+    "ET",
+    "",
+  ].join("\n");
+
+  return buildPdf([
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    streamObject(content),
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ]);
+}
+
 /** Valid one-page PDF with a MediaBox and an empty content stream — no BT/ET. */
 function buildImageOnlyPdf(): Uint8Array {
   return buildPdf([
@@ -330,6 +352,16 @@ describe("extract (AC1, AC2)", () => {
     expect(foldedText(result.text)).toContain(foldedText(DOCX_CV_SNIPPET));
     expect(result.quality.pageCount).toBeNull();
     expect(result.quality.isLikelyScanned).toBe(false);
+  });
+
+  it("AC1: separates distinct visual lines with a newline, not a glued run", async () => {
+    const result = await extractCvText(
+      buildTwoLineTextPdf("Work Experience", "Fictional Corp — Engineer"),
+      PDF_CONTENT_TYPE,
+    );
+
+    expect(result.text).toMatch(/Work Experience\s*\n/);
+    expect(result.text).not.toMatch(/Work ExperienceFictional/);
   });
 
   it("AC2: flags an image-only PDF as likely scanned", async () => {
