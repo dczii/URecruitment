@@ -61,6 +61,12 @@ function mockClient(opts: {
   const updateEq = vi.fn().mockReturnValue({ select: upsertSelect });
   const update = vi.fn().mockReturnValue({ eq: updateEq });
 
+  const flagSingle = vi
+    .fn()
+    .mockResolvedValue({ data: { flag: "ok" }, error: null });
+  const flagEq = vi.fn().mockReturnValue({ maybeSingle: flagSingle });
+  const flagSelect = vi.fn().mockReturnValue({ eq: flagEq });
+
   let placementsSelectCalls = 0;
   const from = vi.fn((table: string) => {
     if (table === "pipeline_entries") {
@@ -71,6 +77,9 @@ function mockClient(opts: {
     }
     if (table === "clients") {
       return { select: clientSelect };
+    }
+    if (table === "placements_guarantee_flag") {
+      return { select: flagSelect };
     }
     if (table === "placements") {
       placementsSelectCalls += 1;

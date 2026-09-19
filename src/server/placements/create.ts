@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { getDb } from "../db";
+import { getGuaranteeFlagForPlacement, type GuaranteeFlag } from "./guarantee";
 
 const NAME_REQUIRED = "Enter your name to continue.";
 const CREATE_FAILED = "The placement could not be saved.";
@@ -29,6 +30,7 @@ export type Placement = {
   startDate: string;
   guaranteePeriodDays: number;
   guaranteeEndDate: string;
+  flag: GuaranteeFlag;
 };
 
 export type CreatePlacementResult =
@@ -221,6 +223,7 @@ export async function createPlacement(
         startDate,
         guaranteePeriodDays,
         guaranteeEndDate,
+        flag: await getGuaranteeFlagForPlacement(updated.id),
       },
     };
   }
@@ -242,6 +245,7 @@ export async function createPlacement(
       startDate,
       guaranteePeriodDays,
       guaranteeEndDate,
+      flag: await getGuaranteeFlagForPlacement(inserted.id),
     },
   };
 }

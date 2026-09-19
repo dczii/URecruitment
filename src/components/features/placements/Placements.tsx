@@ -20,14 +20,14 @@ function todaySgtDateInput(): string {
   return new Date(Date.now() + SGT_OFFSET_MS).toISOString().slice(0, 10);
 }
 
-function flagText(item: PlacementListItem): string | null {
-  if (item.startDate === null) {
+function flagText(startDate: string | null, flag: string | null): string | null {
+  if (startDate === null) {
     return "Waiting on start-date confirmation";
   }
-  if (item.flag === "ending-soon") {
+  if (flag === "ending-soon") {
     return "Guarantee ending soon";
   }
-  if (item.flag === "ended") {
+  if (flag === "ended") {
     return "Guarantee period has ended";
   }
   return null;
@@ -91,14 +91,12 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
   const [savedStartDate, setSavedStartDate] = useState(item.startDate);
   const [savedDaysUsed, setSavedDaysUsed] = useState(item.daysUsed);
   const [savedPeriod, setSavedPeriod] = useState(item.guaranteePeriodDays);
+  const [savedFlag, setSavedFlag] = useState(item.flag);
   const inputId = useId();
 
-  const flag = flagText({
-    ...item,
-    startDate: savedStartDate,
-  });
-  const isDueSoon = item.flag === "ending-soon" && savedStartDate !== null;
-  const isEnded = item.flag === "ended" && savedStartDate !== null;
+  const flag = flagText(savedStartDate, savedFlag);
+  const isDueSoon = savedFlag === "ending-soon" && savedStartDate !== null;
+  const isEnded = savedFlag === "ended" && savedStartDate !== null;
 
   function performSave(typedName: string) {
     startTransition(async () => {
@@ -114,6 +112,7 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
       setError(null);
       setSavedStartDate(result.placement.startDate);
       setSavedPeriod(result.placement.guaranteePeriodDays);
+      setSavedFlag(result.placement.flag);
       const daysUsed = Math.max(
         0,
         Math.round(
