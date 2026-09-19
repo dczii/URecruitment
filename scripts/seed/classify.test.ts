@@ -59,4 +59,37 @@ describe("classifyDocument (AC119.1–AC119.4)", () => {
     expect(result.kind).toBe("cv");
     expect(result.confidence).toBeGreaterThanOrEqual(CONFIDENT_THRESHOLD);
   });
+
+  it("classifies a freelancer CV as cv when it uses 'Engagements' instead of 'Experience'", () => {
+    const freelancerCv = [
+      "Jordan Rivera-Test",
+      "About",
+      "Independent contractor since 2020.",
+      "Engagements",
+      "Fictional Corp — Feb, 2022 - Present (fictional contract)",
+      "Education",
+      "Fictional University — 2013 - 2017",
+    ].join("\n");
+
+    const result = classifyDocument(freelancerCv);
+    expect(result.kind).toBe("cv");
+    expect(result.confidence).toBeGreaterThanOrEqual(CONFIDENT_THRESHOLD);
+  });
+
+  it("classifies a bilingual CV as cv when section headers combine a translation and the English word ('X / Work Experience')", () => {
+    const bilingualCv = [
+      "Nguyen Van A-Test",
+      "a.nguyen@example.com · +84 90 555 0000 · Ho Chi Minh City",
+      "GIỚI THIỆU / PROFILE",
+      "Fictional bilingual summary line.",
+      "KINH NGHIỆM LÀM VIỆC / WORK EXPERIENCE",
+      "Fictional Corp · 2022 - Present",
+      "HOC VAN / EDUCATION",
+      "Fictional University · 2016 - 2020",
+    ].join("\n");
+
+    const result = classifyDocument(bilingualCv);
+    expect(result.kind).toBe("cv");
+    expect(result.confidence).toBeGreaterThanOrEqual(CONFIDENT_THRESHOLD);
+  });
 });

@@ -16,6 +16,7 @@ const CV_EXPERIENCE_HEADERS = [
   /^work\s+experience$/,
   /^professional\s+experience$/,
   /^employment(\s+history)?$/,
+  /^engagements?$/,
   /^工作经历$/,
   /^工作经验$/,
   /^职业经历$/,
@@ -34,6 +35,7 @@ const CV_OBJECTIVE_HEADERS = [
   /^(career\s+)?objective$/,
   /^(professional\s+)?summary$/,
   /^profile$/,
+  /^about(\s+me)?$/,
   /^personal\s+(profile|statement|summary)$/,
   /^个人简介$/,
   /^个人概况$/,
@@ -69,8 +71,10 @@ const EMAIL_LABEL_RE = /(?:e-?mail|邮箱)\s*[:：]/i;
 const PHONE_LABEL_RE = /(?:phone|tel(?:ephone)?|mobile|电话|手机)\s*[:：]/i;
 const PHONE_NUMBER_RE = /\+\d{1,3}[\s.-]?\d/;
 
+// "Present"/"Now"/"Current" are almost always capitalized in a real CV's
+// date range ("2022 - Present"); match case-insensitively.
 const DATE_RANGE_WITH_ORG =
-  /\b(?:19|20)\d{2}\s*[–—−-]\s*(?:(?:19|20)\d{2}|present|now|current|至今)\s+[^\s\d].+/u;
+  /\b(?:19|20)\d{2}\s*[–—−-]\s*(?:(?:19|20)\d{2}|present|now|current|至今)\s+[^\s\d].+/iu;
 
 const CV_WEIGHTS = {
   experienceHeader: 0.32,
@@ -109,17 +113,30 @@ function matchesAny(value: string, patterns: readonly RegExp[]): boolean {
  * line and the pattern's `\s+` joins collapses "work experience" and
  * "w o r k   e x p e r i e n c e" to the same string, so either form still
  * matches the full-line header patterns below.
+ *
+ * Bilingual CVs often combine both languages on one header line ("KINH
+ * NGHIỆM LÀM VIỆC / WORK EXPERIENCE"). Trying the segment after the last
+ * "/" catches the English half without needing a translation table for
+ * every other language's header word.
  */
 function matchesHeaderLine(line: string, patterns: readonly RegExp[]): boolean {
-  if (matchesAny(line, patterns)) {
-    return true;
+  const candidates = [line];
+  const slashIndex = line.lastIndexOf("/");
+  if (slashIndex !== -1) {
+    candidates.push(line.slice(slashIndex + 1).trim());
   }
-  const collapsed = line.replace(/\s+/g, "");
-  return patterns.some((pattern) =>
-    new RegExp(pattern.source.replace(/\\s\+/g, ""), pattern.flags).test(
-      collapsed,
-    ),
-  );
+
+  return candidates.some((candidate) => {
+    if (matchesAny(candidate, patterns)) {
+      return true;
+    }
+    const collapsed = candidate.replace(/\s+/g, "");
+    return patterns.some((pattern) =>
+      new RegExp(pattern.source.replace(/\\s\+/g, ""), pattern.flags).test(
+        collapsed,
+      ),
+    );
+  });
 }
 
 function headerLines(text: string): string[] {
