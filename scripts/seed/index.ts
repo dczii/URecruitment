@@ -1,16 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { extname, join } from "node:path";
+import type { Json } from "@/lib/database.types";
 import { extractCvText } from "@/server/cv/extract";
-import { parseCv } from "@/server/cv/parse";
-import { embedCvProfile, embedJobVersion } from "@/server/ai/embeddings";
-import { getEmbedder, getModel } from "@/server/ai/provider";
-import { createSupabaseAiRunsWriter } from "@/server/ai/run-supabase";
+import {
+  checkMissingFields,
+  persistMissingFieldFlags,
+} from "@/server/gap-check/missing-fields";
 import { getDb } from "@/server/db";
-import { runGapCheck } from "@/server/gap-check/run";
-import { extractJobDescription } from "@/server/jobs/extract";
 import { saveJobVersion } from "@/server/jobs/versions";
-import { startRescoreRun } from "@/server/matching/rescore";
 import { uploadCvFile } from "@/server/storage";
 import { classifyDocument } from "./classify";
 import { parseSeedEnv } from "./env";
@@ -74,20 +72,9 @@ async function classifiedFilesFromStore(): Promise<{
 
 /** Real-world wiring for `runLoad`'s injected deps — never used in tests. */
 function realDeps(): LoadDeps {
-  const runs = createSupabaseAiRunsWriter();
   const db = getDb();
 
   return {
-    models: {
-      jd: getModel("jd"),
-      parse: getModel("parse"),
-      gap: getModel("gap"),
-      match: getModel("match"),
-    },
-    embedder: getEmbedder(),
-    runs,
-    randomUUID,
-
     async ensureClient(name) {
       const existing = await db
         .from("clients")
@@ -125,10 +112,13 @@ function realDeps(): LoadDeps {
     },
 
     saveJobVersion,
-    extractJobDescription,
-    embedJobVersion,
-    runGapCheck,
-    startRescoreRun,
+
+    async persistMissingFieldFlags(jobVersionId, jobVersion) {
+      await persistMissingFieldFlags(
+        jobVersionId,
+        checkMissingFields(jobVersion),
+      );
+    },
 
     async insertCandidate(fullName) {
       const inserted = await db
@@ -179,8 +169,21 @@ function realDeps(): LoadDeps {
       return inserted.data.id;
     },
 
-    parseCv,
-    embedCvProfile,
+    async insertCandidateProfile({ candidateId, cvFileId, parsed }) {
+      const { error } = await db.from("candidate_profiles").insert({
+        candidate_id: candidateId,
+        cv_file_id: cvFileId,
+        parsed: parsed as Json,
+        overrides: {},
+      });
+      if (error) {
+        throw new Error(
+          `Failed to create seed candidate_profiles row: ${error.message}`,
+        );
+      }
+    },
+
+    randomUUID,
   };
 }
 
@@ -188,9 +191,7 @@ async function main(): Promise<void> {
   console.log("Listing and downloading sample files...");
   const { files, downloadSkipped } = await classifiedFilesFromStore();
 
-  console.log(
-    `Loading ${files.length} classified files (jobs, then CVs, then scoring)...`,
-  );
+  console.log(`Loading ${files.length} classified files (jobs, then CVs)...`);
   const summary = await runLoad(files, realDeps());
 
   const countsByKind: Record<string, number> = {};
@@ -202,7 +203,6 @@ async function main(): Promise<void> {
   console.log("================");
   console.log("Counts by classification:", countsByKind);
   console.log(`Jobs loaded: ${summary.jobsLoaded}`);
-  console.log(`Jobs scored: ${summary.jobsScored}`);
   console.log(`Candidates loaded: ${summary.candidatesLoaded}`);
   console.log(
     `Skipped (download): ${downloadSkipped.length}`,
