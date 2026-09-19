@@ -1,9 +1,10 @@
 # Runs `npm run seed` against the one Supabase project Preview and
 # Production share (docs/plans/infrastructure.md#one-supabase-project-for-preview-and-production).
-# Manual only, behind the same required-approval "production" GitHub
-# Environment migrate.yml uses — this writes fictional sample data straight
-# into the shared, no-backups database (CLAUDE.md hard rule 6/9), so it must
-# never run on every push or PR the way pr-checks.yml does.
+# Manual only (workflow_dispatch) — no approval-environment gate: running
+# this seeds fictional sample data straight into the shared, no-backups
+# database (CLAUDE.md hard rule 6/9) as soon as someone clicks "Run
+# workflow", with no separate review step. It must never run on every push
+# or PR the way pr-checks.yml does.
 name: Seed sample data
 
 on:
@@ -19,7 +20,6 @@ concurrency:
 jobs:
   seed:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Check secrets
         id: gate
