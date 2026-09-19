@@ -1,0 +1,103 @@
+# Runs `npm run seed` against the one Supabase project Preview and
+# Production share (docs/plans/infrastructure.md#one-supabase-project-for-preview-and-production).
+# Manual only (workflow_dispatch) — no approval-environment gate: running
+# this seeds fictional sample data straight into the shared, no-backups
+# database (CLAUDE.md hard rule 6/9) as soon as someone clicks "Run
+# workflow", with no separate review step. It must never run on every push
+# or PR the way pr-checks.yml does.
+name: Seed sample data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check secrets
+        id: gate
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          SEED_BLOB_BASE_URL: ${{ secrets.SEED_BLOB_BASE_URL }}
+          AI_MODEL_PARSE: ${{ secrets.AI_MODEL_PARSE }}
+          AI_MODEL_MATCH: ${{ secrets.AI_MODEL_MATCH }}
+          AI_MODEL_GAP: ${{ secrets.AI_MODEL_GAP }}
+          AI_MODEL_JD: ${{ secrets.AI_MODEL_JD }}
+          AI_EMBED_MODEL: ${{ secrets.AI_EMBED_MODEL }}
+        run: |
+          missing=()
+          [ -z "$SUPABASE_URL" ] && missing+=("SUPABASE_URL")
+          [ -z "$SUPABASE_SECRET_KEY" ] && missing+=("SUPABASE_SECRET_KEY")
+          [ -z "$BLOB_READ_WRITE_TOKEN" ] && missing+=("BLOB_READ_WRITE_TOKEN")
+          [ -z "$SEED_BLOB_BASE_URL" ] && missing+=("SEED_BLOB_BASE_URL")
+          [ -z "$AI_MODEL_PARSE" ] && missing+=("AI_MODEL_PARSE")
+          [ -z "$AI_MODEL_MATCH" ] && missing+=("AI_MODEL_MATCH")
+          [ -z "$AI_MODEL_GAP" ] && missing+=("AI_MODEL_GAP")
+          [ -z "$AI_MODEL_JD" ] && missing+=("AI_MODEL_JD")
+          [ -z "$AI_EMBED_MODEL" ] && missing+=("AI_EMBED_MODEL")
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            joined=$(IFS=, ; echo "${missing[*]}")
+            echo "::notice::seed skipped: missing repository secret(s): $joined"
+            {
+              echo "## Seed skipped"
+              echo
+              echo "Missing repository secret(s): \`$joined\`."
+              echo
+              echo "The AI provider is not chosen yet (ADR-0003) — the \`AI_MODEL_*\`/\`AI_EMBED_MODEL\` secrets stay unset, and this job stays a no-op, until a provider is picked and configured."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        run: npm ci
+
+      - name: Seed
+        if: ${{ steps.gate.outputs.ready == 'true' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          SEED_BLOB_BASE_URL: ${{ secrets.SEED_BLOB_BASE_URL }}
+          AI_MODEL_PARSE: ${{ secrets.AI_MODEL_PARSE }}
+          AI_MODEL_MATCH: ${{ secrets.AI_MODEL_MATCH }}
+          AI_MODEL_GAP: ${{ secrets.AI_MODEL_GAP }}
+          AI_MODEL_JD: ${{ secrets.AI_MODEL_JD }}
+          AI_MODEL_SEARCH: ${{ secrets.AI_MODEL_SEARCH }}
+          AI_EMBED_MODEL: ${{ secrets.AI_EMBED_MODEL }}
+          AI_MONTHLY_SPEND_CAP: ${{ secrets.AI_MONTHLY_SPEND_CAP }}
+        run: npm run seed
+
+      - name: Job summary
+        if: ${{ always() && steps.gate.outputs.ready == 'true' }}
+        run: |
+          {
+            echo "## Seed sample data"
+            echo
+            echo "Ran \`npm run seed\` against the shared Supabase project. See the step log above for the run's counts-by-stage summary and any skipped files."
+          } >> "$GITHUB_STEP_SUMMARY"
