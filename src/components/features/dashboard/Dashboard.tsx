@@ -1,11 +1,10 @@
 import { CircleCheck } from "lucide-react";
 
 import { DelayStatusBadge } from "@/components/patterns/DelayStatusBadge";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableHead } from "@/components/ui/table";
 import type { DashboardData, FilterOptions } from "@/server/dashboard/data";
 import { FilterBar } from "./FilterBar";
-
-const tableClassName =
-  "overflow-x-auto rounded-md border border-border bg-card";
 
 export function Dashboard({
   data,
@@ -24,8 +23,10 @@ export function Dashboard({
       <FilterBar options={filterOptions} />
 
       {isEmpty ? (
-        <div className="flex flex-col items-center gap-2 rounded-md border border-border bg-card p-8 text-center">
-          <CircleCheck className="size-6 text-status-on-track-foreground" aria-hidden="true" />
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border/20 bg-card p-10 text-center shadow-sm">
+          <span className="flex size-12 items-center justify-center rounded-full bg-status-on-track" aria-hidden="true">
+            <CircleCheck className="size-6 text-status-on-track-foreground" />
+          </span>
           <p className="text-body text-muted-foreground">
             No one is overdue, due soon or ending guarantee right now.
           </p>
@@ -46,41 +47,39 @@ function OverdueSection({ rows }: { rows: DashboardData["overdue"] }) {
     return null;
   }
   return (
-    <section aria-labelledby="overdue-heading" className="flex flex-col gap-3">
-      <h2 id="overdue-heading" className="font-heading text-heading font-semibold">
+    <section aria-labelledby="overdue-heading" className="flex min-w-0 flex-col gap-3">
+      <h2 id="overdue-heading" className="font-heading text-heading font-semibold tracking-tight">
         Overdue · ordered by days over
       </h2>
-      <div className={tableClassName}>
-        <table className="w-full border-collapse text-label">
-          <caption className="sr-only">
-            Overdue candidates, most overdue first, with who the delay is waiting on.
-          </caption>
-          <thead>
-            <tr className="border-b border-border text-caption text-muted-foreground">
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Candidate</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Job</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Stage</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Status</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Waiting on</th>
+      <Table>
+        <caption className="sr-only">
+          Overdue candidates, most overdue first, with who the delay is waiting on.
+        </caption>
+        <TableHead>
+          <tr>
+            <th scope="col">Candidate</th>
+            <th scope="col">Job</th>
+            <th scope="col">Stage</th>
+            <th scope="col">Status</th>
+            <th scope="col">Waiting on</th>
+          </tr>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <tr key={row.pipelineEntryId}>
+              <td>{row.candidateName}</td>
+              <td>
+                {row.jobTitle} · {row.clientName}
+              </td>
+              <td>{row.stage}</td>
+              <td>
+                <DelayStatusBadge status="overdue" daysOverdue={row.daysOver} />
+              </td>
+              <td>{row.waitingOn}</td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.pipelineEntryId} className="border-b border-border last:border-0">
-                <td className="px-4 py-3">{row.candidateName}</td>
-                <td className="px-4 py-3">
-                  {row.jobTitle} · {row.clientName}
-                </td>
-                <td className="px-4 py-3">{row.stage}</td>
-                <td className="px-4 py-3">
-                  <DelayStatusBadge status="overdue" daysOverdue={row.daysOver} />
-                </td>
-                <td className="px-4 py-3">{row.waitingOn}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
     </section>
   );
 }
@@ -90,43 +89,41 @@ function DueSoonSection({ rows }: { rows: DashboardData["dueSoon"] }) {
     return null;
   }
   return (
-    <section aria-labelledby="due-soon-heading" className="flex flex-col gap-3">
-      <h2 id="due-soon-heading" className="font-heading text-heading font-semibold">
+    <section aria-labelledby="due-soon-heading" className="flex min-w-0 flex-col gap-3">
+      <h2 id="due-soon-heading" className="font-heading text-heading font-semibold tracking-tight">
         Due soon · 80% of the stage limit used
       </h2>
-      <div className={tableClassName}>
-        <table className="w-full border-collapse text-label">
-          <caption className="sr-only">
-            Candidates approaching their stage limit, soonest first.
-          </caption>
-          <thead>
-            <tr className="border-b border-border text-caption text-muted-foreground">
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Candidate</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Job</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Stage</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Status</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Working days used</th>
+      <Table>
+        <caption className="sr-only">
+          Candidates approaching their stage limit, soonest first.
+        </caption>
+        <TableHead>
+          <tr>
+            <th scope="col">Candidate</th>
+            <th scope="col">Job</th>
+            <th scope="col">Stage</th>
+            <th scope="col">Status</th>
+            <th scope="col">Working days used</th>
+          </tr>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <tr key={row.pipelineEntryId}>
+              <td>{row.candidateName}</td>
+              <td>
+                {row.jobTitle} · {row.clientName}
+              </td>
+              <td>{row.stage}</td>
+              <td>
+                <DelayStatusBadge status="due-soon" />
+              </td>
+              <td className="font-mono tabular-nums">
+                {row.workingDaysUsed} of {row.limitDays} days
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.pipelineEntryId} className="border-b border-border last:border-0">
-                <td className="px-4 py-3">{row.candidateName}</td>
-                <td className="px-4 py-3">
-                  {row.jobTitle} · {row.clientName}
-                </td>
-                <td className="px-4 py-3">{row.stage}</td>
-                <td className="px-4 py-3">
-                  <DelayStatusBadge status="due-soon" />
-                </td>
-                <td className="px-4 py-3 font-mono tabular-nums">
-                  {row.workingDaysUsed} of {row.limitDays} days
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
     </section>
   );
 }
@@ -136,41 +133,39 @@ function GuaranteeSection({ rows }: { rows: DashboardData["guarantee"] }) {
     return null;
   }
   return (
-    <section aria-labelledby="guarantee-heading" className="flex flex-col gap-3">
-      <h2 id="guarantee-heading" className="font-heading text-heading font-semibold">
+    <section aria-labelledby="guarantee-heading" className="flex min-w-0 flex-col gap-3">
+      <h2 id="guarantee-heading" className="font-heading text-heading font-semibold tracking-tight">
         Guarantee ending
       </h2>
-      <div className={tableClassName}>
-        <table className="w-full border-collapse text-label">
-          <caption className="sr-only">
-            Placements whose replacement guarantee is ending soon or has ended.
-          </caption>
-          <thead>
-            <tr className="border-b border-border text-caption text-muted-foreground">
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Candidate</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Job</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Guarantee</th>
-              <th scope="col" className="px-4 py-3 text-left font-semibold">Ends</th>
+      <Table>
+        <caption className="sr-only">
+          Placements whose replacement guarantee is ending soon or has ended.
+        </caption>
+        <TableHead>
+          <tr>
+            <th scope="col">Candidate</th>
+            <th scope="col">Job</th>
+            <th scope="col">Guarantee</th>
+            <th scope="col">Ends</th>
+          </tr>
+        </TableHead>
+        <TableBody>
+          {rows.map((row) => (
+            <tr key={row.placementId}>
+              <td>{row.candidateName}</td>
+              <td>
+                {row.jobTitle} · {row.clientName}
+              </td>
+              <td>
+                <Badge tone={row.flag === "ended" ? "ended" : "due-soon"}>
+                  {row.flag === "ended" ? "Guarantee ended" : "Guarantee ending soon"}
+                </Badge>
+              </td>
+              <td className="font-mono tabular-nums">{row.guaranteeEndDate}</td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.placementId} className="border-b border-border last:border-0">
-                <td className="px-4 py-3">{row.candidateName}</td>
-                <td className="px-4 py-3">
-                  {row.jobTitle} · {row.clientName}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-sm bg-status-overdue px-2 py-1 text-label text-status-overdue-foreground">
-                    {row.flag === "ended" ? "Guarantee ended" : "Guarantee ending soon"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-mono tabular-nums">{row.guaranteeEndDate}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
     </section>
   );
 }
