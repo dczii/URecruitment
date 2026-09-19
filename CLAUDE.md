@@ -27,7 +27,6 @@ The product source of truth is the PRD dated 17 Sep 2026, condensed in the `prd-
 7. **Time.** Store UTC, display Singapore time. Stage limits count Singapore working days (Mon–Fri minus SG public holidays).
 8. **Audit by typed name.** Stage and settings changes record the name the recruiter types (remembered on the device). There is no sign-in in the MVP.
 9. **Free tiers.** Vercel Hobby (cron once a day, one region) and Supabase Free (500 MB DB, 1 GB storage, 50 MB/file). Derive delay status in a DB view, not a scheduled job.
-10. **Protected `main`.** Never push directly to `main` and never merge a pull request. All changes reach `main` only through a PR that the user merges manually.
 
 ## Commands
 
