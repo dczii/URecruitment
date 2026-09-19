@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { countClientOptions, skipWithoutSeededClient } from "./seeded";
+
 /**
  * Desktop-only coverage for the job creation form (plan.md Assumptions).
  * The accepted-save case needs a seeded client in `public.clients`.
@@ -23,10 +25,8 @@ test("refused save: unmarked requirements and empty nationality reason show the 
   await page.getByLabel("Job title").fill("Senior Backend Engineer");
   await page.getByLabel("Owner name").fill("Maya Tan");
 
-  const clientSelect = page.getByLabel("Client");
-  const clientOptions = await clientSelect.locator("option").count();
-  expect(clientOptions).toBeGreaterThan(1);
-  await clientSelect.selectOption({ index: 1 });
+  skipWithoutSeededClient(await countClientOptions(page));
+  await page.getByLabel("Client").selectOption({ index: 1 });
 
   await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
   await page.getByRole("button", { name: "Add requirement" }).click();
@@ -62,10 +62,8 @@ test("accepted save: a complete job redirects to the new job page", async ({
   await page.getByLabel("Job title").fill("Senior Backend Engineer");
   await page.getByLabel("Owner name").fill("Maya Tan");
 
-  const clientSelect = page.getByLabel("Client");
-  const clientOptions = await clientSelect.locator("option").count();
-  expect(clientOptions).toBeGreaterThan(1);
-  await clientSelect.selectOption({ index: 1 });
+  skipWithoutSeededClient(await countClientOptions(page));
+  await page.getByLabel("Client").selectOption({ index: 1 });
 
   await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
   await page

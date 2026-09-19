@@ -47,6 +47,18 @@ const VALID_PREFILL = {
   prompt_injection_note: null,
 };
 
+/**
+ * While the AI proposal panel is up, "Job title" and "Requirement n" each name
+ * two things: the proposal group and the editable input. Target the input.
+ */
+function jobTitleInput(page: Page) {
+  return page.getByRole("textbox", { name: "Job title" });
+}
+
+function requirementInput(page: Page, index: number) {
+  return page.getByRole("textbox", { name: `Requirement ${index}` });
+}
+
 async function mockExtractJd(page: Page) {
   await page.route("**/api/ai/extract-jd", async (route) => {
     await route.fulfill({
@@ -121,14 +133,12 @@ test("AC2: pre-filled fields show AiSuggestion and source text", async ({
   ).toBeVisible();
 
   // Nothing seeds the editable form until an explicit recruiter action.
-  await expect(page.getByLabel("Job title")).toHaveValue("");
-  await expect(page.getByLabel("Requirement 1")).toHaveValue("");
+  await expect(jobTitleInput(page)).toHaveValue("");
+  await expect(requirementInput(page, 1)).toHaveValue("");
 
   await page.getByRole("button", { name: "Confirm pre-filled values" }).click();
-  await expect(page.getByLabel("Job title")).toHaveValue(
-    "Senior Backend Engineer",
-  );
-  await expect(page.getByLabel("Requirement 1")).toHaveValue(
+  await expect(jobTitleInput(page)).toHaveValue("Senior Backend Engineer");
+  await expect(requirementInput(page, 1)).toHaveValue(
     "5+ years of backend development experience",
   );
 });
@@ -140,10 +150,8 @@ test("AC3: recruiter-edited marking wins over the AI proposal before save", asyn
   await uploadJd(page);
 
   await page.getByRole("button", { name: "Edit before saving" }).click();
-  await expect(page.getByLabel("Job title")).toHaveValue(
-    "Senior Backend Engineer",
-  );
-  await expect(page.getByLabel("Job title")).toBeFocused();
+  await expect(jobTitleInput(page)).toHaveValue("Senior Backend Engineer");
+  await expect(jobTitleInput(page)).toBeFocused();
 
   const marking = page.getByRole("group", {
     name: "Marking for requirement 1",
@@ -164,7 +172,7 @@ test("AC3: recruiter-edited marking wins over the AI proposal before save", asyn
 
   // The editable form holds the recruiter's marking; Save job still posts
   // this component state through createJob (unchanged from #43).
-  await expect(page.getByLabel("Requirement 1")).toHaveValue(
+  await expect(requirementInput(page, 1)).toHaveValue(
     "5+ years of backend development experience",
   );
 });

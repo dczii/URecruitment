@@ -100,7 +100,8 @@ test("AC1: five filters narrow results — chips reflect parsed skill, years, lo
   await expect(chips.getByText("Location: Singapore")).toBeVisible();
   await expect(chips.getByText("Language: ZH")).toBeVisible();
   await expect(chips.getByText("CV date: since 1 Jan 2026")).toBeVisible();
-  await expect(page.getByText(/^Ignored:/)).toContainText("young");
+  const ignored = page.getByRole("status").filter({ hasText: /^Ignored:/ });
+  await expect(ignored).toContainText("young");
   await expect(page.getByText("AI suggestion")).toBeVisible();
 });
 

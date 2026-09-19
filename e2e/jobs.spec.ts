@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
+import { countClientOptions, skipWithoutSeededClient } from "./seeded";
+
 /**
  * Desktop-only coverage for the jobs list and job detail screens
  * (plan.md Assumptions). Creating a job needs a seeded client in
@@ -20,10 +22,8 @@ async function createJob(page: Page, title: string) {
   await page.getByLabel("Job title").fill(title);
   await page.getByLabel("Owner name").fill("Maya Tan");
 
-  const clientSelect = page.getByLabel("Client");
-  const clientOptions = await clientSelect.locator("option").count();
-  expect(clientOptions).toBeGreaterThan(1);
-  await clientSelect.selectOption({ index: 1 });
+  skipWithoutSeededClient(await countClientOptions(page));
+  await page.getByLabel("Client").selectOption({ index: 1 });
 
   await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
   await page

@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
+import { skipWithoutSeededCandidate } from "./seeded";
+
 /**
  * Desktop-only coverage for the candidate profile screen (plan.md Assumptions).
  * Needs a seeded candidate. Override the id with E2E_CANDIDATE_ID when the
@@ -25,7 +27,8 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 async function gotoCandidate(page: Page) {
-  await page.goto(`/candidates/${CANDIDATE_ID}`);
+  const response = await page.goto(`/candidates/${CANDIDATE_ID}`);
+  skipWithoutSeededCandidate(response);
   await expect(page.locator("main#main-content")).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 }
