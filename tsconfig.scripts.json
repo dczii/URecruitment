@@ -1,0 +1,16 @@
+{
+  // For `tsx --tsconfig` only (scripts/seed, and any future CLI script under
+  // scripts/**). The real `server-only` package throws unconditionally
+  // outside Next's bundler — Next aliases it away at build time, but a
+  // plain `tsx` run has no bundler to do that. This mirrors the same stub
+  // vitest.config.ts already uses for tests. Never used by `next build`,
+  // `next dev` or `tsc` (they read tsconfig.json directly), so the
+  // client/server import guard stays enforced everywhere else.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "server-only": ["./test/stubs/server-only.ts"]
+    }
+  }
+}
