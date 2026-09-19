@@ -26,9 +26,11 @@ Full table with file citations: [02-improvement-recommendations.md](02-improveme
 
 ## UI modernisation result
 
-Branch **`ui-modernisation`**, 11 commits, 23 files, presentation only. Ten pages restyled onto a new indigo palette with softened borders, lighter table text, pill badges, 44 px touch targets and new shared `Card` / `Badge` / `Input` / `Table` primitives. Phone tables now keep one-line rows with the candidate column pinned.
+Branch **`ui-modernisation`**, 13 commits, presentation plus one feature. Ten pages restyled onto a new indigo palette with softened borders, lighter table text, pill badges, 44 px touch targets and new shared `Card` / `Badge` / `Input` / `Table` primitives. Phone tables now keep one-line rows with the candidate column pinned.
 
 **Verified:** lint unchanged (0 errors), typecheck clean, 310/310 unit tests pass, production build succeeds with no bundle leaks, 40/40 colour pairs meet WCAG AA in both themes, and a source-level comparison shows **no field name, id, label, link or landmark lost**.
+
+**Added afterwards, on request:** a prototype round settled a new dashboard direction ("Bulk"), built onto the same branch — select several candidates and advance them a stage each in one action, each still getting its own audited `stage_events` row. That makes this branch more than a restyle; details and the three judgement calls behind it are in [04](04-ui-modernisation-report.md#added-after-the-restyle-bulk-selection).
 
 **Not verified:** after screenshots and the visual per-page comparison. The branch's Vercel preview is behind deployment protection and this machine has no database credentials, so the running UI could not be photographed. The e2e gate gives no signal either way because it is red on unrelated branches too. Details and the two ways to finish: [04-ui-modernisation-report.md](04-ui-modernisation-report.md).
 

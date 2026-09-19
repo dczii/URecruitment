@@ -1,10 +1,14 @@
+"use client";
+
 import { CircleCheck } from "lucide-react";
+import { useState } from "react";
 
 import { DelayStatusBadge } from "@/components/patterns/DelayStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableHead } from "@/components/ui/table";
 import type { DashboardData, FilterOptions } from "@/server/dashboard/data";
 import { FilterBar } from "./FilterBar";
+import { SelectionBar, type SelectableEntry } from "./SelectionBar";
 
 export function Dashboard({
   data,
@@ -13,6 +17,22 @@ export function Dashboard({
   data: DashboardData;
   filterOptions: FilterOptions;
 }) {
+  const [selected, setSelected] = useState<Map<string, SelectableEntry>>(
+    () => new Map(),
+  );
+
+  function toggle(entry: SelectableEntry) {
+    setSelected((current) => {
+      const next = new Map(current);
+      if (next.has(entry.pipelineEntryId)) {
+        next.delete(entry.pipelineEntryId);
+      } else {
+        next.set(entry.pipelineEntryId, entry);
+      }
+      return next;
+    });
+  }
+
   const isEmpty =
     data.overdue.length === 0 &&
     data.dueSoon.length === 0 &&
@@ -33,16 +53,36 @@ export function Dashboard({
         </div>
       ) : (
         <>
-          <OverdueSection rows={data.overdue} />
-          <DueSoonSection rows={data.dueSoon} />
+          <OverdueSection
+            rows={data.overdue}
+            selected={selected}
+            onToggle={toggle}
+          />
+          <DueSoonSection
+            rows={data.dueSoon}
+            selected={selected}
+            onToggle={toggle}
+          />
           <GuaranteeSection rows={data.guarantee} />
+          <SelectionBar
+            selected={[...selected.values()]}
+            onClear={() => setSelected(new Map())}
+          />
         </>
       )}
     </div>
   );
 }
 
-function OverdueSection({ rows }: { rows: DashboardData["overdue"] }) {
+function OverdueSection({
+  rows,
+  selected,
+  onToggle,
+}: {
+  rows: DashboardData["overdue"];
+  selected: Map<string, SelectableEntry>;
+  onToggle: (entry: SelectableEntry) => void;
+}) {
   if (rows.length === 0) {
     return null;
   }
@@ -66,7 +106,16 @@ function OverdueSection({ rows }: { rows: DashboardData["overdue"] }) {
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <tr key={row.pipelineEntryId}>
+            <tr
+              key={row.pipelineEntryId}
+              data-selected={selected.has(row.pipelineEntryId) || undefined}
+              className="data-[selected]:bg-accent/60"
+            >
+              <SelectCell
+                row={row}
+                selected={selected.has(row.pipelineEntryId)}
+                onToggle={onToggle}
+              />
               <td>{row.candidateName}</td>
               <td>
                 {row.jobTitle} · {row.clientName}
@@ -84,7 +133,15 @@ function OverdueSection({ rows }: { rows: DashboardData["overdue"] }) {
   );
 }
 
-function DueSoonSection({ rows }: { rows: DashboardData["dueSoon"] }) {
+function DueSoonSection({
+  rows,
+  selected,
+  onToggle,
+}: {
+  rows: DashboardData["dueSoon"];
+  selected: Map<string, SelectableEntry>;
+  onToggle: (entry: SelectableEntry) => void;
+}) {
   if (rows.length === 0) {
     return null;
   }
@@ -108,7 +165,16 @@ function DueSoonSection({ rows }: { rows: DashboardData["dueSoon"] }) {
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <tr key={row.pipelineEntryId}>
+            <tr
+              key={row.pipelineEntryId}
+              data-selected={selected.has(row.pipelineEntryId) || undefined}
+              className="data-[selected]:bg-accent/60"
+            >
+              <SelectCell
+                row={row}
+                selected={selected.has(row.pipelineEntryId)}
+                onToggle={onToggle}
+              />
               <td>{row.candidateName}</td>
               <td>
                 {row.jobTitle} · {row.clientName}
@@ -167,5 +233,34 @@ function GuaranteeSection({ rows }: { rows: DashboardData["guarantee"] }) {
         </TableBody>
       </Table>
     </section>
+  );
+}
+
+/** One checkbox per row. The label names the candidate, so the control is not "select" alone. */
+function SelectCell({
+  row,
+  selected,
+  onToggle,
+}: {
+  row: { pipelineEntryId: string; stage: string; candidateName: string };
+  selected: boolean;
+  onToggle: (entry: SelectableEntry) => void;
+}) {
+  return (
+    <td className="w-10">
+      <input
+        type="checkbox"
+        checked={selected}
+        aria-label={`Select ${row.candidateName}`}
+        onChange={() =>
+          onToggle({
+            pipelineEntryId: row.pipelineEntryId,
+            stage: row.stage,
+            candidateName: row.candidateName,
+          })
+        }
+        className="size-4 accent-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      />
+    </td>
   );
 }
