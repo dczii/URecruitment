@@ -18,7 +18,7 @@ export function Table({
       <table
         className={cn(
           "w-full border-collapse text-label",
-          "[&_td]:px-4 [&_td]:py-3 [&_th]:px-4 [&_th]:py-3",
+          "[&_td]:px-4 [&_th]:px-4",
           "[&_tbody_tr>*:first-child]:sticky [&_tbody_tr>*:first-child]:left-0 [&_tbody_tr>*:first-child]:bg-inherit",
           "[&_tbody_td]:whitespace-nowrap [&_tbody_th]:whitespace-nowrap",
           className,
@@ -54,6 +54,7 @@ export function TableBody({
   return (
     <tbody
       className={cn(
+        "[&_td]:py-3 [&_th]:py-3",
         "[&_tr]:border-t [&_tr]:border-border/20 [&_tr]:bg-card [&_tr:hover]:bg-muted/50",
         className,
       )}
