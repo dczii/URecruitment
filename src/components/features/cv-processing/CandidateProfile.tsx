@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { saveFieldOverride } from "@/app/candidates/[id]/actions";
 import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/field";
 import {
   getStoredRecruiterName,
   setStoredRecruiterName,
@@ -94,7 +96,7 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
           This candidate profile has not been filled in yet.
         </p>
       ) : (
-        <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)]">
+        <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)]">
           <div className="flex min-w-0 flex-col gap-6">
             {SCALAR_FIELDS.map((field) => {
               const value = stringValue(effective[field.key]);
@@ -155,7 +157,7 @@ export function CandidateProfile({ candidateId, data }: CandidateProfileProps) {
 
             {skills.length > 0 ? (
               <section className="flex min-w-0 flex-col gap-3">
-                <h2 className="font-heading text-heading font-semibold">
+                <h2 className="font-heading text-heading font-semibold tracking-tight">
                   Skills
                 </h2>
                 <ul className="flex min-w-0 flex-col gap-3">
@@ -348,7 +350,7 @@ function EditableFieldCard({
 
   if (editing) {
     return (
-      <article className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4">
+      <Card as="article" className="gap-3 p-4 lg:p-5">
         <h3 className="text-label text-muted-foreground">
           <label htmlFor={inputId}>{label}</label>
         </h3>
@@ -359,7 +361,7 @@ function EditableFieldCard({
             handleSave();
           }}
         >
-          <input
+          <Input
             id={inputId}
             type="text"
             name={field}
@@ -374,7 +376,6 @@ function EditableFieldCard({
                 setError(null);
               }
             }}
-            className="h-11 rounded-md border border-input bg-background px-3 text-body text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           />
           {error ? (
             <p
@@ -401,7 +402,7 @@ function EditableFieldCard({
           </div>
         </form>
         {dialog}
-      </article>
+      </Card>
     );
   }
 
@@ -450,7 +451,7 @@ function FieldCard({
   const valueLang = sourceLang(value);
 
   return (
-    <article className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4">
+    <Card as="article" className="gap-3 p-4 lg:p-5">
       <div className="flex min-w-0 items-start justify-between gap-3">
         <h3 className="text-label text-muted-foreground">{label}</h3>
         {action}
@@ -478,22 +479,14 @@ function FieldCard({
           {value}
         </p>
       )}
-    </article>
+    </Card>
   );
 }
 
 function StageHistory({ events }: { events: StageEvent[] }) {
   return (
-    <section
-      aria-labelledby="stage-history-heading"
-      className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4"
-    >
-      <h2
-        id="stage-history-heading"
-        className="font-heading text-heading font-semibold"
-      >
-        Stage history
-      </h2>
+    <Card as="section" aria-labelledby="stage-history-heading" className="lg:sticky lg:top-24">
+      <CardTitle id="stage-history-heading">Stage history</CardTitle>
       {events.length === 0 ? (
         <p className="text-body text-muted-foreground">No stage moves yet.</p>
       ) : (
@@ -513,7 +506,7 @@ function StageHistory({ events }: { events: StageEvent[] }) {
           ))}
         </ol>
       )}
-    </section>
+    </Card>
   );
 }
 
