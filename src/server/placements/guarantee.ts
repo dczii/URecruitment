@@ -41,6 +41,46 @@ export function resolveGuaranteeFlag(
   return "ok";
 }
 
+type GuaranteeFlagRowClient = {
+  from: (table: "placements_guarantee_flag") => {
+    select: (columns: "flag") => {
+      eq: (
+        column: "placement_id",
+        value: string,
+      ) => {
+        maybeSingle: () => Promise<{
+          data: { flag: GuaranteeFlag } | null;
+          error: { message: string } | null;
+        }>;
+      };
+    };
+  };
+};
+
+/**
+ * The current guarantee flag for one placement, read from the same
+ * `placements_guarantee_flag` view the dashboard and placements list use —
+ * so a just-saved start date reflects the real flag immediately instead of
+ * relying on a stale value. The view only carries flagged rows, so a
+ * placement absent from it reads as "ok".
+ */
+export async function getGuaranteeFlagForPlacement(
+  placementId: string,
+): Promise<GuaranteeFlag> {
+  const db = getDb() as unknown as GuaranteeFlagRowClient;
+  const { data, error } = await db
+    .from("placements_guarantee_flag")
+    .select("flag")
+    .eq("placement_id", placementId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load guarantee flag: ${error.message}`);
+  }
+
+  return data?.flag ?? "ok";
+}
+
 export type FlaggedPlacement = {
   placementId: string;
   pipelineEntryId: string;
