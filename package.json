@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:db": "vitest run --config vitest.db.config.ts",
+    "seed:demo": "node --env-file-if-exists=.env.local scripts/seed/demo.mts",
+    "seed:demo:check": "node --env-file-if-exists=.env.local scripts/seed/demo.mts --check",
     "db:types": "bash scripts/db-types.sh",
     "db:types:check": "bash scripts/db-types.sh --check"
   },
