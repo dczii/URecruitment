@@ -104,9 +104,11 @@ export function SelectionBar({
           </div>
 
           <ul className="flex min-w-0 flex-col gap-2">
+            {/* The space between the count and the words is a real text node:
+                a flex gap looks right but reads as "1to Shortlisted". */}
             {plan.summary.map(({ toStage, count }) => (
               <li key={toStage} className="flex items-baseline gap-2 text-label">
-                <span className="font-semibold tabular-nums">{count}</span>
+                <span className="font-semibold tabular-nums">{count}</span>{" "}
                 <span className="text-muted-foreground">to {toStage}</span>
               </li>
             ))}
@@ -115,7 +117,7 @@ export function SelectionBar({
                 key={entry.pipelineEntryId}
                 className="flex items-baseline gap-2 text-label text-muted-foreground"
               >
-                <span className="font-semibold tabular-nums">1</span>
+                <span className="font-semibold tabular-nums">1</span>{" "}
                 <span>cannot move — {entry.reason.toLowerCase()}</span>
               </li>
             ))}

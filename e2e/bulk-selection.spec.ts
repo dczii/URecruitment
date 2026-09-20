@@ -49,10 +49,11 @@ test("AC2: ticking candidates names every stage they would move to", async ({
   await expect(pane.getByText("1 candidate selected")).toBeVisible();
 
   // Every selected row is accounted for: each line is either a move to a named
-  // stage or a stated reason it cannot move.
+  // stage or a stated reason it cannot move. The count and the words are
+  // separate elements, so this also pins the space between them.
   const lines = pane.getByRole("listitem");
   await expect(lines).toHaveCount(1);
-  await expect(lines.first()).toHaveText(/^1\s(to\s\S|cannot move)/);
+  await expect(lines.first()).toHaveText(/^1 (to \S|cannot move)/);
 
   if (count > 1) {
     await checkboxes.nth(1).check();
