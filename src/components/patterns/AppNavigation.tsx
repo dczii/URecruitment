@@ -46,29 +46,39 @@ function Brand({ compact = false }: { compact?: boolean }) {
     <div className="flex h-12 items-center gap-3 px-2">
       <span
         className={cn(
-          "flex shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground",
+          "flex shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm",
           compact ? "size-8" : "size-9",
         )}
         aria-hidden="true"
       >
         <BriefcaseBusiness className="size-5" />
       </span>
-      <span className="font-heading text-heading font-semibold">
+      <span className="font-heading text-heading font-semibold tracking-tight">
         URecruitment
       </span>
     </div>
   );
 }
 
+/**
+ * `rail` renders icon-only links, so each one carries its name as its
+ * accessible label instead of visible text. The name, href and focus ring stay
+ * identical in both layouts.
+ */
 function NavigationLinks({
   pathname,
   onNavigate,
+  rail = false,
 }: {
   pathname: string;
   onNavigate?: () => void;
+  rail?: boolean;
 }) {
   return (
-    <nav aria-label="Primary navigation" className="flex flex-col gap-1">
+    <nav
+      aria-label="Primary navigation"
+      className={cn("flex flex-col gap-1", rail && "items-center")}
+    >
       {destinations.map(({ name, href, icon: Icon }) => {
         const isCurrent = pathname.startsWith(href);
 
@@ -77,25 +87,28 @@ function NavigationLinks({
             key={href}
             href={href}
             aria-current={isCurrent ? "page" : undefined}
+            aria-label={rail ? name : undefined}
+            title={rail ? name : undefined}
             onClick={onNavigate}
             className={cn(
-              "flex h-11 items-center gap-3 rounded-md px-3 text-label font-semibold outline-none",
+              "relative flex items-center rounded-md outline-none transition-colors",
               "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              rail
+                ? "size-10 justify-center"
+                : "h-11 gap-3 px-3 text-label font-semibold",
               isCurrent
-                ? "bg-accent text-accent-foreground"
+                ? "bg-accent text-accent-foreground before:absolute before:top-2 before:bottom-2 before:-left-1 before:w-1 before:rounded-full before:bg-primary before:content-['']"
                 : "text-foreground hover:bg-muted",
             )}
           >
             <Icon
               className={cn(
-                "size-5",
-                isCurrent
-                  ? "text-accent-foreground"
-                  : "text-muted-foreground",
+                "size-5 shrink-0",
+                isCurrent ? "text-accent-foreground" : "text-muted-foreground",
               )}
               aria-hidden="true"
             />
-            {name}
+            {rail ? null : name}
           </Link>
         );
       })}
@@ -105,7 +118,7 @@ function NavigationLinks({
 
 function PrototypeNotice() {
   return (
-    <div className="mt-auto rounded-md bg-muted p-3">
+    <div className="mt-auto rounded-md border border-border/20 bg-muted p-3">
       <p className="text-caption font-semibold">MVP prototype</p>
       <p className="text-caption text-muted-foreground">Fictional data only</p>
     </div>
@@ -116,12 +129,20 @@ export function DesktopNavigation() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-62 shrink-0 flex-col border-r bg-card px-4 py-6 lg:flex">
-      <Brand />
-      <div className="mt-6">
-        <NavigationLinks pathname={pathname} />
-      </div>
-      <PrototypeNotice />
+    <aside className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-border/20 bg-card px-2 py-3 lg:flex">
+      {/* Not a link: Dashboard already is one, and a focus stop here would sit
+          between the skip link and the first destination. */}
+      <p className="mb-3 flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+        <BriefcaseBusiness className="size-5" aria-hidden="true" />
+        <span className="sr-only">URecruitment</span>
+      </p>
+      <NavigationLinks pathname={pathname} rail />
+      <p
+        title="MVP prototype — fictional data only"
+        className="mt-auto rounded-md bg-muted px-2 py-1 text-caption font-semibold text-muted-foreground"
+      >
+        MVP<span className="sr-only"> prototype — fictional data only</span>
+      </p>
     </aside>
   );
 }
@@ -132,7 +153,7 @@ export function AppHeader() {
   const pageName = currentPage(pathname);
 
   return (
-    <header className="flex min-h-16 items-center gap-2 border-b bg-card px-3 lg:min-h-18 lg:px-8">
+    <header className="sticky top-0 z-40 flex min-h-16 items-center gap-2 border-b border-border/20 bg-card/85 px-3 backdrop-blur lg:min-h-18 lg:px-10">
       <div className="lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
@@ -164,7 +185,7 @@ export function AppHeader() {
                 <X className="size-5" />
               </SheetClose>
             </SheetHeader>
-            <div className="rounded-md bg-muted p-3">
+            <div className="rounded-md border border-border/20 bg-muted p-3">
               <p className="text-label font-semibold">Recording as Maya Tan</p>
               <span className="text-caption font-semibold text-primary underline">
                 Change recruiter name
@@ -181,14 +202,14 @@ export function AppHeader() {
 
       <p
         aria-label="Current page"
-        className="min-w-0 flex-1 font-heading text-heading font-semibold"
+        className="min-w-0 flex-1 font-heading text-heading font-semibold tracking-tight"
       >
         {pageName}
       </p>
 
       <div
         aria-label="Recruiter name"
-        className="flex min-h-11 shrink-0 items-center gap-2 rounded-md px-2"
+        className="flex min-h-11 shrink-0 items-center gap-2 rounded-md border border-border/20 bg-muted/60 px-3"
       >
         <UserRound className="size-4 text-muted-foreground" aria-hidden="true" />
         <span className="max-w-40 truncate text-caption font-semibold lg:max-w-none lg:text-label">

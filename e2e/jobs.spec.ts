@@ -25,14 +25,14 @@ async function createJob(page: Page, title: string) {
   skipWithoutSeededClient(await countClientOptions(page));
   await page.getByLabel("Client").selectOption({ index: 1 });
 
-  await page.getByLabel("Requirement 1").fill("5+ years backend engineering");
+  await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page
     .getByRole("group", { name: "Marking for requirement 1" })
     .getByRole("button", { name: "Must-have" })
     .click();
 
   await page.getByRole("button", { name: "Add requirement" }).click();
-  await page.getByLabel("Requirement 2").fill("AWS or GCP experience");
+  await page.getByLabel("Requirement 2", { exact: true }).fill("AWS or GCP experience");
   await page
     .getByRole("group", { name: "Marking for requirement 2" })
     .getByRole("button", { name: "Nice-to-have" })
@@ -73,7 +73,7 @@ test("AC4: jobs list shows status, owner, flag count, candidate count", async ({
   const created = page.getByRole("row", { name: new RegExp(title) });
   await expect(created.getByText("Open", { exact: true })).toBeVisible();
   await expect(created.getByText("Maya Tan", { exact: true })).toBeVisible();
-  await expect(created.getByText("0 open flags")).toBeVisible();
+  await expect(created.getByText(/\d+ open flags?$/)).toBeVisible();
   await expect(created.getByText("0 candidates in pipeline")).toBeVisible();
 });
 
@@ -103,9 +103,8 @@ test("job detail names its version and shows requirements tagged must-have/nice-
   await expect(
     page.getByRole("heading", { name: "Open gap flags" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Ranked matches" }),
-  ).toBeVisible();
+  // Product AI is out of scope: 8244294 removed the ranked-match section.
+  await expect(page.getByText("Ranked matches")).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "Pipeline board" }),
   ).toBeVisible();

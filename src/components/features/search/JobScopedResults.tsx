@@ -2,15 +2,14 @@ import Link from "next/link";
 
 import { EmptyState } from "@/components/patterns/states";
 import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { FieldLabel, Input } from "@/components/ui/field";
 import type {
   JobScopedResult,
   JobScopedResults as JobScopedResultsData,
 } from "@/server/search/job-scoped";
 
 const CJK_CHAR = /[\u3400-\u9FFF\uF900-\uFAFF]/;
-
-const inputClassName =
-  "w-full rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
 export type JobScopedFilterValues = {
   skills: string[];
@@ -53,11 +52,7 @@ export function JobScopedResults({
         </p>
       </header>
 
-      <form
-        method="GET"
-        action="/search"
-        className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4"
-      >
+      <Card as="form" method="GET" action="/search">
         <input type="hidden" name="jobId" value={jobId} />
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <FilterField
@@ -111,7 +106,7 @@ export function JobScopedResults({
             counts only when you mark it as a real requirement and write why.
           </p>
         ) : null}
-      </form>
+      </Card>
 
       {data.status === "not_ready" ? (
         <p className="text-body text-muted-foreground">
@@ -127,29 +122,21 @@ export function JobScopedResults({
 function ResultsList({ results }: { results: JobScopedResult[] }) {
   if (results.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-card">
+      <Card className="p-0 lg:p-0">
         <EmptyState title="No candidates match these filters yet." />
-      </div>
+      </Card>
     );
   }
 
   return (
-    <section
-      aria-labelledby="job-scoped-results-heading"
-      className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4"
-    >
-      <h2
-        id="job-scoped-results-heading"
-        className="font-heading text-heading font-semibold"
-      >
-        Candidates
-      </h2>
+    <Card as="section" aria-labelledby="job-scoped-results-heading" className="gap-3">
+      <CardTitle id="job-scoped-results-heading">Candidates</CardTitle>
       <ul className="flex min-w-0 flex-col">
         {results.map((result) => (
           <ResultCard key={result.candidateId} result={result} />
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }
 
@@ -160,7 +147,7 @@ function ResultCard({ result }: { result: JobScopedResult }) {
   const summaryLang = sourceLang(summary);
 
   return (
-    <li className="border-b border-border py-3 last:border-b-0 last:pb-0 first:pt-0">
+    <li className="-mx-2 rounded-md border-b border-border/20 px-2 py-3 transition-colors last:border-b-0 hover:bg-muted/50">
       <article
         aria-labelledby={headingId}
         className="flex min-w-0 flex-col gap-1"
@@ -172,7 +159,7 @@ function ResultCard({ result }: { result: JobScopedResult }) {
         >
           <Link
             href={`/candidates/${result.candidateId}`}
-            className="text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-sm text-foreground underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
           >
             {result.fullName}
           </Link>
@@ -205,17 +192,14 @@ function FilterField({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <label htmlFor={id} className="text-label font-semibold">
-        {label}
-      </label>
-      <input
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Input
         id={id}
         name={name}
         type={type}
         min={min}
         defaultValue={defaultValue}
         autoComplete="off"
-        className={inputClassName}
       />
     </div>
   );

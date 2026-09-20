@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { closeGapFlag } from "@/app/jobs/[id]/gap-flag-actions";
 import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { FieldLabel, Textarea } from "@/components/ui/field";
 import {
   getStoredRecruiterName,
   setStoredRecruiterName,
@@ -126,16 +128,8 @@ export function FlagChecklist({ jobId, flags }: FlagChecklistProps) {
   }
 
   return (
-    <section
-      aria-labelledby="open-gap-flags-heading"
-      className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-card p-4"
-    >
-      <h2
-        id="open-gap-flags-heading"
-        className="font-heading text-heading font-semibold"
-      >
-        Open gap flags
-      </h2>
+    <Card as="section" aria-labelledby="open-gap-flags-heading" className="gap-3">
+      <CardTitle id="open-gap-flags-heading">Open gap flags</CardTitle>
       {groups.length === 0 ? (
         <p className="text-body text-muted-foreground">No open gap flags.</p>
       ) : (
@@ -148,7 +142,7 @@ export function FlagChecklist({ jobId, flags }: FlagChecklistProps) {
             >
               <h3
                 id={`${group.kind}-flags-heading`}
-                className="text-label font-semibold"
+                className="text-caption font-semibold tracking-wide text-muted-foreground"
               >
                 {FLAG_KIND_LABELS[group.kind]}
               </h3>
@@ -184,7 +178,7 @@ export function FlagChecklist({ jobId, flags }: FlagChecklistProps) {
           performClose(flagId, resolutionState, note, name);
         }}
       />
-    </section>
+    </Card>
   );
 }
 
@@ -237,11 +231,11 @@ function FlagRow({
   );
 
   return (
-    <li className="flex min-w-0 flex-col gap-3 border-b border-border py-3 last:border-b-0 last:pb-0 first:pt-0">
+    <li className="flex min-w-0 flex-col gap-3 border-b border-border/20 py-4 last:border-b-0 last:pb-0 first:pt-0">
       {reasonBody}
       {flag.suggestedQuestion ? (
         <p
-          className="text-label break-words"
+          className="rounded-md bg-muted px-3 py-2 text-label break-words"
           lang={questionLang === "zh-Hans" ? "zh-Hans" : undefined}
         >
           {`Ask the client: "${flag.suggestedQuestion}"`}
@@ -280,10 +274,10 @@ function FlagRow({
           }}
         >
           <div className="flex min-w-0 flex-col gap-2">
-            <label htmlFor={noteId} className="text-label text-foreground">
+            <FieldLabel htmlFor={noteId} className="font-normal">
               Note
-            </label>
-            <textarea
+            </FieldLabel>
+            <Textarea
               ref={noteRef}
               id={noteId}
               name="resolution-note"
@@ -298,7 +292,7 @@ function FlagRow({
                   onClearError();
                 }
               }}
-              className="min-h-20 rounded-md border border-input bg-background px-3 py-2 text-body text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+              className="min-h-20"
             />
           </div>
           {error ? (

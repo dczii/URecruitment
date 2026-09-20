@@ -39,7 +39,7 @@ test("AC1: the dashboard loads with all four filters and reads as good news when
   const filters = page.locator('[aria-label="Dashboard filters"]');
   await expect(filters.getByLabel("Client")).toBeVisible();
   await expect(filters.getByLabel("Job")).toBeVisible();
-  await expect(filters.getByLabel("Stage")).toBeVisible();
+  await expect(filters.getByLabel("Stage", { exact: true })).toBeVisible();
   await expect(filters.getByLabel("Owner")).toBeVisible();
 
   await expectNoHorizontalOverflow(page);
@@ -52,7 +52,7 @@ test("AC2: selecting filters navigates without an error (no seeded pipeline data
   // Only "All" exists with no seeded pipeline data (#121 backfills it later);
   // this proves the filter selects wire up to navigation without erroring.
   await page.getByLabel("Client").selectOption({ index: 0 });
-  await page.getByLabel("Stage").selectOption({ index: 0 });
+  await page.getByLabel("Stage", { exact: true }).selectOption({ index: 0 });
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.locator("main#main-content")).toHaveCount(1);
   await expectNoHorizontalOverflow(page);

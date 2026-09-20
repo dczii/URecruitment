@@ -4,16 +4,15 @@ import { useId, useState, useTransition } from "react";
 
 import { savePlacementAction } from "@/app/placements/actions";
 import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/field";
+import { Table, TableBody, TableHead } from "@/components/ui/table";
 import {
   getStoredRecruiterName,
   setStoredRecruiterName,
 } from "@/lib/recruiter-name";
-import { cn } from "@/lib/utils";
 import type { PlacementListItem } from "@/server/placements/list";
-
-const inputClassName =
-  "w-full rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
 function todaySgtDateInput(): string {
   const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
@@ -43,41 +42,27 @@ export function Placements({ items }: { items: PlacementListItem[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border border-border bg-card">
-      <table className="w-full border-collapse text-label">
-        <caption className="sr-only">
-          Placements with start date, client, job, guarantee countdown and
-          the 5-working-day-before-end flag.
-        </caption>
-        <thead>
-          <tr className="border-b border-border text-caption text-muted-foreground">
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Candidate
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Job
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Client
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Start date
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Guarantee
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Flag
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <PlacementRow key={item.pipelineEntryId} item={item} />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table>
+      <caption className="sr-only">
+        Placements with start date, client, job, guarantee countdown and
+        the 5-working-day-before-end flag.
+      </caption>
+      <TableHead>
+        <tr>
+            <th scope="col">Candidate</th>
+            <th scope="col">Job</th>
+            <th scope="col">Client</th>
+            <th scope="col">Start date</th>
+            <th scope="col">Guarantee</th>
+            <th scope="col">Flag</th>
+        </tr>
+      </TableHead>
+      <TableBody>
+        {items.map((item) => (
+          <PlacementRow key={item.pipelineEntryId} item={item} />
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -136,21 +121,21 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
   }
 
   return (
-    <tr className="border-b border-border last:border-0">
-      <td className="px-4 py-3 align-top">{item.candidateName}</td>
-      <td className="px-4 py-3 align-top">{item.jobTitle}</td>
-      <td className="px-4 py-3 align-top">{item.clientName}</td>
-      <td className="px-4 py-3 align-top">
+    <tr>
+      <td className="align-top">{item.candidateName}</td>
+      <td className="align-top">{item.jobTitle}</td>
+      <td className="align-top">{item.clientName}</td>
+      <td className="align-top">
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
           <label htmlFor={`${inputId}-date`} className="sr-only">
             Start date for {item.candidateName}
           </label>
-          <input
+          <Input
             id={`${inputId}-date`}
             type="date"
             value={startDate}
             onChange={(event) => setStartDate(event.target.value)}
-            className={cn(inputClassName, "sm:w-40")}
+            className="sm:w-44"
             disabled={isPending}
           />
           <Button
@@ -173,24 +158,18 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
           </p>
         )}
       </td>
-      <td className="px-4 py-3 align-top font-mono tabular-nums">
+      <td className="align-top font-mono tabular-nums text-muted-foreground">
         {savedStartDate !== null && savedPeriod !== null
           ? `Guarantee: ${savedDaysUsed ?? 0} of ${savedPeriod} days used`
           : "—"}
       </td>
-      <td className="px-4 py-3 align-top">
+      <td className="align-top">
         {flag ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-caption font-semibold",
-              isDueSoon &&
-                "bg-status-due-soon text-status-due-soon-foreground",
-              isEnded && "bg-muted text-muted-foreground",
-              savedStartDate === null && "text-muted-foreground",
-            )}
+          <Badge
+            tone={isDueSoon ? "due-soon" : isEnded ? "ended" : "neutral"}
           >
             {flag}
-          </span>
+          </Badge>
         ) : null}
       </td>
       <TypedNameDialog

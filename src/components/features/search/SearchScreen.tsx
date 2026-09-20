@@ -10,6 +10,9 @@ import {
   SkeletonRows,
 } from "@/components/patterns/states";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FieldLabel, Input } from "@/components/ui/field";
+import { Table, TableBody, TableHead } from "@/components/ui/table";
 
 const CJK_CHAR = /[\u3400-\u9FFF\uF900-\uFAFF]/;
 
@@ -29,9 +32,6 @@ type ViewState =
   | { kind: "loading" }
   | { kind: "ok"; results: SearchHit[]; filters: SearchFilters }
   | { kind: "error"; message: string };
-
-const inputClassName =
-  "min-w-0 w-full rounded-md border border-input bg-background px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
 export function SearchScreen() {
   const [query, setQuery] = useState("");
@@ -85,15 +85,10 @@ export function SearchScreen() {
         </p>
       </header>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-4"
-      >
+      <Card as="form" onSubmit={handleSubmit}>
         <div className="flex min-w-0 flex-col gap-2">
-          <label htmlFor="candidate-search" className="text-label text-foreground">
-            Keyword
-          </label>
-          <input
+          <FieldLabel htmlFor="candidate-search">Keyword</FieldLabel>
+          <Input
             id="candidate-search"
             name="query"
             type="search"
@@ -102,7 +97,6 @@ export function SearchScreen() {
             placeholder="Skills, titles, employers"
             disabled={view.kind === "loading"}
             autoComplete="off"
-            className={inputClassName}
           />
         </div>
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -163,7 +157,7 @@ export function SearchScreen() {
             counts only when you mark it as a real requirement and write why.
           </p>
         ) : null}
-      </form>
+      </Card>
 
       <div aria-live="polite" aria-busy={view.kind === "loading"}>
         <SearchOutcome view={view} onRetry={() => void runQuery()} />
@@ -189,10 +183,8 @@ function FilterInput({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <label htmlFor={id} className="text-label font-semibold">
-        {label}
-      </label>
-      <input
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Input
         id={id}
         name={id}
         type={type}
@@ -201,7 +193,6 @@ function FilterInput({
         autoComplete="off"
         min={type === "number" ? "0" : undefined}
         onChange={(event) => onChange(event.target.value)}
-        className={inputClassName}
       />
     </div>
   );
@@ -247,40 +238,32 @@ function SearchOutcome({
 
   if (view.results.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-card">
+      <Card className="p-0 lg:p-0">
         <EmptyState title="No candidates match these filters yet." />
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="min-w-0 overflow-x-auto rounded-md border border-border bg-card">
-      <table className="w-full border-collapse text-label">
-        <caption className="sr-only">
-          Matching candidates with role, experience, location, and when each
-          CV was last updated. Review only — nothing is shortlisted from this
-          list.
-        </caption>
-        <thead>
-          <tr className="border-b border-border text-caption text-muted-foreground">
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Candidate
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              Role, experience, location
-            </th>
-            <th scope="col" className="px-4 py-3 text-left font-semibold">
-              CV last updated
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {view.results.map((hit) => (
-            <ResultRow key={hit.candidateId} hit={hit} />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table>
+      <caption className="sr-only">
+        Matching candidates with role, experience, location, and when each
+        CV was last updated. Review only — nothing is shortlisted from this
+        list.
+      </caption>
+      <TableHead>
+        <tr>
+          <th scope="col">Candidate</th>
+          <th scope="col">Role, experience, location</th>
+          <th scope="col">CV last updated</th>
+        </tr>
+      </TableHead>
+      <TableBody>
+        {view.results.map((hit) => (
+          <ResultRow key={hit.candidateId} hit={hit} />
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -289,20 +272,20 @@ function ResultRow({ hit }: { hit: SearchHit }) {
   const summaryLang = CJK_CHAR.test(roleSummary(hit)) ? "zh-Hans" : undefined;
 
   return (
-    <tr className="border-b border-border last:border-b-0">
-      <th scope="row" className="px-4 py-3 text-left font-semibold">
+    <tr>
+      <th scope="row" className="text-left font-semibold">
         <Link
           href={`/candidates/${hit.candidateId}`}
           lang={nameLang}
-          className="text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          className="rounded-sm text-foreground underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         >
           {hit.fullName}
         </Link>
       </th>
-      <td className="px-4 py-3 text-muted-foreground" lang={summaryLang}>
+      <td className="text-muted-foreground" lang={summaryLang}>
         {roleSummary(hit)}
       </td>
-      <td className="px-4 py-3">
+      <td>
         <CvUpdatedDate iso={hit.cvUpdatedAt} />
       </td>
     </tr>

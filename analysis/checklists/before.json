@@ -1,0 +1,1058 @@
+{
+  "baseUrl": "https://u-recruitment.vercel.app",
+  "capturedAt": "2026-09-19T14:55:40.150Z",
+  "pages": {
+    "shell": {
+      "controls": [],
+      "buttons": [
+        {
+          "text": "Open navigation",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [
+        {
+          "href": "#main-content",
+          "text": "Skip to content"
+        },
+        {
+          "href": "/dashboard",
+          "text": "Dashboard"
+        },
+        {
+          "href": "/jobs",
+          "text": "Jobs"
+        },
+        {
+          "href": "/search",
+          "text": "Candidates"
+        },
+        {
+          "href": "/placements",
+          "text": "Placements"
+        },
+        {
+          "href": "/settings",
+          "text": "Settings"
+        }
+      ],
+      "headings": [],
+      "landmarks": 4,
+      "textSha": null,
+      "text": null
+    },
+    "dashboard": {
+      "controls": [
+        {
+          "tag": "select",
+          "type": null,
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Client",
+          "required": false
+        },
+        {
+          "tag": "select",
+          "type": null,
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Job",
+          "required": false
+        },
+        {
+          "tag": "select",
+          "type": null,
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Stage",
+          "required": false
+        },
+        {
+          "tag": "select",
+          "type": null,
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Owner",
+          "required": false
+        }
+      ],
+      "buttons": [],
+      "links": [],
+      "headings": [
+        "H1: What needs attention today",
+        "H2: Overdue · ordered by days over",
+        "H2: Due soon · 80% of the stage limit used",
+        "H2: Guarantee ending"
+      ],
+      "landmarks": 29,
+      "textSha": "14c83e55e061d5f2",
+      "textLength": 4343
+    },
+    "jobs": {
+      "controls": [],
+      "buttons": [],
+      "links": [
+        {
+          "href": "/jobs/new",
+          "text": "New job"
+        },
+        {
+          "href": "/jobs/857d79ef-2a6c-42ac-9dcb-2937a91c3dd4",
+          "text": "UI/UX Designer"
+        },
+        {
+          "href": "/jobs/129c1b8f-1f5c-4639-990a-19a544760788",
+          "text": "AI Engineer"
+        },
+        {
+          "href": "/jobs/315f1d47-7573-43b8-aeec-18116ef815c6",
+          "text": "Senior Software Engineer"
+        },
+        {
+          "href": "/jobs/e4a732b0-405d-4a72-a9cf-ef2c07f06a81",
+          "text": "Software Engineer"
+        },
+        {
+          "href": "/jobs/e442dc3c-dd90-4b79-a40e-db139bd462ce",
+          "text": "Events Coordinator"
+        },
+        {
+          "href": "/jobs/258ab638-462c-47bd-a4d6-8d765de0dec9",
+          "text": "Executive Chef"
+        },
+        {
+          "href": "/jobs/63d6c445-d61b-4573-b532-51f3fa0c628c",
+          "text": "Physiotherapist"
+        },
+        {
+          "href": "/jobs/824f1028-78af-47d4-962f-8c9c10b6c561",
+          "text": "Credit Risk Analyst"
+        },
+        {
+          "href": "/jobs/efa0cfdf-a694-4272-890d-15d4d6e9195a",
+          "text": "Compliance Officer"
+        },
+        {
+          "href": "/jobs/2feee243-04c3-4e51-adee-2bfcaa1e958f",
+          "text": "Fleet Coordinator"
+        },
+        {
+          "href": "/jobs/0bf973a2-7456-446f-8aa4-35504906c5bb",
+          "text": "E-commerce Executive"
+        },
+        {
+          "href": "/jobs/1c66ad52-21d6-475d-b7f3-8258b71b99c2",
+          "text": "Visual Merchandiser"
+        },
+        {
+          "href": "/jobs/8c05915b-bb77-4bec-8a9d-61de9f4594bf",
+          "text": "QA Engineer"
+        },
+        {
+          "href": "/jobs/42e347b5-5936-432f-9afb-262c11304e21",
+          "text": "Product Manager"
+        },
+        {
+          "href": "/jobs/64eaa1d9-30a8-4960-b847-4acb9ad40cbc",
+          "text": "Hotel Front Office Manager"
+        },
+        {
+          "href": "/jobs/3f5b0044-0e15-4c49-92a4-b8a35a001142",
+          "text": "Clinic Operations Executive"
+        },
+        {
+          "href": "/jobs/062a66af-b69a-4621-87d3-64da62196f48",
+          "text": "Financial Analyst"
+        },
+        {
+          "href": "/jobs/d9ea86ed-9f2e-442a-a131-383870491f3a",
+          "text": "Warehouse Supervisor"
+        },
+        {
+          "href": "/jobs/57388279-3b6c-4b0d-a7da-1b3be8936383",
+          "text": "Store Operations Manager"
+        },
+        {
+          "href": "/jobs/620369af-eccf-4f77-857d-28754ce6ef5e",
+          "text": "Senior Backend Engineer"
+        }
+      ],
+      "headings": [
+        "H1: Browse jobs"
+      ],
+      "landmarks": 20,
+      "textSha": "c36ab0236fda2b63",
+      "textLength": 2053
+    },
+    "jobs-new": {
+      "controls": [
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "_R_5fiv5ulb_-title",
+          "id": "<react-generated>",
+          "label": "Job title",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "_R_5fiv5ulb_-owner",
+          "id": "<react-generated>",
+          "label": "Owner name",
+          "required": false
+        },
+        {
+          "tag": "select",
+          "type": null,
+          "name": "client_id",
+          "id": "<react-generated>",
+          "label": "Client",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": null,
+          "id": "requirement-initial",
+          "label": "Requirement 1",
+          "required": false
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Must-have",
+          "type": "button",
+          "role": null,
+          "pressed": "false"
+        },
+        {
+          "text": "Nice-to-have",
+          "type": "button",
+          "role": null,
+          "pressed": "false"
+        },
+        {
+          "text": "Add requirement",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Count nationality as a real requirement for this job",
+          "type": "button",
+          "role": "switch",
+          "pressed": null
+        },
+        {
+          "text": "Count language as a real requirement for this job",
+          "type": "button",
+          "role": "switch",
+          "pressed": null
+        },
+        {
+          "text": "Save job",
+          "type": "submit",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [],
+      "headings": [
+        "H1: Create job",
+        "H2: Job details",
+        "H2: Requirements",
+        "H2: Nationality and language"
+      ],
+      "landmarks": 7,
+      "textSha": "7c2df8f78c577a70",
+      "textLength": 396
+    },
+    "job-detail": {
+      "controls": [],
+      "buttons": [
+        {
+          "text": "Resolve",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Dismiss",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Resolve",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Dismiss",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Resolve",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Dismiss",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Resolve",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Dismiss",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Resolve",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Dismiss",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Resolve",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Dismiss",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [
+        {
+          "href": "/search?jobId=857d79ef-2a6c-42ac-9dcb-2937a91c3dd4",
+          "text": "Search for more candidates"
+        }
+      ],
+      "headings": [
+        "H1: UI/UX Designer",
+        "H2: Requirements",
+        "H2: Open gap flags",
+        "H3: Missing",
+        "H2: Pipeline board"
+      ],
+      "landmarks": 4,
+      "textSha": "4cae30fde94650d9",
+      "textLength": 1499
+    },
+    "candidate": {
+      "controls": [],
+      "buttons": [
+        {
+          "text": "View original CV (signed link)",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Edit Name",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Edit Location",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [],
+      "headings": [
+        "H1: Elaine Koh CV",
+        "H3: Name",
+        "H3: Location",
+        "H2: Work history",
+        "H3: Role",
+        "H2: Education",
+        "H3: Education",
+        "H3: Languages",
+        "H2: Skills",
+        "H3: Skill",
+        "H3: Skill",
+        "H3: Skill",
+        "H2: Stage history"
+      ],
+      "landmarks": 3,
+      "textSha": "1521db5b672ede3f",
+      "textLength": 322
+    },
+    "placements": {
+      "controls": [
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 28 Kenneth Sim",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 29 Paolo Santiago",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Daniel Ong CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Le Hoang Duc",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Tran Quoc Bao CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 26 Alfonso Mercado",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 27 Tran Thu Ha",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Carmela Bautista CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Jomar Sandoval CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Priyanka Raman CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 24 Le Minh Tuan",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 25 Farah Ismail",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for 50 Yeo Shu Ting",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Elaine Koh CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Marco Reyes CV",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": null,
+          "id": "<react-generated>",
+          "label": "Start date for Rachel Tan CV",
+          "required": false
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        },
+        {
+          "text": "Update",
+          "type": "button",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [],
+      "headings": [
+        "H1: Follow up after placement"
+      ],
+      "landmarks": 0,
+      "textSha": "60153825c8df8653",
+      "textLength": 2373
+    },
+    "search": {
+      "controls": [
+        {
+          "tag": "input",
+          "type": "search",
+          "name": "query",
+          "id": "candidate-search",
+          "label": "Keyword",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "search-skills",
+          "id": "search-skills",
+          "label": "Skills",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "number",
+          "name": "search-min-years",
+          "id": "search-min-years",
+          "label": "Minimum years",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "number",
+          "name": "search-max-years",
+          "id": "search-max-years",
+          "label": "Maximum years",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "search-locations",
+          "id": "search-locations",
+          "label": "Location",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "search-languages",
+          "id": "search-languages",
+          "label": "Language",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": "search-cv-date",
+          "id": "search-cv-date",
+          "label": "CV updated after",
+          "required": false
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Search",
+          "type": "submit",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [],
+      "headings": [
+        "H1: Find candidates"
+      ],
+      "landmarks": 0,
+      "textSha": "51ae8364390289d1",
+      "textLength": 197
+    },
+    "search-job-scoped": {
+      "controls": [
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "jobId",
+          "id": null,
+          "label": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "skills",
+          "id": "job-scoped-skills",
+          "label": "Skills",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "number",
+          "name": "minYears",
+          "id": "job-scoped-min-years",
+          "label": "Minimum years",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "number",
+          "name": "maxYears",
+          "id": "job-scoped-max-years",
+          "label": "Maximum years",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "locations",
+          "id": "job-scoped-locations",
+          "label": "Location",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "languages",
+          "id": "job-scoped-languages",
+          "label": "Language",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "date",
+          "name": "cvUpdatedAfter",
+          "id": "job-scoped-cv-date",
+          "label": "CV updated after",
+          "required": false
+        }
+      ],
+      "buttons": [
+        {
+          "text": "Apply filters",
+          "type": "submit",
+          "role": null,
+          "pressed": null
+        }
+      ],
+      "links": [
+        {
+          "href": "/jobs/857d79ef-2a6c-42ac-9dcb-2937a91c3dd4",
+          "text": "Back to UI/UX Designer"
+        },
+        {
+          "href": "/candidates/0ab0ad48-85bc-440a-9577-9f2cab18ed2d",
+          "text": "Elaine Koh CV"
+        },
+        {
+          "href": "/candidates/0ad57ab0-f8f0-49f4-af1c-ef58dc5f202e",
+          "text": "23 Rodel Villanueva"
+        },
+        {
+          "href": "/candidates/1b107830-2762-492f-ae93-e8f1e11eb7f5",
+          "text": "13 Angelica Dela Cruz"
+        },
+        {
+          "href": "/candidates/1da18241-2dcb-4947-9381-76c8c00a3a49",
+          "text": "19 Benjamin Lee"
+        },
+        {
+          "href": "/candidates/255eabf7-a129-429e-8424-badddd96b89a",
+          "text": "42 Aloysius Teo"
+        },
+        {
+          "href": "/candidates/2800254a-b305-4303-9757-97e7e40cb07a",
+          "text": "46 Emmanuel Reyes"
+        },
+        {
+          "href": "/candidates/299d7e4f-8616-4c53-8641-5c2e564f20d8",
+          "text": "50 Yeo Shu Ting"
+        },
+        {
+          "href": "/candidates/371b8036-8d27-4d7a-8298-6ae0d49db68b",
+          "text": "35 Marilou Abad"
+        },
+        {
+          "href": "/candidates/3b070e50-8733-457a-bb6b-1c1e71dea86f",
+          "text": "Carmela Bautista CV"
+        },
+        {
+          "href": "/candidates/4454707f-203d-4b09-88c6-f2ad2bf82384",
+          "text": "41 Precious Lagman"
+        },
+        {
+          "href": "/candidates/4baa9e57-9c49-459f-9b03-4e473438f448",
+          "text": "14 Pham Van Thanh"
+        },
+        {
+          "href": "/candidates/53236071-b45f-4ee8-9204-04701ca88dec",
+          "text": "31 Wong Kai Sheng"
+        },
+        {
+          "href": "/candidates/565e9425-f7d3-4dd0-89be-d4c2ef2d3661",
+          "text": "43 Pham Bich Ngoc"
+        },
+        {
+          "href": "/candidates/57dbe68f-a216-4d2d-860b-01a1120ee8b7",
+          "text": "20 Joshua Ramos"
+        },
+        {
+          "href": "/candidates/5892e753-1a09-4670-8d61-d195066566fc",
+          "text": "34 Vo Thanh Huong"
+        },
+        {
+          "href": "/candidates/5cf2ef3f-3d0a-4585-b481-7d356d0b3a70",
+          "text": "12 Ravi Selvaraj"
+        },
+        {
+          "href": "/candidates/67471851-f8dc-4c11-af74-e18770503d26",
+          "text": "Le Hoang Duc"
+        },
+        {
+          "href": "/candidates/6edd64a3-86bf-44f9-bbac-7c698a0dddd7",
+          "text": "Marco Reyes CV"
+        },
+        {
+          "href": "/candidates/6f08d086-b012-47b1-861d-7cce746bd708",
+          "text": "26 Alfonso Mercado"
+        },
+        {
+          "href": "/candidates/77ae7581-a7bb-42bb-a319-aa1f7fa67131",
+          "text": "49 Marco Reyes Cebu"
+        },
+        {
+          "href": "/candidates/7903d24f-7cf9-4199-8f21-b8777ee08b92",
+          "text": "47 Samantha Ng"
+        },
+        {
+          "href": "/candidates/7c7ece81-d80e-4091-b3f8-56440372c381",
+          "text": "48 Le Hong Nhung"
+        },
+        {
+          "href": "/candidates/817d5993-965c-478a-a6ee-29847e5795f7",
+          "text": "29 Paolo Santiago"
+        },
+        {
+          "href": "/candidates/891e60bf-48e5-4364-8600-3c34751f90ab",
+          "text": "22 Grace Chua"
+        },
+        {
+          "href": "/candidates/8b401f9c-c12e-472f-bf33-a5058e3096c5",
+          "text": "24 Le Minh Tuan"
+        },
+        {
+          "href": "/candidates/8bcc48f9-9dcb-482f-b8ae-e621cdce4c13",
+          "text": "21 Nguyen Hoang Nam"
+        },
+        {
+          "href": "/candidates/93028d8c-3b5c-4e89-bbe4-745827562a11",
+          "text": "Jomar Sandoval CV"
+        },
+        {
+          "href": "/candidates/9381b378-d1fd-4bc2-ba3e-5be17d5bb2f2",
+          "text": "Tran Quoc Bao CV"
+        },
+        {
+          "href": "/candidates/98680ea8-9e8f-48e0-95e1-5dcc0e2496a4",
+          "text": "45 Divya Krishnan"
+        },
+        {
+          "href": "/candidates/98b64af9-b69d-49c6-b6b3-6b951dededaf",
+          "text": "32 Imelda Bautista"
+        },
+        {
+          "href": "/candidates/9ad1f5bc-061c-47d6-9a90-6255e34f5fa5",
+          "text": "44 Gerald Ong"
+        },
+        {
+          "href": "/candidates/9d213f2d-afdf-46bd-82d1-4b8b242a1b19",
+          "text": "17 Maria Ocampo"
+        },
+        {
+          "href": "/candidates/a1af5790-3c47-4322-9ba2-8a2341c14150",
+          "text": "11 Siti Rahman"
+        },
+        {
+          "href": "/candidates/aa595ee8-b476-4bd2-a913-7190435af646",
+          "text": "15 Nurul Hassan"
+        },
+        {
+          "href": "/candidates/ac946c2b-df10-42fa-959f-e2417515300d",
+          "text": "27 Tran Thu Ha"
+        },
+        {
+          "href": "/candidates/ae4f4753-3d5a-4ac7-9bfd-881590a3887f",
+          "text": "Rachel Tan CV"
+        },
+        {
+          "href": "/candidates/b3e699e2-cb77-440a-876f-669c1d1d580a",
+          "text": "28 Kenneth Sim"
+        },
+        {
+          "href": "/candidates/b50f2c1e-15e6-4241-8713-afdd3b867d77",
+          "text": "40 Rajesh Pillai"
+        },
+        {
+          "href": "/candidates/b92b5863-e880-4a00-b858-2ad267eacd3b",
+          "text": "25 Farah Ismail"
+        },
+        {
+          "href": "/candidates/c864c137-b3b5-491b-9c8a-1248fc237569",
+          "text": "30 Nguyen Mai Anh Resubmission"
+        },
+        {
+          "href": "/candidates/ce636c5b-83c2-4764-8b6d-8a0bee0b5d13",
+          "text": "18 Do Kim Ngan"
+        },
+        {
+          "href": "/candidates/d24a17e8-d3a0-4d78-88a3-b519a66aff51",
+          "text": "33 Tan Hock Seng"
+        },
+        {
+          "href": "/candidates/d3b7ebe1-b931-447e-90e8-ec00c46091f0",
+          "text": "37 Nguyen Van Khoa"
+        },
+        {
+          "href": "/candidates/d819c9f2-20de-486f-9a73-1d5c8c49bb32",
+          "text": "39 Bui Ngoc Diep"
+        },
+        {
+          "href": "/candidates/f0b1c672-864a-4beb-b0f5-39464228caf1",
+          "text": "16 Christopher Tan"
+        },
+        {
+          "href": "/candidates/f2ef8bf4-adba-477c-aba9-976fc9144905",
+          "text": "Priyanka Raman CV"
+        },
+        {
+          "href": "/candidates/f2f2f998-8a20-4ac1-9f0d-c9ab62f7454b",
+          "text": "38 Charmaine Lim"
+        },
+        {
+          "href": "/candidates/fb95b60f-4674-48c3-9fa2-84fec1f8173b",
+          "text": "36 Hafiz Rahman"
+        },
+        {
+          "href": "/candidates/ffae4dcf-54b1-470e-bd4b-646d01b47aab",
+          "text": "Daniel Ong CV"
+        }
+      ],
+      "headings": [
+        "H1: Find candidates",
+        "H2: Candidates",
+        "H3: Elaine Koh CV",
+        "H3: 23 Rodel Villanueva",
+        "H3: 13 Angelica Dela Cruz",
+        "H3: 19 Benjamin Lee",
+        "H3: 42 Aloysius Teo",
+        "H3: 46 Emmanuel Reyes",
+        "H3: 50 Yeo Shu Ting",
+        "H3: 35 Marilou Abad",
+        "H3: Carmela Bautista CV",
+        "H3: 41 Precious Lagman",
+        "H3: 14 Pham Van Thanh",
+        "H3: 31 Wong Kai Sheng",
+        "H3: 43 Pham Bich Ngoc",
+        "H3: 20 Joshua Ramos",
+        "H3: 34 Vo Thanh Huong",
+        "H3: 12 Ravi Selvaraj",
+        "H3: Le Hoang Duc",
+        "H3: Marco Reyes CV",
+        "H3: 26 Alfonso Mercado",
+        "H3: 49 Marco Reyes Cebu",
+        "H3: 47 Samantha Ng",
+        "H3: 48 Le Hong Nhung",
+        "H3: 29 Paolo Santiago",
+        "H3: 22 Grace Chua",
+        "H3: 24 Le Minh Tuan",
+        "H3: 21 Nguyen Hoang Nam",
+        "H3: Jomar Sandoval CV",
+        "H3: Tran Quoc Bao CV",
+        "H3: 45 Divya Krishnan",
+        "H3: 32 Imelda Bautista",
+        "H3: 44 Gerald Ong",
+        "H3: 17 Maria Ocampo",
+        "H3: 11 Siti Rahman",
+        "H3: 15 Nurul Hassan",
+        "H3: 27 Tran Thu Ha",
+        "H3: Rachel Tan CV",
+        "H3: 28 Kenneth Sim",
+        "H3: 40 Rajesh Pillai",
+        "H3: 25 Farah Ismail",
+        "H3: 30 Nguyen Mai Anh Resubmission",
+        "H3: 18 Do Kim Ngan",
+        "H3: 33 Tan Hock Seng",
+        "H3: 37 Nguyen Van Khoa",
+        "H3: 39 Bui Ngoc Diep",
+        "H3: 16 Christopher Tan",
+        "H3: Priyanka Raman CV",
+        "H3: 38 Charmaine Lim",
+        "H3: 36 Hafiz Rahman",
+        "H3: Daniel Ong CV"
+      ],
+      "landmarks": 50,
+      "textSha": "d907106176023b5b",
+      "textLength": 2784
+    },
+    "settings": {
+      "controls": [],
+      "buttons": [],
+      "links": [],
+      "headings": [
+        "H1: Adjust portal rules"
+      ],
+      "landmarks": 0,
+      "textSha": "6b64b1eb524fd231",
+      "textLength": 73
+    }
+  }
+}

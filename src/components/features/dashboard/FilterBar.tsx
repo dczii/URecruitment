@@ -3,10 +3,9 @@
 import { useId } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Card } from "@/components/ui/card";
+import { FieldLabel, Select } from "@/components/ui/field";
 import type { FilterOptions } from "@/server/dashboard/data";
-
-const selectClassName =
-  "rounded-md border border-input bg-card px-3 py-2 text-label text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 function FilterSelect({
   label,
@@ -33,15 +32,14 @@ function FilterSelect({
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-caption font-semibold text-muted-foreground">
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <FieldLabel htmlFor={id} className="text-caption text-muted-foreground">
         {label}
-      </label>
-      <select
+      </FieldLabel>
+      <Select
         id={id}
         value={current}
         onChange={(event) => onChange(event.target.value)}
-        className={selectClassName}
       >
         <option value="">All</option>
         {options.map((option) => (
@@ -49,21 +47,21 @@ function FilterSelect({
             {option}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }
 
 export function FilterBar({ options }: { options: FilterOptions }) {
   return (
-    <div
+    <Card
       aria-label="Dashboard filters"
-      className="flex flex-wrap items-end gap-3 rounded-md border border-border bg-card p-4"
+      className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4"
     >
       <FilterSelect label="Client" param="client" options={options.clients} />
       <FilterSelect label="Job" param="job" options={options.jobs} />
       <FilterSelect label="Stage" param="stage" options={options.stages} />
       <FilterSelect label="Owner" param="owner" options={options.owners} />
-    </div>
+    </Card>
   );
 }
