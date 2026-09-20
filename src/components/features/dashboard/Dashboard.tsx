@@ -53,21 +53,25 @@ export function Dashboard({
         </div>
       ) : (
         <>
-          <OverdueSection
-            rows={data.overdue}
-            selected={selected}
-            onToggle={toggle}
-          />
-          <DueSoonSection
-            rows={data.dueSoon}
-            selected={selected}
-            onToggle={toggle}
-          />
-          <GuaranteeSection rows={data.guarantee} />
-          <SelectionBar
-            selected={[...selected.values()]}
-            onClear={() => setSelected(new Map())}
-          />
+          <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="flex min-w-0 flex-col gap-6">
+              <OverdueSection
+                rows={data.overdue}
+                selected={selected}
+                onToggle={toggle}
+              />
+              <DueSoonSection
+                rows={data.dueSoon}
+                selected={selected}
+                onToggle={toggle}
+              />
+              <GuaranteeSection rows={data.guarantee} />
+            </div>
+            <SelectionBar
+              selected={[...selected.values()]}
+              onClear={() => setSelected(new Map())}
+            />
+          </div>
         </>
       )}
     </div>

@@ -19,9 +19,10 @@ export type SelectableEntry = {
 };
 
 /**
- * Appears only once something is selected. It states what a bulk move would
- * do — how many go to each stage, and how many cannot move — before the
- * recruiter types a name to record it.
+ * The dashboard's right-hand pane. It always occupies the column so the tables
+ * do not reflow on selection, and it states what a bulk move would do — how
+ * many go to each stage, and how many cannot move — before the recruiter types
+ * a name to record it.
  */
 export function SelectionBar({
   selected,
@@ -34,10 +35,6 @@ export function SelectionBar({
   const [outcome, setOutcome] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-
-  if (selected.length === 0) {
-    return null;
-  }
 
   const plan = planStageAdvance(selected);
 
@@ -80,51 +77,76 @@ export function SelectionBar({
   }
 
   return (
-    <div className="sticky bottom-4 z-30 mt-2 flex min-w-0 flex-col gap-3 rounded-lg border border-border/20 bg-card p-4 shadow-md lg:flex-row lg:items-center">
-      <div className="flex min-w-0 flex-col gap-1">
-        <p className="text-label font-semibold">
-          {selected.length === 1
-            ? "1 candidate selected"
-            : `${selected.length} candidates selected`}
-        </p>
-        <p className="text-caption text-muted-foreground">
-          {plan.summary.length > 0
-            ? plan.summary
-                .map(({ toStage, count }) => `${count} to ${toStage}`)
-                .join(" · ")
-            : "None of these can advance."}
-          {plan.blocked.length > 0
-            ? ` · ${plan.blocked.length} cannot move (${plan.blocked[0].reason.toLowerCase()})`
-            : ""}
-        </p>
-      </div>
+    <aside
+      aria-label="Selection"
+      className="flex min-w-0 flex-col gap-4 rounded-lg border border-border/20 bg-card p-5 lg:sticky lg:top-24 lg:self-start"
+    >
+      {selected.length === 0 ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-label font-semibold">Nothing selected</p>
+          <p className="text-caption text-muted-foreground">
+            Tick candidates in the overdue or due-soon tables to move several of
+            them in one action.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="font-heading text-heading font-semibold">
+              {selected.length === 1
+                ? "1 candidate selected"
+                : `${selected.length} selected`}
+            </p>
+            <p className="text-caption text-muted-foreground">
+              One confirmation covers every row below. Nothing moves until you
+              confirm.
+            </p>
+          </div>
 
-      <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
-        <Button variant="ghost" onClick={onClear} disabled={pending}>
-          Clear
-        </Button>
-        <Button
-          onClick={requestRun}
-          disabled={pending || plan.movable.length === 0}
-          aria-busy={pending}
-        >
-          Move each to next stage
-        </Button>
-      </div>
+          <ul className="flex min-w-0 flex-col gap-2">
+            {plan.summary.map(({ toStage, count }) => (
+              <li key={toStage} className="flex items-baseline gap-2 text-label">
+                <span className="font-semibold tabular-nums">{count}</span>
+                <span className="text-muted-foreground">to {toStage}</span>
+              </li>
+            ))}
+            {plan.blocked.map((entry) => (
+              <li
+                key={entry.pipelineEntryId}
+                className="flex items-baseline gap-2 text-label text-muted-foreground"
+              >
+                <span className="font-semibold tabular-nums">1</span>
+                <span>cannot move — {entry.reason.toLowerCase()}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={requestRun}
+              disabled={pending || plan.movable.length === 0}
+              aria-busy={pending}
+            >
+              Move each to next stage
+            </Button>
+            <Button variant="outline" onClick={onClear} disabled={pending}>
+              Clear selection
+            </Button>
+          </div>
+        </>
+      )}
 
       {error ? (
         <p
           role="alert"
-          className="flex items-center gap-2 text-label text-destructive lg:order-last lg:w-full"
+          className="flex items-start gap-2 text-label text-destructive"
         >
           <TriangleAlert className="size-4 shrink-0" aria-hidden="true" />
           {error}
         </p>
       ) : null}
       {outcome ? (
-        <p className="text-caption text-muted-foreground lg:order-last lg:w-full">
-          {outcome}
-        </p>
+        <p className="text-caption text-muted-foreground">{outcome}</p>
       ) : null}
 
       <TypedNameDialog
@@ -136,6 +158,6 @@ export function SelectionBar({
           run(name);
         }}
       />
-    </div>
+    </aside>
   );
 }
