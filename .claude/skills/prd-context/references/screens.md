@@ -1,3 +1,5 @@
+> **Scope note (CLAUDE.md wins):** product AI (CV/JD parsing, match scores, embeddings, NL search, AI gap flags) is NOT built in this MVP. Read AI items here as the PRD target; build only the recruiter-entered, deterministic version.
+
 # MVP screens
 
 The screens are designed in **pen.dev** (decided). The PRD records the screen list, and the designs come later. Everything must work in **desktop and mobile browsers**.

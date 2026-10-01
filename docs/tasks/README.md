@@ -1,6 +1,6 @@
 # Task docs
 
-Each task that goes through `/task` gets a folder named after its GitHub issue:
+**Legacy.** These folders predate Spec Kit and are kept as history. New work goes in `specs/<NNN-feature>/` (see the `speckit-workflow` skill). Each folder is named after its GitHub issue:
 
 ```
 docs/tasks/<issue-number>-<slug>/

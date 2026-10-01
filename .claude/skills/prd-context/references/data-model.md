@@ -1,3 +1,5 @@
+> **Scope note (CLAUDE.md wins):** product AI (CV/JD parsing, match scores, embeddings, NL search, AI gap flags) is NOT built in this MVP. Read AI items here as the PRD target; build only the recruiter-entered, deterministic version.
+
 # Data model, flows and AI pipeline (suggested in the PRD)
 
 **Seventeen core tables** cover the MVP and the real-data release. Times are stored in **UTC** and shown in **Singapore time**.

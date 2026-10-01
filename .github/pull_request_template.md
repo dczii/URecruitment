@@ -39,7 +39,7 @@ npm run eval        →  (n/a if no AI change; paste EN / ZH results otherwise)
 
 ## Review
 
-<!-- Skipped for `/task` — verification is the close-out gate. Fill only if `/review` was run. -->
+<!-- Verification is the close-out gate. Fill only if `/review` was run. -->
 
 ## Execution notes
 
