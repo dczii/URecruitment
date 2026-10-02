@@ -28,4 +28,6 @@ Planning review, 2026-10-02. Checked items describe document quality, not implem
 - [x] Lint/typecheck/334 unit tests/build pass; build reports no client leaks.
 - [ ] Seeded writable-local-database E2E gate: read-only full run has 39 pass/7 fail/30 existing skips. See quickstart and ignored log.
 - [ ] Full contrast, candidate-profile/CV, virtual-keyboard and all-control target audit.
-- [ ] Story linkage, Claude review and draft PR publication.
+- [ ] Story linkage and Claude review.
+
+- [x] Task-only draft [PR #248](https://github.com/dczii/URecruitment/pull/248) published under explicit user authorization.

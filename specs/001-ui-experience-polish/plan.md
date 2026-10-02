@@ -2,7 +2,7 @@
 
 **Date**: 2026-10-02 | **Spec**: [spec.md](spec.md)
 **Working branch**: `codex/ui-experience-polish`, isolated from `origin/main`. Spec Kit feature identifier is `001-ui-experience-polish`.
-**Status**: User subsequently authorized implementation and a PR. Local implementation is complete; The user explicitly confirmed PR creation on 2026-10-02 after the authorization question. Publication is in progress. Story linkage and Claude review remain outstanding workflow gates.
+**Status**: User subsequently authorized implementation and a PR. Local implementation is complete; The user explicitly confirmed PR creation on 2026-10-02 after the authorization question. Draft [PR #248](https://github.com/dczii/URecruitment/pull/248) is published. Story linkage and Claude review remain outstanding workflow gates.
 
 ## Summary
 

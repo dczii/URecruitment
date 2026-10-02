@@ -108,3 +108,5 @@ No new persisted entities. Existing job, candidate, pipeline-entry, guarantee an
 ## Assumptions and Open Questions
 
 Dark default, supplied logo and existing palette remain the baseline; this is not a palette redesign. No new product decision is required for these presentation changes. The product register `docs/decisions/open-questions.md` remains authoritative; its unresolved real-data, hosting, duplicate and integration questions are excluded. Story issue assignment is a workflow prerequisite, not an invented issue. Optional later brand recoloring or new settings behavior requires a separate request.
+
+Published draft: [PR #248](https://github.com/dczii/URecruitment/pull/248).

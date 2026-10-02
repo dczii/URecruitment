@@ -39,7 +39,7 @@ Scope: specification FR-001–016; preserve existing actions and domain logic. T
 
 - [x] T016 Update `design/specs/shell.md`, `design/tokens.md` only if token changes require it, and `specs/001-ui-experience-polish/quickstart.md` with actual gate evidence and measured desktop/phone results (FR-010–015).
 - [ ] T017 Run lint/typecheck/unit/build/E2E and source scope review; record failures honestly in `specs/001-ui-experience-polish/checklists/ux.md`, preserving security and name safeguards (FR-013–015).
-- [ ] T018 Prepare the PR body from `.github/pull_request_template.md` with current spec path and real results; stage only task-owned files and create the authorized PR under the user’s explicit Git override.
+- [x] T018 Prepare the PR body from `.github/pull_request_template.md` with current spec path and real results; stage only task-owned files and create the authorized PR under the user’s explicit Git override.
 
 ## Dependencies and parallel opportunities
 
@@ -68,3 +68,5 @@ First useful increment: shell and dashboard (US1+US2). Then responsive browse/fo
 ## Execution notes
 
 T001 baseline was inspected at desktop and phone widths; Story linkage remains pending. T002 covers shell, selection, filters, job validation, EN/ZH, six routes at 200% text, and reduced motion. Candidate profile already uses readable card sections and was retained; no new profile behavior was needed. T016 keeps theme tokens unchanged. T017 cannot be marked complete while seeded/mutation cases cannot pass against the read-only fixture. No skip was added; two obsolete UI assertions now check the specified conditional selection area. T018 PR body is prepared locally, but the user explicitly authorized branch/commit/push after automatic approval rejection.
+
+Draft PR published: [#248](https://github.com/dczii/URecruitment/pull/248), base main, branch codex/ui-experience-polish. Includes only 44 task-owned files; no secrets, unrelated workflow commits or dirty workspace documents. Seeded-database acceptance and Claude review remain open.
