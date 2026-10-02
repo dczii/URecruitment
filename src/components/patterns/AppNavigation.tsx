@@ -29,7 +29,7 @@ function subscribeName(callback: () => void) {
 }
 
 function Brand() {
-  return <Image src="/user-logo.png" alt="USER Experience Researchers" width={848} height={145} className="h-auto w-48 max-w-full object-contain" unoptimized />;
+  return <span className="inline-flex rounded-sm bg-brand-surface p-2"><Image src="/user-logo.png" alt="USER Experience Researchers" width={848} height={145} className="h-auto w-48 max-w-full object-contain" unoptimized /></span>;
 }
 
 function NavigationLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {

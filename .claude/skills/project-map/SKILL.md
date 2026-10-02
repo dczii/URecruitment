@@ -47,6 +47,10 @@ If two disagree, follow the higher one and note the conflict in the spec's open 
 | `design/*.pen`                               | Pen.dev files. **Only via the pencil MCP tools; never Read or Grep them**   | Design work only                                 |
 | `analysis/00–04*`, `checklists/`, `screenshots/` | Health table, improvement findings, UI modernisation spec and report    | Context for the `ui-modernisation` work          |
 
+## Current brand feature
+
+`specs/046-brand-theme/` owns the USER logo-based white/red/black palette, light default, readable logo backing and accessible shared interaction states. `analysis/05-white-red-black-theme-plan.md` records palette evidence and screenshots under `analysis/screenshots/brand-theme-*`. Read `design/tokens.md` and the feature spec for current values; earlier neutral/indigo and forced-dark preservation notes are superseded only for colors/default theme.
+
 ## Code layout
 
 - `src/app/`: routes `/`, `/dashboard`, `/jobs`, `/jobs/new`, `/jobs/[id]`, `/candidates/[id]`, `/search`, `/placements`, `/settings` (stub), `/sentry-test`, `/api/sentry-test`. Each route keeps its Server Actions in a sibling `actions.ts`.

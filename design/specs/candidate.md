@@ -46,3 +46,7 @@ Job form frames earlier in the same session). Recommend a quick visual pass once
 `background`, `card`, `border`, `foreground`, `muted-foreground`, `accent(-foreground)`,
 `font-sans`, `font-heading`, `font-mono`, `text-title`,
 `text-heading`, `text-label`, `text-caption`, `radius-md`, `radius-lg`, `radius-sm`.
+
+## USER brand theme (2026-10-02)
+
+Use the shared logo-red, white and neutral-black palette in [tokens.md](../tokens.md), with light mode as default. Primary actions/focus use primary/ring; selected controls use accent; supporting content uses neutral muted/secondary. Status badges retain words/icons: on-track and ended are neutral, due-soon is outlined, overdue is red. No screen-specific literal colors. Existing layout, typography and domain behavior stay intact. `.pen` color reconciliation awaits supported Pencil tooling.
