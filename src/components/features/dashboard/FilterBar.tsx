@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldLabel, Select } from "@/components/ui/field";
 import type { FilterOptions } from "@/server/dashboard/data";
@@ -53,11 +54,22 @@ function FilterSelect({
 }
 
 export function FilterBar({ options }: { options: FilterOptions }) {
+  const params = useSearchParams();
+  const router = useRouter();
+  const applied = ["client", "job", "stage", "owner"].filter((key) => params.get(key));
   return (
     <Card
       aria-label="Dashboard filters"
       className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4"
     >
+      <div className="col-span-full flex flex-wrap items-center justify-between gap-2">
+        <p className="text-label font-semibold">{applied.length ? `${applied.length} filters applied` : "All attention items"}</p>
+        {applied.length > 0 && <Button variant="ghost" onClick={() => {
+          const next = new URLSearchParams(params.toString());
+          ["client", "job", "stage", "owner"].forEach((key) => next.delete(key));
+          router.push(`/dashboard${next.size ? `?${next}` : ""}`);
+        }}>Clear filters</Button>}
+      </div>
       <FilterSelect label="Client" param="client" options={options.clients} />
       <FilterSelect label="Job" param="job" options={options.jobs} />
       <FilterSelect label="Stage" param="stage" options={options.stages} />

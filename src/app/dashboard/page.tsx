@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { Dashboard } from "@/components/features/dashboard/Dashboard";
 import {
   getDashboardData,
   getFilterOptions,
   type DashboardFilters,
 } from "@/server/dashboard/data";
+
+export const metadata: Metadata = { title: "Dashboard" };
 
 export const dynamic = "force-dynamic";
 

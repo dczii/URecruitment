@@ -67,7 +67,7 @@ function StateCopy({
     <div className="flex flex-col items-center gap-2">
       <h2 className="text-heading text-foreground">{title}</h2>
       {description ? (
-        <p className="text-body text-muted-foreground">{description}</p>
+        <p className="max-w-prose text-body text-muted-foreground">{description}</p>
       ) : null}
     </div>
   );
@@ -81,7 +81,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn("motion-safe:animate-pulse rounded-md bg-muted", className)}
     />
   );
 }

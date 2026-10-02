@@ -1,3 +1,4 @@
+import { InteractionProvider } from "./InteractionProvider";
 import type { ReactNode } from "react";
 
 import {
@@ -7,7 +8,7 @@ import {
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <>
+    <InteractionProvider>
       <a
         href="#main-content"
         className="sr-only fixed top-2 left-2 z-100 rounded-md bg-card px-3 py-2 text-label font-semibold text-primary shadow-md outline-none focus:not-sr-only focus-visible:not-sr-only focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -27,6 +28,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
       </div>
-    </>
+    </InteractionProvider>
   );
 }

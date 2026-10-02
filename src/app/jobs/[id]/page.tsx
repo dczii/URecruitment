@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
@@ -9,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { getJobDetail, type JobRequirement } from "@/server/jobs/list";
+
+export const metadata: Metadata = { title: "Job details" };
 
 export const dynamic = "force-dynamic";
 

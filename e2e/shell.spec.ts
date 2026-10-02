@@ -111,5 +111,5 @@ test("AC4: shell renders page context, main region, title, and recruiter name", 
   await expect(
     page.getByRole("heading", { level: 1, name: "What needs attention today" }),
   ).toBeVisible();
-  await expect(page.getByText("Recording as Maya Tan")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add name" })).toBeVisible();
 });

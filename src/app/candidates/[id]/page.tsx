@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { CandidateProfile } from "@/components/features/cv-processing/CandidateProfile";
 import { getCandidateProfile } from "@/server/cv/candidate-profile";
+
+export const metadata: Metadata = { title: "Candidate profile" };
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 
 import { savePlacementAction } from "@/app/placements/actions";
 import { TypedNameDialog } from "@/components/patterns/TypedNameDialog";
@@ -78,6 +78,10 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
   const [savedPeriod, setSavedPeriod] = useState(item.guaranteePeriodDays);
   const [savedFlag, setSavedFlag] = useState(item.flag);
   const inputId = useId();
+  const dateRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (error && !isPending) dateRef.current?.focus();
+  }, [error, isPending]);
 
   const flag = flagText(savedStartDate, savedFlag);
   const isDueSoon = savedFlag === "ending-soon" && savedStartDate !== null;
@@ -85,6 +89,7 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
 
   function performSave(typedName: string) {
     startTransition(async () => {
+      try {
       const result = await savePlacementAction(
         item.pipelineEntryId,
         startDate,
@@ -107,6 +112,9 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
         ),
       );
       setSavedDaysUsed(Math.min(daysUsed, result.placement.guaranteePeriodDays));
+      } catch {
+        setError("The start date could not be saved. Your entry is still here; try again.");
+      }
     });
   }
 
@@ -122,20 +130,23 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
 
   return (
     <tr>
-      <td className="align-top">{item.candidateName}</td>
-      <td className="align-top">{item.jobTitle}</td>
-      <td className="align-top">{item.clientName}</td>
-      <td className="align-top">
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-          <label htmlFor={`${inputId}-date`} className="sr-only">
+      <td data-label="Candidate" className="align-top">{item.candidateName}</td>
+      <td data-label="Job" className="align-top">{item.jobTitle}</td>
+      <td data-label="Client" className="align-top">{item.clientName}</td>
+      <td data-label="Start date" className="align-top">
+        <div className="flex min-w-0 flex-col gap-2 ">
+          <label htmlFor={`${inputId}-date`} className="text-caption text-muted-foreground">
             Start date for {item.candidateName}
           </label>
           <Input
+            ref={dateRef}
             id={`${inputId}-date`}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${inputId}-error` : undefined}
             type="date"
             value={startDate}
             onChange={(event) => setStartDate(event.target.value)}
-            className="sm:w-44"
+            className="max-w-full"
             disabled={isPending}
           />
           <Button
@@ -143,8 +154,9 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
             variant="secondary"
             onClick={requestSave}
             disabled={isPending}
+            aria-busy={isPending}
           >
-            {savedStartDate === null ? "Confirm" : "Update"}
+            {isPending ? "Saving…" : savedStartDate === null ? "Confirm" : "Update"}
           </Button>
         </div>
         {savedStartDate === null && (
@@ -153,19 +165,20 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
           </p>
         )}
         {error && (
-          <p role="alert" className="mt-1 text-caption text-destructive">
+          <p id={`${inputId}-error`} role="alert" className="mt-1 text-caption text-destructive">
             {error}
           </p>
         )}
       </td>
-      <td className="align-top font-mono tabular-nums text-muted-foreground">
+      <td data-label="Guarantee" className="align-top font-mono tabular-nums text-muted-foreground">
         {savedStartDate !== null && savedPeriod !== null
           ? `Guarantee: ${savedDaysUsed ?? 0} of ${savedPeriod} days used`
           : "—"}
       </td>
-      <td className="align-top">
+      <td data-label="Flag" className="align-top">
         {flag ? (
           <Badge
+            className="max-w-full whitespace-normal break-words"
             tone={isDueSoon ? "due-soon" : isEnded ? "ended" : "neutral"}
           >
             {flag}
