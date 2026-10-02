@@ -1,7 +1,7 @@
-# URecruitment design tokens
+# HRManagement design tokens
 
 `design/tokens.pen` is the visual source of truth. This file is its readable implementation
-contract. Token values are deliberately neutral and semantic because URecruitment has no approved
+contract. Token values are deliberately neutral and semantic because HRManagement has no approved
 brand identity yet.
 
 > **Divergence, 2026-09-20.** The values below were reset by the `ui-modernisation` pass

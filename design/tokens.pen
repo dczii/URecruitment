@@ -6,7 +6,7 @@
       "id": "rKesz",
       "x": 0,
       "y": 0,
-      "name": "URecruitment Token Reference",
+      "name": "HRManagement Token Reference",
       "theme": {
         "mode": "light"
       },
@@ -31,7 +31,7 @@
               "id": "dweHp",
               "name": "Title",
               "fill": "$foreground",
-              "content": "URecruitment design tokens",
+              "content": "HRManagement design tokens",
               "lineHeight": 1.1,
               "fontFamily": "$font-heading",
               "fontSize": "$text-display",

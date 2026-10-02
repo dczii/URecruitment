@@ -10,7 +10,7 @@ session every `mcp__pencil__execute filePath` resolved to the single live docume
 open `design/shell.pen` editor tab — there was no way to create or persist a genuinely separate
 `design/screens/job-form.pen` file. All 7 Task screens for this Story live as top-level frames
 inside `design/shell.pen`. This is recorded as an Assumption in
-`docs/tasks/32-mvp-screen-designs/spec.md`; splitting into per-screen files is a follow-up for a
+`specs/014-mvp-screen-designs/spec.md`; splitting into per-screen files is a follow-up for a
 human working in the pen.dev GUI, not a loss of design content.
 
 ## Purpose

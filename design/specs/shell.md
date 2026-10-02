@@ -26,7 +26,7 @@ the five screens above. The unconfirmed CV review queue (RC-2) is not present.
 - At `1024 px` and wider, show a persistent `248 px` sidebar and flexible main region.
 - Sidebar: card surface, `1 px` right border, `24 px` vertical / `16 px` horizontal padding.
 - Product row: `48 px` high; a `36 px` primary mark with the Lucide `briefcase-business` icon and
-  the `URecruitment` wordmark.
+  the `HRManagement` wordmark.
 - Navigation items: `216 × 44 px`, `12 px` horizontal padding, `12 px` icon/label gap, `8 px`
   radius. Use the label and a `20 px` Lucide icon:
   - Dashboard — `layout-dashboard`

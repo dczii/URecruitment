@@ -151,7 +151,7 @@
                   "id": "bsFCU",
                   "name": "Product Name",
                   "fill": "$foreground",
-                  "content": "URecruitment",
+                  "content": "HRManagement",
                   "fontFamily": "$font-heading",
                   "fontSize": "$text-heading",
                   "fontWeight": "650"
@@ -940,7 +940,7 @@
                           "id": "Xsbxf",
                           "name": "Sheet Product Name",
                           "fill": "$foreground",
-                          "content": "URecruitment",
+                          "content": "HRManagement",
                           "fontFamily": "$font-heading",
                           "fontSize": "$text-heading",
                           "fontWeight": "650"

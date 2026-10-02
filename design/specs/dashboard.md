@@ -3,7 +3,7 @@
 Visual source: `design/screens/dashboard.pen` · Story: #32 · Design task: #100
 
 Desktop only (1440 px) — no phone frame. Superseded by the 2026-09-18 desktop-only decision; see
-`docs/tasks/32-mvp-screen-designs/spec.md` Assumption 1.
+`specs/014-mvp-screen-designs/spec.md` Assumption 1.
 
 ## Purpose
 

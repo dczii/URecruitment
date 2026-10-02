@@ -2,21 +2,21 @@
 
 ## Status
 
-**Accepted** · 2026-09-17 · created by [#79](https://github.com/dczii/URecruitment/issues/79)
-(story [#23](https://github.com/dczii/URecruitment/issues/23), epic
-[#1](https://github.com/dczii/URecruitment/issues/1))
+**Accepted** · 2026-09-17 · created by [#79](https://github.com/dczii/HRManagement/issues/79)
+(story [#23](https://github.com/dczii/HRManagement/issues/23), epic
+[#1](https://github.com/dczii/HRManagement/issues/1))
 
 > **What this record confirms.** The `ai-eval` skill marks its scoring method **proposed**
-> (*"confirm in the eval task's spec before relying on it"*). This record **confirms** that method
+> (_"confirm in the eval task's spec before relying on it"_). This record **confirms** that method
 > for the backlog, with the refinements marked ⊕ below. Each refinement makes a rule unambiguous
-> where the proposal left room for two readings. [#173](https://github.com/dczii/URecruitment/issues/173)
+> where the proposal left room for two readings. [#173](https://github.com/dczii/HRManagement/issues/173)
 > builds exactly this, and a change to any rule needs a PR to this file first.
 
-**The bar itself is not proposed. It is decided.** The PRD says: *"MVP quality bar (decided): at
+**The bar itself is not proposed. It is decided.** The PRD says: _"MVP quality bar (decided): at
 least 90% of parsed CV fields are correct, and recruiters agree with at least 80% of top-5 match
-rankings. The same bar applies to English and Chinese CVs."* And under AI governance 4: *"Recruiters
+rankings. The same bar applies to English and Chinese CVs."_ And under AI governance 4: _"Recruiters
 grade the AI on the sample set against the quality bar under Goals, with English and Chinese CVs
-graded separately (decided)."*
+graded separately (decided)."_
 
 This plan fixes **how that bar is measured**, before any prompt exists, so that the December
 go/no-go rests on evidence planned for in advance. It does not choose a model or a provider
@@ -24,9 +24,9 @@ go/no-go rests on evidence planned for in advance. It does not choose a model or
 
 ## The bar
 
-| Measure | Pass when | Graded |
-|---|---|---|
-| **Field accuracy** | **≥ 90%** of expected field units correct | English and Chinese **separately** |
+| Measure             | Pass when                                     | Graded                             |
+| ------------------- | --------------------------------------------- | ---------------------------------- |
+| **Field accuracy**  | **≥ 90%** of expected field units correct     | English and Chinese **separately** |
 | **Top-5 agreement** | **≥ 80%** mean agreement across verified jobs | English and Chinese **separately** |
 
 - **Both languages must pass both measures.** Four numbers, four passes. **Never average EN and ZH
@@ -55,11 +55,11 @@ eval/
 
 ### Keys
 
-| Key | Rule |
-|---|---|
-| `cvKey` | The **first 16 hex characters of the SHA-256** of the CV file's bytes (`ai-eval`) |
+| Key      | Rule                                                                                                                                                                                                               |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `cvKey`  | The **first 16 hex characters of the SHA-256** of the CV file's bytes (`ai-eval`)                                                                                                                                  |
 | `jobKey` | ⊕ The **same rule applied to the job description file's bytes**. `ai-eval`'s example uses a readable slug; a hash ties the entry to exactly one seeded file, as it does for CVs. The readable name goes in `label` |
-| `sha256` | ⊕ The **full** 64-character hash, stored inside each entry, so a 16-character collision would be detected rather than silently merged |
+| `sha256` | ⊕ The **full** 64-character hash, stored inside each entry, so a 16-character collision would be detected rather than silently merged                                                                              |
 
 The eval matches entries by hashing the files the seed downloads. A changed file gets a new key, and
 its old entry stops matching. The report lists it as orphaned rather than grading it against the
@@ -71,8 +71,8 @@ The key contains only fictional people and no secrets, so it **may be committed*
 
 - **No sample-data store URL or base URL**, in any field (`CLAUDE.md` hard rule 6).
 - ⊕ **No file name either.** `ai-eval`'s example includes `fileName`, but the drafting task
-  [#170](https://github.com/dczii/URecruitment/issues/170) excludes *"any file name or URL from the
-  sample-data store"*, and the stricter rule wins. The store's names include personal-looking names
+  [#170](https://github.com/dczii/HRManagement/issues/170) excludes _"any file name or URL from the
+  sample-data store"_, and the stricter rule wins. The store's names include personal-looking names
   (fictional, but indistinguishable from real ones to a reader), and the hash already identifies the
   file. The eval report, which is gitignored, shows file names locally so verifiers can find each CV.
 - **No real personal data**, ever.
@@ -117,12 +117,12 @@ The key contains only fictional people and no secrets, so it **may be committed*
 - ⊕ `aliases` holds **structured**, approved alternative answers (`ai-eval` keeps them in free-text
   `notes`, which a script cannot read reliably). The key is the field path; list items map each
   expected value to its accepted variants.
-- ⊕ `ambiguities` lists anything the drafter could not decide ([#170](https://github.com/dczii/URecruitment/issues/170):
-  *"A note of any CV whose correct answer is genuinely ambiguous, so a recruiter decides rather than
-  the draft"*). **An entry with an unresolved ambiguity cannot be marked verified.**
+- ⊕ `ambiguities` lists anything the drafter could not decide ([#170](https://github.com/dczii/HRManagement/issues/170):
+  _"A note of any CV whose correct answer is genuinely ambiguous, so a recruiter decides rather than
+  the draft"_). **An entry with an unresolved ambiguity cannot be marked verified.**
 - `verifiedBy` is the recruiter's typed name, and `verifiedAt` is a Singapore date (`YYYY-MM-DD`).
 - ⊕ `totalYearsAsOf` is the date that "present" roles run up to when total years is computed (see
-  *Total years*). It is a structured field because the scorer needs to read it.
+  _Total years_). It is a structured field because the scorer needs to read it.
 
 ### `jobs/<jobKey>.json`
 
@@ -147,7 +147,7 @@ The key contains only fictional people and no secrets, so it **may be committed*
 - `language` is the language **the job description is written in**.
 - `expectedTop5` has **one to five** distinct `cvKey`s. Order is informative only (see the top-5
   rule). Each has a **one-line reason** in `reasons`, as
-  [#171](https://github.com/dczii/URecruitment/issues/171) requires.
+  [#171](https://github.com/dczii/HRManagement/issues/171) requires.
 - ⊕ **Fewer than five plausible candidates are flagged, never padded** (#171). Such a job lists
   fewer keys and carries `"flags": ["fewer-than-five"]`. It can still be verified, and it is graded on
   its own size K (see the top-5 rule).
@@ -164,28 +164,28 @@ The key contains only fictional people and no secrets, so it **may be committed*
 - Job rankings come from reading the job and the CVs, with a one-line reason per candidate in `reasons`. Protected
   attributes play no part in the ranking unless the job requires nationality or language **with a
   written reason**, exactly as the product rule says.
-- Drafting tasks: [#170](https://github.com/dczii/URecruitment/issues/170) (CVs) and
-  [#171](https://github.com/dczii/URecruitment/issues/171) (jobs).
+- Drafting tasks: [#170](https://github.com/dczii/HRManagement/issues/170) (CVs) and
+  [#171](https://github.com/dczii/HRManagement/issues/171) (jobs).
 - ⊕ **A known correlation risk.** If the chosen provider is from the same model family that drafted
   the key, their errors may agree and inflate the score. Mandatory human verification is the
   mitigation. The go/no-go pack notes which family drafted the key and which one ran the eval.
 
 ## Field accuracy: the rule
 
-**Field accuracy for a language** = *correct field units* ÷ *counted field units*, summed over every
+**Field accuracy for a language** = _correct field units_ ÷ _counted field units_, summed over every
 **verified** CV entry in that language.
 
 ### Field units
 
-| Field | Units per CV | A unit is correct when |
-|---|---|---|
-| `name`, `location` | 1 each | The normalised values are equal, or the output matches an approved alias |
-| `email` | 1 | Equal after lowercasing and trimming |
-| `phone` | 1 | ⊕ The **digit strings** are equal after removing everything but digits. The key records the number **as the CV writes it**, with a country code only if the CV shows one. The scorer adds no country code of its own, and [#126](https://github.com/dczii/URecruitment/issues/126)'s schema returns the number as written, with no country code added |
-| `totalYearsExperience` | 1 | Within **±0.5 years** |
-| `workHistory[]` | 4 per **expected** entry (`employer`, `title`, `start`, `end`) | `employer`, `title`: normalised equal or alias. Dates: see *Dates* |
-| `education[]` | 3 per **expected** entry (`institution`, `qualification`, `end`) | as for `workHistory` |
-| `certifications[]`, `skills[]`, `languages[]` | 1 per **expected** item | The item appears in the output list after normalisation (or as an approved alias) |
+| Field                                         | Units per CV                                                     | A unit is correct when                                                                                                                                                                                                                                                                                                                                |
+| --------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`, `location`                            | 1 each                                                           | The normalised values are equal, or the output matches an approved alias                                                                                                                                                                                                                                                                              |
+| `email`                                       | 1                                                                | Equal after lowercasing and trimming                                                                                                                                                                                                                                                                                                                  |
+| `phone`                                       | 1                                                                | ⊕ The **digit strings** are equal after removing everything but digits. The key records the number **as the CV writes it**, with a country code only if the CV shows one. The scorer adds no country code of its own, and [#126](https://github.com/dczii/HRManagement/issues/126)'s schema returns the number as written, with no country code added |
+| `totalYearsExperience`                        | 1                                                                | Within **±0.5 years**                                                                                                                                                                                                                                                                                                                                 |
+| `workHistory[]`                               | 4 per **expected** entry (`employer`, `title`, `start`, `end`)   | `employer`, `title`: normalised equal or alias. Dates: see _Dates_                                                                                                                                                                                                                                                                                    |
+| `education[]`                                 | 3 per **expected** entry (`institution`, `qualification`, `end`) | as for `workHistory`                                                                                                                                                                                                                                                                                                                                  |
+| `certifications[]`, `skills[]`, `languages[]` | 1 per **expected** item                                          | The item appears in the output list after normalisation (or as an approved alias)                                                                                                                                                                                                                                                                     |
 
 ### Three rules that remove ambiguity ⊕
 
@@ -233,8 +233,8 @@ as the same thing, the scorer does not guess, and the result is reproducible.
 periods counted once and present roles running up to `totalYearsAsOf`. That field holds the CV's own
 date if it gives one, and otherwise the drafting date. ⊕ **The eval computes the output's total years
 as of the same `totalYearsAsOf`**, so the result does not drift as calendar time passes.
-It is **not** taken from the CV's own claim (PRD: *"Total years of experience, calculated from work
-history"*). The output passes within ±0.5 years.
+It is **not** taken from the CV's own claim (PRD: _"Total years of experience, calculated from work
+history"_). The output passes within ±0.5 years.
 
 ## Top-5 agreement: the rule
 
@@ -250,7 +250,7 @@ in that language.
 
 - **What is compared.** The model's top 5 is compared as a **set** against the recruiter-verified
   acceptable set. The order within the top 5 is **not** scored. The PRD measures whether recruiters
-  *"agree with"* the top-5 rankings, which is a question of who is in them.
+  _"agree with"_ the top-5 rankings, which is a question of who is in them.
 - **modelTopK** is the K highest stored scores for that job's **current version** and the
   **active model version**. Stale scores are never used, which matches the product invariant.
 - ⊕ **Ties.** Candidates are ordered by score descending, then by `cvKey` ascending. This is
@@ -259,11 +259,11 @@ in that language.
 - ⊕ **Fewer than K scored candidates.** The denominator stays **K**. Missing slots count as
   disagreement, because a thin shortlist is a real failure.
 - **Which language a job counts under.** A job counts under **the language of its job description**
-  (`ai-eval`, confirmed). The PRD's *Languages* requirement (*"English and Simplified Chinese CVs and
-  job descriptions"*, decided) means the sample set is expected to include Chinese job descriptions.
+  (`ai-eval`, confirmed). The PRD's _Languages_ requirement (_"English and Simplified Chinese CVs and
+  job descriptions"_, decided) means the sample set is expected to include Chinese job descriptions.
   The coverage minimum below keeps a partial set from passing silently.
 - **A dependency, raised rather than settled.** Release mode needs at least 3 verified **Chinese job
-  descriptions** and at least 10 verified **Chinese CVs** (see *Coverage minimums*). On 17 Sep 2026
+  descriptions** and at least 10 verified **Chinese CVs** (see _Coverage minimums_). On 17 Sep 2026
   the sample store held neither (`prd-context` → `references/sample-data.md`). This is recorded as
   [RC-4](../decisions/open-questions.md#rc-4--chinese-coverage-of-the-sample-set) in the
   open-questions register, for the product owner, who supplies the sample files. **Grading rankings by
@@ -273,8 +273,8 @@ in that language.
 ## Verification and coverage
 
 - **Only `verified: true` entries count toward the bar.** Unverified entries are excluded from the
-  numbers and **listed in the report** with a count (`ai-eval`; [#172](https://github.com/dczii/URecruitment/issues/172)).
-- **Recruiters verify** by correcting the JSON (directly, or through [#172](https://github.com/dczii/URecruitment/issues/172)'s
+  numbers and **listed in the report** with a count (`ai-eval`; [#172](https://github.com/dczii/HRManagement/issues/172)).
+- **Recruiters verify** by correcting the JSON (directly, or through [#172](https://github.com/dczii/HRManagement/issues/172)'s
   workflow) and setting `verified: true` with their typed name and a Singapore date. An entry with
   open `ambiguities` cannot be verified.
 - **A correction is a PR** with a short note per change, so the key's history is reviewable.
@@ -284,6 +284,7 @@ in that language.
 
   These two numbers are set here as **proposed** starting values. A PR to this file can change
   them. Below the minimum, the report says **"not evaluable"** with the counts. It never says "pass".
+
 - The report always shows **verified / total per language** for both measures.
 
 ## Outputs
@@ -307,9 +308,9 @@ Each report contains:
 
 **Exit codes:**
 
-| Mode | Exits non-zero when |
-|---|---|
-| Default (PR) | Any **evaluable** measure is below the bar |
+| Mode          | Exits non-zero when                               |
+| ------------- | ------------------------------------------------- |
+| Default (PR)  | Any **evaluable** measure is below the bar        |
 | ⊕ `--release` | Any measure is below the bar **or not evaluable** |
 
 **Options** (`ai-eval`):
@@ -322,12 +323,12 @@ Each report contains:
 
 ## When it runs and what it costs
 
-| Trigger | What runs | Blocks |
-|---|---|---|
-| A PR touching `src/server/ai/**`, `eval/**`, or the parser, matcher or prompt schemas | The **affected half only** (`--only parse` or `--only match`), full set, default mode | Reported on the PR. The job can go red, but ⊕ **`eval.yml` is never made a required check**, so a below-bar result is a finding for the Claude review rather than an automatic merge block. Prompt work is iterative |
-| `workflow_dispatch` | Anything, with options | Nothing |
-| **Before each MVP release** and before the go/no-go | Full set, both halves, `--release` | **Yes.** A failing or non-evaluable result is recorded as such by the release-readiness check ([#179](https://github.com/dczii/URecruitment/issues/179), which runs this mode) and raised as an issue. Proceeding anyway is the product owner's decision, recorded in [#181](https://github.com/dczii/URecruitment/issues/181). This plan does not pre-authorise it |
-| A fork, or missing secrets | Skipped with a visible notice | Nothing. It never fails silently |
+| Trigger                                                                               | What runs                                                                             | Blocks                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A PR touching `src/server/ai/**`, `eval/**`, or the parser, matcher or prompt schemas | The **affected half only** (`--only parse` or `--only match`), full set, default mode | Reported on the PR. The job can go red, but ⊕ **`eval.yml` is never made a required check**, so a below-bar result is a finding for the Claude review rather than an automatic merge block. Prompt work is iterative                                                                                                                                                |
+| `workflow_dispatch`                                                                   | Anything, with options                                                                | Nothing                                                                                                                                                                                                                                                                                                                                                             |
+| **Before each MVP release** and before the go/no-go                                   | Full set, both halves, `--release`                                                    | **Yes.** A failing or non-evaluable result is recorded as such by the release-readiness check ([#179](https://github.com/dczii/HRManagement/issues/179), which runs this mode) and raised as an issue. Proceeding anyway is the product owner's decision, recorded in [#181](https://github.com/dczii/HRManagement/issues/181). This plan does not pre-authorise it |
+| A fork, or missing secrets                                                            | Skipped with a visible notice                                                         | Nothing. It never fails silently                                                                                                                                                                                                                                                                                                                                    |
 
 **Cost** (the provider is not chosen, so this is an order of magnitude, not a price):
 
@@ -349,14 +350,14 @@ Each report contains:
 ## Grading sessions (MVP exit)
 
 - Recruiters grade **English and Chinese in separate sessions**, against the same bar (PRD, decided).
-  The session guide is [#180](https://github.com/dczii/URecruitment/issues/180).
+  The session guide is [#180](https://github.com/dczii/HRManagement/issues/180).
 - Disagreements found in a session update the answer key **by PR**, with a note per change. The eval
   is then re-run with `--reuse-runs`.
-- The go/no-go pack ([#181](https://github.com/dczii/URecruitment/issues/181)) quotes the release-mode
+- The go/no-go pack ([#181](https://github.com/dczii/HRManagement/issues/181)) quotes the release-mode
   report: all four numbers, their coverage, and anything not evaluable, **stated as such**.
 
 ## Out of scope
 
-- Drafting the answer key ([#170](https://github.com/dczii/URecruitment/issues/170), [#171](https://github.com/dczii/URecruitment/issues/171)).
-- Writing `npm run eval` ([#173](https://github.com/dczii/URecruitment/issues/173)).
+- Drafting the answer key ([#170](https://github.com/dczii/HRManagement/issues/170), [#171](https://github.com/dczii/HRManagement/issues/171)).
+- Writing `npm run eval` ([#173](https://github.com/dczii/HRManagement/issues/173)).
 - Choosing the model or provider ([DT-1](../decisions/open-questions.md#dt-1--the-ai-provider)).

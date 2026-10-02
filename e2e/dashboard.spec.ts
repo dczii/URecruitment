@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 
 /**
  * Desktop-only coverage for the dashboard (design/specs/dashboard.md:
- * "Desktop only (1440 px) — no phone frame"; plan.md docs/tasks/161-dashboard).
+ * "Desktop only (1440 px) — no phone frame"; plan.md specs/041-dashboard).
  *
  * There is no UI path yet to move a candidate into overdue/due-soon/guarantee
  * territory (the pipeline board, #160, and back-dated seed data, #121, are

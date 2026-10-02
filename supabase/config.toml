@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "urecruitment"
+project_id = "HRManagement"
 
 [api]
 enabled = true
@@ -102,7 +102,7 @@ openai_api_key = "env(OPENAI_API_KEY)"
 
 # Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
 # are monitored, and you can view the emails that would have been sent from the web interface.
-# Disabled: URecruitment sends no email, ever (CLAUDE.md hard rule 2 / PRD non-goal). There is
+# Disabled: HRManagement sends no email, ever (CLAUDE.md hard rule 2 / PRD non-goal). There is
 # nothing for a local mail catcher to catch, so it is one less container to run.
 [inbucket]
 enabled = false

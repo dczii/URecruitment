@@ -42,7 +42,7 @@ If two disagree, follow the higher one and note the conflict in the spec's open 
 | `docs/runbooks/sentry-test-error.md`         | How to trigger a test error                                                 | `/sentry-test`, `/api/sentry-test`, Sentry configs |
 | `docs/manatal-baseline-harness.md`           | Manatal baseline measurement                                                | Success metrics (post-MVP)                       |
 | `docs/backlog/{manifest.json,roadmap/E00–E13.json,preview.md}` | Epic → Story → Task source for GitHub issues             | Issue tree on Project 4                          |
-| `docs/tasks/<issue>-<slug>/`                 | Legacy per-issue plans (19–54, 63, 120, 156–164). History, not instructions | Read for context on why code looks as it does    |
+| `specs/001-*` through `specs/044-*`       | Legacy per-issue plans (19–54, 63, 120, 156–164). History, not instructions | Read for context on why code looks as it does    |
 | `design/tokens.md`, `design/specs/*.md`      | Token contract and per-screen specs (desktop 1440 px)                       | `src/app/globals.css`, `src/components/features/**` |
 | `design/*.pen`                               | Pen.dev files. **Only via the pencil MCP tools; never Read or Grep them**   | Design work only                                 |
 | `analysis/00–04*`, `checklists/`, `screenshots/` | Health table, improvement findings, UI modernisation spec and report    | Context for the `ui-modernisation` work          |
@@ -70,7 +70,7 @@ If two disagree, follow the higher one and note the conflict in the spec's open 
 - `design/specs/*` are desktop-only and cite `design/screens/*.pen`, which do not exist. `design/tokens.md` says tokens now follow `src/app/globals.css`, not the `.pen` file. Phone width is still required by the constitution.
 - `README.md` opens with "AI-assisted"; the product has no AI.
 - `/settings` is a placeholder. Settings log writes exist in the schema only.
-- `docs/tasks/*` and `docs/backlog/*` describe AI stories (46–51, 63). They are history.
+- Legacy plans in `specs/` and `docs/backlog/*` describe AI stories (46–51, 63). They are history.
 
 ## Old skill names in documents
 

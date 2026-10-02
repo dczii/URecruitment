@@ -18,12 +18,7 @@ export type SelectableEntry = {
   candidateName: string;
 };
 
-/**
- * The dashboard's right-hand pane. It always occupies the column so the tables
- * do not reflow on selection, and it states what a bulk move would do — how
- * many go to each stage, and how many cannot move — before the recruiter types
- * a name to record it.
- */
+/** Preview the selected rows before the existing name-confirmed move action. */
 export function SelectionBar({
   selected,
   onClear,
@@ -76,21 +71,16 @@ export function SelectionBar({
     run(stored);
   }
 
+  if (selected.length === 0) {
+    return outcome ? <p role="status" className="rounded-md bg-status-on-track p-4 text-label text-status-on-track-foreground">{outcome}</p> : null;
+  }
+
   return (
     <aside
       aria-label="Selection"
-      className="flex min-w-0 flex-col gap-4 rounded-lg border border-border/20 bg-card p-5 lg:sticky lg:top-24 lg:self-start"
+      className="flex min-w-0 flex-col gap-4 rounded-lg border border-border/20 bg-card p-5 lg:flex-row lg:items-center lg:justify-between"
     >
-      {selected.length === 0 ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-label font-semibold">Nothing selected</p>
-          <p className="text-caption text-muted-foreground">
-            Tick candidates in the overdue or due-soon tables to move several of
-            them in one action.
-          </p>
-        </div>
-      ) : (
-        <>
+      <>
           <div className="flex min-w-0 flex-col gap-1">
             <p className="font-heading text-heading font-semibold">
               {selected.length === 1
@@ -135,8 +125,7 @@ export function SelectionBar({
               Clear selection
             </Button>
           </div>
-        </>
-      )}
+      </>
 
       {error ? (
         <p
@@ -148,7 +137,7 @@ export function SelectionBar({
         </p>
       ) : null}
       {outcome ? (
-        <p className="text-caption text-muted-foreground">{outcome}</p>
+        <p role="status" className="text-caption text-muted-foreground">{outcome}</p>
       ) : null}
 
       <TypedNameDialog

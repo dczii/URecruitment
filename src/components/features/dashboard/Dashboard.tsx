@@ -1,6 +1,7 @@
 "use client";
 
 import { CircleCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { DelayStatusBadge } from "@/components/patterns/DelayStatusBadge";
@@ -17,9 +18,17 @@ export function Dashboard({
   data: DashboardData;
   filterOptions: FilterOptions;
 }) {
+  const params = useSearchParams();
+  const filtered = ["client", "job", "stage", "owner"].some((key) => params.get(key));
   const [selected, setSelected] = useState<Map<string, SelectableEntry>>(
     () => new Map(),
   );
+
+  const visibleRows = [...data.overdue, ...data.dueSoon];
+  const visibleIds = new Set(visibleRows.map((row) => row.pipelineEntryId));
+  const visibleSelected = new Map([...selected].filter(([id]) => visibleIds.has(id)));
+  // Reconcile during render so an old selection cannot return after filtering back.
+  if (visibleSelected.size !== selected.size) setSelected(visibleSelected);
 
   function toggle(entry: SelectableEntry) {
     setSelected((current) => {
@@ -48,27 +57,27 @@ export function Dashboard({
             <CircleCheck className="size-6 text-status-on-track-foreground" />
           </span>
           <p className="text-body text-muted-foreground">
-            No one is overdue, due soon or ending guarantee right now.
+            {filtered ? "No attention items match these filters. Clear filters to see all items." : "No one is overdue, due soon or ending guarantee right now."}
           </p>
         </div>
       ) : (
         <>
-          <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid min-w-0 items-start gap-6 ">
             <div className="flex min-w-0 flex-col gap-6">
               <OverdueSection
                 rows={data.overdue}
-                selected={selected}
+                selected={visibleSelected}
                 onToggle={toggle}
               />
               <DueSoonSection
                 rows={data.dueSoon}
-                selected={selected}
+                selected={visibleSelected}
                 onToggle={toggle}
               />
               <GuaranteeSection rows={data.guarantee} />
             </div>
             <SelectionBar
-              selected={[...selected.values()]}
+              selected={[...visibleSelected.values()]}
               onClear={() => setSelected(new Map())}
             />
           </div>
@@ -101,6 +110,7 @@ function OverdueSection({
         </caption>
         <TableHead>
           <tr>
+            <th scope="col" className="selection-column"><span className="sr-only">Selection</span></th>
             <th scope="col">Candidate</th>
             <th scope="col">Job</th>
             <th scope="col">Stage</th>
@@ -120,15 +130,13 @@ function OverdueSection({
                 selected={selected.has(row.pipelineEntryId)}
                 onToggle={onToggle}
               />
-              <td>{row.candidateName}</td>
-              <td>
-                {row.jobTitle} · {row.clientName}
-              </td>
-              <td>{row.stage}</td>
-              <td>
+              <td data-label="Candidate" className="font-semibold">{row.candidateName}</td>
+              <td data-label="Job"><p>{row.jobTitle}</p><p className="text-caption text-muted-foreground">{row.clientName}</p></td>
+              <td data-label="Stage">{row.stage}</td>
+              <td data-label="Status">
                 <DelayStatusBadge status="overdue" daysOverdue={row.daysOver} />
               </td>
-              <td>{row.waitingOn}</td>
+              <td data-label="Waiting on">{row.waitingOn}</td>
             </tr>
           ))}
         </TableBody>
@@ -160,6 +168,7 @@ function DueSoonSection({
         </caption>
         <TableHead>
           <tr>
+            <th scope="col" className="selection-column"><span className="sr-only">Selection</span></th>
             <th scope="col">Candidate</th>
             <th scope="col">Job</th>
             <th scope="col">Stage</th>
@@ -179,15 +188,13 @@ function DueSoonSection({
                 selected={selected.has(row.pipelineEntryId)}
                 onToggle={onToggle}
               />
-              <td>{row.candidateName}</td>
-              <td>
-                {row.jobTitle} · {row.clientName}
-              </td>
-              <td>{row.stage}</td>
-              <td>
+              <td data-label="Candidate" className="font-semibold">{row.candidateName}</td>
+              <td data-label="Job"><p>{row.jobTitle}</p><p className="text-caption text-muted-foreground">{row.clientName}</p></td>
+              <td data-label="Stage">{row.stage}</td>
+              <td data-label="Status">
                 <DelayStatusBadge status="due-soon" />
               </td>
-              <td className="font-mono tabular-nums">
+              <td data-label="Working days used" className="tabular-nums">
                 {row.workingDaysUsed} of {row.limitDays} days
               </td>
             </tr>
@@ -222,16 +229,14 @@ function GuaranteeSection({ rows }: { rows: DashboardData["guarantee"] }) {
         <TableBody>
           {rows.map((row) => (
             <tr key={row.placementId}>
-              <td>{row.candidateName}</td>
-              <td>
-                {row.jobTitle} · {row.clientName}
-              </td>
-              <td>
+              <td data-label="Candidate" className="font-semibold">{row.candidateName}</td>
+              <td data-label="Job"><p>{row.jobTitle}</p><p className="text-caption text-muted-foreground">{row.clientName}</p></td>
+              <td data-label="Guarantee">
                 <Badge tone={row.flag === "ended" ? "ended" : "due-soon"}>
                   {row.flag === "ended" ? "Guarantee ended" : "Guarantee ending soon"}
                 </Badge>
               </td>
-              <td className="font-mono tabular-nums">{row.guaranteeEndDate}</td>
+              <td data-label="Ends" className="tabular-nums">{row.guaranteeEndDate}</td>
             </tr>
           ))}
         </TableBody>
@@ -251,7 +256,7 @@ function SelectCell({
   onToggle: (entry: SelectableEntry) => void;
 }) {
   return (
-    <td className="w-10">
+    <td className="selection-cell" data-label="Selection"><label className="flex min-h-11 min-w-11 items-center justify-center">
       <input
         type="checkbox"
         checked={selected}
@@ -264,7 +269,7 @@ function SelectCell({
           })
         }
         className="size-4 accent-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      />
+      /><span className="sr-only">Select {row.candidateName}</span></label>
     </td>
   );
 }

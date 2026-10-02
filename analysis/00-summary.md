@@ -2,17 +2,17 @@
 
 ## What the system is
 
-URecruitment is an internal recruitment portal for a Singapore agency, replacing Manatal. Next.js 16 App Router + TypeScript on Vercel, Supabase Postgres and private Storage, Tailwind v4 + shadcn/ui. Nine recruiter-facing pages, no sign-in, fictional data, mid-build (first commit 2026-09-17). Product AI is explicitly out of scope.
+HRManagement is an internal recruitment portal for a Singapore agency, replacing Manatal. Next.js 16 App Router + TypeScript on Vercel, Supabase Postgres and private Storage, Tailwind v4 + shadcn/ui. Nine recruiter-facing pages, no sign-in, fictional data, mid-build (first commit 2026-09-17). Product AI is explicitly out of scope.
 
-| Area | Health |
-|---|---|
-| Architecture | **Good** — pages → `src/server/**` domain modules → one cached Supabase client; no business logic in components |
-| Security | **Good** — RLS on with `revoke all` on every table, nonce CSP, magic-byte upload checks, Zod on every write, build fails if the secret key reaches the browser bundle |
-| Performance | **Good, one flaw** — queries are batched, but the dashboard fetches its data twice per load |
-| Code quality | **Good** — small files, consistent patterns; a custom lint rule already bans hardcoded colours in components |
-| Testing | **Mixed** — 310 unit tests pass, but the e2e gate is red on every branch and has been for at least half a day |
-| Front end | **Good after this work** — was a fresh, deliberately tokenised system already; now on a new palette with shared primitives |
-| Docs vs code | **Drifting** — the security baseline still describes AI controls that were descoped |
+| Area         | Health                                                                                                                                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Architecture | **Good** — pages → `src/server/**` domain modules → one cached Supabase client; no business logic in components                                                       |
+| Security     | **Good** — RLS on with `revoke all` on every table, nonce CSP, magic-byte upload checks, Zod on every write, build fails if the secret key reaches the browser bundle |
+| Performance  | **Good, one flaw** — queries are batched, but the dashboard fetches its data twice per load                                                                           |
+| Code quality | **Good** — small files, consistent patterns; a custom lint rule already bans hardcoded colours in components                                                          |
+| Testing      | **Mixed** — 310 unit tests pass, but the e2e gate is red on every branch and has been for at least half a day                                                         |
+| Front end    | **Good after this work** — was a fresh, deliberately tokenised system already; now on a new palette with shared primitives                                            |
+| Docs vs code | **Drifting** — the security baseline still describes AI controls that were descoped                                                                                   |
 
 ## Top recommendations
 
@@ -36,12 +36,12 @@ Branch **`ui-modernisation`**, 13 commits, presentation plus one feature. Ten pa
 
 ## How AI was used
 
-| Phase | What the AI did | Inputs | Outputs |
-|---|---|---|---|
-| 1 — Overview | Read the source tree, migrations, CI workflows and tests; ran the test suite; traced request flow | The repository at `ac6ccfe`; no README claims taken on trust | [01-codebase-overview.md](01-codebase-overview.md) with a page inventory and a Mermaid flow |
-| 2 — Recommendations | Checked each category in the brief against the code, discarded the ones that turned up nothing, computed the failing-test root cause | Source, CI logs, `npm test`/`lint`/`typecheck` runs | [02](02-improvement-recommendations.md): 8 findings, each with a file citation |
-| 3 — Design | Chose a palette and type scale, computed 40 contrast ratios with the WCAG formula, wrote a per-page plan and a "must stay the same" list drawn from the Playwright selectors | Before screenshots, e2e specs, design tokens | [03-ui-modernisation-spec.md](03-ui-modernisation-spec.md), 18 before shots, [checklists/before.json](checklists/before.json) |
-| 3 — Build | Edited tokens and components, committed in 10 steps, ran lint/typecheck/tests/build after each area, pushed the branch | The approved spec | The branch and [04](04-ui-modernisation-report.md) |
+| Phase               | What the AI did                                                                                                                                                              | Inputs                                                       | Outputs                                                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| 1 — Overview        | Read the source tree, migrations, CI workflows and tests; ran the test suite; traced request flow                                                                            | The repository at `ac6ccfe`; no README claims taken on trust | [01-codebase-overview.md](01-codebase-overview.md) with a page inventory and a Mermaid flow                                   |
+| 2 — Recommendations | Checked each category in the brief against the code, discarded the ones that turned up nothing, computed the failing-test root cause                                         | Source, CI logs, `npm test`/`lint`/`typecheck` runs          | [02](02-improvement-recommendations.md): 8 findings, each with a file citation                                                |
+| 3 — Design          | Chose a palette and type scale, computed 40 contrast ratios with the WCAG formula, wrote a per-page plan and a "must stay the same" list drawn from the Playwright selectors | Before screenshots, e2e specs, design tokens                 | [03-ui-modernisation-spec.md](03-ui-modernisation-spec.md), 18 before shots, [checklists/before.json](checklists/before.json) |
+| 3 — Build           | Edited tokens and components, committed in 10 steps, ran lint/typecheck/tests/build after each area, pushed the branch                                                       | The approved spec                                            | The branch and [04](04-ui-modernisation-report.md)                                                                            |
 
 **What a person decided:** that Phase 3 should follow the brief rather than the repo's existing pen.dev pipeline; approval of the design direction and page plan; that the after build should come from a Vercel preview; that forms must not be submitted against the shared database; and that `design/tokens.md` should be updated to match the code. The final review of the branch is still outstanding.
 

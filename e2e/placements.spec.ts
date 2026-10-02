@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 
 /**
  * Desktop-only coverage for the placements screen (design/specs/placements.md:
- * "Desktop only (1440 px) — no phone frame"; plan.md docs/tasks/163-guarantee-flag).
+ * "Desktop only (1440 px) — no phone frame"; plan.md specs/043-guarantee-flag).
  *
  * There is no UI path yet to move a candidate into Placed (the pipeline
  * board, #160, is a separate task), so this only covers what's reachable

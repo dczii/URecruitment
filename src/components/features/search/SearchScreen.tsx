@@ -53,6 +53,7 @@ export function SearchScreen() {
   };
 
   async function runQuery() {
+    if (view.kind === "loading") return;
     setView({ kind: "loading" });
     try {
       const result = await search(query, formFilters);
@@ -146,9 +147,10 @@ export function SearchScreen() {
             onChange={setCvUpdatedAfter}
           />
         </div>
-        <div>
-          <Button type="submit" disabled={view.kind === "loading"}>
-            Search
+        <div className="flex flex-wrap items-center gap-3">
+          <Button type="button" variant="outline" disabled={view.kind === "loading"} onClick={() => { setSkills(""); setMinYears(""); setMaxYears(""); setLocations(""); setLanguages(""); setCvUpdatedAfter(""); setView({kind:"idle"}); }}>Clear filters</Button>
+          <Button type="submit" aria-busy={view.kind === "loading"} disabled={view.kind === "loading"}>
+            {view.kind === "loading" ? "Searching…" : "Search"}
           </Button>
         </div>
         {formFilters.languages.length > 0 ? (
@@ -273,7 +275,7 @@ function ResultRow({ hit }: { hit: SearchHit }) {
 
   return (
     <tr>
-      <th scope="row" className="text-left font-semibold">
+      <th data-label="Candidate" scope="row" className="text-left font-semibold">
         <Link
           href={`/candidates/${hit.candidateId}`}
           lang={nameLang}
@@ -282,10 +284,10 @@ function ResultRow({ hit }: { hit: SearchHit }) {
           {hit.fullName}
         </Link>
       </th>
-      <td className="text-muted-foreground" lang={summaryLang}>
+      <td data-label="Role, experience, location" className="text-muted-foreground" lang={summaryLang}>
         {roleSummary(hit)}
       </td>
-      <td>
+      <td data-label="CV last updated">
         <CvUpdatedDate iso={hit.cvUpdatedAt} />
       </td>
     </tr>

@@ -18,7 +18,7 @@ Spec Kit (v1.0.x, installed with `specify init --here --integration claude`) pro
 | Constitution (hard rules, ported from CLAUDE.md) | `.specify/memory/constitution.md` |
 | Feature spec / plan / tasks / checklists | `specs/<NNN-feature>/{spec,plan,research,data-model,tasks}.md`, `contracts/`, `checklists/` |
 | Decisions that outlive one feature | `docs/decisions/` (ADRs) and `open-questions.md` |
-| Legacy task plans | `docs/tasks/**` (history; no new folders) |
+| Legacy task plans | `specs/001-*` through `specs/044-*` (history; mapping in `specs/README.md`) |
 
 One feature = one Story = one branch `<NNN>-<slug>` is Spec Kit's default; this repo overrides it to `<type>/<issue>-<slug>` (see `github-workflow`). Pass the issue number in the spec header (`Story: #123`).
 
