@@ -70,3 +70,9 @@ First useful increment: shell and dashboard (US1+US2). Then responsive browse/fo
 T001 baseline was inspected at desktop and phone widths; Story linkage remains pending. T002 covers shell, selection, filters, job validation, EN/ZH, six routes at 200% text, and reduced motion. Candidate profile already uses readable card sections and was retained; no new profile behavior was needed. T016 keeps theme tokens unchanged. T017 cannot be marked complete while seeded/mutation cases cannot pass against the read-only fixture. No skip was added; two obsolete UI assertions now check the specified conditional selection area. T018 PR body is prepared locally, but the user explicitly authorized branch/commit/push after automatic approval rejection.
 
 Draft PR published: [#248](https://github.com/dczii/URecruitment/pull/248), base main, branch codex/ui-experience-polish. Includes only 44 task-owned files; no secrets, unrelated workflow commits or dirty workspace documents. Seeded-database acceptance and Claude review remain open.
+
+## CI follow-up — T019
+
+Fix `e2e/ui-polish.spec.ts` assumptions about local fixture names: use page-provided candidate/client data while retaining selection/filter assertions; exercise long EN/ZH form entries at 200% text rather than expecting a particular seeded Chinese candidate. Reproduce with alternate fictional fixture names before editing. Update quickstart/checklist with actual local and GitHub results. No new skips, weakened assertions, app behavior or dependencies. User authorizes updating PR #248.
+
+T019 local verification completed: alternate-name fixture reproduces the failure before the fix, then 18 desktop/phone UI cases pass. Lint/typecheck and 334 unit tests pass. No app/config/workflow changes or new skips.

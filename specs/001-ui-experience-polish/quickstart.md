@@ -68,3 +68,11 @@ All changed selection, itemized-validation, shell and zoom cases pass in the ful
 ## Exact PR checkout validation
 
 Branch `codex/ui-experience-polish` starts at `origin/main`, excluding the source checkout’s two unrelated workflow/runtime commits. No environment file, package change or backend change is included. Existing lockfile dependencies were installed with npm ci. On Node 22.23.2: lint passes with two pre-existing warnings, typecheck passes, all 334 unit tests pass, and the production build/client-leak scan passes. The full read-only E2E run has 39 pass/7 fail/30 existing skips; every shell/redesign case passes, including 200% text on both projects. User explicitly authorized task branch/commit/push and draft PR creation after the prior rejection. Spec Kit infrastructure remains on the separate source workflow branch; this PR includes only its feature documents and the UI change.
+
+## CI seed-name regression — 2026-10-02
+
+GitHub run 36974232037 had four failures, all in ui-polish.spec.ts: two tests at each width assumed the local names “Fictional Candidate” and “虚构候选人” were seeded on the preview. The other 42 cases passed and 30 existing conditions skipped.
+
+T019 removes the data coupling, preserving six-column, candidate-specific accessible-name, checked/cleared selection, preview count, filter/URL reset, six-route zoom, EN/ZH font and input assertions. The Chinese case now enters long EN/ZH text into the real job form, without saving a job. No test is skipped or removed, and app code/config/workflows are unchanged.
+
+Before the fix, alternate fictional candidate/client names reproduce both selection failures (desktop/phone). After the fix, ui-polish and shell pass 18/18 with the alternate fixture, lint and typecheck pass, and all 334 unit tests pass. Build is not repeated because only test/docs files changed; the verified app build is unchanged. CI confirmation follows the pushed commit.

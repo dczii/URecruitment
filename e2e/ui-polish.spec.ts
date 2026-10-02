@@ -18,11 +18,21 @@ test("AC4–7: aligned attention rows, reversible selection and filters", async 
   const table=page.getByRole('table').first();
   await expect(table.getByRole('columnheader')).toHaveCount(6);
   await expect(page.getByRole('complementary',{name:'Selection'})).toHaveCount(0);
-  await page.getByRole('checkbox',{name:'Select Fictional Candidate',exact:true}).check();
+  // Preview and local fixture datasets have different fictional names.
+  // Verify that the control identifies the candidate it actually selects.
+  const row = table.locator('tbody tr').first();
+  const candidateName = (await row.locator('[data-label="Candidate"]').innerText()).trim();
+  expect(candidateName).not.toBe('');
+  const selection = row.getByRole('checkbox');
+  await expect(selection).toHaveAccessibleName(`Select ${candidateName}`);
+  await selection.check();
+  await expect(selection).toBeChecked();
   await expect(page.getByRole('complementary',{name:'Selection'})).toContainText('1 candidate selected');
   await page.getByRole('button',{name:'Clear selection'}).click();
   await expect(page.getByRole('complementary',{name:'Selection'})).toHaveCount(0);
-  await page.getByLabel('Client',{exact:true}).selectOption('Fictional Client');
+  await expect(selection).not.toBeChecked();
+  await page.getByLabel('Client',{exact:true}).selectOption({index:1});
+  await expect(page).toHaveURL(/client=/);
   await expect(page.getByRole('button',{name:'Clear filters'})).toBeVisible();
   await page.getByRole('button',{name:'Clear filters'}).click();
   await expect(page).toHaveURL(/\/dashboard$/);
@@ -60,7 +70,17 @@ test("AC8: long EN/ZH content and 200% text remain within the viewport", async (
     await page.addStyleTag({content:'html { font-size: 200% !important; }'});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), route).toBe(true);
   }
+  // Exercise Chinese and long unbroken English through the actual form,
+  // without depending on a particular seeded candidate or writing to the DB.
+  const title = `Fictional${'Engineering'.repeat(16)}虚构职位`;
+  const owner = '虚构招聘员用于验证中文文字换行与字体';
+  await page.getByLabel('Job title').fill(title);
+  await page.getByLabel('Owner name').fill(owner);
+  const heading = page.getByRole('heading',{level:1});
+  await expect(heading).toHaveText(`Create job — ${title}`);
+  await expect(page.getByLabel('Owner name')).toHaveValue(owner);
+  expect(await heading.evaluate(e=>getComputedStyle(e).fontFamily)).toMatch(/Noto Sans SC/);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.goto('/dashboard');
-  await expect(page.getByText('虚构候选人',{exact:true})).toBeVisible();
   await page.screenshot({path:`test-results/design-${info.project.name}.png`,fullPage:true});
 });
