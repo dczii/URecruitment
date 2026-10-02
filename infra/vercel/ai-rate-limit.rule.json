@@ -1,12 +1,10 @@
 {
   "name": "Rate limit AI routes",
-  "description": "URecruitment #93: at most 60 requests per 60 s per IP to /api/ai/*. Excess gets 429. Bounds speed only; the monthly spend cap bounds total cost.",
+  "description": "HRManagement #93: at most 60 requests per 60 s per IP to /api/ai/*. Excess gets 429. Bounds speed only; the monthly spend cap bounds total cost.",
   "active": true,
   "conditionGroup": [
     {
-      "conditions": [
-        { "type": "path", "op": "pre", "value": "/api/ai/" }
-      ]
+      "conditions": [{ "type": "path", "op": "pre", "value": "/api/ai/" }]
     }
   ],
   "action": {

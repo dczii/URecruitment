@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Idempotently create the URecruitment label set and milestones.
+# Idempotently create the HRManagement label set and milestones.
 # Usage: setup-labels.sh
 set -euo pipefail
 # shellcheck source=_lib.sh

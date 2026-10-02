@@ -1,19 +1,19 @@
 # AGENTS.md — rules for coding agents (Cursor / Grok)
 
-You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `docs/tasks/<issue>-<slug>/` and reviews everything you write. Your prompt names the plan step to implement. Do that step, no more.
+You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `specs/<NNN-feature>/` (Spec Kit) and reviews everything you write. Your prompt names the task id in `tasks.md` to implement. Do that task, no more.
 
 ## Before you edit
 
-1. Read the `plan.md` your prompt points to (problem, ACs, and the named step).
-2. Read every `.claude/skills/<name>/SKILL.md` your prompt names. They are plain Markdown; read them as files.
+1. Read `.specify/memory/constitution.md`, then the `spec.md`, `plan.md` and `tasks.md` your prompt points to (acceptance scenarios and the named task).
+2. Read `.claude/skills/project-map/SKILL.md` and every other `.claude/skills/<name>/SKILL.md` your prompt names. They are plain Markdown; read them as files, and read the documents they point to.
 3. Read the files you are about to change, plus their tests.
 
 ## Scope
 
-- Change only the files the plan step lists. If another file must change, change it and say so in your final report.
+- Change only the files the task lists. If another file must change, change it and say so in your final report.
 - **Do not** run `git commit`, `git push`, create or switch branches, or edit anything under `.git/`. Claude commits.
 - **Never push directly to `main` or merge a pull request.** Changes reach `main` only through a PR that the user merges manually.
-- **Do not** edit `docs/tasks/**`, `.claude/**`, `AGENTS.md`, `CLAUDE.md` or `.github/**` unless the step says so.
+- **Do not** edit `specs/**`, `.specify/**`, `docs/tasks/**`, `.claude/**`, `AGENTS.md`, `CLAUDE.md` or `.github/**` unless the task says so.
 - **Do not** add npm dependencies the plan doesn't list. If one is needed, stop and report it.
 - **Do not** run anything against a remote Supabase project, Vercel, or GitHub.
 - Use **npm**. Never pnpm, yarn or bun.
@@ -45,7 +45,7 @@ You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `docs
 
 ## Tests
 
-- Logic is **test-first**. When the step says "write failing tests", write only the tests, run them, and confirm they fail for the right reason.
+- Logic is **test-first**. When the task says "write failing tests", write only the tests, run them, and confirm they fail for the right reason.
 - Vitest for logic (`*.test.ts` next to the code). Playwright for screens (`e2e/`), at desktop and phone width.
 - Never delete or weaken a test to make it pass. Never mark a test `.skip` without saying so in your report.
 
@@ -55,8 +55,8 @@ You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `docs
 npm run lint
 npm run typecheck
 npm test
-npm run build            # when the step touches app code
-npm run test:e2e         # when the step touches a screen
+npm run build            # when the task touches app code
+npm run test:e2e         # when the task touches a screen
 ```
 
 Skip any script that doesn't exist yet, and say so.

@@ -2,11 +2,11 @@
 
 ## Status
 
-**Accepted** · 2026-09-17 · created by [#71](https://github.com/dczii/URecruitment/issues/71)
-(story [#19](https://github.com/dczii/URecruitment/issues/19), epic
-[#1](https://github.com/dczii/URecruitment/issues/1))
+**Accepted** · 2026-09-17 · created by [#71](https://github.com/dczii/HRManagement/issues/71)
+(story [#19](https://github.com/dczii/HRManagement/issues/19), epic
+[#1](https://github.com/dczii/HRManagement/issues/1))
 
-The PRD *suggests* this architecture. This record is the team committing to it, and marking which
+The PRD _suggests_ this architecture. This record is the team committing to it, and marking which
 parts a later task may still argue with. Read [README.md](README.md) for the status vocabulary.
 
 Companions: [ADR-0002](adr-0002-data-model.md) (the data model this boundary protects) and
@@ -14,7 +14,7 @@ Companions: [ADR-0002](adr-0002-data-model.md) (the data model this boundary pro
 
 ## Context
 
-URecruitment replaces Manatal for the 6–20 recruiters of a Singapore recruitment agency. The MVP is
+HRManagement replaces Manatal for the 6–20 recruiters of a Singapore recruitment agency. The MVP is
 due **mid-December 2026**, runs on **fictional data only**, and ends with a go/no-go on real data.
 
 Four facts drive every boundary in this record:
@@ -50,10 +50,10 @@ With no sign-in, there is no per-user authorisation to enforce and nothing to en
 **The browser never reaches Supabase and never reaches the AI provider.** Three rules make that
 true, and all three must hold together.
 
-> **These three are not arguable.** The PRD states them under *"Security (suggested)"*, and
+> **These three are not arguable.** The PRD states them under _"Security (suggested)"_, and
 > `prd-context` therefore renders them **proposed** — but `CLAUDE.md` hard rule 3 makes server-only
 > data access and RLS-with-no-public-policies binding, and [ADR-0002](adr-0002-data-model.md) D2
-> repeats the lock-down as **not negotiable**. The PRD status below records how firmly the *PRD*
+> repeats the lock-down as **not negotiable**. The PRD status below records how firmly the _PRD_
 > worded each one; it does **not** license a later task to weaken it. Changing any of the three
 > needs a record superseding this one.
 
@@ -63,7 +63,7 @@ true, and all three must hold together.
 2. **RLS is enabled on every table with no public policies**, and every table, view and function is
    revoked from `anon` and `authenticated` (PRD Security 2, proposed). So even if a publishable key
    did reach the browser, it reads nothing. This is the belt to D1.1's braces, and it is tested:
-   [#113](https://github.com/dczii/URecruitment/issues/113) proves the publishable key reads nothing
+   [#113](https://github.com/dczii/HRManagement/issues/113) proves the publishable key reads nothing
    from every table.
 3. **The CV and JD bucket is private** (PRD Security 3, proposed). Files open only through
    `createSignedUrl(path, ≤ 300 s)` generated on the server. Signed URLs are never persisted.
@@ -73,26 +73,26 @@ from middleware.
 
 ### D2 — Which code may touch Supabase, and where AI calls run
 
-| Component | Runs on | May reach Supabase? | May reach the AI provider? |
-|---|---|---|---|
-| Client components (`"use client"`) | Browser | **No** | **No** |
-| Server Components | Vercel `sin1` | Yes, via `src/server/db` | No — they read stored results |
-| Server Actions | Vercel `sin1` | Yes, via `src/server/db` | Yes, via `src/server/ai` |
-| Route handlers under `/api/ai/*` | Vercel `sin1` | Yes, via `src/server/db` | Yes, via `src/server/ai` |
-| `after()` background work | Vercel `sin1` | Yes | Yes |
-| Seed and eval scripts | Dev machine or CI | Yes, with the secret key from env | Yes, through the app's own services |
-| Middleware | Vercel edge | **No** | **No** |
+| Component                          | Runs on           | May reach Supabase?               | May reach the AI provider?          |
+| ---------------------------------- | ----------------- | --------------------------------- | ----------------------------------- |
+| Client components (`"use client"`) | Browser           | **No**                            | **No**                              |
+| Server Components                  | Vercel `sin1`     | Yes, via `src/server/db`          | No — they read stored results       |
+| Server Actions                     | Vercel `sin1`     | Yes, via `src/server/db`          | Yes, via `src/server/ai`            |
+| Route handlers under `/api/ai/*`   | Vercel `sin1`     | Yes, via `src/server/db`          | Yes, via `src/server/ai`            |
+| `after()` background work          | Vercel `sin1`     | Yes                               | Yes                                 |
+| Seed and eval scripts              | Dev machine or CI | Yes, with the secret key from env | Yes, through the app's own services |
+| Middleware                         | Vercel edge       | **No**                            | **No**                              |
 
 Concretely:
 
-- **Only `src/server/**` may hold a Supabase client or a provider package.** Every file there starts
-  with `import "server-only"`, so a stray client-side import fails the build rather than shipping.
+- **Only `src/server/**`may hold a Supabase client or a provider package.** Every file there starts
+with`import "server-only"`, so a stray client-side import fails the build rather than shipping.
 - **Only `src/server/ai/provider.ts` imports a provider package.** Everything else asks it for a
   model by role (`parse`, `match`, `gap`, `search`, `jd`, `embed`). See
   [ADR-0003](adr-0003-ai-provider.md).
 - **AI work runs behind `/api/ai/*` route handlers, or in services called from Server Actions**, so
   it can be rate-limited **by path** — a Vercel firewall rule if the plan offers one, otherwise an
-  app-level limiter backed by Supabase. [#175](https://github.com/dczii/URecruitment/issues/175)
+  app-level limiter backed by Supabase. [#175](https://github.com/dczii/HRManagement/issues/175)
   picks one and records which in its spec. With no sign-in, an unbounded AI route is an open
   invitation to run up the agency's bill.
 - **No AI call happens on page load** (PRD main flow 2, proposed). Pages read stored results. This
@@ -106,7 +106,7 @@ Concretely:
   first guardrail; [ADR-0003](adr-0003-ai-provider.md) C7 restates it at the provider boundary.
 
 - **Paths are the layout `nextjs-app` proposes**, which that skill marks provisional until the
-  scaffold task [#83](https://github.com/dczii/URecruitment/issues/83) (E01-S01-T01) confirms it. The
+  scaffold task [#83](https://github.com/dczii/HRManagement/issues/83) (E01-S01-T01) confirms it. The
   **rule** — server-only code sits behind one boundary the browser cannot import — is what this
   record fixes; if #83 renames a directory, it updates the paths here and in
   [ADR-0003](adr-0003-ai-provider.md) C1.
@@ -128,14 +128,14 @@ The PRD names five main flows (all **proposed**). Each stage below says where it
 
 `npm run seed`, dev machine or CI, once.
 
-| Stage | Runs on | Note |
-|---|---|---|
-| `list()` the public Vercel Blob store | Script | `BLOB_READ_WRITE_TOKEN` from env; **`list()` only**, never `put`, `copy` or `del` |
-| Check each listed URL against `SEED_BLOB_BASE_URL`, download | Script | Downloads use the public URL, no token. Files go to a temp directory and are never committed |
-| Classify CV vs JD, convert legacy `.doc` | Script | Serverless cannot run the converter, so the seed does it first |
-| Upload to the **private** Supabase bucket | Script → Supabase | The app afterwards reads files only from there. The public blob URL is never stored |
-| Parse → embed → score against every job | Script → app services → AI | **Through the real parser**, never a separate code path (PRD, decided) |
-| Back-date stage entries | Script → Supabase | So all three delay statuses show from day one |
+| Stage                                                        | Runs on                    | Note                                                                                         |
+| ------------------------------------------------------------ | -------------------------- | -------------------------------------------------------------------------------------------- |
+| `list()` the public Vercel Blob store                        | Script                     | `BLOB_READ_WRITE_TOKEN` from env; **`list()` only**, never `put`, `copy` or `del`            |
+| Check each listed URL against `SEED_BLOB_BASE_URL`, download | Script                     | Downloads use the public URL, no token. Files go to a temp directory and are never committed |
+| Classify CV vs JD, convert legacy `.doc`                     | Script                     | Serverless cannot run the converter, so the seed does it first                               |
+| Upload to the **private** Supabase bucket                    | Script → Supabase          | The app afterwards reads files only from there. The public blob URL is never stored          |
+| Parse → embed → score against every job                      | Script → app services → AI | **Through the real parser**, never a separate code path (PRD, decided)                       |
+| Back-date stage entries                                      | Script → Supabase          | So all three delay statuses show from day one                                                |
 
 Volume: about 200 parsing calls and 1,000 scoring calls (20 jobs × 50 candidates), once.
 
@@ -151,7 +151,7 @@ Server Action, `sin1`. In order: validate with Zod → write a new immutable
 `job_versions` row → run the gap check (one AI call) → **respond to the recruiter** → then
 `after(() => rescoreJob(versionId))` re-scores up to 50 candidates in the background. Progress is
 persisted per candidate in a runs table, so a failed run is retryable from the UI or the seed
-([#150](https://github.com/dczii/URecruitment/issues/150)). Queue state lives **in Supabase**, not in
+([#150](https://github.com/dczii/HRManagement/issues/150)). Queue state lives **in Supabase**, not in
 an external job service, because several managed job services keep run data in the US and CV text
 would leave Singapore.
 
@@ -159,7 +159,7 @@ would leave Singapore.
 
 Route handler or service, `sin1`. One AI call turns plain language into filters
 plus search text; then **one** Postgres query combines the PGroonga keyword score, the pgvector
-distance and the hard filters ([#153](https://github.com/dczii/URecruitment/issues/153)). Target:
+distance and the hard filters ([#153](https://github.com/dczii/HRManagement/issues/153)). Target:
 under 3 seconds. Model output that becomes a filter is validated against allowed fields and value
 types — it never becomes SQL.
 
@@ -185,21 +185,21 @@ Every layer in the PRD's technical-choices table, with the status that tells a l
 room it has. **decided** = build as written; **proposed** = build as written, may be argued with a
 reason recorded in the spec.
 
-| Layer | Choice | PRD status | Note for later tasks |
-|---|---|---|---|
-| Design | pen.dev, `.pen` files in the repo | **decided** | Designs are authored only through the pencil MCP; readable mirrors live in `design/` |
-| Frontend | Next.js App Router, TypeScript strict | **decided** | Server Components by default |
-| UI components | Tailwind + shadcn/ui, themed from pen.dev tokens | **proposed** | No hard-coded colours or fonts; tokens only |
-| Backend | Supabase Postgres, Storage, Edge Functions if needed | **decided** | No Edge Function is planned for the MVP |
-| Hosting | Vercel, functions pinned to `sin1` | **decided** | `vercel.json` sets `"regions": ["sin1"]` and no other region |
-| DB region | Supabase `ap-southeast-1` | **decided** | The one project Preview and Production share ([#193](https://github.com/dczii/URecruitment/issues/193)) |
-| Plans | Vercel Hobby, Supabase Free | **decided** | See the risk below — Hobby is non-commercial |
-| Backups | None; rebuild from the seed | **decided** | Migrations + seed **are** the recovery plan |
-| Email | None | **decided** | No mail library, no SMTP, no Resend. Ever |
-| Search | pgvector (meaning) + PGroonga (EN/ZH keyword) | **proposed** | One hybrid SQL function, not two round trips |
-| AI access | Vercel AI SDK | **proposed** | The provider behind it is **open** — [ADR-0003](adr-0003-ai-provider.md) |
-| Monitoring | Vercel runtime logs + Sentry | **proposed** | Scrub `beforeSend`: no CV text, contact details or prompts |
-| Testing | Vitest, Playwright, AI quality script | **proposed** | Logic is test-first; screens are tested at desktop **and** phone width |
+| Layer         | Choice                                               | PRD status   | Note for later tasks                                                                                    |
+| ------------- | ---------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------- |
+| Design        | pen.dev, `.pen` files in the repo                    | **decided**  | Designs are authored only through the pencil MCP; readable mirrors live in `design/`                    |
+| Frontend      | Next.js App Router, TypeScript strict                | **decided**  | Server Components by default                                                                            |
+| UI components | Tailwind + shadcn/ui, themed from pen.dev tokens     | **proposed** | No hard-coded colours or fonts; tokens only                                                             |
+| Backend       | Supabase Postgres, Storage, Edge Functions if needed | **decided**  | No Edge Function is planned for the MVP                                                                 |
+| Hosting       | Vercel, functions pinned to `sin1`                   | **decided**  | `vercel.json` sets `"regions": ["sin1"]` and no other region                                            |
+| DB region     | Supabase `ap-southeast-1`                            | **decided**  | The one project Preview and Production share ([#193](https://github.com/dczii/HRManagement/issues/193)) |
+| Plans         | Vercel Hobby, Supabase Free                          | **decided**  | See the risk below — Hobby is non-commercial                                                            |
+| Backups       | None; rebuild from the seed                          | **decided**  | Migrations + seed **are** the recovery plan                                                             |
+| Email         | None                                                 | **decided**  | No mail library, no SMTP, no Resend. Ever                                                               |
+| Search        | pgvector (meaning) + PGroonga (EN/ZH keyword)        | **proposed** | One hybrid SQL function, not two round trips                                                            |
+| AI access     | Vercel AI SDK                                        | **proposed** | The provider behind it is **open** — [ADR-0003](adr-0003-ai-provider.md)                                |
+| Monitoring    | Vercel runtime logs + Sentry                         | **proposed** | Scrub `beforeSend`: no CV text, contact details or prompts                                              |
+| Testing       | Vitest, Playwright, AI quality script                | **proposed** | Logic is test-first; screens are tested at desktop **and** phone width                                  |
 
 Two layer choices carry an explicit warning:
 
@@ -246,12 +246,12 @@ named owner. Nothing in this record resolves it.
 
 ## Rejected alternatives
 
-| Alternative | Why not |
-|---|---|
+| Alternative                                                                    | Why not                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Browser talks to Supabase directly with a publishable key and RLS policies** | The normal Supabase pattern, and the reason it fails here is that there is no sign-in. RLS policies need a user identity to filter on; with none, any policy permissive enough to be useful exposes every CV to anyone with the URL. So: no public policies, and the server holds the only key. |
-| **A scheduled job writes delay status into a column** | Vercel Hobby runs cron once a day, so the column would be stale for up to 24 hours, and a limit changed mid-stage would not take effect until the next run. A view is always correct and costs nothing. |
-| **A managed queue (QStash, Inngest, a third-party worker) for re-scoring** | Several keep run data in the US, so CV text would leave Singapore — against the PDPA overseas-transfer position. `after()` plus a runs table in Supabase keeps state in region and retryable. |
-| **Edge runtime for the AI routes** | Pinning to `sin1` on the Node runtime keeps execution in Singapore and keeps PDF/DOCX extraction libraries available. Edge would spread execution and restrict the runtime for no gain here. |
-| **Email or Teams/WhatsApp alerts for overdue candidates** | The PRD rules out email entirely (decided); Teams and WhatsApp are explicitly "later". Delays surface on the dashboard, filterable by job owner. |
-| **A separate Express/Nest API in front of Supabase** | A second deployable to run, secure and keep in `sin1`, for no benefit: Server Actions and route handlers already are the server tier. |
-| **Paid plans from the start (Vercel Pro, Supabase Pro)** | The PRD fixes free tiers for the MVP (decided) and makes the upgrade a named trigger — before recruiters do real work. Building on free tiers also forces the constraints (a view instead of cron, re-seed instead of backups) to be designed in rather than discovered later. |
+| **A scheduled job writes delay status into a column**                          | Vercel Hobby runs cron once a day, so the column would be stale for up to 24 hours, and a limit changed mid-stage would not take effect until the next run. A view is always correct and costs nothing.                                                                                         |
+| **A managed queue (QStash, Inngest, a third-party worker) for re-scoring**     | Several keep run data in the US, so CV text would leave Singapore — against the PDPA overseas-transfer position. `after()` plus a runs table in Supabase keeps state in region and retryable.                                                                                                   |
+| **Edge runtime for the AI routes**                                             | Pinning to `sin1` on the Node runtime keeps execution in Singapore and keeps PDF/DOCX extraction libraries available. Edge would spread execution and restrict the runtime for no gain here.                                                                                                    |
+| **Email or Teams/WhatsApp alerts for overdue candidates**                      | The PRD rules out email entirely (decided); Teams and WhatsApp are explicitly "later". Delays surface on the dashboard, filterable by job owner.                                                                                                                                                |
+| **A separate Express/Nest API in front of Supabase**                           | A second deployable to run, secure and keep in `sin1`, for no benefit: Server Actions and route handlers already are the server tier.                                                                                                                                                           |
+| **Paid plans from the start (Vercel Pro, Supabase Pro)**                       | The PRD fixes free tiers for the MVP (decided) and makes the upgrade a named trigger — before recruiters do real work. Building on free tiers also forces the constraints (a view instead of cron, re-seed instead of backups) to be designed in rather than discovered later.                  |

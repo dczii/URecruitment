@@ -2,14 +2,14 @@
 
 ## Status
 
-**Open** · 2026-09-17 · created by [#73](https://github.com/dczii/URecruitment/issues/73)
-(story [#19](https://github.com/dczii/URecruitment/issues/19), epic
-[#1](https://github.com/dczii/URecruitment/issues/1))
+**Open** · 2026-09-17 · created by [#73](https://github.com/dczii/HRManagement/issues/73)
+(story [#19](https://github.com/dczii/HRManagement/issues/19), epic
+[#1](https://github.com/dczii/HRManagement/issues/1))
 
 > **The AI provider has not been chosen, and this record does not choose it.**
 > It records the criteria, the contract every AI call must satisfy so that no code depends on a
 > provider, who owns the choice and what unblocks it. A task that needs the answer is blocked (D5);
-> a task that only needs the *shape* can build against the contract (D2) today.
+> a task that only needs the _shape_ can build against the contract (D2) today.
 >
 > When the choice is made it is recorded in a **new** record that supersedes this one. Nothing
 > settles it in a PR, a prompt or an env var alone.
@@ -22,13 +22,13 @@ Read [README.md](README.md) for the status vocabulary.
 
 The PRD is explicit on both halves of this:
 
-> **AI governance 6 (decided):** *"The dev team picks the provider, weighing Simplified Chinese
+> **AI governance 6 (decided):** _"The dev team picks the provider, weighing Simplified Chinese
 > quality, cost and **where data is processed**. If real CVs are processed outside Singapore, PDPA
-> overseas-transfer rules apply."*
+> overseas-transfer rules apply."_
 >
-> **Integrations → AI model provider (MVP):** provider *"still to decide"*.
+> **Integrations → AI model provider (MVP):** provider _"still to decide"_.
 
-So the *right to choose* is decided and sits with the dev team; the *choice* is **open**. Meanwhile
+So the _right to choose_ is decided and sits with the dev team; the _choice_ is **open**. Meanwhile
 five capabilities — CV parsing, job-description extraction, match scoring, gap check and search-query
 parsing — plus embeddings all depend on a model, and they are most of the MVP.
 
@@ -50,7 +50,7 @@ No provider is selected, recommended or implied by this record. No provider pack
 
 ### D2 — The provider-agnostic contract
 
-Every AI call in URecruitment satisfies all of these. They are what application code may assume;
+Every AI call in HRManagement satisfies all of these. They are what application code may assume;
 nothing else about a provider may be assumed anywhere.
 
 **C1 — One import site.** Access goes through the **Vercel AI SDK** (PRD technical choices → AI
@@ -71,7 +71,7 @@ retry **once** with the validation error appended, then fail. Calls use low temp
 explicit timeout.
 
 **C4 — One wrapper, one audit row.** Every call goes through `runAi()`
-([#169](https://github.com/dczii/URecruitment/issues/169)), which writes an `ai_runs` row **before**
+([#169](https://github.com/dczii/HRManagement/issues/169)), which writes an `ai_runs` row **before**
 the call (`status='running'`, step, prompt id and version, provider, model id, model version, input
 reference and SHA-256 of the input) and updates it after (output, token counts, cost, duration,
 `status='succeeded'|'failed'`, an error message **carrying no CV text**). It returns the typed result
@@ -87,10 +87,10 @@ from anything sent for matching or scoring:
   skill rather than the PRD, because each is a close proxy for one of the seven.
 
 **Nationality and language are
-included only when the job version marks that requirement as required *and* carries a non-empty
+included only when the job version marks that requirement as required _and_ carries a non-empty
 written reason** (PRD, **decided**). This is a property of the input, not of the prompt, so it cannot
 be lost by changing provider or wording, and unit tests prove each attribute is absent from the model
-input. *Known gap, recorded not fixed:* the Workplace Fairness Act (end-2027) also covers pregnancy,
+input. _Known gap, recorded not fixed:_ the Workplace Fairness Act (end-2027) also covers pregnancy,
 caregiving, disability and mental health, which the PRD does not yet exclude explicitly. **Do not add
 them as scoring inputs.**
 
@@ -110,7 +110,7 @@ output rejects, advances, shortlists or contacts a candidate, or sends anything 
 (`AI_MONTHLY_SPEND_CAP`, summed from `ai_runs.cost`) and fails fast without calling the model. AI
 routes live under `/api/ai/*` and are **rate-limited by path** — a Vercel firewall rule if the plan
 offers one, otherwise an app-level limiter backed by Supabase;
-[#175](https://github.com/dczii/URecruitment/issues/175) picks one and records which. Necessary
+[#175](https://github.com/dczii/HRManagement/issues/175) picks one and records which. Necessary
 because the MVP has no sign-in, so anyone with the URL could otherwise run up the agency's bill. Retries are for transient
 errors only (rate limit, 5xx), with backoff, at most 3 attempts.
 
@@ -130,11 +130,11 @@ needs any of those needs a new record first.
 
 **From the PRD (decided).** These three are the stated basis for the choice:
 
-| # | Criterion | What to evidence |
-|---|---|---|
-| 1 | **Simplified Chinese quality** | Parsing and scoring graded on the ~20 Chinese sample CVs **separately from English**, against the same bar. The PRD is explicit that ZH is not assumed to follow EN |
-| 2 | **Cost** | Priced against the real MVP volume (D4) and the ongoing per-save re-score, against `AI_MONTHLY_SPEND_CAP` |
-| 3 | **Where data is processed** | The processing region(s) in writing. Hosting stays in Singapore; a provider processing abroad must protect data to a comparable standard once real CVs arrive (PDPA overseas transfer, **decided**) |
+| #   | Criterion                      | What to evidence                                                                                                                                                                                    |
+| --- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Simplified Chinese quality** | Parsing and scoring graded on the ~20 Chinese sample CVs **separately from English**, against the same bar. The PRD is explicit that ZH is not assumed to follow EN                                 |
+| 2   | **Cost**                       | Priced against the real MVP volume (D4) and the ongoing per-save re-score, against `AI_MONTHLY_SPEND_CAP`                                                                                           |
+| 3   | **Where data is processed**    | The processing region(s) in writing. Hosting stays in Singapore; a provider processing abroad must protect data to a comparable standard once real CVs arrive (PDPA overseas transfer, **decided**) |
 
 **Operational, derived from the contract above** (not PRD text — recorded here so the comparison is
 complete): ability to meet C3 (reliable schema-conformant JSON), the MVP capabilities in D4, latency
@@ -142,15 +142,15 @@ against the PRD's targets, and terms of use that permit this application.
 
 ### D4 — What the MVP needs from a provider
 
-| # | Requirement | Where it comes from |
-|---|---|---|
-| R1 | **Structured JSON against a fixed schema** for all five steps: CV parsing, JD extraction, match scoring, gap check, search-query parsing | Contract C3 |
-| R2 | **English and Simplified Chinese at comparable quality**, since EN and ZH are graded separately against the same bar: **≥ 90%** of parsed fields correct, recruiters agreeing with **≥ 80%** of top-5 rankings | PRD quality bar (**decided**) |
-| R3 | **Direct PDF file input.** Some Chinese PDFs extract poorly; the fallback sends **the PDF itself** to a model that reads PDFs ([#128](https://github.com/dczii/URecruitment/issues/128)). Which path was used is recorded in `ai_runs` | PRD AI pipeline → Chinese PDFs |
-| R4 | **Multilingual embeddings** covering EN and Simplified Chinese — from the same provider or a second one (C9) | PRD AI pipeline → Embeddings |
-| R5 | **Volume:** seeding is roughly **200 parsing calls** and **1,000 scoring calls** (20 jobs × 50 candidates), once; afterwards each job save re-scores up to 50 candidates | PRD, MVP volume |
-| R6 | **Latency:** a CV parsed in **under 30 s**; search results in **under 3 s** (the search model call plus one Postgres query) | PRD speed targets (**decided**) |
-| R7 | **A written data-processing location** and terms permitting this use | Criterion 3 |
+| #   | Requirement                                                                                                                                                                                                                            | Where it comes from             |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| R1  | **Structured JSON against a fixed schema** for all five steps: CV parsing, JD extraction, match scoring, gap check, search-query parsing                                                                                               | Contract C3                     |
+| R2  | **English and Simplified Chinese at comparable quality**, since EN and ZH are graded separately against the same bar: **≥ 90%** of parsed fields correct, recruiters agreeing with **≥ 80%** of top-5 rankings                         | PRD quality bar (**decided**)   |
+| R3  | **Direct PDF file input.** Some Chinese PDFs extract poorly; the fallback sends **the PDF itself** to a model that reads PDFs ([#128](https://github.com/dczii/HRManagement/issues/128)). Which path was used is recorded in `ai_runs` | PRD AI pipeline → Chinese PDFs  |
+| R4  | **Multilingual embeddings** covering EN and Simplified Chinese — from the same provider or a second one (C9)                                                                                                                           | PRD AI pipeline → Embeddings    |
+| R5  | **Volume:** seeding is roughly **200 parsing calls** and **1,000 scoring calls** (20 jobs × 50 candidates), once; afterwards each job save re-scores up to 50 candidates                                                               | PRD, MVP volume                 |
+| R6  | **Latency:** a CV parsed in **under 30 s**; search results in **under 3 s** (the search model call plus one Postgres query)                                                                                                            | PRD speed targets (**decided**) |
+| R7  | **A written data-processing location** and terms permitting this use                                                                                                                                                                   | Criterion 3                     |
 
 There is **no OCR requirement**: scanned or image-only CVs are out of scope and are rejected with a
 clear message (**decided**).
@@ -162,7 +162,7 @@ clear message (**decided**).
 > **C9 is a real constraint, not a hypothetical one.** Any evaluation starts from D3 and D4 with no
 > candidate pre-favoured.
 
-> **On the shortlist.** [#73](https://github.com/dczii/URecruitment/issues/73) asks for "the
+> **On the shortlist.** [#73](https://github.com/dczii/HRManagement/issues/73) asks for "the
 > criteria, the shortlist and — most importantly — the contract". This record gives the criteria
 > (D3), the requirements a candidate must meet (D4) and the contract (D2), but **deliberately names
 > no shortlist**: the same issue's "Done when" requires that the record "never names a chosen
@@ -174,26 +174,26 @@ clear message (**decided**).
 
 **Blocked on the choice itself — these cannot be completed:**
 
-| Task | Why |
-|---|---|
-| [#111](https://github.com/dczii/URecruitment/issues/111) E03-S01-T03 — `embeddings` migration with pgvector | The **vector dimension** is fixed by the embedding model (C9). The rest of that migration (`match_scores`) is not blocked |
-| [#145](https://github.com/dczii/URecruitment/issues/145) E06-S01-T01 — embedding service | Needs the embedding model and its dimension |
-| [#128](https://github.com/dczii/URecruitment/issues/128) E04-S02-T03 — Chinese PDF fallback | Needs a model that accepts PDF file input (R3) |
+| Task                                                                                                        | Why                                                                                                                       |
+| ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| [#111](https://github.com/dczii/HRManagement/issues/111) E03-S01-T03 — `embeddings` migration with pgvector | The **vector dimension** is fixed by the embedding model (C9). The rest of that migration (`match_scores`) is not blocked |
+| [#145](https://github.com/dczii/HRManagement/issues/145) E06-S01-T01 — embedding service                    | Needs the embedding model and its dimension                                                                               |
+| [#128](https://github.com/dczii/HRManagement/issues/128) E04-S02-T03 — Chinese PDF fallback                 | Needs a model that accepts PDF file input (R3)                                                                            |
 
 **Buildable against the contract now, but not verifiable until the choice is made** — write them,
 test them against a fake model, and leave the model id in env:
 
-| Task | Note |
-|---|---|
-| [#169](https://github.com/dczii/URecruitment/issues/169) E11-S01-T01 — `runAi()` wrapper | The contract *is* its specification (C3, C4, C8, C10) |
-| [#126](https://github.com/dczii/URecruitment/issues/126) E04-S02-T01 — CV parsing prompt and schema | Schema and prompt are provider-neutral |
-| [#138](https://github.com/dczii/URecruitment/issues/138) E05-S02-T01 — JD extraction prompt and schema | " |
-| [#141](https://github.com/dczii/URecruitment/issues/141) E05-S04-T01 — gap-check prompt and schema | " |
-| [#146](https://github.com/dczii/URecruitment/issues/146) E06-S02-T01 — match-scoring prompt and schema | " |
-| [#152](https://github.com/dczii/URecruitment/issues/152) E07-S01-T01 — search-query prompt and filter schema | Filter validation is C7, not provider-specific |
-| [#173](https://github.com/dczii/URecruitment/issues/173) E11-S03-T01 — `npm run eval` | The harness and answer key are provider-neutral; **the grades are not** — the quality bar cannot be signed off until a real model runs |
-| [#175](https://github.com/dczii/URecruitment/issues/175) E11-S04-T01 — rate limit and spend cap | Rate limiting is per route; the cap is a sum over `ai_runs.cost` |
-| [#84](https://github.com/dczii/URecruitment/issues/84) E01-S01-T02 — typed env schema | The `AI_MODEL_*` and `AI_EMBED_MODEL` names are fixed by C2. The **provider key name** is added when the choice is made |
+| Task                                                                                                         | Note                                                                                                                                   |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| [#169](https://github.com/dczii/HRManagement/issues/169) E11-S01-T01 — `runAi()` wrapper                     | The contract _is_ its specification (C3, C4, C8, C10)                                                                                  |
+| [#126](https://github.com/dczii/HRManagement/issues/126) E04-S02-T01 — CV parsing prompt and schema          | Schema and prompt are provider-neutral                                                                                                 |
+| [#138](https://github.com/dczii/HRManagement/issues/138) E05-S02-T01 — JD extraction prompt and schema       | "                                                                                                                                      |
+| [#141](https://github.com/dczii/HRManagement/issues/141) E05-S04-T01 — gap-check prompt and schema           | "                                                                                                                                      |
+| [#146](https://github.com/dczii/HRManagement/issues/146) E06-S02-T01 — match-scoring prompt and schema       | "                                                                                                                                      |
+| [#152](https://github.com/dczii/HRManagement/issues/152) E07-S01-T01 — search-query prompt and filter schema | Filter validation is C7, not provider-specific                                                                                         |
+| [#173](https://github.com/dczii/HRManagement/issues/173) E11-S03-T01 — `npm run eval`                        | The harness and answer key are provider-neutral; **the grades are not** — the quality bar cannot be signed off until a real model runs |
+| [#175](https://github.com/dczii/HRManagement/issues/175) E11-S04-T01 — rate limit and spend cap              | Rate limiting is per route; the cap is a sum over `ai_runs.cost`                                                                       |
+| [#84](https://github.com/dczii/HRManagement/issues/84) E01-S01-T02 — typed env schema                        | The `AI_MODEL_*` and `AI_EMBED_MODEL` names are fixed by C2. The **provider key name** is added when the choice is made                |
 
 **Not blocked at all:** everything with no model call — the scaffold, the schema besides
 `embeddings`, RLS, Storage, working days, the delay view, the pipeline board, the dashboard, the
@@ -210,15 +210,15 @@ The decision is ready to make when all five of these exist:
 1. **A named owner** on this record, not just "the dev team".
 2. **A Chinese and English quality trial** on a sample of the fictional CVs, graded separately, showing
    each shortlisted provider against the bar (≥ 90% fields, ≥ 80% top-5). This needs the answer key
-   ([#170](https://github.com/dczii/URecruitment/issues/170),
-   [#171](https://github.com/dczii/URecruitment/issues/171)) or a throwaway harness — not the full
+   ([#170](https://github.com/dczii/HRManagement/issues/170),
+   [#171](https://github.com/dczii/HRManagement/issues/171)) or a throwaway harness — not the full
    eval script.
 3. **A cost estimate** against the D4 volumes, for the seed and for steady-state re-scoring, set
    against `AI_MONTHLY_SPEND_CAP`.
 4. **The processing location and terms in writing**, assessed against PDPA overseas transfer — the
    criterion that matters after go/no-go rather than during the MVP.
 5. **The embedding model decided** — same provider or a second one — which fixes the vector dimension
-   and unblocks [#111](https://github.com/dczii/URecruitment/issues/111).
+   and unblocks [#111](https://github.com/dczii/HRManagement/issues/111).
 
 **How it gets recorded:** a new record, `adr-0004-ai-provider-selection.md`, states the choice and the
 evidence for each criterion, sets this record to `Superseded by ADR-0004`, and is followed by the env
@@ -255,12 +255,12 @@ count as decided.**
 
 ## Rejected alternatives
 
-| Alternative | Why not |
-|---|---|
-| **Pick a provider now and move on** | The PRD leaves it open and names *where data is processed* as a criterion — a PDPA question that only bites once real CVs arrive, after go/no-go. Choosing on MVP convenience risks committing the agency to a provider it cannot lawfully use later. |
-| **Call provider HTTP APIs directly, no SDK** | The PRD names the Vercel AI SDK (proposed), and a shared SDK is what makes C2's role indirection a config change instead of a rewrite per provider. |
-| **Abstract behind a hand-rolled interface over several providers at once** | Multi-provider abstraction is real work and real bugs to serve a choice that will be made once. One import site (C1) plus roles (C2) gives the same freedom for far less. |
-| **Let each capability pick its own model freely in code** | Model ids would spread across prompts and services, and `ai_runs` could not reliably record the model version a score was keyed to. Env-driven roles keep it in one place. |
-| **Defer all AI work until the provider is chosen** | Would stall most of the MVP against a deadline of mid-December 2026. The contract lets everything except the three D5-blocked tasks proceed. |
-| **Enforce fairness by instructing the model in the prompt** | A prompt is not a control: it varies by provider, by wording and by run, and it cannot be unit-tested. Redaction in code (C5) holds whoever is chosen. |
-| **Record the choice in env vars or the PR that adds the package** | The criteria include a compliance judgment that outlives any PR. It needs a record that can be cited, challenged and superseded. |
+| Alternative                                                                | Why not                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pick a provider now and move on**                                        | The PRD leaves it open and names _where data is processed_ as a criterion — a PDPA question that only bites once real CVs arrive, after go/no-go. Choosing on MVP convenience risks committing the agency to a provider it cannot lawfully use later. |
+| **Call provider HTTP APIs directly, no SDK**                               | The PRD names the Vercel AI SDK (proposed), and a shared SDK is what makes C2's role indirection a config change instead of a rewrite per provider.                                                                                                   |
+| **Abstract behind a hand-rolled interface over several providers at once** | Multi-provider abstraction is real work and real bugs to serve a choice that will be made once. One import site (C1) plus roles (C2) gives the same freedom for far less.                                                                             |
+| **Let each capability pick its own model freely in code**                  | Model ids would spread across prompts and services, and `ai_runs` could not reliably record the model version a score was keyed to. Env-driven roles keep it in one place.                                                                            |
+| **Defer all AI work until the provider is chosen**                         | Would stall most of the MVP against a deadline of mid-December 2026. The contract lets everything except the three D5-blocked tasks proceed.                                                                                                          |
+| **Enforce fairness by instructing the model in the prompt**                | A prompt is not a control: it varies by provider, by wording and by run, and it cannot be unit-tested. Redaction in code (C5) holds whoever is chosen.                                                                                                |
+| **Record the choice in env vars or the PR that adds the package**          | The criteria include a compliance judgment that outlives any PR. It needs a record that can be cited, challenged and superseded.                                                                                                                      |

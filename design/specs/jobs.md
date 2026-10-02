@@ -4,7 +4,7 @@ Visual source: `design/screens/jobs.pen` (`Desktop / Jobs list / Default`, `qIBf
 Design task: #101
 
 Desktop only (1440 px) — no phone frame; superseded by the 2026-09-18 desktop-only decision (see
-`docs/tasks/32-mvp-screen-designs/spec.md`).
+`specs/014-mvp-screen-designs/spec.md`).
 
 ## Purpose
 

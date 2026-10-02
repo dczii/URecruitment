@@ -82,8 +82,25 @@ function textFromPdfItems(items: readonly object[]): string {
   return out;
 }
 
+function ensurePromiseWithResolvers(): void {
+  if (typeof Promise.withResolvers === "function") {
+    return;
+  }
+  // pdfjs-dist v6 calls Promise.withResolvers (Node 22+). Polyfill for Node 20.
+  Promise.withResolvers = function withResolvers<T>() {
+    let resolve!: (value: T | PromiseLike<T>) => void;
+    let reject!: (reason?: unknown) => void;
+    const promise = new Promise<T>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    return { promise, resolve, reject };
+  };
+}
+
 async function extractPdfText(bytes: Uint8Array): Promise<CvExtractionResult> {
   try {
+    ensurePromiseWithResolvers();
     // v6 Node build already uses a fake (in-process) worker; copy `data`
     // because pdf.js may transfer/detach the ArrayBuffer. Local CMap and
     // standard-font paths keep glyph mapping on disk (no network).

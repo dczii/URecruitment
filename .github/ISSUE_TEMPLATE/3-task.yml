@@ -1,5 +1,5 @@
 name: Task
-description: One PR-sized unit of work inside a story. Run it with /task #<number>.
+description: One PR-sized unit of work inside a story. Implement it from the story's Spec Kit tasks.md.
 labels: ["type:task"]
 body:
   - type: textarea

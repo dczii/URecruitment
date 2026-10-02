@@ -81,9 +81,7 @@ describe("sentry-scrub (AC4, AC11)", () => {
       },
     });
 
-    expect(result.request?.url).toBe(
-      "https://portal.example.com/candidates/42",
-    );
+    expect(result.request?.url).toBe("https://portal.example.com/candidates/42");
     expect(String(result.request?.url)).toContain("/candidates/42");
     expect(String(result.request?.url)).not.toContain("?");
     expect(JSON.stringify(result.request)).not.toContain("a@example.com");
@@ -109,17 +107,13 @@ describe("sentry-scrub (AC4, AC11)", () => {
       },
     });
 
-    const runtime = result.contexts?.runtime as
-      | { debug?: { email?: unknown } }
-      | undefined;
+    const runtime = result.contexts?.runtime as { debug?: { email?: unknown } } | undefined;
     expect(runtime?.debug?.email).toBe(REDACTED);
 
     const items = result.contexts?.items as { phone?: unknown }[] | undefined;
     expect(items?.[0]?.phone).toBe(REDACTED);
 
-    expect(JSON.stringify(result.contexts)).not.toContain(
-      "wei.chen@example.com",
-    );
+    expect(JSON.stringify(result.contexts)).not.toContain("wei.chen@example.com");
     expect(JSON.stringify(result.contexts)).not.toContain("+65 8123 4567");
   });
 
@@ -220,7 +214,7 @@ describe("sentry-scrub (AC4, AC11)", () => {
     // traces stay readable.
     const extra = {
       filename: "src/lib/sentry-scrub.ts",
-      hostname: "urecruitment.vercel.app",
+      hostname: "HRManagement.vercel.app",
       jobId: "job-7",
       durationMs: 1234,
     };

@@ -1,4 +1,4 @@
-# URecruitment
+# HRManagement
 
 AI-assisted recruitment portal. Stack, commands and product rules live in `CLAUDE.md`.
 
@@ -32,7 +32,7 @@ export SUPABASE_PUBLISHABLE_KEY=... # the key that must read nothing
 
 Two tests enforce the RLS lock-down, and both matter:
 
-| Test | Needs Docker? | Runs on |
-|---|---|---|
-| `supabase/migrations.test.ts` | no | every PR (`npm test`) — reads the migration SQL and fails any `create table` that does not also enable RLS and revoke from `anon, authenticated` |
-| `supabase/tests/rls.db.test.ts` | yes | `npm run test:db` — proves it against a live stack with the publishable key |
+| Test                            | Needs Docker? | Runs on                                                                                                                                          |
+| ------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `supabase/migrations.test.ts`   | no            | every PR (`npm test`) — reads the migration SQL and fails any `create table` that does not also enable RLS and revoke from `anon, authenticated` |
+| `supabase/tests/rls.db.test.ts` | yes           | `npm run test:db` — proves it against a live stack with the publishable key                                                                      |

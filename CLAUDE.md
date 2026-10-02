@@ -1,21 +1,21 @@
-# URecruitment
+# HRManagement
 
 Recruitment portal for the recruiters (6–20 people) of a Singapore recruitment agency. It replaces Manatal. The MVP is a working prototype on **fictional data**, live by mid-December 2026, and ends with a go/no-go decision on real data.
 
 Product AI (CV/JD model parsing, match scores, embeddings, NL search, AI gap flags) is **out of scope**. Recruiters enter job and candidate fields. Keyword + filter search and deterministic missing-field flags remain.
 
-The product source of truth is the PRD dated 17 Sep 2026, condensed in the `prd-context` skill, except where this file says AI is not built. Each remaining PRD item is **decided**, **proposed** or **open**. Never settle an open item silently.
+The product source of truth is the PRD dated 17 Sep 2026, condensed in the `prd-context` skill (`docs/URecruitment-PRD.pdf`), except where this file says AI is not built. Each remaining PRD item is **decided**, **proposed** or **open**. Never settle an open item silently.
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| App | Next.js (App Router) + TypeScript, on Vercel with functions pinned to `sin1` |
-| Data | Supabase Postgres + private Storage bucket in `ap-southeast-1`; PGroonga (EN/ZH keywords) |
-| UI | Tailwind CSS + shadcn/ui, themed from pen.dev tokens; designs in `design/*.pen` |
-| Tests | Vitest (logic), Playwright (key screens, desktop + phone) |
-| Ops | Vercel runtime logs + Sentry. GitHub Actions CI. Supabase CLI migrations |
-| Package manager | **npm** |
+| Layer           | Choice                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| App             | Next.js (App Router) + TypeScript, on Vercel with functions pinned to `sin1`              |
+| Data            | Supabase Postgres + private Storage bucket in `ap-southeast-1`; PGroonga (EN/ZH keywords) |
+| UI              | Tailwind CSS + shadcn/ui, themed from pen.dev tokens; designs in `design/*.pen`           |
+| Tests           | Vitest (logic), Playwright (key screens, desktop + phone)                                 |
+| Ops             | Vercel runtime logs + Sentry. GitHub Actions CI. Supabase CLI migrations                  |
+| Package manager | **npm**                                                                                   |
 
 ## Hard rules
 
@@ -42,33 +42,36 @@ npm run build
 npm run seed         # rebuild sample data (lists the public Vercel Blob store via env)
 ```
 
-Until the app is scaffolded, these scripts don't exist. The task that first needs a script adds it with exactly this name.
+`npm run db:types` regenerates `src/lib/database.types.ts`; `db:types:check` is the CI drift check. There is no `eval` script (AI is out of scope). Docker is not available locally: run `test:db` in CI.
 
-## Workflow
+## Workflow (Spec Kit)
 
-- **Every change starts from a GitHub issue** in `dczii/URecruitment`, tracked on [Project 4](https://github.com/users/dczii/projects/4). The hierarchy is Epic → Story → Task, using sub-issues. Config lives in `.claude/github-project.json`.
-- **`/task <description | #issue>`** runs the `urec-orchestrator` skill. Use it instead of the global `orchestrator` skill in this repo. It writes `docs/tasks/<issue>-<slug>/plan.md` (no `spec.md`), has Cursor Grok 4.6 or GPT-5.6 (`cursor-agent`) implement, verifies until lint/typecheck/tests (and build/e2e/db/eval when they apply) are green, closes out docs, then opens a PR and moves the card to In Review. It does **not** run `pr-review`. There is no approval gate.
-- **`/backlog`** builds or refreshes the issue tree from the PRD. **`/review [PR#]`** runs `pr-review`.
-- **Git:** branches are named `<type>/<issue>-<slug>` and cut from `main`. Commits use Conventional Commits (`feat(matching): cap score on missing must-have (#42)`). The PR body contains `Closes #<issue>`. A Story ships as **one PR** with at least one commit per Task, closing every Task and the Story.
-- **Tests first for logic.** Working days, score caps, delay status, gap rules and similar logic get failing Vitest tests before the implementation.
-- **Executors can't load Claude skills.** Every `cursor-agent` prompt inlines the rules that apply (see `urec-orchestrator`). `AGENTS.md` carries the baseline rules for Cursor.
+The constitution at `.specify/memory/constitution.md` restates the hard rules for Spec Kit. Keep it and this file in step.
+
+- **Every change starts from a GitHub issue** in `dczii/HRManagement`, tracked on [Project 4](https://github.com/users/dczii/projects/4). The hierarchy is Epic → Story → Task, using sub-issues. Config lives in `.claude/github-project.json`.
+- **Each Story gets a Spec Kit folder** `specs/<NNN-feature>/` (`spec.md`, `plan.md`, `tasks.md`). Run `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-checklist` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`. Task issues come from `tasks.md` (see the `speckit-workflow` and `github-workflow` skills). Open questions go to `docs/decisions/open-questions.md`, never into a spec as an assumption.
+- **Document precedence:** constitution + this file, then ADRs, then the PRD, then `docs/plans|compliance|security|ux`, then `specs/`, then `design/`. `project-map` lists every document and what it governs. Legacy plans now live in `specs/001-*` through `specs/044-*` (see `specs/README.md`); `docs/backlog/**` remains the backlog source.
+- **`/review [PR#]`** reviews a diff against its spec, the constitution and the skills in scope.
+- **Git:** branches are named `<type>/<issue>-<slug>` and cut from `main`. Commits use Conventional Commits (`feat(search): filter by language requirement (#42)`). The PR body contains `Closes #<issue>`. A Story ships as **one PR** with at least one commit per Task, closing every Task and the Story. Never merge.
+- **Tests first for logic.** Working days, delay status, gap rules, stage advance and similar logic get failing Vitest tests before the implementation.
+- **Executors can't load Claude skills.** Any prompt to `cursor-agent` inlines the rules that apply. `AGENTS.md` carries the baseline rules.
 
 ## Skills (`.claude/skills/`)
 
-| Skill | Load when |
-|---|---|
-| `urec-orchestrator` | Starting any task (`/task`). Plans, delegates to Grok, verifies, opens the PR. Takes precedence over the global `orchestrator` |
-| `github-workflow` | Creating/updating issues, sub-issues, labels, Project 4 fields, branches, PRs |
-| `backlog-builder` | Turning the PRD into Epic → Story → Task issues (`/backlog`) |
-| `prd-context` | Any product question: decisions, non-goals, pipeline rules, data model, screens, sample data |
-| `nextjs-app` | Routes, Server Components/Actions, `after()`, API routes, env, app structure |
-| `supabase-db` | Migrations, RLS, Storage, pgvector/PGroonga, views, seed |
-| `ui-design` | Designing screens and tokens in pen.dev (`design/*.pen`) |
-| `ui-build` | Building screens/components with shadcn/ui + Tailwind from designs |
-| `talent-search` | Keyword + filter search |
-| `testing` | Writing tests: Vitest, Playwright, fixtures, what to test per layer |
-| `compliance-review` | Anything touching candidate data, scoring, gap flags, retention/consent |
-| `security-check` | Secrets, RLS, Storage, rate limits, spend caps, public-repo hygiene |
-| `pr-review` | Reviewing a diff against spec, PRD guardrails and tests (`/review`) |
-| `release-deploy` | Vercel/Supabase environments, env vars, deploying, free-tier limits |
-| `ci-setup` | GitHub Actions: lint, typecheck, tests, e2e, eval, migrations |
+Load `project-map` first on any task.
+
+| Skill                | Load when                                                                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| `project-map`        | Always first. Repo atlas, every document and what it governs, precedence, known drift              |
+| `speckit-workflow`   | Starting a feature or story; which `/speckit-*` step is next; linking specs to issues              |
+| `prd-context`        | Any product question: decisions, non-goals, pipeline rules, data model, screens, sample data       |
+| `nextjs-app`         | Routes, Server Components/Actions, env, proxy, app structure                                       |
+| `supabase-db`        | Migrations, RLS, Storage, PGroonga, views, working-day SQL, seed                                   |
+| `ui-build`           | Screens and components (shadcn + Tailwind), tokens, pen.dev designs, phone width, a11y             |
+| `talent-search`      | Keyword + filter search                                                                            |
+| `testing`            | Vitest, DB tests, Playwright, fixtures, what to prove per area                                     |
+| `security-compliance`| Secrets, RLS, Storage, uploads, logging, PDPA, fair employment, protected attributes               |
+| `github-workflow`    | Issues, sub-issues, labels, Project 4, branches, commits, PRs                                      |
+| `release-ci`         | Vercel/Supabase environments, env vars, GitHub Actions, free-tier limits                           |
+
+The `speckit-*` skills (analyze, checklist, clarify, constitution, converge, implement, plan, specify, tasks, taskstoissues) are installed by Spec Kit. Do not edit them; upgrade through the `specify` CLI.

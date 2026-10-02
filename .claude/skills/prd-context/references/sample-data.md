@@ -1,3 +1,5 @@
+> **Scope note (CLAUDE.md wins):** product AI (CV/JD parsing, match scores, embeddings, NL search, AI gap flags) is NOT built in this MVP. Read AI items here as the PRD target; build only the recruiter-entered, deterministic version.
+
 # Sample data
 
 The MVP runs only on **fictional** data. The PRD target is **200 CVs (~20 in Simplified Chinese) and 20 sample jobs**.

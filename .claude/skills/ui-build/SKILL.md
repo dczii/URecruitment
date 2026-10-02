@@ -1,70 +1,39 @@
 ---
 name: ui-build
 description: >
-  Building URecruitment screens and components with shadcn/ui + Tailwind from the pen.dev design
-  mirrors (design/tokens.md, design/specs/*.md): token mapping, shared patterns (AiSuggestion,
-  SourceQuote, DelayStatusBadge, TypedNameDialog), accessibility, phone-width behaviour, Chinese
-  text, Singapore time display, and Playwright coverage. Use for any React component, page UI,
-  styling or visual fix.
+  Building HRManagement screens and components with shadcn/ui (on @base-ui/react) and Tailwind 4:
+  tokens from design/tokens.md and src/app/globals.css, per-screen specs in design/specs,
+  shared patterns (DelayStatusBadge, TypedNameDialog, states), accessibility standard, phone
+  width, Chinese text, Singapore time, and pen.dev design work via the pencil MCP tools.
+  Use for any component, page UI, styling, visual fix or design change.
 ---
 
 # UI build
 
-## Inputs
+## Read first
 
-- `design/tokens.md` and `design/specs/<screen>.md` (plus `design/exports/*.png` if present). **Build from these, not from memory.**
-- If no spec exists for the screen, stop and report it. The design task comes first, unless the task says it's a throwaway prototype.
+- `design/tokens.md` (the readable token contract; it follows `src/app/globals.css` since the UI modernisation) and `design/specs/<screen>.md` (+ `design/specs/patterns.md`, `shell.md`). Specs are desktop-only at 1440 px; phone behaviour comes from `docs/plans/accessibility-standard.md`.
+- `docs/ux/screen-inventory.md`, `docs/ux/flows.md`, and `analysis/03-ui-modernisation-spec.md` / `04-ui-modernisation-report.md` for the current visual direction.
+- Existing code to extend: `src/components/patterns/*`, `src/components/features/<area>/*`, `src/components/ui/*`.
+- `.pen` files (`design/*.pen`) are encrypted. Use only the pencil MCP tools (`mcp__pencil__*`); never Read or Grep them. If a spec and the `.pen` file disagree, the spec mirror in `design/` wins; fix the mirror in the same change.
 
 ## Rules
 
-1. **Tokens only.**
-   - Map every token to CSS variables and the Tailwind theme once (the shadcn variable names match the colour tokens).
-   - No hex values, raw pixel font sizes or ad-hoc fonts in components.
-   - Follow the installed **Tailwind major's** theming approach. Check `package.json` first.
-2. **shadcn/ui first.**
-   - Add primitives with `npx shadcn@latest add <name>` into `src/components/ui`. Don't hand-edit generated primitives beyond theming.
-   - Compose screens from `src/components/patterns` and `src/components/features/<area>`.
-3. **Shared patterns** (build these once and reuse them everywhere):
-   - `AiSuggestion`: a visible "AI suggestion" label, plus the model version and date when the value is a score.
-   - `SourceQuote`: the exact CV/JD text a value came from, expandable, marked `lang` for Chinese.
-   - `DelayStatusBadge`: icon + word + colour. Carries `aria-label="Overdue by 3 working days"`.
-   - `TypedNameDialog`: asks for the name before the first change and remembers it on the device.
-   - `EmptyState`, `ErrorState`, and loading skeletons.
-4. **No automatic-decision UI.**
-   - Buttons that change a stage are always recruiter actions, and they need the typed name.
-   - Never pre-select candidates from AI output.
-5. **Accessibility.**
-   - Semantic HTML, labelled inputs, and visible focus.
-   - Everything works by keyboard, including stage moves. Drag on the board is optional; a menu or button must also work.
-   - Use `aria-live="polite"` for async results.
-   - Colour contrast follows the tokens.
-6. **Phone width (390 px).**
-   - The dashboard and pipeline board are **fully usable**.
-   - Tables collapse into cards.
-   - Filters move into a sheet.
-   - No horizontal page scroll, except inside the board columns if the spec says so.
-7. **Chinese text.**
-   - Wrap ZH content in `lang="zh-Hans"`, and make sure the font stack includes Noto Sans SC.
-   - Truncate with CSS (`line-clamp`), never by slicing strings.
-   - Test with long names.
-8. **Dates.** Display every date through the shared SGT formatter. Show relative ages ("CV updated 8 months ago") with the absolute date in a tooltip.
-9. **Data boundaries.**
-   - Components receive only the fields they render.
-   - Client components never import `src/server`.
-   - Signed file URLs are fetched on demand, not embedded in page HTML for long.
-10. **Copy.** Plain recruiter language.
-    - Scores: "Match 72 · AI suggestion".
-    - Gap flags: "Missing: salary range · Ask the client: 'What is the salary range for this role?'".
+1. **Tokens only.** Colours, fonts and radii come from theme variables in `globals.css` and Tailwind 4 theme tokens. No hex, raw px font sizes or ad-hoc fonts in components. `src/app/theme-contract.test.ts` guards this.
+2. **shadcn first.** Add primitives with `npx shadcn@latest add <name>` into `src/components/ui`; compose screens from `patterns/` and `features/<area>/`. Components use `@base-ui/react` primitives and `cva`. Don't hand-edit generated primitives beyond theming.
+3. **Shared patterns:** `DelayStatusBadge` (icon + word + colour; `aria-label="Overdue by 3 working days"`), `TypedNameDialog` (asks before a first change, remembers on the device), `AppShell`/`AppNavigation`, empty/error/loading states. Reuse; don't fork.
+4. **No automatic-decision UI.** Stage-changing controls are recruiter actions that need the typed name. Nothing pre-selected from a score; no AI-suggestion UI.
+5. **Accessibility (WCAG 2.2 AA).** Semantic HTML, labelled inputs, visible focus, keyboard-operable stage moves (drag is optional), `aria-live="polite"` for async results, delay status never colour-only.
+6. **Phone width (390 px).** Dashboard and pipeline fully usable; tables become cards; filters in a sheet; no horizontal page scroll.
+7. **Chinese text.** Wrap in `lang="zh-Hans"`, font stack includes Noto Sans SC, truncate with CSS (`line-clamp`), test long names.
+8. **Dates.** Only through the shared Singapore formatter; relative age plus absolute date in a tooltip.
+9. **Data boundaries.** Components receive just the fields they render. Client components never import `src/server`. Signed file URLs are fetched on demand.
+10. **Copy.** Plain recruiter language; gap flags read "Missing: salary range · Ask the client: …".
 
 ## Tests
 
-- **Unit (Vitest + Testing Library)** for patterns with logic: badge text and aria, name-dialog persistence.
-- **Playwright** for each key screen at the `desktop` and `phone` projects:
-  - renders with seeded data;
-  - the primary action works;
-  - status badges show words;
-  - no horizontal overflow at 390 px (assert `document.documentElement.scrollWidth <= innerWidth`).
+Unit (Vitest + Testing Library) for patterns with logic. Playwright for each key screen at `desktop` (1440×900) and `phone` (390×844): renders seeded data, primary action works, badges contain words, `document.documentElement.scrollWidth <= innerWidth`. See `testing`.
 
-## Visual check (Claude, during review)
+## Visual check
 
-Open the preview (the dev server or the Vercel preview) in the built-in browser. Screenshot desktop and phone, and compare them with `design/exports` / `specs`. List visible mismatches as review findings.
+Run the dev server (or open the Vercel preview) in the browser pane, screenshot desktop and phone, compare with `design/specs` and `design/exports`. List mismatches as findings.

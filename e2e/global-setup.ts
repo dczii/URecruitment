@@ -18,18 +18,28 @@ export default async function globalSetup(): Promise<void> {
     return;
   }
 
-  const context = await request.newContext({
-    baseURL: previewUrl,
-    extraHTTPHeaders: {
-      "x-vercel-protection-bypass": bypassSecret,
-      "x-vercel-set-bypass-cookie": "true",
-    },
-  });
+  const context = await request.newContext({ baseURL: previewUrl });
   try {
-    const response = await context.get("/");
-    // A rejected secret redirects to Vercel's SSO login, which answers 200, so
-    // the status alone would pass. The final response must come from the
-    // preview itself.
+    // Authenticate independently of database-backed page rendering. Keep the
+    // secret on this request only, including when Vercel sets its cookie.
+    let response = await context.get("/favicon.ico", {
+      maxRedirects: 0,
+      headers: {
+        "x-vercel-protection-bypass": bypassSecret,
+        "x-vercel-set-bypass-cookie": "true",
+      },
+    });
+    const location = response.headers().location;
+    if (response.status() >= 300 && response.status() < 400 && location) {
+      const destination = new URL(location, response.url());
+      if (destination.origin === new URL(previewUrl).origin) {
+        // The request context now carries the bypass cookie. Do not resend
+        // the secret, or follow a subsequent redirect to another origin.
+        response = await context.get(destination.href, { maxRedirects: 0 });
+      }
+    }
+    // A rejected secret redirects to Vercel's SSO login. Require a
+    // successful response from the preview itself before saving its cookie.
     const landedOnPreview =
       new URL(response.url()).host === new URL(previewUrl).host;
     if (!response.ok() || !landedOnPreview) {

@@ -34,10 +34,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
   return (
     <html
-      lang="en"
+      lang='en'
       className={`dark ${geistSans.variable} ${geistMono.variable} ${notoSansSc.variable} h-full antialiased`}
     >
-      <body className="min-h-full">
+      <body className='min-h-full'>
         <AppShell>{children}</AppShell>
       </body>
     </html>

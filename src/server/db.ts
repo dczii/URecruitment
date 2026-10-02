@@ -13,6 +13,32 @@ import { serverEnv } from "./env";
  */
 let cachedDb: SupabaseClient<Database> | undefined;
 
+/**
+ * The MVP never subscribes to Realtime. supabase-js still constructs a
+ * RealtimeClient, which on Node 20 throws unless a WebSocket transport is
+ * provided. This closed stub satisfies that constructor without opening a
+ * socket or depending on Node 22's native WebSocket.
+ */
+class ClosedWebSocket {
+  binaryType = "arraybuffer";
+  readonly bufferedAmount = 0;
+  readonly extensions = "";
+  readonly protocol = "";
+  readonly readyState = 3;
+  readonly url = "";
+  onclose: ((ev: unknown) => void) | null = null;
+  onerror: ((ev: unknown) => void) | null = null;
+  onmessage: ((ev: unknown) => void) | null = null;
+  onopen: ((ev: unknown) => void) | null = null;
+  close(): void {}
+  send(): void {}
+  addEventListener(): void {}
+  removeEventListener(): void {}
+  dispatchEvent(): boolean {
+    return false;
+  }
+}
+
 export function getDb(): SupabaseClient<Database> {
   cachedDb ??= createClient<Database>(
     serverEnv().SUPABASE_URL,
@@ -20,6 +46,10 @@ export function getDb(): SupabaseClient<Database> {
     {
       // Server-only: no sign-in in this MVP, so nothing to persist or refresh.
       auth: { persistSession: false, autoRefreshToken: false },
+      realtime: {
+        // Typed as browser WebSocket; the stub is constructor-compatible.
+        transport: ClosedWebSocket as unknown as typeof WebSocket,
+      },
     },
   );
   return cachedDb;
