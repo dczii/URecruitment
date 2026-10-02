@@ -26,10 +26,11 @@ export default async function globalSetup(): Promise<void> {
     },
   });
   try {
-    const response = await context.get("/");
-    // A rejected secret redirects to Vercel's SSO login, which answers 200, so
-    // the status alone would pass. The final response must come from the
-    // preview itself.
+    // Authenticate independently of database-backed page rendering. Never
+    // forward the bypass secret to an SSO redirect destination.
+    const response = await context.get("/favicon.ico", { maxRedirects: 0 });
+    // A rejected secret redirects to Vercel's SSO login. Require a
+    // successful response from the preview itself before saving its cookie.
     const landedOnPreview =
       new URL(response.url()).host === new URL(previewUrl).host;
     if (!response.ok() || !landedOnPreview) {
