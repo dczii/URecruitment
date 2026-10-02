@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { Placements } from "@/components/features/placements/Placements";
 import { listPlacements } from "@/server/placements/list";
+
+export const metadata: Metadata = { title: "Placements" };
 
 export const dynamic = "force-dynamic";
 

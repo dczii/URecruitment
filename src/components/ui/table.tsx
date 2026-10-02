@@ -3,10 +3,9 @@ import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Rows stay one line tall and scroll sideways rather than wrapping into
- * multi-line cells on a phone. The first cell of each row sticks to the left
- * edge so the name stays readable while the rest scrolls; it inherits the row
- * background so the hover tint covers the whole row.
+ * Keep semantic tables on desktop and labelled card rows on small screens.
+ * Callers supply data-label on cells; the same controls remain mounted at
+ * either width so input and selection state survives viewport changes.
  */
 export function Table({
   className,
@@ -14,13 +13,12 @@ export function Table({
   ...props
 }: ComponentPropsWithoutRef<"table">) {
   return (
-    <div className="min-w-0 overflow-x-auto rounded-lg border border-border/20 bg-card shadow-sm">
+    <div className="responsive-table min-w-0 rounded-lg border border-border/20 bg-card shadow-sm">
       <table
         className={cn(
           "w-full border-collapse text-label",
           "[&_td]:px-4 [&_th]:px-4",
-          "[&_tbody_tr>*:first-child]:sticky [&_tbody_tr>*:first-child]:left-0 [&_tbody_tr>*:first-child]:bg-inherit",
-          "[&_tbody_td]:whitespace-nowrap [&_tbody_th]:whitespace-nowrap",
+          "table-fixed [&_td]:break-words [&_th]:break-words",
           className,
         )}
         {...props}

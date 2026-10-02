@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableHead } from "@/components/ui/table";
 import { listJobs, type JobListItem } from "@/server/jobs/list";
+
+export const metadata: Metadata = { title: "Jobs" };
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +67,7 @@ function JobRow({ job }: { job: JobListItem }) {
 
   return (
     <tr>
-      <th scope="row" className="text-left font-semibold">
+      <th data-label="Job" scope="row" className="text-left font-semibold">
         <Link
           href={`/jobs/${job.id}`}
           lang={titleLang}
@@ -73,14 +76,14 @@ function JobRow({ job }: { job: JobListItem }) {
           {job.title}
         </Link>
       </th>
-      <td className="text-muted-foreground" lang={clientLang}>
+      <td data-label="Client" className="text-muted-foreground" lang={clientLang}>
         {job.clientName}
       </td>
-      <td>
+      <td data-label="Status">
         <Badge tone="outline">{job.status}</Badge>
       </td>
-      <td>{job.ownerName}</td>
-      <td>
+      <td data-label="Owner">{job.ownerName}</td>
+      <td data-label="Open gap flags">
         <Badge
           tone={job.openFlagCount > 0 ? "due-soon" : "neutral"}
           aria-label={
@@ -92,7 +95,7 @@ function JobRow({ job }: { job: JobListItem }) {
           {flagLabel}
         </Badge>
       </td>
-      <td className="tabular-nums text-muted-foreground">{pipelineLabel}</td>
+      <td data-label="Pipeline" className="tabular-nums text-muted-foreground">{pipelineLabel}</td>
     </tr>
   );
 }

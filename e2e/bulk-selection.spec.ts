@@ -21,15 +21,14 @@ test.beforeEach(({}, testInfo) => {
   );
 });
 
-/** The pane is always present; it is the tables that may be empty. */
-test("AC1: the selection pane explains itself before anything is ticked", async ({
+/** The empty action pane no longer takes space away from attention items. */
+test("AC1: the action preview is absent before anything is ticked", async ({
   page,
 }) => {
   await page.goto("/dashboard");
 
   const pane = page.getByRole("complementary", { name: "Selection" });
-  await expect(pane).toBeVisible();
-  await expect(pane.getByText("Nothing selected")).toBeVisible();
+  await expect(pane).toHaveCount(0);
 });
 
 test("AC2: ticking candidates names every stage they would move to", async ({
@@ -112,6 +111,6 @@ test("AC4: clearing the selection empties the pane", async ({ page }) => {
   await checkboxes.first().check();
   await pane.getByRole("button", { name: "Clear selection" }).click();
 
-  await expect(pane.getByText("Nothing selected")).toBeVisible();
+  await expect(pane).toHaveCount(0);
   await expect(checkboxes.first()).not.toBeChecked();
 });

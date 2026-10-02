@@ -23,8 +23,8 @@ const notoSansSc = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "URecruitment",
-  description: "AI-assisted recruitment portal (MVP prototype, fictional data)",
+  title: { default: "URecruitment", template: "%s | URecruitment" },
+  description: "Recruitment workspace (MVP prototype, fictional data)",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

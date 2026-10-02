@@ -25,6 +25,7 @@ export function setStoredRecruiterName(name: string): void {
 
   try {
     localStorage.setItem(RECRUITER_NAME_KEY, name.trim());
+    window.dispatchEvent(new Event("recruiter-name-changed"));
   } catch {
     // localStorage unavailable (SSR, disabled storage) — degrade rather than crash.
   }

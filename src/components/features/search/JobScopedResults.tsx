@@ -97,8 +97,9 @@ export function JobScopedResults({
             defaultValue={dateInputValue(filters.cvUpdatedAfter)}
           />
         </div>
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
           <Button type="submit">Apply filters</Button>
+          <Link href={`/search?jobId=${jobId}`} className="inline-flex min-h-11 items-center rounded-md px-3 text-label text-primary underline outline-none focus-visible:ring-2 focus-visible:ring-ring">Clear filters</Link>
         </div>
         {languageApplied ? (
           <p className="text-caption text-muted-foreground">

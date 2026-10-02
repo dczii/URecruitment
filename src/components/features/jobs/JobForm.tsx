@@ -2,6 +2,7 @@
 
 import { Asterisk, CircleX, Plus, Trash2 } from "lucide-react";
 import {
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -37,8 +38,17 @@ type JobFormProps = {
 export function JobForm({ clients }: JobFormProps) {
   const formId = useId();
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
   const [banner, setBanner] = useState<string | null>(null);
+  const recoveryTarget = useRef<string | null>(null);
+  useEffect(() => {
+    if (!pending && banner && recoveryTarget.current) {
+      formRef.current?.querySelector<HTMLElement>(recoveryTarget.current)?.focus();
+      recoveryTarget.current = null;
+    }
+  }, [pending, banner]);
 
   const [title, setTitle] = useState("");
   const [ownerName, setOwnerName] = useState("");
@@ -80,25 +90,45 @@ export function JobForm({ clients }: JobFormProps) {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending) return;
     setBanner(null);
+    const errors: Record<string, string> = {};
+    if (!title.trim()) errors[`${formId}-title`] = "Enter a job title.";
+    if (!ownerName.trim()) errors[`${formId}-owner`] = "Enter the owner name.";
+    else if (ownerName.trim().length > 80) errors[`${formId}-owner`] = "Use 80 characters or fewer.";
+    if (!clientId) errors[`${formId}-client`] = "Select a client.";
+    setFieldErrors(errors);
+    const first = Object.keys(errors)[0];
+    if (first) {
+      formRef.current?.querySelector<HTMLElement>(`[id="${first}"]`)?.focus();
+      return;
+    }
 
     startTransition(async () => {
-      const result = await createJob({
-        owner_name: ownerName,
-        client_id: clientId,
-        title,
-        requirements: requirements.map((row) => ({
-          text: row.text,
-          marking: row.marking,
-        })),
-        requires_nationality: requiresNationality,
-        nationality_reason: requiresNationality ? nationalityReason : null,
-        requires_language: requiresLanguage,
-        language_reason: requiresLanguage ? languageReason : null,
-      });
+      try {
+        const result = await createJob({
+          owner_name: ownerName,
+          client_id: clientId,
+          title,
+          requirements: requirements.map((row) => ({
+            text: row.text,
+            marking: row.marking,
+          })),
+          requires_nationality: requiresNationality,
+          nationality_reason: requiresNationality ? nationalityReason : null,
+          requires_language: requiresLanguage,
+          language_reason: requiresLanguage ? languageReason : null,
+        });
 
-      if (result && !result.ok) {
-        setBanner(result.error);
+        if (result && !result.ok) {
+          setBanner(result.error);
+          const unmarked = requirements.findIndex((row) => row.text.trim() && row.marking === null);
+          recoveryTarget.current = unmarked >= 0
+            ? `[aria-label="Marking for requirement ${unmarked + 1}"] button`
+            : 'textarea[aria-required="true"]';
+        }
+      } catch {
+        setBanner("The job could not be saved. Your entries are still here; try again.");
       }
     });
   }
@@ -110,6 +140,7 @@ export function JobForm({ clients }: JobFormProps) {
       </h1>
 
       <form
+        ref={formRef}
         className="flex min-w-0 flex-col gap-4"
         onSubmit={handleSubmit}
         noValidate
@@ -119,6 +150,7 @@ export function JobForm({ clients }: JobFormProps) {
           <Field
             id={`${formId}-title`}
             label="Job title"
+            error={fieldErrors[`${formId}-title`]}
             value={title}
             disabled={pending}
             inputRef={titleInputRef}
@@ -127,6 +159,7 @@ export function JobForm({ clients }: JobFormProps) {
           <Field
             id={`${formId}-owner`}
             label="Owner name"
+            error={fieldErrors[`${formId}-owner`]}
             value={ownerName}
             disabled={pending}
             autoComplete="name"
@@ -137,6 +170,8 @@ export function JobForm({ clients }: JobFormProps) {
             <Select
               id={`${formId}-client`}
               name="client_id"
+              aria-invalid={Boolean(fieldErrors[`${formId}-client`])}
+              aria-describedby={fieldErrors[`${formId}-client`] ? `${formId}-client-error` : undefined}
               value={clientId}
               disabled={pending || clients.length === 0}
               onChange={(event) => setClientId(event.target.value)}
@@ -152,6 +187,7 @@ export function JobForm({ clients }: JobFormProps) {
                 </option>
               ))}
             </Select>
+            {fieldErrors[`${formId}-client`] && <p id={`${formId}-client-error`} role="alert" className="text-caption text-destructive">{fieldErrors[`${formId}-client`]}</p>}
           </div>
         </Card>
 
@@ -162,6 +198,7 @@ export function JobForm({ clients }: JobFormProps) {
               key={row.id}
               index={index}
               row={row}
+              errorId={banner && row.text.trim() && row.marking === null ? `${formId}-banner` : undefined}
               canRemove={requirements.length > 1}
               disabled={pending}
               onChange={updateRequirement}
@@ -205,6 +242,7 @@ export function JobForm({ clients }: JobFormProps) {
 
         {banner ? (
           <div
+            id={`${formId}-banner`}
             role="alert"
             className="flex items-center gap-2 rounded-md border-l-4 border-destructive bg-destructive/10 p-3 text-destructive"
           >
@@ -220,7 +258,7 @@ export function JobForm({ clients }: JobFormProps) {
             aria-busy={pending}
             className="w-full sm:w-auto"
           >
-            Save job
+            {pending ? "Saving job…" : "Save job"}
           </Button>
         </div>
       </form>
@@ -235,6 +273,7 @@ function Field({
   disabled,
   autoComplete = "off",
   inputRef,
+  error,
   onChange,
 }: {
   id: string;
@@ -243,6 +282,7 @@ function Field({
   disabled: boolean;
   autoComplete?: string;
   inputRef?: Ref<HTMLInputElement>;
+  error?: string;
   onChange: (value: string) => void;
 }) {
   return (
@@ -251,6 +291,8 @@ function Field({
       <Input
         id={id}
         ref={inputRef}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
         type="text"
         name={id}
         autoComplete={autoComplete}
@@ -258,6 +300,7 @@ function Field({
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
       />
+      {error && <p id={`${id}-error`} role="alert" className="text-caption text-destructive">{error}</p>}
     </div>
   );
 }
@@ -266,6 +309,7 @@ function RequirementRowFields({
   index,
   row,
   canRemove,
+  errorId,
   disabled,
   onChange,
   onRemove,
@@ -273,6 +317,7 @@ function RequirementRowFields({
   index: number;
   row: RequirementRow;
   canRemove: boolean;
+  errorId?: string;
   disabled: boolean;
   onChange: (
     id: string,
@@ -298,6 +343,7 @@ function RequirementRowFields({
       <div
         role="group"
         aria-label={markingLabel}
+        aria-describedby={errorId}
         className="inline-flex gap-0.5 rounded-md bg-muted p-0.5"
       >
         <MarkingOption
@@ -355,7 +401,7 @@ function MarkingOption({
       aria-pressed={selected}
       onClick={onSelect}
       className={cn(
-        "rounded-sm px-3 py-1.5 text-caption font-semibold outline-none transition-colors",
+        "min-h-11 rounded-sm px-3 py-1.5 text-caption font-semibold outline-none transition-colors",
         "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
         selected
           ? "bg-card text-accent-foreground shadow-sm"
@@ -405,17 +451,16 @@ function AttributeRequirement({
           disabled={disabled}
           onClick={() => onCheckedChange(!checked)}
           className={cn(
-            "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border p-0.5 outline-none transition-colors",
+            "relative inline-flex h-11 w-11 shrink-0 items-center rounded-full p-0.5 outline-none",
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            checked
-              ? "border-primary bg-primary"
-              : "border-input bg-secondary",
+
           )}
         >
+          <span aria-hidden="true" className={cn("absolute inset-x-0 h-6 rounded-full border", checked ? "border-primary bg-primary" : "border-input bg-secondary")} />
           <span
             aria-hidden="true"
             className={cn(
-              "size-4 rounded-full shadow-sm transition-transform",
+              "relative size-4 rounded-full shadow-sm transition-transform",
               checked
                 ? "translate-x-5 bg-primary-foreground"
                 : "translate-x-0 bg-card",
@@ -458,6 +503,7 @@ function AttributeRequirement({
             rows={3}
             placeholder={placeholder}
             aria-required="true"
+            aria-invalid={reasonEmpty}
             aria-describedby={noteId}
             onChange={(event) => onReasonChange(event.target.value)}
             className="min-h-16 w-full resize-y rounded-sm border-0 bg-transparent text-caption text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"

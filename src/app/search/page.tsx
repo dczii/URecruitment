@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
@@ -9,6 +10,8 @@ import { SearchScreen } from "@/components/features/search/SearchScreen";
 import { getJobDetail } from "@/server/jobs/list";
 import { getJobScopedResults } from "@/server/search/job-scoped";
 import type { SearchCandidatesFilters } from "@/server/search/query";
+
+export const metadata: Metadata = { title: "Find candidates" };
 
 export const dynamic = "force-dynamic";
 
