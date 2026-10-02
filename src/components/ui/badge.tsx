@@ -12,7 +12,7 @@ export const badgeVariants = cva(
         accent: "bg-primary text-primary-foreground",
         outline: "border border-input text-foreground",
         "on-track": "bg-status-on-track text-status-on-track-foreground",
-        "due-soon": "bg-status-due-soon text-status-due-soon-foreground",
+        "due-soon": "border border-input bg-status-due-soon text-status-due-soon-foreground",
         overdue:
           "bg-status-overdue text-status-overdue-foreground tabular-nums",
         ended: "bg-status-ended text-status-ended-foreground",

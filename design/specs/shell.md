@@ -117,3 +117,7 @@ Task #97 may add static placeholders only to prove routing:
 
 Each page has one `h1`, one plain sentence noting that its owning Story supplies the content, and no
 fake data, action, status, or data fetching.
+
+## USER brand theme (2026-10-02)
+
+Use the shared logo-red, white and neutral-black palette in [tokens.md](../tokens.md), with light mode as default. Primary actions/focus use primary/ring; selected controls use accent; supporting content uses neutral muted/secondary. Status badges retain words/icons: on-track and ended are neutral, due-soon is outlined, overdue is red. No screen-specific literal colors. Existing layout, typography and domain behavior stay intact. `.pen` color reconciliation awaits supported Pencil tooling.

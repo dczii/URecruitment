@@ -136,3 +136,7 @@ calling screen ("Loading …") rather than by the skeleton itself.
   the data they render.
 - Nothing in this file implies an automatic decision. No component here can advance, reject, or
   contact anyone.
+
+## USER brand theme (2026-10-02)
+
+Use the shared logo-red, white and neutral-black palette in [tokens.md](../tokens.md), with light mode as default. Primary actions/focus use primary/ring; selected controls use accent; supporting content uses neutral muted/secondary. Status badges retain words/icons: on-track and ended are neutral, due-soon is outlined, overdue is red. No screen-specific literal colors. Existing layout, typography and domain behavior stay intact. `.pen` color reconciliation awaits supported Pencil tooling.

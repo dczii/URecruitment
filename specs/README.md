@@ -51,3 +51,4 @@ Migrated plans retain their historical content and original file sets. Some have
 | [043-guarantee-flag](043-guarantee-flag/) | `docs/tasks/163-guarantee-flag` |
 | [044-placements-screen](044-placements-screen/) | `docs/tasks/164-placements-screen` |
 | [045-ui-experience-polish](045-ui-experience-polish/) | `specs/001-ui-experience-polish` |
+| [046-brand-theme](046-brand-theme/) | New USER logo-based white, red and black theme |

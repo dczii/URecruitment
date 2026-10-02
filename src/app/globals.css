@@ -87,14 +87,15 @@
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
   --radius-lg: 1rem;
-  --shadow-sm: 0 1px 2px rgb(17 24 39 / 5%), 0 1px 3px rgb(17 24 39 / 6%);
-  --shadow-md: 0 12px 32px -12px rgb(17 24 39 / 22%);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 5%), 0 1px 3px rgb(0 0 0 / 6%);
+  --shadow-md: 0 12px 32px -12px rgb(0 0 0 / 22%);
 
-  --color-chart-1: var(--primary);
-  --color-chart-2: var(--accent-foreground);
-  --color-chart-3: var(--status-on-track-foreground);
-  --color-chart-4: var(--status-due-soon-foreground);
-  --color-chart-5: var(--status-overdue-foreground);
+  --color-brand-surface: var(--brand-surface);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --color-sidebar: var(--card);
   --color-sidebar-foreground: var(--card-foreground);
   --color-sidebar-primary: var(--primary);
@@ -106,63 +107,75 @@
 }
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --brand-surface: #ffffff;
+  --chart-1: #be2026;
+  --chart-2: #111111;
+  --chart-3: #595959;
+  --chart-4: #991b20;
+  --chart-5: #737373;
+  --background: #ffffff;
+  --foreground: #111111;
   --card: #ffffff;
-  --card-foreground: #111827;
+  --card-foreground: #111111;
   --popover: #ffffff;
-  --popover-foreground: #111827;
-  --primary: #4338ca;
+  --popover-foreground: #111111;
+  --primary: #be2026;
   --primary-foreground: #ffffff;
-  --secondary: #e5e7eb;
-  --secondary-foreground: #111827;
-  --muted: #f3f4f6;
-  --muted-foreground: #4b5563;
-  --accent: #e0e7ff;
-  --accent-foreground: #3730a3;
-  --destructive: #be123c;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #111111;
+  --muted: #f5f5f5;
+  --muted-foreground: #595959;
+  --accent: #fff1f2;
+  --accent-foreground: #be2026;
+  --destructive: #991b20;
   --destructive-foreground: #ffffff;
-  --border: #6b7280;
-  --input: #6b7280;
-  --ring: #4f46e5;
-  --status-on-track: #d1fae5;
-  --status-on-track-foreground: #065f46;
-  --status-due-soon: #fef3c7;
-  --status-due-soon-foreground: #92400e;
-  --status-overdue: #ffe4e6;
-  --status-overdue-foreground: #9f1239;
-  --status-ended: #e5e7eb;
-  --status-ended-foreground: #374151;
+  --border: #737373;
+  --input: #737373;
+  --ring: #be2026;
+  --status-on-track: #f5f5f5;
+  --status-on-track-foreground: #111111;
+  --status-due-soon: #ffffff;
+  --status-due-soon-foreground: #111111;
+  --status-overdue: #fff1f2;
+  --status-overdue-foreground: #991b20;
+  --status-ended: #f5f5f5;
+  --status-ended-foreground: #595959;
 }
 
 .dark {
-  --background: #0b0f19;
-  --foreground: #f3f4f6;
-  --card: #111827;
-  --card-foreground: #f3f4f6;
-  --popover: #111827;
-  --popover-foreground: #f3f4f6;
-  --primary: #818cf8;
-  --primary-foreground: #1e1b4b;
-  --secondary: #1f2937;
-  --secondary-foreground: #f3f4f6;
-  --muted: #1f2937;
-  --muted-foreground: #a1a1aa;
-  --accent: #312e81;
-  --accent-foreground: #e0e7ff;
-  --destructive: #fb7185;
-  --destructive-foreground: #4c0519;
-  --border: #71717a;
-  --input: #71717a;
-  --ring: #818cf8;
-  --status-on-track: #022c22;
-  --status-on-track-foreground: #6ee7b7;
-  --status-due-soon: #451a03;
-  --status-due-soon-foreground: #fde68a;
-  --status-overdue: #4c0519;
-  --status-overdue-foreground: #fda4af;
-  --status-ended: #1f2937;
-  --status-ended-foreground: #d1d5db;
+  --brand-surface: #ffffff;
+  --chart-1: #ff6970;
+  --chart-2: #f5f5f5;
+  --chart-3: #b3b3b3;
+  --chart-4: #ff9a9f;
+  --chart-5: #8a8a8a;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #171717;
+  --card-foreground: #f5f5f5;
+  --popover: #171717;
+  --popover-foreground: #f5f5f5;
+  --primary: #ff6970;
+  --primary-foreground: #111111;
+  --secondary: #242424;
+  --secondary-foreground: #f5f5f5;
+  --muted: #242424;
+  --muted-foreground: #b3b3b3;
+  --accent: #321416;
+  --accent-foreground: #ff6970;
+  --destructive: #ff9a9f;
+  --destructive-foreground: #111111;
+  --border: #8a8a8a;
+  --input: #8a8a8a;
+  --ring: #ff6970;
+  --status-on-track: #242424;
+  --status-on-track-foreground: #f5f5f5;
+  --status-due-soon: #171717;
+  --status-due-soon-foreground: #f5f5f5;
+  --status-overdue: #321416;
+  --status-overdue-foreground: #ff9a9f;
+  --status-ended: #242424;
+  --status-ended-foreground: #b3b3b3;
 }
 
 @layer base {
@@ -174,6 +187,9 @@
   }
   html {
     @apply font-sans;
+  }
+  main a:not([data-slot="button"]) {
+    @apply underline underline-offset-4;
   }
 }
 /* One responsive representation preserves input state and table semantics. */

@@ -61,3 +61,7 @@ ended + foregrounds), `radius-sm`, `radius-md`.
 
 #100's original scope required a phone frame and 390 px reachability. Per the 2026-09-18
 desktop-only decision this is **N/A**, not implemented — see spec.md for the full reasoning.
+
+## USER brand theme (2026-10-02)
+
+Use the shared logo-red, white and neutral-black palette in [tokens.md](../tokens.md), with light mode as default. Primary actions/focus use primary/ring; selected controls use accent; supporting content uses neutral muted/secondary. Status badges retain words/icons: on-track and ended are neutral, due-soon is outlined, overdue is red. No screen-specific literal colors. Existing layout, typography and domain behavior stay intact. `.pen` color reconciliation awaits supported Pencil tooling.
