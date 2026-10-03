@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orchestrator"
+  short_description: "Spec Kit planning, implementation, and verification"
+  default_prompt: "Use $orchestrator to create Spec Kit specs, plans, and tasks for this feature, then implement and verify the authorized scope with relevant skills."
