@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { getStoredRecruiterName, setStoredRecruiterName } from "@/lib/recruiter-name";
 import { cn } from "@/lib/utils";
+import { logout } from "@/app/login/actions";
 
 const destinations = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -92,6 +93,7 @@ export function AppHeader() {
         <span className="truncate">{name ?? "Add name"}</span>
         {name && <span className="hidden text-caption text-muted-foreground lg:inline">Change</span>}
       </Button>
+      <form action={logout}><Button type="submit" variant="ghost">Sign out</Button></form>
       {nameOpen && <TypedNameDialog key={name ?? "unset"} open onOpenChange={setNameOpen} initialName={name ?? undefined} onSubmit={(value) => { setStoredRecruiterName(value); setNameOpen(false); }} />}
     </header>
   );

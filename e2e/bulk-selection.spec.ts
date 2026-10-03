@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./auth-fixture";
 
 /**
  * Dashboard multi-select: tick several candidates, read what a bulk move would

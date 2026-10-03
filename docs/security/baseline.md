@@ -1,4 +1,8 @@
-# Security baseline — a public, sign-in-less MVP
+# Security baseline — approved recruiter access
+
+## Authentication amendment — 2026-10-02
+
+[ADR-0004](../decisions/adr-0004-recruiter-auth.md) supersedes the historical no-sign-in exposure model below. The portal now requires a verified Supabase identity, a bounded server session and active individual recruiter approval before privileged data or Storage requests. Only requested recruiter login OTP emails are allowed, delivered by Resend SMTP. Typed names remain audit labels. Candidate data remains fictional; broader real-data-release prerequisites remain open. Historical task mappings below are retained for context.
 
 ## Status
 

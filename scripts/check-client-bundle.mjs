@@ -83,7 +83,8 @@ function matchesIn(contents) {
  * @param {string} dir
  * @returns {{ path: string, matched: string }[]}
  */
-export function findLeaksInDir(dir) {
+export function findLeaksInDir(dir, options = { serverOutput: false }) {
+
   const leaks = [];
   const entries = readdirSync(dir, { recursive: true });
 
@@ -104,6 +105,9 @@ export function findLeaksInDir(dir) {
       continue;
     }
     const ext = path.extname(relativePath).toLowerCase();
+    // Server executables/manifests are not delivered to browsers. Webpack can
+    // inline server-only modules here; continue checking HTML/RSC/body/meta.
+    if (options.serverOutput && [".js", ".mjs", ".cjs", ".json", ".map"].includes(ext)) continue;
     if (!TEXT_EXTENSIONS.has(ext)) {
       continue;
     }
@@ -148,7 +152,7 @@ function main() {
   }
 
   const leaks = present.flatMap((dir) =>
-    findLeaksInDir(dir).map((leak) => ({
+    findLeaksInDir(dir, { serverOutput: path.resolve(dir) === path.resolve(".next/server/app") }).map((leak) => ({
       ...leak,
       path: `${path.relative(process.cwd(), dir)}/${leak.path}`,
     })),

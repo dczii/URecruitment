@@ -24,10 +24,10 @@ Read `project-map` (layout) and `docs/decisions/adr-0001-architecture.md` first.
 
 1. **Server Components by default.** `"use client"` only for interaction, and as low in the tree as possible.
 2. **Every action validates input with Zod** (v4) at the boundary and returns a typed result (`{ ok: true, … } | { ok: false, error }`), never a stack trace. Use `revalidatePath` for the routes affected.
-3. **Typed recruiter name** on every stage or settings change: validate with `src/lib/recruiter-name.ts`, pass it to the server function, which writes it to `stage_events` / `settings_log`. The UI asks through `TypedNameDialog`. No sign-in exists; don't add one.
+3. **Typed recruiter name** on every stage or settings change: validate with `src/lib/recruiter-name.ts`, pass it to the server function, which writes it to `stage_events` / `settings_log`. The UI asks through `TypedNameDialog`. Approved-recruiter OTP sign-in supplements access control; keep typed-name auditing.
 4. **Env:** read through `src/server/env.ts` / `src/lib/env.ts` (Zod-parsed, fails with `env-error.ts`). Add the name to `.env.example` (names only). Only `NEXT_PUBLIC_SENTRY_DSN` may be public.
 5. **Time:** store UTC; format with `Asia/Singapore` through one shared formatter; compute limits with `src/lib/working-days.ts` and the SQL functions. Never `new Date().toLocaleString()` in a component.
-6. **No decisions by code:** no action may move, reject, shortlist or contact a candidate unless a recruiter triggered it with a typed name. No email, no scheduled jobs (Hobby allows one daily cron and the delay view makes it unnecessary).
+6. **No decisions by code:** no action may move, reject, shortlist or contact a candidate unless a recruiter triggered it with a typed name. Only approved recruiter login-code email is allowed; no scheduled jobs (Hobby allows one daily cron and the delay view makes it unnecessary).
 7. **Pipeline semantics** come from `src/lib/stages.ts` (7 stages + 3 end states). Don't hard-code stage strings elsewhere.
 8. **Sentry:** `instrumentation*.ts` and `sentry-scrub.ts` strip PII. Don't log CV text, names or file contents.
 9. `npm run build` also runs `scripts/check-client-bundle.mjs`; a secret or `src/server` code in the client bundle fails it.

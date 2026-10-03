@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./auth-fixture";
 
 test("logo-based light theme is the default with readable navigation", async ({ page }) => {
   const response = await page.goto("/settings");

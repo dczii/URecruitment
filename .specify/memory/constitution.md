@@ -7,8 +7,8 @@ HRManagement is a recruitment portal for the 6–20 recruiters of a Singapore re
 ### I. Recruiters Decide (NON-NEGOTIABLE)
 No code path rejects, advances, shortlists or contacts a candidate, or sends anything to a client. Every stage change is a recruiter action. Nothing is pre-selected by a score or rule.
 
-### II. No Email, Ever
-The system sends no email: no alerts, reminders or consent requests. Everything surfaces on the dashboard.
+### II. Recruiter Login Email Only
+Only user-requested recruiter login codes may be emailed through Supabase Auth and Resend. No candidate/client emails, alerts, reminders or consent requests. Other information surfaces on the dashboard.
 
 ### III. Server-Only Data Access
 The browser talks only to Next.js. Supabase and Storage are called only from server code that begins `import "server-only"`. The Supabase secret key lives only in Vercel environment variables. RLS is enabled on every table with no public policies and `revoke all` from `anon, authenticated`. CV files open through short-lived signed URLs from a private bucket.
@@ -26,7 +26,7 @@ Never load real candidate data. Never commit secrets, credentials, `.env*` files
 Store UTC, display `Asia/Singapore`. Stage limits count Singapore working days (Mon–Fri minus SG public holidays). Delay status is derived in a database view, not a scheduled job.
 
 ### VIII. Audit by Typed Name
-Stage and settings changes record the name the recruiter types, remembered on the device. There is no sign-in in the MVP.
+Stage and settings changes record the name the recruiter types, remembered on the device. Approved recruiters sign in with email OTP; sign-in does not replace the typed name.
 
 ### IX. Test-First for Logic, Verified at Both Widths
 Working days, limits, delay status, gap rules, stage advance and similar logic get failing Vitest tests before implementation. Key screens get Playwright coverage at desktop (1440×900) and phone (390×844). Tests are never deleted, skipped or loosened to pass. Delay status is never colour-only.
@@ -53,4 +53,4 @@ Each PRD item is decided, proposed or open. Proposed items are built and labelle
 
 This constitution and `CLAUDE.md` outrank the PRD where they remove scope and outrank every other document. Amend by editing this file in a PR that also updates `CLAUDE.md`, `AGENTS.md` and affected skills; bump the version, and record any removed scope in `docs/decisions/`. `/speckit-analyze` treats a conflict with a principle as CRITICAL.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01
+**Version**: 1.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02

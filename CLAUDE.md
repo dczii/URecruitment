@@ -20,13 +20,13 @@ The product source of truth is the PRD dated 17 Sep 2026, condensed in the `prd-
 ## Hard rules
 
 1. **No autonomous decisions.** No code path rejects, advances, shortlists or contacts a candidate, or sends anything to a client.
-2. **No email, ever** — no alerts, reminders or consent requests. Everything surfaces on the dashboard.
+2. **Recruiter login email only** — user-requested OTP codes through Supabase Auth/Resend are allowed. No candidate/client emails, alerts, reminders or consent requests.
 3. **Server-only data access.** The browser talks only to Next.js. The Supabase secret key lives only in Vercel env vars. RLS is on for every table with **no public policies**. CV files open through short-lived signed URLs.
 4. **No product AI.** Do not add model calls, match scores, embeddings, NL query parse, or AI-generated gap flags.
 5. Nationality and language count only when the recruiter marks them as a real requirement and writes why.
 6. **Fictional data only in the MVP.** Never load real candidate data. Never commit secrets, credentials, `.env*` files or the sample-data Blob store URL. **This repo is public.**
 7. **Time.** Store UTC, display Singapore time. Stage limits count Singapore working days (Mon–Fri minus SG public holidays).
-8. **Audit by typed name.** Stage and settings changes record the name the recruiter types (remembered on the device). There is no sign-in in the MVP.
+8. **Audit by typed name.** Stage and settings changes record the name the recruiter types (remembered on the device). Approved recruiters sign in with email OTP; typed-name auditing remains required.
 9. **Free tiers.** Vercel Hobby (cron once a day, one region) and Supabase Free (500 MB DB, 1 GB storage, 50 MB/file). Derive delay status in a DB view, not a scheduled job.
 
 ## Commands
