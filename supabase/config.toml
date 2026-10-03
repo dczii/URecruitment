@@ -416,4 +416,4 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [auth.email.template.magic_link]
 subject = "Your URecruitment login code"
-content_path = "./templates/login-code.html"
+content_path = "./supabase/templates/login-code.html"
