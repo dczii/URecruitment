@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./auth-fixture";
 import type { Page } from "@playwright/test";
 
 /**

@@ -7,7 +7,12 @@ const usesBypass = Boolean(previewUrl && process.env.PLAYWRIGHT_BYPASS_SECRET);
 
 export default defineConfig({
   testDir: "e2e",
+  // Authenticated product coverage uses the local fictional provider. Preview
+  // coverage checks the deployed public login/access boundary without real mail.
+  testMatch: previewUrl ? "**/preview-access.spec.ts" : "**/*.spec.ts",
+  testIgnore: previewUrl ? [] : ["**/preview-access.spec.ts"],
   fullyParallel: true,
+  workers: previewUrl ? undefined : 1, // Local mock provider has shared approval/limit state.
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
@@ -46,9 +51,9 @@ export default defineConfig({
   webServer: previewUrl
     ? undefined
     : {
-        command: "npm run dev",
+        command: "node e2e/run-local.mjs",
         url: "http://localhost:3000",
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
         timeout: 120_000,
       },
 });

@@ -102,6 +102,24 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_rate_limits: {
+        Row: {
+          attempts: number
+          bucket: string
+          window_start: string
+        }
+        Insert: {
+          attempts?: number
+          bucket: string
+          window_start?: string
+        }
+        Update: {
+          attempts?: number
+          bucket?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       candidate_profiles: {
         Row: {
           ai_run_id: string | null
@@ -664,6 +682,30 @@ export type Database = {
           },
         ]
       }
+      recruiter_access: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rescore_runs: {
         Row: {
           candidate_ids_scored: Json
@@ -960,6 +1002,14 @@ export type Database = {
         Returns: string
       }
       candidate_total_years: { Args: { work_history: Json }; Returns: number }
+      consume_auth_limit: {
+        Args: {
+          bucket_key: string
+          max_attempts: number
+          window_seconds: number
+        }
+        Returns: boolean
+      }
       pgroonga_command:
         | { Args: { groongacommand: string }; Returns: string }
         | {

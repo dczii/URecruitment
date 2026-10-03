@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans_SC } from "next/font/google";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { requireRecruiter } from "@/server/auth/access";
 
 import { AppShell } from "@/components/patterns/AppShell";
 
@@ -29,7 +31,14 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   // Next.js applies the nonce to framework scripts from the CSP header.
-  const nonce = (await headers()).get("x-nonce");
+  const requestHeaders = await headers();
+  const nonce = requestHeaders.get("x-nonce");
+  const login = requestHeaders.get("x-app-pathname") === "/login";
+  if (!login) {
+    let approved = false;
+    try { await requireRecruiter(); approved = true; } catch { /* Fail closed. */ }
+    if (!approved) redirect("/login");
+  }
   void nonce;
 
   return (
@@ -38,7 +47,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${notoSansSc.variable} h-full antialiased`}
     >
       <body className='min-h-full'>
-        <AppShell>{children}</AppShell>
+        {login ? children : <AppShell>{children}</AppShell>}
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./auth-fixture";
 
 test("AC1–3: named workspace, actual identity and keyboard recovery", async ({page}, info) => {
   await page.goto('/settings');

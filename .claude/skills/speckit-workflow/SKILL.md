@@ -4,7 +4,8 @@ description: >
   How Spec Kit runs in HRManagement: the constitution, the specs/ folder, the order of /speckit-*
   commands, which project skills and documents to load at each step, and how specs, tasks and
   GitHub issues (Epic → Story → Task on Project 4) stay linked. Use for any new feature, story or
-  task, and whenever someone asks which command to run next.
+  task, including natural-language requests to plan a feature or integration, and whenever
+  someone asks which command to run next.
 ---
 
 # Spec Kit workflow
@@ -21,6 +22,12 @@ Spec Kit (v1.0.x, installed with `specify init --here --integration claude`) pro
 | Legacy task plans | `specs/001-*` through `specs/044-*` (history; mapping in `specs/README.md`) |
 
 One feature = one Story = one branch `<NNN>-<slug>` is Spec Kit's default; this repo overrides it to `<type>/<issue>-<slug>` (see `github-workflow`). Pass the issue number in the spec header (`Story: #123`).
+
+### Feature plans, including drafts
+
+When asked to plan a feature or integration, use `specs/<NNN-feature>/plan.md`, even for preliminary planning outside a `/speckit-*` command. Reuse the existing owning feature folder; otherwise inspect `specs/` and choose the next unused consecutive three-digit number and a descriptive slug. Do not place feature plans in `analysis/` or `docs/plans/`: `analysis/` holds findings and assessments, and `docs/plans/` holds cross-project standards.
+
+Use the installed `.specify/templates/` for formal Spec Kit artifacts. Keep requirements in `spec.md`, implementation decisions in `plan.md`, and executable work in `tasks.md`; add supporting research, data models, contracts and checklists when needed. Mark preliminary plans as drafts and state missing prerequisites rather than presenting them as complete Spec Kit packages. A planning request does not authorize implementation, branch creation, GitHub changes or remote configuration.
 
 ## Flow
 

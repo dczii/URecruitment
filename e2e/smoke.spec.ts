@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./auth-fixture";
 
 test("AC1: home page renders without errors", async ({ page }) => {
   const consoleErrors: string[] = [];

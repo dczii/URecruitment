@@ -21,7 +21,7 @@ You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `spec
 ## Product guardrails (never break these)
 
 1. No code path rejects, advances, shortlists or contacts a candidate, or sends anything to a client.
-2. No email is sent anywhere, for any reason.
+2. Only user-requested login OTP emails to approved recruiters are allowed through Supabase Auth/Resend. No candidate/client emails or other product emails.
 3. The browser never calls Supabase. Database and Storage calls happen only in server code (Server Components, Server Actions, route handlers) marked with `import "server-only"`. Never expose `SUPABASE_SECRET_KEY` through a `NEXT_PUBLIC_*` variable.
 4. RLS is enabled on every table with no public policies. Private Storage bucket, short-lived signed URLs.
 5. Do not add product AI (model calls, match scores, embeddings, NL query parse, AI gap flags). Recruiters enter profile and job fields themselves.

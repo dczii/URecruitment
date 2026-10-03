@@ -1,24 +1,22 @@
-import { NextResponse } from "next/server";
+import { refreshAuth } from "./server/auth/proxy";
 import type { NextRequest } from "next/server";
 import {
   buildContentSecurityPolicy,
   generateNonce,
 } from "./lib/security-headers";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const nonce = generateNonce();
   const isDev = process.env.NODE_ENV === "development";
   const csp = buildContentSecurityPolicy({ nonce, isDev });
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("x-app-pathname", request.nextUrl.pathname);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  const response = await refreshAuth(request, requestHeaders);
+  response.headers.set("Cache-Control", "private, no-store, max-age=0");
   response.headers.set("Content-Security-Policy", csp);
 
   return response;

@@ -3,6 +3,8 @@ import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 import { serverEnv } from "./env";
+import { requireRecruiter } from "./auth/access";
+import { createGuardedFetch } from "./auth/guarded-fetch";
 
 /**
  * Process-level, not per-request: one client is reused for the lifetime of the
@@ -44,8 +46,9 @@ export function getDb(): SupabaseClient<Database> {
     serverEnv().SUPABASE_URL,
     serverEnv().SUPABASE_SECRET_KEY,
     {
-      // Server-only: no sign-in in this MVP, so nothing to persist or refresh.
+      // Privileged data client stays sessionless; each HTTP operation authorizes.
       auth: { persistSession: false, autoRefreshToken: false },
+      global: { fetch: createGuardedFetch(requireRecruiter, (input, init) => fetch(input, init)) },
       realtime: {
         // Typed as browser WebSocket; the stub is constructor-compatible.
         transport: ClosedWebSocket as unknown as typeof WebSocket,

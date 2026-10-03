@@ -37,7 +37,7 @@ If two disagree, follow the higher one and note the conflict in the spec's open 
 | `docs/plans/accessibility-standard.md`       | A11y and responsive rules per screen                                        | `src/components/**`, `e2e/**`                    |
 | `docs/plans/ai-eval-plan.md`                 | Eval and answer-key format. No `eval/` dir exists                           | Nothing in the MVP                               |
 | `docs/compliance/baseline.md`, `risk-register.md` | PDPA, fair employment, engineering record, living risks                | Candidate data, search filters, retention        |
-| `docs/security/baseline.md`                  | Public, sign-in-less threat model; RLS, signed URLs, headers                | `src/proxy.ts`, `src/lib/security-headers.ts`, storage |
+| `docs/security/baseline.md`                  | Approved recruiter access threat model; RLS, signed URLs, headers                | `src/proxy.ts`, `src/lib/security-headers.ts`, storage |
 | `docs/ux/flows.md`, `screen-inventory.md`    | Three core recruiter journeys; IA and navigation                            | `src/app/**` routes, `AppNavigation`             |
 | `docs/runbooks/sentry-test-error.md`         | How to trigger a test error                                                 | `/sentry-test`, `/api/sentry-test`, Sentry configs |
 | `docs/manatal-baseline-harness.md`           | Manatal baseline measurement                                                | Success metrics (post-MVP)                       |
@@ -46,6 +46,10 @@ If two disagree, follow the higher one and note the conflict in the spec's open 
 | `design/tokens.md`, `design/specs/*.md`      | Token contract and per-screen specs (desktop 1440 px)                       | `src/app/globals.css`, `src/components/features/**` |
 | `design/*.pen`                               | Pen.dev files. **Only via the pencil MCP tools; never Read or Grep them**   | Design work only                                 |
 | `analysis/00–04*`, `checklists/`, `screenshots/` | Health table, improvement findings, UI modernisation spec and report    | Context for the `ui-modernisation` work          |
+
+## Recruiter authentication
+
+`specs/047-recruiter-email-otp/` owns `/login`, server-only auth/session/approval guards, private `recruiter_access` and `auth_rate_limits` tables and Resend SMTP setup. `docs/decisions/adr-0004-recruiter-auth.md` supersedes historical no-sign-in/no-email assumptions only for recruiter login. Existing typed-name audit and fictional-candidate-data rules remain.
 
 ## Current brand feature
 

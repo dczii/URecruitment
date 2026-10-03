@@ -202,3 +202,14 @@ describe("check-client-bundle CLI (AC8 exit codes)", () => {
     expect(runCli(root)).toBe(0);
   });
 });
+
+
+describe("server build artifacts vs browser payloads", () => {
+  it("ignores executable server modules while checking their rendered payloads", () => {
+    const root = createFixtureDir();
+    writeFixture(root, "dashboard/page.js", 'const key = process.env.SUPABASE_SECRET_KEY;');
+    writeFixture(root, "dashboard/page.rsc", 'k:"sb_secret_testonlyfixture123456"');
+    expect(findLeaksInDir(root, { serverOutput: true }).map((leak: { path: string }) => leak.path)).toEqual(["dashboard/page.rsc"]);
+    expect(findLeaksInDir(root).map((leak: { path: string }) => leak.path).sort()).toEqual(["dashboard/page.js", "dashboard/page.rsc"]);
+  });
+});
