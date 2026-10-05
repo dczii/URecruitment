@@ -249,3 +249,18 @@ describe("createPlacement", () => {
     expect(result.ok).toBe(false);
   });
 });
+
+// Feature 049: the save response must carry the same bounded SGT count as load.
+describe("049 save countdown", () => {
+  it("FR-003 returns the authoritative daysUsed after save", async () => {
+    mockClient({ entry: { id: PIPELINE_ENTRY_ID, job_id: JOB_ID, stage: "Placed", entered_at: PLACED_AT }, guaranteePeriodDays: 30, existingPlacement: null });
+    const result = await createPlacement({ pipelineEntryId: PIPELINE_ENTRY_ID, startDate: "2026-09-05", recruiterName: TYPED_NAME });
+    expect(result).toMatchObject({ ok: true, placement: { daysUsed: 14 } });
+  });
+  it("FR-004 rejects impossible calendar dates before accessing the database", async () => {
+    mockClient({ entry: { id: PIPELINE_ENTRY_ID, job_id: JOB_ID, stage: "Placed", entered_at: PLACED_AT }, guaranteePeriodDays: 30, existingPlacement: null });
+    const result = await createPlacement({ pipelineEntryId: PIPELINE_ENTRY_ID, startDate: "2026-02-31", recruiterName: TYPED_NAME });
+    expect(result.ok).toBe(false);
+    expect(getDb).not.toHaveBeenCalled();
+  });
+});

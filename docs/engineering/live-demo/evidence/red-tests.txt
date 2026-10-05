@@ -1,0 +1,116 @@
+
+> HRManagement@0.1.0 test
+> vitest run src/server/placements/list.test.ts src/server/placements/create.test.ts
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+ RUN  v5.0.1 /Users/jay/personal/urecruitment
+
+ ❯ src/server/placements/list.test.ts (2 tests | 2 failed) 7ms
+   ❯ 049 placement load (2)
+     × FR-001 counts Jan 31 to Feb 1 as one calendar day 6ms
+     × FR-002 caps an ended guarantee at its period 1ms
+ ❯ src/server/placements/create.test.ts (8 tests | 2 failed) 16ms
+   ❯ 049 save countdown (2)
+     × FR-003 returns the authoritative daysUsed after save 6ms
+     × FR-004 rejects impossible calendar dates before accessing the database 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/server/placements/create.test.ts > 049 save countdown > FR-003 returns the authoritative daysUsed after save
+AssertionError: expected { ok: true, placement: { …(5) } } to match object { ok: true, …(1) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "ok": true,
+    "placement": {
+-     "daysUsed": 14,
++     "flag": "ok",
++     "guaranteeEndDate": "2026-10-05",
++     "guaranteePeriodDays": 30,
++     "id": "00000000-0000-0000-0000-000000000604",
++     "startDate": "2026-09-05",
+    },
+  }
+
+ ❯ src/server/placements/create.test.ts:258:20
+    256|     mockClient({ entry: { id: PIPELINE_ENTRY_ID, job_id: JOB_ID, stage…
+    257|     const result = await createPlacement({ pipelineEntryId: PIPELINE_E…
+    258|     expect(result).toMatchObject({ ok: true, placement: { daysUsed: 14…
+       |                    ^
+    259|   });
+    260|   it("FR-004 rejects impossible calendar dates before accessing the da…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/server/placements/create.test.ts > 049 save countdown > FR-004 rejects impossible calendar dates before accessing the database
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ src/server/placements/create.test.ts:264:23
+    262|     const result = await createPlacement({ pipelineEntryId: PIPELINE_E…
+    263|     expect(result.ok).toBe(false);
+    264|     expect(getDb).not.toHaveBeenCalled();
+       |                       ^
+    265|   });
+    266| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/server/placements/list.test.ts > 049 placement load > FR-001 counts Jan 31 to Feb 1 as one calendar day
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/server/placements/list.test.ts:26:50
+     24|     vi.useFakeTimers(); vi.setSystemTime(new Date("2026-02-01T04:00:00…
+     25|     fixture("2026-01-31");
+     26|     expect((await listPlacements())[0].daysUsed).toBe(1);
+       |                                                  ^
+     27|   });
+     28|   it("FR-002 caps an ended guarantee at its period", async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/server/placements/list.test.ts > 049 placement load > FR-002 caps an ended guarantee at its period
+AssertionError: expected 60 to be 30 // Object.is equality
+
+- Expected
++ Received
+
+- 30
++ 60
+
+ ❯ src/server/placements/list.test.ts:31:50
+     29|     vi.useFakeTimers(); vi.setSystemTime(new Date("2026-10-05T04:00:00…
+     30|     fixture("2026-08-06");
+     31|     expect((await listPlacements())[0].daysUsed).toBe(30);
+       |                                                  ^
+     32|   });
+     33| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 6 passed (10)
+   Start at  09:03:14
+   Duration  182ms (transform 55%, import 22%, tests 14%, setup 7%, worker 3%, environment 1%)

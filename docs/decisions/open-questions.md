@@ -363,3 +363,7 @@ gets a new entry that names the one it replaces.
 4. If the answer changes an ADR, write the superseding ADR in the same PR.
 5. If the answer changes the PRD condensation (`prd-context`), update the skill in the same PR, as
    [#159](https://github.com/dczii/HRManagement/issues/159) does for the stage-limit note.
+
+### Demo countdown clarification — resolved 5 October 2026
+
+For `specs/049-live-technical-demo/`, the owner explicitly answered “Yes — use capped days used (recommended)” to retaining “X of Y days used,” capping X at the guarantee period, displaying zero before/on the start date, and retaining the existing rule that ended begins the day after the end date. This resolves the display ambiguity noted in `docs/prepare-live-walkthrough.prompt.md`; it does not change the five-Singapore-working-day warning rule or any other open item.

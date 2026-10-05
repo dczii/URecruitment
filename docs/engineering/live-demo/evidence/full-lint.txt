@@ -1,0 +1,36 @@
+
+> HRManagement@0.1.0 lint
+> eslint
+
+
+/Users/jay/personal/urecruitment/.claude/worktrees/pr-234-e2e-failure-ae0daf/src/server/ai/embeddings.test.ts
+  336:30  warning  '_text' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/pr-234-e2e-failure-ae0daf/src/server/ai/provider.ts
+  88:3  warning  '_text' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/pr-234-e2e-failure-ae0daf/src/server/gap-check/missing-fields.test.ts
+  241:23  warning  '_table' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/pr-234-e2e-failure-ae0daf/supabase/migration-lint.ts
+  113:7  warning  'QUALIFIED' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/urecruitment-e2e-failure-a8c129/src/server/ai/embeddings.test.ts
+  336:30  warning  '_text' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/urecruitment-e2e-failure-a8c129/src/server/ai/provider.ts
+  88:3  warning  '_text' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/urecruitment-e2e-failure-a8c129/src/server/gap-check/missing-fields.test.ts
+  241:23  warning  '_table' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/.claude/worktrees/urecruitment-e2e-failure-a8c129/supabase/migration-lint.ts
+  113:7  warning  'QUALIFIED' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/src/server/gap-check/missing-fields.test.ts
+  241:23  warning  '_table' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jay/personal/urecruitment/supabase/migration-lint.ts
+  113:7  warning  'QUALIFIED' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 10 problems (0 errors, 10 warnings)

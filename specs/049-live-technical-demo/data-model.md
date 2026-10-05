@@ -1,0 +1,2 @@
+# Data model
+No schema changes. Placement response adds `daysUsed: number`, clamped to the existing guarantee period. Dates are valid YYYY-MM-DD calendar dates. New local fixture objects mirror existing REST records; they are in memory only, keyed by fixed fictional IDs. A reset replaces all fixture rows and clears one-shot failure state. Capture manifest records actual capture time, scenario time, viewport, filename, source hashes and baseline/fixed status. No authentication tokens are included.

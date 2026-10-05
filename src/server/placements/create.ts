@@ -1,6 +1,7 @@
 import "server-only";
 
 import { z } from "zod";
+import { isCalendarDate, placementDaysUsed } from "@/lib/placement-countdown";
 
 import { getDb } from "../db";
 import { getGuaranteeFlagForPlacement, type GuaranteeFlag } from "./guarantee";
@@ -11,7 +12,7 @@ const NOT_PLACED = "This candidate is not in the Placed stage.";
 const START_BEFORE_PLACED =
   "The start date cannot be before the date this candidate was placed.";
 
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const isoDate = z.string().refine(isCalendarDate);
 
 const createPlacementSchema = z.object({
   pipelineEntryId: z.string().min(1),
@@ -31,6 +32,7 @@ export type Placement = {
   guaranteePeriodDays: number;
   guaranteeEndDate: string;
   flag: GuaranteeFlag;
+  daysUsed: number;
 };
 
 export type CreatePlacementResult =
@@ -223,6 +225,7 @@ export async function createPlacement(
         startDate,
         guaranteePeriodDays,
         guaranteeEndDate,
+        daysUsed: placementDaysUsed(startDate, guaranteePeriodDays),
         flag: await getGuaranteeFlagForPlacement(updated.id),
       },
     };
@@ -245,6 +248,7 @@ export async function createPlacement(
       startDate,
       guaranteePeriodDays,
       guaranteeEndDate,
+      daysUsed: placementDaysUsed(startDate, guaranteePeriodDays),
       flag: await getGuaranteeFlagForPlacement(inserted.id),
     },
   };

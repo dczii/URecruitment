@@ -2,6 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 import { bypassStatePath } from "./e2e/bypass-state";
 
+const localPort = process.env.PLAYWRIGHT_LOCAL_PORT ?? "3000";
+if (!/^\d+$/.test(localPort) || Number(localPort) < 1024 || Number(localPort) > 65535) throw new Error("Invalid local Playwright port");
 const previewUrl = process.env.PLAYWRIGHT_BASE_URL;
 const usesBypass = Boolean(previewUrl && process.env.PLAYWRIGHT_BYPASS_SECRET);
 
@@ -20,7 +22,7 @@ export default defineConfig({
   // Vercel's cookie once, so tests never send the secret themselves.
   globalSetup: usesBypass ? "./e2e/global-setup.ts" : undefined,
   use: {
-    baseURL: previewUrl ?? "http://localhost:3000",
+    baseURL: previewUrl ?? `http://localhost:${localPort}`,
     // Traces record request headers and cookies, and CI uploads them to a
     // public repo on failure. Against a protected preview they would carry the
     // bypass cookie, so keep screenshots only there.
@@ -52,7 +54,7 @@ export default defineConfig({
     ? undefined
     : {
         command: "node e2e/run-local.mjs",
-        url: "http://localhost:3000",
+        url: `http://localhost:${localPort}`,
         reuseExistingServer: false,
         timeout: 120_000,
       },

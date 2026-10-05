@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Authoritative countdown shared by load and save</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:40px;background:white;color:#171717}header{border-bottom:1px solid #ddd;padding-bottom:20px;margin-bottom:24px}h1{font-size:28px;margin:8px 0}p{color:#555;line-height:1.5}pre{font:16px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #ddd;border-radius:12px;padding:24px;background:#fafafa}small{font-weight:600;letter-spacing:.08em}footer{color:#555;margin-top:24px}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}th,td{border:1px solid #ddd;padding:12px;text-align:left;overflow-wrap:anywhere}th{background:#f5f5f5}tbody tr:nth-child(even){background:#fafafa}</style><header><small>PREPARED ENGINEERING EVIDENCE</small><h1>Authoritative countdown shared by load and save</h1><p>Actual repository file: src/lib/placement-countdown.ts. This viewer shows source/evidence; it is not an IDE or AI conversation.</p></header><pre>const DAY_MS = 86_400_000;
+const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+/** Validate calendar dates without accepting JavaScript's overflow normalization. */
+export function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const instant = Date.parse(`${value}T00:00:00.000Z`);
+  return Number.isFinite(instant) &amp;&amp; new Date(instant).toISOString().slice(0, 10) === value;
+}
+
+/** Calendar days, not working days; start is day zero. Shared by load and save. */
+export function placementDaysUsed(
+  startDate: string,
+  periodDays: number,
+  now: Date = new Date(),
+): number {
+  const today = new Date(now.getTime() + SGT_OFFSET_MS).toISOString().slice(0, 10);
+  const elapsed = (Date.parse(`${today}T00:00:00Z`) - Date.parse(`${startDate}T00:00:00Z`)) / DAY_MS;
+  return Math.min(periodDays, Math.max(0, elapsed));
+}
+</pre><footer>Fictional local demo · feature 049 · see the full source file and presenter script for live commands and limitations.</footer></html>

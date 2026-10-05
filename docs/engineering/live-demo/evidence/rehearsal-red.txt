@@ -1,0 +1,113 @@
+
+ RUN  v5.0.1 /private/var/folders/xh/4gg8772n0c15fj4sjw6480c40000gn/T/urecruitment-countdown-42hV8v
+
+ ❯ countdown.test.ts (11 tests | 5 failed) 12ms
+   ❯ 049 spec-derived rehearsal (11)
+     × FR-001/month-end 8ms
+     × FR-001/leap-day 1ms
+     × FR-002/ended 0ms
+     × FR-002/end-today 0ms
+     × FR-002/client-period 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  countdown.test.ts > 049 spec-derived rehearsal > FR-001/month-end
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ countdown.test.ts:5:103
+      3| import { placementDaysUsed } from './placement-countdown';
+      4| describe('049 spec-derived rehearsal', () => {
+      5|   for (const c of cases) it(c.id, () => expect(placementDaysUsed(c.sta…
+       |                                                                                                       ^
+      6| });
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  countdown.test.ts > 049 spec-derived rehearsal > FR-001/leap-day
+AssertionError: expected 4 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 4
+
+ ❯ countdown.test.ts:5:103
+      3| import { placementDaysUsed } from './placement-countdown';
+      4| describe('049 spec-derived rehearsal', () => {
+      5|   for (const c of cases) it(c.id, () => expect(placementDaysUsed(c.sta…
+       |                                                                                                       ^
+      6| });
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  countdown.test.ts > 049 spec-derived rehearsal > FR-002/ended
+AssertionError: expected 60 to be 30 // Object.is equality
+
+- Expected
++ Received
+
+- 30
++ 60
+
+ ❯ countdown.test.ts:5:103
+      3| import { placementDaysUsed } from './placement-countdown';
+      4| describe('049 spec-derived rehearsal', () => {
+      5|   for (const c of cases) it(c.id, () => expect(placementDaysUsed(c.sta…
+       |                                                                                                       ^
+      6| });
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  countdown.test.ts > 049 spec-derived rehearsal > FR-002/end-today
+AssertionError: expected 31 to be 30 // Object.is equality
+
+- Expected
++ Received
+
+- 30
++ 31
+
+ ❯ countdown.test.ts:5:103
+      3| import { placementDaysUsed } from './placement-countdown';
+      4| describe('049 spec-derived rehearsal', () => {
+      5|   for (const c of cases) it(c.id, () => expect(placementDaysUsed(c.sta…
+       |                                                                                                       ^
+      6| });
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  countdown.test.ts > 049 spec-derived rehearsal > FR-002/client-period
+AssertionError: expected 65 to be 60 // Object.is equality
+
+- Expected
++ Received
+
+- 60
++ 65
+
+ ❯ countdown.test.ts:5:103
+      3| import { placementDaysUsed } from './placement-countdown';
+      4| describe('049 spec-derived rehearsal', () => {
+      5|   for (const c of cases) it(c.id, () => expect(placementDaysUsed(c.sta…
+       |                                                                                                       ^
+      6| });
+      7|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 6 passed (11)
+   Start at  15:18:27
+   Duration  240ms (transform 48%, import 26%, tests 19%, worker 7%)

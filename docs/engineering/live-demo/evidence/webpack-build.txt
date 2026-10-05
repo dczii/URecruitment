@@ -1,0 +1,41 @@
+▲ Next.js 16.3.5 (webpack)
+- Environments: .env.local, .env
+✓ Running next.config.ts took 326ms
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+  Creating an optimized production build ...
+[@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+✓ Compiled successfully in 5.2s
+  Running TypeScript ...
+  Finished TypeScript in 2.1s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/8) ...
+  Generating static pages using 11 workers (2/8)
+  Generating static pages using 11 workers (4/8)
+  Generating static pages using 11 workers (6/8)
+✓ Generating static pages using 11 workers (8/8) in 104ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /api/sentry-test
+├ ƒ /candidates/[id]
+├ ƒ /dashboard
+├ ƒ /jobs
+├ ƒ /jobs/[id]
+├ ƒ /jobs/new
+├ ƒ /login
+├ ƒ /placements
+├ ƒ /search
+├ ƒ /sentry-test
+└ ƒ /settings
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+no leaks (scanned 2 directories)

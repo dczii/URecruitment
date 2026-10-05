@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { isCalendarDate } from "@/lib/placement-countdown";
 import { isValidRecruiterName } from "@/lib/recruiter-name";
 import {
   createPlacement,
@@ -16,7 +17,7 @@ const SAVE_FAILED = "The placement could not be saved.";
 
 const savePlacementSchema = z.object({
   pipelineEntryId: z.string().min(1),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  startDate: z.string().refine(isCalendarDate),
   typedName: z.string().trim().refine(isValidRecruiterName),
 });
 

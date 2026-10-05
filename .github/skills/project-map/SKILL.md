@@ -98,3 +98,7 @@ Many documents under `docs/` cite skills that were replaced on 2026-10-01. Read 
 1. Find the owning document in the table, read it fully, then read the code it governs.
 2. Cite documents by path in specs and PRs. Don't paraphrase a rule from memory.
 3. When you find new drift, add it here in the same change.
+
+## Local technical demo
+
+`specs/049-live-technical-demo/` owns the capped Singapore-calendar placement countdown and local-only 15-minute demo. `docs/engineering/live-demo/script.md` is the presenter script; screenshots and provenance are under its `screenshots/` directory. `scripts/demo/` starts the fictional provider/app, resets fixtures, captures actual browser screenshots and generates consistency evidence. These tools do not prove SQL/RLS or remote service behaviour and are not production routes.
