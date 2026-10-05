@@ -28,14 +28,14 @@ Sub-issues are the only parent link. Every issue has one `type:*`, at least one 
 
 ## Spec Kit bridge
 
-- Story issue first, then `/speckit-specify` (put `Story: #N` in the spec). After `/speckit-tasks`, create one Task sub-issue per task group with `new-issue.sh`, or run `/speckit-taskstoissues` and then re-parent and label the results. Put the issue number back in `tasks.md`.
+- Planning and implementation do not require GitHub issues or issue links. When explicitly requested, link supplied issues to specs/tasks or use `/speckit-taskstoissues`; absent links never block feature work.
 - Specs live in `specs/`, never in the issue body; issues link to them by repo-relative path.
 
 ## Branches, commits, PRs
 
-- Branch `<type>/<issue>-<slug>` from an up-to-date `main` (`feat fix chore docs test refactor design ci`). Spec Kit's own branch numbering is not used.
-- Conventional Commits: `<type>(<area>): <imperative summary> (#<issue>)`, body ≤ 72 columns explaining why; at least one commit per Task.
-- **One PR per Story**, base `main`, body from the template, one `Closes #<task>` per Task then `Closes #<story>`, labelled with the `area:*` labels, linking the spec path. GitHub only links closing keywords on default-branch PRs, so stacked PRs show empty `closingIssuesReferences` (expected).
+- Branch `<type>/<slug>` from an up-to-date `main` (`feat fix chore docs test refactor design ci`). Spec Kit's own branch numbering is not used.
+- Conventional Commits: `<type>(<area>): <imperative summary>`, body ≤ 72 columns explaining why; issue suffixes are optional.
+- **One PR per feature**, base `main`, body from the template, linking the spec path. Issue-closing keywords and issue labels are optional when issues exist. GitHub only links closing keywords on default-branch PRs, so stacked PRs show empty `closingIssuesReferences` (expected).
 - Never merge, enable auto-merge, or force-push `main`. Don't push without the user asking.
 
 ## Gotchas

@@ -47,6 +47,10 @@ If two disagree, follow the higher one and note the conflict in the spec's open 
 | `design/*.pen`                               | Pen.dev files. **Only via the pencil MCP tools; never Read or Grep them**   | Design work only                                 |
 | `analysis/00–04*`, `checklists/`, `screenshots/` | Health table, improvement findings, UI modernisation spec and report    | Context for the `ui-modernisation` work          |
 
+## Planning and implementation workflow
+
+Planning and implementation require no Claude review or GitHub issue linkage. Follow user-authorized Spec Kit scope and verification gates. Historical issue references remain context; issue creation is optional and explicitly requested.
+
 ## Recruiter authentication
 
 `specs/047-recruiter-email-otp/` owns `/login`, server-only auth/session/approval guards, private `recruiter_access` and `auth_rate_limits` tables and Resend SMTP setup. `docs/decisions/adr-0004-recruiter-auth.md` supersedes historical no-sign-in/no-email assumptions only for recruiter login. Existing typed-name audit and fictional-candidate-data rules remain.

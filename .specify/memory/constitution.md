@@ -43,9 +43,9 @@ Each PRD item is decided, proposed or open. Proposed items are built and labelle
 
 ## Workflow
 
-- Every change starts from a GitHub issue in `dczii/HRManagement` (Epic → Story → Task sub-issues on Project 4). A Story has one Spec Kit folder `specs/<NNN-feature>/` and ships as one PR with at least one commit per Task.
+- Every feature starts from a user request and has one Spec Kit folder `specs/<NNN-feature>/`. Planning and implementation do not require Claude review or GitHub issue linkage. Issue tracking and code review are optional when requested. A feature ships as one PR when that workflow is authorized.
 - Spec Kit order: specify → clarify → plan → checklist → tasks → analyze → implement. The plan's Constitution Check cites every principle that applies.
-- Branches `<type>/<issue>-<slug>` from `main`; Conventional Commits; PR body `Closes #<task>…` then `Closes #<story>`. Agents never merge.
+- When separately authorized, branches `<type>/<slug>` from `main`; Conventional Commits. Issue references and closing keywords are optional when issues exist. Agents never merge.
 - Verification gate: `npm run lint`, `typecheck`, `test`; plus `build` for app code, `test:e2e` for screens, `test:db` in CI for migrations.
 - Project skills in `.claude/skills/` carry area rules; `project-map` indexes every document and says which wins.
 
@@ -53,4 +53,4 @@ Each PRD item is decided, proposed or open. Proposed items are built and labelle
 
 This constitution and `CLAUDE.md` outrank the PRD where they remove scope and outrank every other document. Amend by editing this file in a PR that also updates `CLAUDE.md`, `AGENTS.md` and affected skills; bump the version, and record any removed scope in `docs/decisions/`. `/speckit-analyze` treats a conflict with a principle as CRITICAL.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02
+**Version**: 1.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

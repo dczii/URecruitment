@@ -11,6 +11,10 @@ disable-model-invocation: false
 ---
 
 
+## Invocation boundary
+
+Run only when the user explicitly requests GitHub issue creation. This skill is optional and never a prerequisite for planning or implementation.
+
 ## User Input
 
 ```text

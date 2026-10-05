@@ -1,3 +1,4 @@
+import { getBuildInfo } from "@/lib/build-info";
 import { InteractionProvider } from "./InteractionProvider";
 import type { ReactNode } from "react";
 
@@ -15,9 +16,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         Skip to content
       </a>
-      <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex min-h-screen overflow-x-clip bg-background text-foreground">
         <DesktopNavigation />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div data-shell-column className="flex min-w-0 flex-1 flex-col">
           <AppHeader />
           <main
             id="main-content"
@@ -26,6 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             {children}
           </main>
+          <footer className="border-t border-border/20 px-4 py-4 text-caption text-muted-foreground lg:px-10">{getBuildInfo()}</footer>
         </div>
       </div>
     </InteractionProvider>

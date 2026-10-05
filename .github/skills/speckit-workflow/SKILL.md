@@ -2,8 +2,8 @@
 name: speckit-workflow
 description: >
   How Spec Kit runs in HRManagement: the constitution, the specs/ folder, the order of /speckit-*
-  commands, which project skills and documents to load at each step, and how specs, tasks and
-  GitHub issues (Epic → Story → Task on Project 4) stay linked. Use for any new feature, story or
+  commands, which project skills and documents to load at each step, and optional GitHub
+  issue tracking when explicitly requested. Use for any new feature, story or
   task, including natural-language requests to plan a feature or integration, and whenever
   someone asks which command to run next.
 ---
@@ -21,7 +21,7 @@ Spec Kit (v1.0.x, installed with `specify init --here --integration claude`) pro
 | Decisions that outlive one feature | `docs/decisions/` (ADRs) and `open-questions.md` |
 | Legacy task plans | `specs/001-*` through `specs/044-*` (history; mapping in `specs/README.md`) |
 
-One feature = one Story = one branch `<NNN>-<slug>` is Spec Kit's default; this repo overrides it to `<type>/<issue>-<slug>` (see `github-workflow`). Pass the issue number in the spec header (`Story: #123`).
+One feature gets one Spec Kit folder. Planning and implementation require neither Claude review nor GitHub issue linkage. Branch creation remains separately authorized; use `<type>/<slug>` when requested. Issue references are optional.
 
 ### Feature plans, including drafts
 
@@ -38,9 +38,9 @@ Use the installed `.specify/templates/` for formal Spec Kit artifacts. Keep requ
 5. `/speckit-checklist` for security/compliance/UX when the feature touches candidate data, search, storage or a new screen.
 6. `/speckit-tasks`: tasks are test-first for logic (Vitest tests before implementation), grouped per user story, each naming exact file paths.
 7. `/speckit-analyze`: must be clean before implementing. Treat a constitution conflict as CRITICAL.
-8. `/speckit-taskstoissues`: only after the Story issue exists. Create each Task as a sub-issue of the Story with `new-issue.sh` conventions (labels, milestone, Project 4) rather than loose issues. Skip for work with no issue tree.
+8. `/speckit-taskstoissues`: optional, only when the user explicitly requests issue creation. Skip for ordinary planning and implementation; absent issue links never block either stage.
 9. `/speckit-implement`, then the verification gate: `npm run lint && npm run typecheck && npm test`, plus `build` (app code), `test:e2e` (screens, desktop + phone), `test:db` (migrations; CI only on this machine).
-10. `/speckit-converge` if anything is left, then open one PR per Story (`Closes #task…`, `Closes #story`). Never merge.
+10. `/speckit-converge` if anything is left in the authorized scope. Open a PR only when requested; issue-closing references are optional. Never merge.
 
 ## Rules
 

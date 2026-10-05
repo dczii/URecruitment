@@ -36,7 +36,9 @@ for (const dark of [false, true]) {
     if (dark) await page.evaluate(() => document.documentElement.classList.add("dark"));
     const logo = page.locator('img[alt="USER Experience Researchers"]:visible').first();
     await expect(logo.locator("..")).toHaveCSS("background-color", "rgb(255, 255, 255)");
-    await page.getByRole("button", { name: "Add name", exact: true }).click();
+    if ((page.viewportSize()?.width ?? 1440) < 1024) await page.getByRole("button", { name: "Open navigation" }).click();
+    await page.getByRole("button", { name: "Account: Add name" }).click();
+    await page.getByRole("menuitem", { name: "Add name", exact: true }).click();
     await page.getByLabel("Name", { exact: true }).fill("Fictional Recruiter");
     const button = page.getByRole("button", { name: "Continue", exact: true });
     await expect(button).toBeEnabled();

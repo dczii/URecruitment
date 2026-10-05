@@ -1,6 +1,6 @@
 # AGENTS.md — rules for coding agents (Cursor / Grok)
 
-You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `specs/<NNN-feature>/` (Spec Kit) and reviews everything you write. Your prompt names the task id in `tasks.md` to implement. Do that task, no more.
+You are a coding agent. Plan and implement user-authorized work in `specs/<NNN-feature>/` through Spec Kit. Follow the requested feature, phase or task scope. Planning and implementation require neither Claude review nor GitHub issue linkage. Code review is optional when the user requests it.
 
 ## Before you edit
 
@@ -11,7 +11,7 @@ You are an **executor** (Cursor Grok or GPT-5.6). Claude plans the work in `spec
 ## Scope
 
 - Change only the files the task lists. If another file must change, change it and say so in your final report.
-- **Do not** run `git commit`, `git push`, create or switch branches, or edit anything under `.git/`. Claude commits.
+- **Do not** run `git commit`, `git push`, create or switch branches, or edit anything under `.git/`. The user controls commits.
 - **Never push directly to `main` or merge a pull request.** Changes reach `main` only through a PR that the user merges manually.
 - **Do not** edit `specs/**`, `.specify/**`, `docs/tasks/**`, `.claude/**`, `AGENTS.md`, `CLAUDE.md` or `.github/**` unless the task says so.
 - **Do not** add npm dependencies the plan doesn't list. If one is needed, stop and report it.
