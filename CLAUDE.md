@@ -48,11 +48,11 @@ npm run seed         # rebuild sample data (lists the public Vercel Blob store v
 
 The constitution at `.specify/memory/constitution.md` restates the hard rules for Spec Kit. Keep it and this file in step.
 
-- **Every change starts from a GitHub issue** in `dczii/HRManagement`, tracked on [Project 4](https://github.com/users/dczii/projects/4). The hierarchy is Epic → Story → Task, using sub-issues. Config lives in `.claude/github-project.json`.
-- **Each Story gets a Spec Kit folder** `specs/<NNN-feature>/` (`spec.md`, `plan.md`, `tasks.md`). Run `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-checklist` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`. Task issues come from `tasks.md` (see the `speckit-workflow` and `github-workflow` skills). Open questions go to `docs/decisions/open-questions.md`, never into a spec as an assumption.
+- Planning and implementation start from the user’s request. Claude review and GitHub issue linkage are not prerequisites. Issue tracking in `dczii/HRManagement` / Project 4 is optional and used only when requested; config lives in `.claude/github-project.json`.
+- **Each feature gets a Spec Kit folder** `specs/<NNN-feature>/` (`spec.md`, `plan.md`, `tasks.md`). Run `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-checklist` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`. Tasks live in `tasks.md`; conversion to GitHub issues is optional and requires an explicit request. Open questions go to `docs/decisions/open-questions.md`, never into a spec as an assumption.
 - **Document precedence:** constitution + this file, then ADRs, then the PRD, then `docs/plans|compliance|security|ux`, then `specs/`, then `design/`. `project-map` lists every document and what it governs. Legacy plans now live in `specs/001-*` through `specs/044-*` (see `specs/README.md`); `docs/backlog/**` remains the backlog source.
-- **`/review [PR#]`** reviews a diff against its spec, the constitution and the skills in scope.
-- **Git:** branches are named `<type>/<issue>-<slug>` and cut from `main`. Commits use Conventional Commits (`feat(search): filter by language requirement (#42)`). The PR body contains `Closes #<issue>`. A Story ships as **one PR** with at least one commit per Task, closing every Task and the Story. Never merge.
+- **`/review [PR#]`** optionally reviews a diff against its spec, the constitution and the skills in scope when requested; no named model or reviewer is required for planning or implementation.
+- **Git:** when separately authorized, use `<type>/<slug>` branches from `main` and Conventional Commits. Issue references and closing keywords are optional when an issue exists. A feature ships as one PR. Never merge.
 - **Tests first for logic.** Working days, delay status, gap rules, stage advance and similar logic get failing Vitest tests before the implementation.
 - **Executors can't load Claude skills.** Any prompt to `cursor-agent` inlines the rules that apply. `AGENTS.md` carries the baseline rules.
 

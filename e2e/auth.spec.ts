@@ -18,7 +18,9 @@ test("AC1 AC2 AC5 approved OTP signs in and logout blocks access", async ({ page
   const cookies = await page.context().cookies();
   expect(cookies.find(c => c.name === "recruiter-session-age")?.httpOnly).toBe(true);
   expect(cookies.find(c => c.name.startsWith("sb-"))?.httpOnly).toBe(true);
-  await page.getByRole("button", { name: "Sign out" }).click(); await expect(page).toHaveURL(/\/login$/);
+  if ((page.viewportSize()?.width ?? 1440) < 1024) await page.getByRole("button", { name: "Open navigation" }).click();
+  await page.getByRole("button", { name: "Account: Add name" }).click();
+  await page.getByRole("menuitem", { name: "Sign out" }).click(); await expect(page).toHaveURL(/\/login$/);
   await page.goto("/settings"); await expect(page).toHaveURL(/\/login$/);
 });
 test("AC3 unknown email gets acknowledgement and no access", async ({ page }) => {

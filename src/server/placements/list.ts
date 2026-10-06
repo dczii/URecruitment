@@ -1,5 +1,6 @@
 import "server-only";
 
+import { placementDaysUsed } from "@/lib/placement-countdown";
 import type { Json } from "@/lib/database.types";
 import { getDb } from "../db";
 import { getFlaggedPlacements, type GuaranteeFlag } from "./guarantee";
@@ -40,22 +41,6 @@ type PlacementsClient = {
     };
   };
 };
-
-/** SGT calendar date (YYYY-MM-DD) for "today", used for the guarantee flag and days-used math. */
-function todaySgtDate(): string {
-  const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
-  return new Date(Date.now() + SGT_OFFSET_MS).toISOString().slice(0, 10);
-}
-
-function calendarDaysBetween(fromIso: string, toIso: string): number {
-  const from = Date.UTC(
-    ...(fromIso.split("-").map(Number) as [number, number, number]),
-  );
-  const to = Date.UTC(
-    ...(toIso.split("-").map(Number) as [number, number, number]),
-  );
-  return Math.round((to - from) / (24 * 60 * 60 * 1000));
-}
 
 /**
  * Every candidate whose current pipeline stage is Placed, with their
@@ -136,7 +121,7 @@ export async function listPlacements(): Promise<PlacementListItem[]> {
     (placementsResult.data ?? []).map((p) => [p.pipeline_entry_id, p]),
   );
 
-  const today = todaySgtDate();
+  const now = new Date();
 
   return rows
     .map((row): PlacementListItem => {
@@ -162,9 +147,10 @@ export async function listPlacements(): Promise<PlacementListItem[]> {
         };
       }
 
-      const daysUsed = Math.max(
-        0,
-        calendarDaysBetween(placement.start_date, today),
+      const daysUsed = placementDaysUsed(
+        placement.start_date,
+        placement.guarantee_period_days,
+        now,
       );
       // The flag comes from placements_guarantee_flag (#163) — the same
       // security-invoker view the dashboard reads — rather than being

@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { createHmac } from 'node:crypto';
+import { createPlacementFixture } from './placement-fixtures.mjs';
 export const USER_ID = '00000000-0000-4000-8000-000000000047';
 export const EMAIL = 'recruiter@example.test';
 const revoked = new Set();
@@ -11,13 +12,37 @@ function jwt(user, seconds = 3600) {
   const body = Buffer.from(JSON.stringify({ sub: user.id, aud: 'authenticated', role: 'authenticated', email: user.email, iat: Math.floor(Date.now()/1000), exp: Math.floor(Date.now()/1000)+seconds })).toString('base64url');
   return `${head}.${body}.${createHmac('sha256','fictional-jwt-key').update(`${head}.${body}`).digest('base64url')}`;
 }
-export function startMock(port = 54329) {
-  return new Promise(resolve => {
+export function startMock(port = 54329, options = {}) {
+  let placementFixture = options.placements ? createPlacementFixture(options.today) : null;
+  let failNextPlacementWrite = false;
+  return new Promise((resolve, reject) => {
     const server = createServer(async (req, res) => {
       const url = new URL(req.url, `http://127.0.0.1:${port}`);
       let body = ''; for await (const chunk of req) body += chunk;
       let input = {}; try { input = JSON.parse(body || '{}'); } catch { /* no JSON */ }
       const reply = (value, status = 200) => { res.writeHead(status, { 'content-type': 'application/json' }); res.end(JSON.stringify(value)); };
+      // Browsers cannot use a cross-origin form/fetch to mutate test controls.
+      if (url.pathname.startsWith('/test/') && req.headers.origin) return reply({ message: 'Test controls require a local script' }, 403);
+      if (url.pathname === '/test/info') return reply({ provider: 'urecruitment-fictional', today: options.today ?? null });
+      if (url.pathname === '/test/placements') {
+        if (req.method !== 'POST') return reply({ message: 'POST required' }, 405);
+        const today = options.today ?? new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+        placementFixture = createPlacementFixture(today);
+        placementFixture.reset(input.empty === true);
+        failNextPlacementWrite = false;
+        return reply({ today, fictional: true });
+      }
+      if (url.pathname === '/test/placement-failure') { failNextPlacementWrite = true; return reply({}); }
+      if (placementFixture && url.pathname.startsWith('/rest/v1/')) {
+        const table = url.pathname.slice('/rest/v1/'.length);
+        if (table === 'placements' && ['POST', 'PATCH'].includes(req.method)) {
+          if (failNextPlacementWrite) { failNextPlacementWrite = false; return reply({ message: 'Fictional save failure' }, 500); }
+          const row = placementFixture.write(input, url.searchParams.get('id')?.slice(3));
+          return reply(req.headers.accept?.includes('vnd.pgrst.object') ? row : [row]);
+        }
+        const rows = placementFixture.read(table, url.searchParams);
+        if (rows !== undefined) return reply(req.headers.accept?.includes('vnd.pgrst.object') ? (rows[0] ?? null) : rows);
+      }
       const user = { id: USER_ID, email: EMAIL, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '2026-10-02T00:00:00Z' };
       if (url.pathname === '/auth/v1/otp') {
         if (input.create_user !== false) return reply({ msg: 'Public signup must be disabled' }, 400);
@@ -51,7 +76,7 @@ export function startMock(port = 54329) {
         state.count++; rates.set(input.bucket_key,state); return reply(state.count <= input.max_attempts);
       }
       // Test-provider controls are local-only and absent from application routes.
-      if (url.pathname === '/test/reset') { rates.clear(); revoked.clear(); pendingCode = null; return reply({}); }
+      if (url.pathname === '/test/reset') { rates.clear(); revoked.clear(); pendingCode = null; placementFixture = options.placements ? createPlacementFixture(options.today) : null; failNextPlacementWrite = false; return reply({}); }
       if (url.pathname === '/test/expire') { if (pendingCode) pendingCode.expires = 0; return reply({}); }
       if (url.pathname === '/test/revoke') { revoked.add(USER_ID); return reply({}); }
       if (url.pathname === '/rest/v1/pipeline_status') return reply([
@@ -70,6 +95,7 @@ export function startMock(port = 54329) {
       }
       return reply({ message: 'Unhandled mock request' }, 404);
     });
+    server.once('error', reject);
     server.listen(port, '127.0.0.1', () => resolve(server));
   });
 }

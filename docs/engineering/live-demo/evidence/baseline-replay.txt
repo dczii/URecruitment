@@ -1,0 +1,20 @@
+
+> HRManagement@0.1.0 demo:baseline
+> node --import tsx scripts/demo/verify.ts --baseline
+
+┌─────────┬──────────────────────────────┬────────────┬────────────┬──────────┬────────┬─────────────────────────┐
+│ (index) │ case                         │ loadBefore │ saveBefore │ expected │ actual │ result                  │
+├─────────┼──────────────────────────────┼────────────┼────────────┼──────────┼────────┼─────────────────────────┤
+│ 0       │ 'FR-001/month-end'           │ 0          │ 1          │ 1        │ 0      │ 'unexpected difference' │
+│ 1       │ 'FR-001/leap-day'            │ 4          │ 2          │ 2        │ 4      │ 'unexpected difference' │
+│ 2       │ 'FR-001/year-end'            │ 1          │ 1          │ 1        │ 1      │ 'unchanged'             │
+│ 3       │ 'FR-001/before-SGT-midnight' │ 0          │ 1          │ 0        │ 0      │ 'approved difference'   │
+│ 4       │ 'FR-001/at-SGT-midnight'     │ 1          │ 1          │ 1        │ 1      │ 'unchanged'             │
+│ 5       │ 'FR-002/ended'               │ 60         │ 30         │ 30       │ 60     │ 'unexpected difference' │
+│ 6       │ 'FR-002/end-today'           │ 31         │ 30         │ 30       │ 31     │ 'unexpected difference' │
+│ 7       │ 'FR-002/future'              │ 0          │ 0          │ 0        │ 0      │ 'unchanged'             │
+│ 8       │ 'FR-002/start-today'         │ 0          │ 0          │ 0        │ 0      │ 'unchanged'             │
+│ 9       │ 'FR-002/active'              │ 4          │ 4          │ 4        │ 4      │ 'unchanged'             │
+│ 10      │ 'FR-002/client-period'       │ 65         │ 60         │ 60       │ 65     │ 'unexpected difference' │
+└─────────┴──────────────────────────────┴────────────┴────────────┴──────────┴────────┴─────────────────────────┘
+Historical formulas from 3c39f2e replayed against the approved specification. Expected failure; current app was not reverted.

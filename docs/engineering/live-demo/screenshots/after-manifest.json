@@ -1,0 +1,131 @@
+{
+  "capturedAt": "2026-10-05T07:28:20.968Z",
+  "scenarioInstant": "2026-10-05T04:00:00Z",
+  "backend": "local fictional provider; no SQL/RLS proof",
+  "mode": "corrected application",
+  "head": "3c39f2e3ed6d169d3a7146fca5a5fb65377acd72",
+  "sources": {
+    "src/server/placements/list.ts": "0b44f5ab5cf0eb0f314f81193d8d0b506354780cfca389c631885e37d1fcbc7b",
+    "src/server/placements/create.ts": "ff6bba16351512d96734f6340f503b8c2cfee7b3372f694dadc66110a9f99788",
+    "src/components/features/placements/Placements.tsx": "8f833327272f831abef4afb71b0416b6f7ccc188f30faccacbc91ba931d7f72e"
+  },
+  "captures": [
+    {
+      "filename": "after-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "2259c2a5218f3be3adcde396ce6669c5fd76fb10b5377073b79866587a147006"
+    },
+    {
+      "filename": "typed-name-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "f25f28a8ef11a5e084fcbb4173dd2350c6df842eb101b0120aab8e8013b36691"
+    },
+    {
+      "filename": "saved-reloaded-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "d0081aa23cc286c066d555d2ec31ff067837ad63fdb9a9a9117da4f5017688ca"
+    },
+    {
+      "filename": "validation-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "af4fa2f8b037ded5a0f66c38662caf1d6e2937a18ebd0b355dafd01e714a5c97"
+    },
+    {
+      "filename": "empty-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "42708e60d445797f20736303ce898a912ddb3dc1c6c12cf664d21fd5108b7f6e"
+    },
+    {
+      "filename": "after-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "fdc37d65ea2a4fb893a80427329616cccc2292a4da74716ac183aba6e72299d4"
+    },
+    {
+      "filename": "typed-name-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "7e362fa1e3d91598bf3bc2472d3cf699d8a5b031a598b1e11493da2f2920e2ab"
+    },
+    {
+      "filename": "saved-reloaded-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "7c9519bebd685e063e39fbec010105cef62192dacf9403f448d6f0a2ecc74a68"
+    },
+    {
+      "filename": "validation-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "0ead789283f5675685057c052628f6e8a356c9593a9f880a60fdb6b893fcd24a"
+    },
+    {
+      "filename": "empty-phone.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "0e0bdd5ca028c6e9887895b9874bd8b32dafe281ec87ef06e4286afd22b594a6"
+    },
+    {
+      "filename": "specification-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "source": "evidence/specification.html",
+      "sha256": "20cd99a0d6e23156ddcc13218ec771489dbf5dea6e3ab8e21460fe4921ab3df9"
+    },
+    {
+      "filename": "implementation-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "source": "evidence/implementation.html",
+      "sha256": "7867c8af03a81d66ae50c136a6cc85602afeedfd90b2d7fae6c76ddf98919005"
+    },
+    {
+      "filename": "consistency-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "source": "evidence/consistency.html",
+      "sha256": "252060e033149180a95499a16d9a431874d854c889e6d0fb9668523113b7d8d8"
+    }
+  ]
+}

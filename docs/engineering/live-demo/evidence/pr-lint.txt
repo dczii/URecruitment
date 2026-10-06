@@ -1,0 +1,12 @@
+
+> HRManagement@0.1.0 lint
+> eslint
+
+
+/private/var/folders/xh/4gg8772n0c15fj4sjw6480c40000gn/T/urecruitment-pr-pit6iask/checkout/src/server/gap-check/missing-fields.test.ts
+  241:23  warning  '_table' is defined but never used  @typescript-eslint/no-unused-vars
+
+/private/var/folders/xh/4gg8772n0c15fj4sjw6480c40000gn/T/urecruitment-pr-pit6iask/checkout/supabase/migration-lint.ts
+  113:7  warning  'QUALIFIED' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)

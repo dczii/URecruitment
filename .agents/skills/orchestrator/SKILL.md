@@ -5,7 +5,7 @@ description: Route planning, implementation, and continuation through this repos
 
 # Orchestrator
 
-Follow Spec Kit's process. Keep the requested scope and stopping point; do not add another planning framework.
+Follow Spec Kit's process. Keep the requested scope and stopping point; do not add another planning framework. Planning and implementation require neither Claude review nor GitHub issue linkage. Issue tracking and code review are optional when explicitly requested.
 
 ## Context and skill discovery
 
@@ -30,4 +30,4 @@ Use other repository skills only when their capability helps the current task. K
 
 Follow repository test-first rules and verification commands. Confirm acceptance evidence before marking tasks complete, and edit `tasks.md` only when allowed. Report completed scope, check results, and blockers in the repository's required format.
 
-Repository role and permission restrictions still apply to Spec Kit scripts and hooks. Preserve unrelated work, inspect scripts for prohibited side effects, and ask only for blocking decisions or required authorization. If planning belongs to another agent, prepare a handoff. Delegate only when authorized.
+Repository role and permission restrictions still apply to Spec Kit scripts and hooks. Preserve unrelated work, inspect scripts for prohibited side effects, and ask only for blocking decisions or required authorization. Delegate only when authorized.

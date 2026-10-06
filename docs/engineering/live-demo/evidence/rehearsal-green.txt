@@ -1,0 +1,8 @@
+
+ RUN  v5.0.1 /private/var/folders/xh/4gg8772n0c15fj4sjw6480c40000gn/T/urecruitment-countdown-42hV8v
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  15:24:53
+   Duration  99ms (transform 58%, import 22%, tests 12%, worker 8%)

@@ -1,0 +1,19 @@
+
+> HRManagement@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+ RUN  v5.0.1 /private/var/folders/xh/4gg8772n0c15fj4sjw6480c40000gn/T/urecruitment-pr-pit6iask/checkout
+
+
+ Test Files  68 passed (68)
+      Tests  436 passed (436)
+   Start at  15:47:11
+   Duration  2.56s (import 32%, environment 28%, tests 19%, transform 17%, setup 3%, worker 1%)
+
+    Isolate  68 workers spawned · ~179ms startup each (spawn + environment, per file)
+             at least ~926ms faster with isolate: false — reuses workers across files instead of one per file

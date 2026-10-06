@@ -1,0 +1,60 @@
+
+> HRManagement@0.1.0 build
+> next build && node scripts/check-client-bundle.mjs
+
+▲ Next.js 16.3.5 (Turbopack)
+- Environments: .env.local, .env
+✓ Running next.config.ts took 394ms
+- Experiments (use with caution):
+  · clientTraceMetadata
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./src/instrumentation-client.ts
+Error: Reading source code for parsing failed
+An unexpected error happened while trying to read the source code to parse: creating new process
+
+Caused by:
+- binding to a port
+- Operation not permitted (os error 1)
+
+Debug info:
+- Execution of <WebpackLoadersProcessedAsset as Asset>::content failed
+- Execution of WebpackLoadersProcessedAsset::process failed
+- Execution of evaluate_webpack_loader failed
+- creating new process
+- binding to a port
+- Operation not permitted (os error 1)
+
+Import traces:
+  Browser:
+    ./src/instrumentation-client.ts
+    ./node_modules/next/dist/lib/require-instrumentation-client.js
+    ./node_modules/next/dist/client/next-turbopack.js
+
+  Client Component Browser:
+    ./src/instrumentation-client.ts
+    ./node_modules/next/dist/lib/require-instrumentation-client.js
+    ./node_modules/next/dist/client/app-next-turbopack.js
+
+
+./src/instrumentation.ts
+Error: Reading source code for parsing failed
+An unexpected error happened while trying to read the source code to parse: creating new process
+
+Caused by:
+- binding to a port
+- Operation not permitted (os error 1)
+
+Debug info:
+- Execution of <WebpackLoadersProcessedAsset as Asset>::content failed
+- Execution of WebpackLoadersProcessedAsset::process failed
+- Execution of evaluate_webpack_loader failed
+- creating new process
+- binding to a port
+- Operation not permitted (os error 1)
+
+
+    at ignore-listed frames

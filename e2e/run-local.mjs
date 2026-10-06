@@ -7,7 +7,7 @@ const build = spawn('npm', ['exec', '--', 'next', 'build', '--webpack'], { stdio
 const buildCode = await new Promise(resolve => build.on('exit', resolve));
 if (buildCode !== 0) process.exit(buildCode ?? 1);
 const mock = await startMock();
-const child = spawn('npm', ['run', 'start'], { stdio: 'inherit', env });
+const child = spawn('npm', ['run', 'start', '--', '--hostname', '127.0.0.1', '--port', process.env.PLAYWRIGHT_LOCAL_PORT ?? '3000'], { stdio: 'inherit', env });
 function stop() { child.kill('SIGTERM'); mock.close(); }
 process.on('SIGTERM', stop); process.on('SIGINT', stop);
 child.on('exit', code => { mock.close(); process.exit(code ?? 0); });

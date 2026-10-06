@@ -1,0 +1,16 @@
+
+> HRManagement@0.1.0 test
+> vitest run src/lib/placement-countdown.test.ts src/server/placements/list.test.ts src/server/placements/create.test.ts scripts/demo/fixtures.test.ts
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+ RUN  v5.0.1 /Users/jay/personal/urecruitment
+
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  09:08:39
+   Duration  201ms (transform 58%, import 23%, setup 8%, tests 7%, worker 4%, environment 1%)

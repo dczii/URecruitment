@@ -79,6 +79,8 @@ test("AC3: keyboard reaches skip link and navigation with visible focus", async 
     return;
   }
 
+  await expect(page.getByRole("button", { name: "Collapse sidebar" })).toBeFocused();
+  await page.keyboard.press("Tab");
   const dashboardLink = page.getByRole("link", {
     name: "Dashboard",
     exact: true,
@@ -111,5 +113,6 @@ test("AC4: shell renders page context, main region, title, and recruiter name", 
   await expect(
     page.getByRole("heading", { level: 1, name: "What needs attention today" }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Add name" })).toBeVisible();
+  if ((page.viewportSize()?.width ?? 1440) < 1024) await page.getByRole("button", { name: "Open navigation" }).click();
+  await expect(page.getByRole("button", { name: "Account: Add name" })).toBeVisible();
 });

@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Specification drives the change</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:40px;background:white;color:#171717}header{border-bottom:1px solid #ddd;padding-bottom:20px;margin-bottom:24px}h1{font-size:28px;margin:8px 0}p{color:#555;line-height:1.5}pre{font:16px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #ddd;border-radius:12px;padding:24px;background:#fafafa}small{font-weight:600;letter-spacing:.08em}footer{color:#555;margin-top:24px}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}th,td{border:1px solid #ddd;padding:12px;text-align:left;overflow-wrap:anywhere}th{background:#f5f5f5}tbody tr:nth-child(even){background:#fafafa}</style><header><small>PREPARED ENGINEERING EVIDENCE</small><h1>Specification drives the change</h1><p>Actual repository file: specs/049-live-technical-demo/spec.md. This viewer shows the requirements and recorded clarification; it is not an IDE or AI conversation.</p></header><pre>## Requirements
+- **FR-001**: Count elapsed Singapore calendar dates, correctly across month/year/leap boundaries. Start date is day zero.
+- **FR-002**: Display “X of Y days used” with X clamped to [0,Y]. Keep existing status semantics: ended only after the end date.
+- **FR-003**: Initial load and successful save use the same calculation; browser displays the server result. Retain typed-name attribution and access guards.
+- **FR-004**: Invalid calendar dates and dates before placement must be rejected without writes.
+- **FR-005**: Provide local-only start/reset commands, fixed demo time, linked fictional fixtures and persistent in-memory saves. No production demo endpoints or remote writes.
+- **FR-006**: Verify desktop 1440×900 and phone 390×844, including populated interaction, empty/error states and textual flags.
+- **FR-007**: Generate repeatable before/expected/after comparison evidence with source/spec identity and actual command results. Mock results must not claim SQL/RLS verification.
+- **FR-008**: Capture real before/after, typed-name, error, desktop and phone browser screenshots and link them from the script.
+- **FR-009**: Deliver exact prompts/commands, a 15-minute runbook, trace links and labeled fallback evidence; do not fabricate Copilot execution or human review.
+
+### Key Entities
+Placement: existing pipeline entry, start, client period, guarantee end, typed name. Demo fixture: fictional linked records plus scenario clock. Evidence: code/spec identity, inputs, expected/actual outputs, command results and capture metadata.
+
+
+## Clarifications
+2026-10-05: User answered “Yes — use capped days used (recommended)” to retaining days-used wording, capping at the period, zero before/on start, and ended beginning the day after the end date. No unresolved product decision remains in this feature.
+
+</pre><footer>Fictional local demo · feature 049 · see the full source file and presenter script for live commands and limitations.</footer></html>

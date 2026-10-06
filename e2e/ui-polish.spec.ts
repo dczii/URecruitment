@@ -4,13 +4,16 @@ test("AC1–3: named workspace, actual identity and keyboard recovery", async ({
   await page.goto('/settings');
   await expect(page).toHaveTitle('Settings | URecruitment');
   if(info.project.name === 'desktop') await expect(page.getByRole('link',{name:'Jobs',exact:true})).toHaveText('Jobs');
-  await page.getByRole('button',{name:'Add name'}).click();
+  if(info.project.name === 'phone') await page.getByRole('button',{name:'Open navigation'}).click();
+  await page.getByRole('button',{name:'Account: Add name'}).click();
+  await page.getByRole('menuitem',{name:'Add name'}).click();
   await page.getByLabel('Name',{exact:true}).fill('Fictional Recruiter');
   await page.getByRole('button',{name:'Continue',exact:true}).click();
-  await expect(page.getByRole('button',{name:'Change recruiter name'})).toContainText('Fictional Recruiter');
-  await page.getByRole('button',{name:'Change recruiter name'}).click();
+  await expect(page.getByRole('button',{name:'Account: Fictional Recruiter'})).toContainText('Fictional Recruiter');
+  await page.getByRole('button',{name:'Account: Fictional Recruiter'}).click();
+  await page.getByRole('menuitem',{name:'Change name'}).click();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('button',{name:'Change recruiter name'})).toBeFocused();
+  await expect(page.getByRole('button',{name:'Account: Fictional Recruiter'})).toBeFocused();
 });
 
 test("AC4–7: aligned attention rows, reversible selection and filters", async ({page}) => {
@@ -53,11 +56,15 @@ test("AC8–9: phone cards and first invalid field retain entries", async ({page
 test("AC11–12: keyboard and reduced motion do not move the dialog", async ({page}) => {
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/settings');
-  const add=page.getByRole('button',{name:'Add name'});
+  if((page.viewportSize()?.width ?? 1440) < 1024) await page.getByRole('button',{name:'Open navigation'}).click();
+  const add=page.getByRole('button',{name:'Account: Add name'});
   await add.focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('dialog')).toBeVisible();
-  const transition=await page.getByRole('dialog').evaluate(e=>getComputedStyle(e).transitionDuration);
+  await page.getByRole('menuitem',{name:'Add name'}).focus();
+  await page.keyboard.press('Enter');
+  const nameDialog=page.getByRole('dialog',{name:"What's your name?"});
+  await expect(nameDialog).toBeVisible();
+  const transition=await nameDialog.evaluate(e=>getComputedStyle(e).transitionDuration);
   expect(transition.split(',').every(x=>parseFloat(x)===0)).toBe(true);
   await page.keyboard.press('Escape');
   await expect(add).toBeFocused();

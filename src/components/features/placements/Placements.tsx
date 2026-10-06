@@ -103,15 +103,7 @@ function PlacementRow({ item }: { item: PlacementListItem }) {
       setSavedStartDate(result.placement.startDate);
       setSavedPeriod(result.placement.guaranteePeriodDays);
       setSavedFlag(result.placement.flag);
-      const daysUsed = Math.max(
-        0,
-        Math.round(
-          (Date.now() -
-            new Date(`${result.placement.startDate}T00:00:00Z`).getTime()) /
-            (24 * 60 * 60 * 1000),
-        ),
-      );
-      setSavedDaysUsed(Math.min(daysUsed, result.placement.guaranteePeriodDays));
+      setSavedDaysUsed(result.placement.daysUsed);
       } catch {
         setError("The start date could not be saved. Your entry is still here; try again.");
       }

@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-10-05T01:07:59.488Z",
+  "scenarioInstant": "2026-10-05T04:00:00Z",
+  "backend": "local fictional provider; no SQL/RLS proof",
+  "mode": "original application before fix",
+  "head": "3c39f2e3ed6d169d3a7146fca5a5fb65377acd72",
+  "sources": {
+    "src/server/placements/list.ts": "bf8afe546647681c698a949a7fcfc2ef4db15f4d9ce24ca924d6fafe58a0aa03",
+    "src/server/placements/create.ts": "6f8017ea230aba11857c122622b9ef0978ead95d26e5311dfedd7fc501a41693",
+    "src/components/features/placements/Placements.tsx": "81158a1476246de57b7113c1764a363b2a4ded814260cc3a4ef80901b42ffb02"
+  },
+  "captures": [
+    {
+      "filename": "before-desktop.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:3100/placements",
+      "sha256": "fd06017dc70eefe72f4963d474118f024c119abf1c33d2c61f139cfaf69ff317"
+    }
+  ]
+}

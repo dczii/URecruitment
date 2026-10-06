@@ -1,0 +1,166 @@
+
+> HRManagement@0.1.0 test:e2e
+> playwright test
+
+[WebServer] (node:35078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35346) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 112 tests using 1 worker
+
+(node:35525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop] › e2e/auth.spec.ts:4:5 › AC4 private pages redirect, login has no workspace navigation (310ms)
+  ✓    2 [desktop] › e2e/auth.spec.ts:10:5 › AC1 AC2 AC5 approved OTP signs in and logout blocks access (742ms)
+  ✓    3 [desktop] › e2e/auth.spec.ts:26:5 › AC3 unknown email gets acknowledgement and no access (358ms)
+  ✓    4 [desktop] › e2e/auth.spec.ts:34:5 › AC4 removing approval blocks existing sessions (463ms)
+  ✓    5 [desktop] › e2e/auth.spec.ts:39:5 › AC6 login keyboard focus, email/code layout and screenshots (323ms)
+  ✓    6 [desktop] › e2e/auth.spec.ts:48:5 › AC2 provider rejects an expired code and a reused code (518ms)
+  ✓    7 [desktop] › e2e/brand-theme.spec.ts:3:5 › logo-based light theme is the default with readable navigation (188ms)
+  ✓    8 [desktop] › e2e/brand-theme.spec.ts:34:7 › light theme preserves logo and primary-action contrast through hover (320ms)
+  ✓    9 [desktop] › e2e/brand-theme.spec.ts:34:7 › dark theme preserves logo and primary-action contrast through hover (339ms)
+  ✓   10 [desktop] › e2e/bulk-selection.spec.ts:25:5 › AC1: the action preview is absent before anything is ticked (169ms)
+  ✓   11 [desktop] › e2e/bulk-selection.spec.ts:34:5 › AC2: ticking candidates names every stage they would move to (286ms)
+  ✓   12 [desktop] › e2e/bulk-selection.spec.ts:71:5 › AC3: moving a selection asks for a name and writes nothing until confirmed (289ms)
+  ✓   13 [desktop] › e2e/bulk-selection.spec.ts:101:5 › AC4: clearing the selection empties the pane (249ms)
+  -   14 [desktop] › e2e/candidate.spec.ts:82:5 › AC1: shows identity fields without AI suggestion labels
+  -   15 [desktop] › e2e/candidate.spec.ts:93:5 › AC2: original CV opens through a signed link
+  -   16 [desktop] › e2e/candidate.spec.ts:127:5 › AC3: stage history shows recruiter names
+  -   17 [desktop] › e2e/candidate.spec.ts:145:5 › no horizontal overflow at desktop width
+  -   18 [desktop] › e2e/candidate.spec.ts:150:5 › AC1: edits a field and it persists
+  -   19 [desktop] › e2e/candidate.spec.ts:174:5 › AC2: name prompt appears once per device
+  ✓   20 [desktop] › e2e/dashboard.spec.ts:30:5 › AC1: the dashboard loads with all four filters and reads as good news when empty (177ms)
+  ✓   21 [desktop] › e2e/dashboard.spec.ts:48:5 › AC2: selecting filters navigates without an error (no seeded pipeline data to narrow yet) (180ms)
+  -   22 [desktop] › e2e/gap-flags.spec.ts:59:5 › AC2: banner shows open flag count
+  -   23 [desktop] › e2e/gap-flags.spec.ts:71:5 › a flag shows its evidence and client-facing question
+  -   24 [desktop] › e2e/gap-flags.spec.ts:95:5 › resolving requires a note and shows the name dialog on first use
+  -   25 [desktop] › e2e/job-form.spec.ts:16:5 › refused save: unmarked requirements and empty nationality reason show the itemized banner
+  -   26 [desktop] › e2e/job-form.spec.ts:57:5 › accepted save: a complete job redirects to the new job page
+  -   27 [desktop] › e2e/jobs.spec.ts:48:5 › AC4: jobs list shows status, owner, flag count, candidate count
+  -   28 [desktop] › e2e/jobs.spec.ts:80:5 › job detail names its version and shows requirements tagged must-have/nice-to-have
+  ✓   29 [desktop] › e2e/placements.spec.ts:17:5 › 049 FR-002 FR-006: populated placements have bounded counts and textual flags at both widths (192ms)
+  ✓   30 [desktop] › e2e/placements.spec.ts:30:5 › 049 FR-003: first save asks for typed name and count survives reload (590ms)
+  ✓   31 [desktop] › e2e/placements.spec.ts:54:5 › 049 FR-004: rejected and failed saves preserve input and persisted data (543ms)
+  ✓   32 [desktop] › e2e/placements.spec.ts:76:5 › AC1 / 049 FR-006: empty placements remain readable without overflow (162ms)
+[WebServer] ⨯ Error: Failed to list jobs: Error: Authentication required
+[WebServer]     at g (.next/server/app/jobs/page.js:1:1947)
+[WebServer]     at async s (.next/server/app/jobs/page.js:1:6507) {
+[WebServer]   digest: '3356896954'
+[WebServer] }
+  -   33 [desktop] › e2e/search-from-job.spec.ts:51:5 › clicking Search for more candidates from job detail opens job-scoped search
+  ✓   34 [desktop] › e2e/search.spec.ts:27:5 › search form uses keyword and filters, not AI copy (197ms)
+  ✓   35 [desktop] › e2e/search.spec.ts:39:5 › submitting search does not show AI suggestion labels (220ms)
+  ✓   36 [desktop] › e2e/search.spec.ts:51:5 › desktop layout has no horizontal overflow (201ms)
+  ✓   37 [desktop] › e2e/shell.spec.ts:20:5 › AC1: navigation reaches every primary destination in one click (458ms)
+  ✓   38 [desktop] › e2e/shell.spec.ts:37:5 › AC2: phone sheet restores focus and routes never overflow (601ms)
+  ✓   39 [desktop] › e2e/shell.spec.ts:60:5 › AC3: keyboard reaches skip link and navigation with visible focus (329ms)
+  ✓   40 [desktop] › e2e/shell.spec.ts:106:5 › AC4: shell renders page context, main region, title, and recruiter name (204ms)
+  ✓   41 [desktop] › e2e/sidebar-account.spec.ts:3:5 › sidebar account supports long names and menu/dialog keyboard focus (406ms)
+  ✓   42 [desktop] › e2e/sidebar-account.spec.ts:21:5 › desktop collapse remains navigable and keyboard/reduced motion are instant (1.7s)
+  ✓   43 [desktop] › e2e/sidebar-account.spec.ts:52:5 › build footer follows content on short and long pages (343ms)
+  ✓   44 [desktop] › e2e/sidebar-account.spec.ts:63:5 › resizing an open account menu restores navigation access (260ms)
+  ✓   45 [desktop] › e2e/sidebar-account.spec.ts:79:5 › collapse animates only transforms without in-flight overflow (636ms)
+  ✓   46 [desktop] › e2e/sidebar-account.spec.ts:101:5 › short viewports keep navigation scrollable and account controls reachable (288ms)
+  ✓   47 [desktop] › e2e/smoke.spec.ts:3:5 › AC1: home page renders without errors (181ms)
+  ✓   48 [desktop] › e2e/smoke.spec.ts:33:5 › AC8: no horizontal overflow (161ms)
+  ✓   49 [desktop] › e2e/smoke.spec.ts:42:5 › AC5: Simplified Chinese renders through the Noto Sans SC stack (174ms)
+  ✓   50 [desktop] › e2e/smoke.spec.ts:74:5 › AC6: security headers are present (158ms)
+  ✓   51 [desktop] › e2e/smoke.spec.ts:98:5 › AC6: a prefetch request also carries the CSP (19ms)
+  ✓   52 [desktop] › e2e/ui-polish.spec.ts:3:5 › AC1–3: named workspace, actual identity and keyboard recovery (425ms)
+  ✓   53 [desktop] › e2e/ui-polish.spec.ts:19:5 › AC4–7: aligned attention rows, reversible selection and filters (351ms)
+  ✓   54 [desktop] › e2e/ui-polish.spec.ts:45:5 › AC8–9: phone cards and first invalid field retain entries (305ms)
+  ✓   55 [desktop] › e2e/ui-polish.spec.ts:56:5 › AC11–12: keyboard and reduced motion do not move the dialog (202ms)
+  ✓   56 [desktop] › e2e/ui-polish.spec.ts:74:5 › AC8: long EN/ZH content and 200% text remain within the viewport (857ms)
+(node:35994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   57 [phone] › e2e/auth.spec.ts:4:5 › AC4 private pages redirect, login has no workspace navigation (184ms)
+  ✓   58 [phone] › e2e/auth.spec.ts:10:5 › AC1 AC2 AC5 approved OTP signs in and logout blocks access (767ms)
+  ✓   59 [phone] › e2e/auth.spec.ts:26:5 › AC3 unknown email gets acknowledgement and no access (349ms)
+  ✓   60 [phone] › e2e/auth.spec.ts:34:5 › AC4 removing approval blocks existing sessions (445ms)
+  ✓   61 [phone] › e2e/auth.spec.ts:39:5 › AC6 login keyboard focus, email/code layout and screenshots (403ms)
+  ✓   62 [phone] › e2e/auth.spec.ts:48:5 › AC2 provider rejects an expired code and a reused code (537ms)
+  ✓   63 [phone] › e2e/brand-theme.spec.ts:3:5 › logo-based light theme is the default with readable navigation (315ms)
+  ✓   64 [phone] › e2e/brand-theme.spec.ts:34:7 › light theme preserves logo and primary-action contrast through hover (419ms)
+  ✓   65 [phone] › e2e/brand-theme.spec.ts:34:7 › dark theme preserves logo and primary-action contrast through hover (372ms)
+  -   66 [phone] › e2e/bulk-selection.spec.ts:25:5 › AC1: the action preview is absent before anything is ticked
+  -   67 [phone] › e2e/bulk-selection.spec.ts:34:5 › AC2: ticking candidates names every stage they would move to
+  -   68 [phone] › e2e/bulk-selection.spec.ts:71:5 › AC3: moving a selection asks for a name and writes nothing until confirmed
+  -   69 [phone] › e2e/bulk-selection.spec.ts:101:5 › AC4: clearing the selection empties the pane
+  -   70 [phone] › e2e/candidate.spec.ts:82:5 › AC1: shows identity fields without AI suggestion labels
+  -   71 [phone] › e2e/candidate.spec.ts:93:5 › AC2: original CV opens through a signed link
+  -   72 [phone] › e2e/candidate.spec.ts:127:5 › AC3: stage history shows recruiter names
+  -   73 [phone] › e2e/candidate.spec.ts:145:5 › no horizontal overflow at desktop width
+  -   74 [phone] › e2e/candidate.spec.ts:150:5 › AC1: edits a field and it persists
+  -   75 [phone] › e2e/candidate.spec.ts:174:5 › AC2: name prompt appears once per device
+  -   76 [phone] › e2e/dashboard.spec.ts:30:5 › AC1: the dashboard loads with all four filters and reads as good news when empty
+  -   77 [phone] › e2e/dashboard.spec.ts:48:5 › AC2: selecting filters navigates without an error (no seeded pipeline data to narrow yet)
+  -   78 [phone] › e2e/gap-flags.spec.ts:59:5 › AC2: banner shows open flag count
+  -   79 [phone] › e2e/gap-flags.spec.ts:71:5 › a flag shows its evidence and client-facing question
+  -   80 [phone] › e2e/gap-flags.spec.ts:95:5 › resolving requires a note and shows the name dialog on first use
+  -   81 [phone] › e2e/job-form.spec.ts:16:5 › refused save: unmarked requirements and empty nationality reason show the itemized banner
+  -   82 [phone] › e2e/job-form.spec.ts:57:5 › accepted save: a complete job redirects to the new job page
+  -   83 [phone] › e2e/jobs.spec.ts:48:5 › AC4: jobs list shows status, owner, flag count, candidate count
+  -   84 [phone] › e2e/jobs.spec.ts:80:5 › job detail names its version and shows requirements tagged must-have/nice-to-have
+  ✓   85 [phone] › e2e/placements.spec.ts:17:5 › 049 FR-002 FR-006: populated placements have bounded counts and textual flags at both widths (181ms)
+  ✓   86 [phone] › e2e/placements.spec.ts:30:5 › 049 FR-003: first save asks for typed name and count survives reload (610ms)
+  ✓   87 [phone] › e2e/placements.spec.ts:54:5 › 049 FR-004: rejected and failed saves preserve input and persisted data (549ms)
+  ✓   88 [phone] › e2e/placements.spec.ts:76:5 › AC1 / 049 FR-006: empty placements remain readable without overflow (166ms)
+  -   89 [phone] › e2e/search-from-job.spec.ts:51:5 › clicking Search for more candidates from job detail opens job-scoped search
+  -   90 [phone] › e2e/search.spec.ts:27:5 › search form uses keyword and filters, not AI copy
+  -   91 [phone] › e2e/search.spec.ts:39:5 › submitting search does not show AI suggestion labels
+  -   92 [phone] › e2e/search.spec.ts:51:5 › desktop layout has no horizontal overflow
+  ✓   93 [phone] › e2e/shell.spec.ts:20:5 › AC1: navigation reaches every primary destination in one click (783ms)
+  ✓   94 [phone] › e2e/shell.spec.ts:37:5 › AC2: phone sheet restores focus and routes never overflow (666ms)
+  ✓   95 [phone] › e2e/shell.spec.ts:60:5 › AC3: keyboard reaches skip link and navigation with visible focus (271ms)
+  ✓   96 [phone] › e2e/shell.spec.ts:106:5 › AC4: shell renders page context, main region, title, and recruiter name (211ms)
+  ✓   97 [phone] › e2e/sidebar-account.spec.ts:3:5 › sidebar account supports long names and menu/dialog keyboard focus (456ms)
+  ✓   98 [phone] › e2e/sidebar-account.spec.ts:21:5 › desktop collapse remains navigable and keyboard/reduced motion are instant (190ms)
+  ✓   99 [phone] › e2e/sidebar-account.spec.ts:52:5 › build footer follows content on short and long pages (328ms)
+  ✓  100 [phone] › e2e/sidebar-account.spec.ts:63:5 › resizing an open account menu restores navigation access (225ms)
+[WebServer] ⨯ Error: Failed to list jobs: Error: Authentication required
+[WebServer]     at g (.next/server/app/jobs/page.js:1:1947)
+[WebServer]     at async s (.next/server/app/jobs/page.js:1:6507) {
+[WebServer]   digest: '3356896954'
+[WebServer] }
+  ✓  101 [phone] › e2e/sidebar-account.spec.ts:79:5 › collapse animates only transforms without in-flight overflow (136ms)
+  ✓  102 [phone] › e2e/sidebar-account.spec.ts:101:5 › short viewports keep navigation scrollable and account controls reachable (322ms)
+  ✓  103 [phone] › e2e/smoke.spec.ts:3:5 › AC1: home page renders without errors (176ms)
+  ✓  104 [phone] › e2e/smoke.spec.ts:33:5 › AC8: no horizontal overflow (161ms)
+  ✓  105 [phone] › e2e/smoke.spec.ts:42:5 › AC5: Simplified Chinese renders through the Noto Sans SC stack (173ms)
+  ✓  106 [phone] › e2e/smoke.spec.ts:74:5 › AC6: security headers are present (157ms)
+  ✓  107 [phone] › e2e/smoke.spec.ts:98:5 › AC6: a prefetch request also carries the CSP (18ms)
+  ✓  108 [phone] › e2e/ui-polish.spec.ts:3:5 › AC1–3: named workspace, actual identity and keyboard recovery (513ms)
+  ✓  109 [phone] › e2e/ui-polish.spec.ts:19:5 › AC4–7: aligned attention rows, reversible selection and filters (359ms)
+  ✓  110 [phone] › e2e/ui-polish.spec.ts:45:5 › AC8–9: phone cards and first invalid field retain entries (317ms)
+  ✓  111 [phone] › e2e/ui-polish.spec.ts:56:5 › AC11–12: keyboard and reduced motion do not move the dialog (266ms)
+  ✓  112 [phone] › e2e/ui-polish.spec.ts:74:5 › AC8: long EN/ZH content and 200% text remain within the viewport (892ms)
+
+  37 skipped
+  75 passed (46.1s)
