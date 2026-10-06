@@ -1,6 +1,6 @@
 import { expect, test } from "./auth-fixture";
 
-import { countClientOptions, skipWithoutSeededClient } from "./seeded";
+import { countClientOptions, selectFieldOption, skipWithoutSeededClient } from "./seeded";
 
 /**
  * Desktop-only coverage for the job creation form (plan.md Assumptions).
@@ -26,7 +26,7 @@ test("refused save: unmarked requirements and empty nationality reason show the 
   await page.getByLabel("Owner name").fill("Maya Tan");
 
   skipWithoutSeededClient(await countClientOptions(page));
-  await page.getByLabel("Client").selectOption({ index: 1 });
+  await selectFieldOption(page, "Client", 1);
 
   await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page.getByRole("button", { name: "Add requirement" }).click();
@@ -64,7 +64,7 @@ test("accepted save: a complete job redirects to the new job page", async ({
   await page.getByLabel("Owner name").fill("Maya Tan");
 
   skipWithoutSeededClient(await countClientOptions(page));
-  await page.getByLabel("Client").selectOption({ index: 1 });
+  await selectFieldOption(page, "Client", 1);
 
   await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page

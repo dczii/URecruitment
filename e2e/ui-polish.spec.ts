@@ -1,4 +1,5 @@
 import { expect, test } from "./auth-fixture";
+import { selectFieldOption } from "./seeded";
 
 test("AC1–3: named workspace, actual identity and keyboard recovery", async ({page}, info) => {
   await page.goto('/settings');
@@ -34,7 +35,7 @@ test("AC4–7: aligned attention rows, reversible selection and filters", async 
   await page.getByRole('button',{name:'Clear selection'}).click();
   await expect(page.getByRole('complementary',{name:'Selection'})).toHaveCount(0);
   await expect(selection).not.toBeChecked();
-  await page.getByLabel('Client',{exact:true}).selectOption({index:1});
+  await selectFieldOption(page, "Client", 1);
   await expect(page).toHaveURL(/client=/);
   await expect(page.getByRole('button',{name:'Clear filters'})).toBeVisible();
   await page.getByRole('button',{name:'Clear filters'}).click();
