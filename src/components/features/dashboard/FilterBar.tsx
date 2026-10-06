@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FieldLabel, Select } from "@/components/ui/field";
+import { FieldLabel } from "@/components/ui/field";
+import { SelectField } from "@/components/ui/select";
 import type { FilterOptions } from "@/server/dashboard/data";
 
 function FilterSelect({
@@ -37,18 +38,18 @@ function FilterSelect({
       <FieldLabel htmlFor={id} className="text-caption text-muted-foreground">
         {label}
       </FieldLabel>
-      <Select
+      <SelectField
         id={id}
         value={current}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        <option value="">All</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </Select>
+        onValueChange={onChange}
+        options={[
+          { value: "", label: "All" },
+          ...(current && !options.includes(current)
+            ? [{ value: current, label: `${current} (unavailable)`, disabled: true }]
+            : []),
+          ...options.map((option) => ({ value: option, label: option })),
+        ]}
+      />
     </div>
   );
 }

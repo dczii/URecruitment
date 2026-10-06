@@ -15,7 +15,8 @@ import {
 import { createJob } from "@/app/jobs/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { FieldLabel, Input, Select } from "@/components/ui/field";
+import { FieldLabel, Input } from "@/components/ui/field";
+import { SelectField } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 type ClientOption = {
@@ -167,26 +168,17 @@ export function JobForm({ clients }: JobFormProps) {
           />
           <div className="flex min-w-0 flex-col gap-2">
             <FieldLabel htmlFor={`${formId}-client`}>Client</FieldLabel>
-            <Select
+            <SelectField
               id={`${formId}-client`}
               name="client_id"
               aria-invalid={Boolean(fieldErrors[`${formId}-client`])}
               aria-describedby={fieldErrors[`${formId}-client`] ? `${formId}-client-error` : undefined}
               value={clientId}
               disabled={pending || clients.length === 0}
-              onChange={(event) => setClientId(event.target.value)}
-            >
-              <option value="">
-                {clients.length === 0
-                  ? "No clients available"
-                  : "Select a client"}
-              </option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.name}
-                </option>
-              ))}
-            </Select>
+              onValueChange={setClientId}
+              placeholder={clients.length === 0 ? "No clients available" : "Select a client"}
+              options={clients.map((client) => ({ value: client.id, label: client.name }))}
+            />
             {fieldErrors[`${formId}-client`] && <p id={`${formId}-client-error`} role="alert" className="text-caption text-destructive">{fieldErrors[`${formId}-client`]}</p>}
           </div>
         </Card>

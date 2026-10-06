@@ -1,7 +1,7 @@
 import { expect, test } from "./auth-fixture";
 import type { Page } from "@playwright/test";
 
-import { countClientOptions, skipWithoutSeededClient } from "./seeded";
+import { countClientOptions, selectFieldOption, skipWithoutSeededClient } from "./seeded";
 
 /**
  * Desktop-only coverage for job-scoped search (plan.md T2, Story #54).
@@ -23,7 +23,7 @@ async function createJob(page: Page, title: string) {
   await page.getByLabel("Owner name").fill("Maya Tan");
 
   skipWithoutSeededClient(await countClientOptions(page));
-  await page.getByLabel("Client").selectOption({ index: 1 });
+  await selectFieldOption(page, "Client", 1);
 
   await page.getByLabel("Requirement 1", { exact: true }).fill("5+ years backend engineering");
   await page

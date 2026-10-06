@@ -7,6 +7,7 @@ const revoked = new Set();
 const tokens = new Map();
 const rates = new Map();
 let pendingCode = null;
+let dropdownClients = [];
 function jwt(user, seconds = 3600) {
   const head = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
   const body = Buffer.from(JSON.stringify({ sub: user.id, aud: 'authenticated', role: 'authenticated', email: user.email, iat: Math.floor(Date.now()/1000), exp: Math.floor(Date.now()/1000)+seconds })).toString('base64url');
@@ -76,7 +77,17 @@ export function startMock(port = 54329, options = {}) {
         state.count++; rates.set(input.bucket_key,state); return reply(state.count <= input.max_attempts);
       }
       // Test-provider controls are local-only and absent from application routes.
-      if (url.pathname === '/test/reset') { rates.clear(); revoked.clear(); pendingCode = null; placementFixture = options.placements ? createPlacementFixture(options.today) : null; failNextPlacementWrite = false; return reply({}); }
+      if (url.pathname === '/test/reset') { rates.clear(); revoked.clear(); pendingCode = null; dropdownClients = []; placementFixture = options.placements ? createPlacementFixture(options.today) : null; failNextPlacementWrite = false; return reply({}); }
+      if (url.pathname === '/test/dropdown-clients') {
+        dropdownClients = input.mode === 'empty' ? [] : Array.from({ length: input.mode === 'stress' ? 100 : 2 }, (_, index) => ({
+          id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+          name: input.mode === 'stress'
+            ? `Fictional ${String(index + 1).padStart(3, '0')} ${'Engineering'.repeat(10)}虚构客户中文名称`
+            : 'Fictional Duplicate Client',
+        }));
+        return reply({ count: dropdownClients.length });
+      }
+      if (url.pathname === '/rest/v1/clients') return reply(dropdownClients);
       if (url.pathname === '/test/expire') { if (pendingCode) pendingCode.expires = 0; return reply({}); }
       if (url.pathname === '/test/revoke') { revoked.add(USER_ID); return reply({}); }
       if (url.pathname === '/rest/v1/pipeline_status') return reply([

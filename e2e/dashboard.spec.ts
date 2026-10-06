@@ -1,4 +1,5 @@
 import { expect, test } from "./auth-fixture";
+import { selectFieldOption } from "./seeded";
 import type { Page } from "@playwright/test";
 
 /**
@@ -51,8 +52,8 @@ test("AC2: selecting filters navigates without an error (no seeded pipeline data
   await page.goto("/dashboard");
   // Only "All" exists with no seeded pipeline data (#121 backfills it later);
   // this proves the filter selects wire up to navigation without erroring.
-  await page.getByLabel("Client").selectOption({ index: 0 });
-  await page.getByLabel("Stage", { exact: true }).selectOption({ index: 0 });
+  await selectFieldOption(page, "Client", 0);
+  await selectFieldOption(page, "Stage", 0);
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.locator("main#main-content")).toHaveCount(1);
   await expectNoHorizontalOverflow(page);
